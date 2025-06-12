@@ -3,15 +3,16 @@ import SupportGrid from '@site/src/components/SupportGrid';
 import AccessoriesTable from '@site/src/components/AccessoriesTable';
 import ApplicationScenarios from '@site/src/components/ApplicationScenarios';
 
-
 # Product Info
 
 ## 产品简介
+
 ![NG4500](/img/Overview/NG45xx/NG45XX.png)
 
 CamThink NeoEdge NG4500 系列具备强大的边缘计算能力，集成了NVIDIA® Jetson Orin™ NX 或 Nano 核心模块，能够充分释放 Jetson Orin™ 的计算性能。与未支持NVIDIA Super Developer Kit的上一代产品相比，整体**性能提升最高可达1.7倍**。除了支持常见视觉AI应用的部署外，它还能高效运行各种主流生成式AI模型，包括**文本大语言模型（LLMs）、视觉大语言模型（VLMs）、多模态大语言模型（MLLMs）**。此外NG4500支持多种物理接口及可扩展的通信模块（WiFi/4G/5G），能够灵活适配各类边缘计算应用场景的设备间通讯及边缘与云端协同通信，在例如机器人系统、智能车载终端、智慧工厂计算中心以及AI边缘计算网关场景中可广泛应用。其**工业级设计**保障设备在 -25°C 至 60°C 的环境下稳定运行，具备出色的可靠性，可满足多样化的场景需求。
 
 ### NVIDIA Super 性能提升
+
 NeoEdge NG4500 系列产品支持NVIDIA Super Mode，在大语言模型（LLMs）、视觉语言模型（VLMs）以及视觉 Transformer（ViTs）中性能表现有显著提升，更多参数信息可参阅[Jetson Orin Nano Super Developer Kit | NVIDIA](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/) 。
 
 <div className="performance-cards" style={{ width: '100%', maxWidth: '800px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
@@ -55,50 +56,72 @@ NeoEdge NG4500 系列产品支持NVIDIA Super Mode，在大语言模型（LLMs�
   ))}
 </div>
 
-
 ### 高性能AI平台
->CamThink NG4500系列支持算力范围在20-157 TOPS，GPU最多可搭载1024个CUDA核心和32个Tensor核心。支持**JetPack 6.0**完整开发套件，预装CUDA、TensorRT等工具链，兼容主流AI框架。适用于计算机视觉、机器人、边缘计算网关等边缘AI应用场景。
+
+> CamThink NG4500系列支持算力范围在20-157 TOPS，GPU最多可搭载1024个CUDA核心和32个Tensor核心。支持**JetPack 6.0**完整开发套件，预装CUDA、TensorRT等工具链，兼容主流AI框架。适用于计算机视觉、机器人、边缘计算网关等边缘AI应用场景。
+
 - 阶梯式 AI 算力：
+  
   - **标准模式**：20 TOPS（NG4510）→ 100 TOPS（NG4521）。
   - **SUPER 模式（INT8）**：34 TOPS → 157 TOPS。
+
 - 异构计算架构(NG4521)：
+  
   - **GPU**：1024 个 NVIDIA® CUDA® 核心 + 32 个 Tensor 核心。
   - **CPU**：8 核 Arm® Cortex®-A78AE v8.2（64位）@ 2.0GHz。
   - **内存**：LPDDR5 16GB，带宽达 102GB/s。
+
 - 预装 **NVIDIA JetPack 6.0+ SDK**，包含完整开发环境CUDA、cuDNN、TensorRT、DeepStream等，系统特性详见 [**Jetpack SDK 6.0**](https://developer.nvidia.com/embedded/jetpack-sdk-60)，系统烧录教程请参考本wiki中心提供的 [**「系统烧录指南」**](./2-NG4500-CB01%20Development%20Board/2-Software%20Guide/0-System%20Flashing%20and%20Initialization.md)。
+
 - 支持各种主流AI框架及推理服务部署：TensorFlow/Keras、PyTorch、ONNX Runtime、TensorRT、Ollama、llama.cpp、VLLM、ultralytics等。
-<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+  
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
   <img src={require("/img/Overview/NG45xx/Jetpack.png").default} style={{ maxHeight: '300px' }} />
-</div>
+  </div>
 
 ### 硬件接口丰富 (Note: 此部份图改为带标注的图)
->NG4500拥有丰富的接口能力，满足各种工业和边缘计算场景需求，使用教程可见[**「硬件接口使用指南」**](./2-NG4500-CB01%20Development%20Board/1-Hardware%20Guide/1-Hardware%20Connection.md)
+
+> NG4500拥有丰富的接口能力，满足各种工业和边缘计算场景需求，使用教程可见[**「硬件接口使用指南」**](./2-NG4500-CB01%20Development%20Board/1-Hardware%20Guide/1-Hardware%20Connection.md)
+
 - **千兆网络连接：** 配备 **双千兆以太网接口**，确保稳定可靠的网络通信，并可**同时处理最多16路视频流编解码**（部分型号使用），适用于工业通信和边缘计算应用。
+
 - **丰富的USB接口：** 搭载 **4×USB 3.1 + 1×Type-C (USB 3.2)** 接口，可实现高速数据传输，支持外接摄像头、存储设备等USB外设。
+
 - **工业级通信协议：** 内置 **RS232、RS485、CAN 总线** 接口，支持无缝对接各类工业级设备，抗干扰能力强，适用于有严苛通讯需求的复杂电磁环境。
+
 - **自动化控制应用：** 配备 **DI/DO 接口**，支持数字信号输入输出，可实现自动化控制和逻辑判断。
+
 - **HDMI输出**：HDMI接口输出，支持4K显示。
+
 - **3.5mm音频接口**：支持麦克风输入、声音输出。
+
 - **6×SMA天线接口**：支持外接高增益天线。
-<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+  
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
   <img src={require("/img/Overview/NG45xx/Product2.png").default} style={{ maxHeight: '300px', width: '100%', objectFit: 'contain' }} />
   <img src={require("/img/Overview/NG45xx/Product1.png").default} style={{ maxHeight: '300px', width: '100%', objectFit: 'contain' }} />
-</div>
-
+  </div>
 
 ### 耐用与可靠性
->专为严苛工业环境设计的边缘计算设备，采用工业级制造标准，确保在恶劣条件下长期稳定运行。设备安装与部署说明详见[**「快速开始」**](./1-Quick%20Start.md)。
-- **工业级电源设计**：宽电压输入（12V-36V DC），适应工业现场电压波动，峰值功率120W，满足高性能计算需求，内置多重保护电路（过压/过流/反接保护）,稳定支持支持SUPER模式持续工作。
-- **紧凑坚固的结构**：设备尺寸为160mm × 125mm × 75mm，全金属外壳，支持**桌面放置、壁挂安装、DIN导轨安装**等多种安装方式。
-- **较好的环境适应性**：**无风扇被动散热架构及宽温设计**，工作温度范围-25°C 至 60°C，存储温度-40°C 至 85°C，适应各种工业环境。
-<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>  
-  <img src={require("/img/Overview/NG45xx/Product3.png").default} style={{ maxHeight: '300px' }} />
-</div>
 
+> 专为严苛工业环境设计的边缘计算设备，采用工业级制造标准，确保在恶劣条件下长期稳定运行。设备安装与部署说明详见[**「快速开始」**](./1-Quick%20Start.md)。
+
+- **工业级电源设计**：宽电压输入（12V-36V DC），适应工业现场电压波动，峰值功率120W，满足高性能计算需求，内置多重保护电路（过压/过流/反接保护）,稳定支持支持SUPER模式持续工作。
+
+- **紧凑坚固的结构**：设备尺寸为160mm × 125mm × 75mm，全金属外壳，支持**桌面放置、壁挂安装、DIN导轨安装**等多种安装方式。
+
+- **较好的环境适应性**：**无风扇被动散热架构及宽温设计**，工作温度范围-25°C 至 60°C，存储温度-40°C 至 85°C，适应各种工业环境。
+  
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>  
+  <img src={require("/img/Overview/NG45xx/Product3.png").default} style={{ maxHeight: '300px' }} />
+  </div>
 
 ## 产品信息
+
 ### 产品规格
+
 NG4500系列整机产品和载板的规格信息如下
+
 <table>
   <thead>
     <tr>
@@ -256,15 +279,17 @@ NG4500系列整机产品和载板的规格信息如下
   </tbody>
 </table>
 
-
 ### 产品尺寸规格
+
 产品外型和支架的尺寸示意如下：
 
 ![NG45_Series_Outline.png](/img/Hardware_Guide/Edge_AI_Box/BracketAndUage/NG45_Series_Outline.png)
+
 ### 产品配件 （Note:图片修整，并内容链接到：Dev-Resources）
 
 #### 产品基本配件
->CamThink NeoEdge NG4500产品系列提供的标准配件如下：
+
+> CamThink NeoEdge NG4500产品系列提供的标准配件如下：
 
 <AccessoriesTable
   accessories={[
@@ -299,7 +324,8 @@ NG4500系列整机产品和载板的规格信息如下
 />
 
 #### 产品选配配件
->CamThink NeoEdge NG4500产品系列支持选配配件如下：
+
+> CamThink NeoEdge NG4500产品系列支持选配配件如下：
 
 <AccessoriesTable
   accessories={[
@@ -350,8 +376,10 @@ NG4500系列整机产品和载板的规格信息如下
 />
 
 ## 产品应用
+
 ### 产品适用场景
->NG4500系列边缘计算设备凭借其强大的AI算力和工业级可靠性，可应用于多个行业领域
+
+> NG4500系列边缘计算设备凭借其强大的AI算力和工业级可靠性，可应用于多个行业领域
 
 <ApplicationScenarios
   imagePosition="center"
@@ -406,7 +434,8 @@ NG4500系列整机产品和载板的规格信息如下
 />
 
 ### 应用工程示例
->NG4500系列产品可在多个实际场景中进行应用，以下为部分典型应用案例。每个案例都配有详细的部署指南，帮助您快速复现和应用。
+
+> NG4500系列产品可在多个实际场景中进行应用，以下为部分典型应用案例。每个案例都配有详细的部署指南，帮助您快速复现和应用。
 
 <div
   style={{
@@ -485,9 +514,10 @@ NG4500系列整机产品和载板的规格信息如下
         </div>
       </a>
     ));
-  })()}
-</div>
 
+  })()}
+
+</div>
 
 ## 产品资料
 
@@ -499,14 +529,12 @@ NG4500系列整机产品和载板的规格信息如下
 
 关于NG4500系列产品的应用指南可见[「应用指南」](./3-Application%20Guide/1-Deepseek-r1.md)
 
-
 <!-- ### 产品资源
 
 | 资源名称                 | 地址                                                                 |
 |--------------------------|----------------------------------------------------------------------|
 | 硬件原理图               | [/docs/hardware-schematic](/docs/hardware-schematic)                 |
 | 硬件设计指南             | [/docs/hardware-guide](/docs/hardware-guide)                         | -->
-
 
 ## 技术支持与社区
 

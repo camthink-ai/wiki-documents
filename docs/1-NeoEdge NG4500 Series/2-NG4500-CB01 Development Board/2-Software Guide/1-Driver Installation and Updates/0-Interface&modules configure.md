@@ -1,12 +1,12 @@
 # Interface
 
-本文档主要介绍GPIO/I2C/SPI/CAN/USB/UART等接口的驱动控制方法。 
+本节介绍 NG4500系列设备常用接口（GPIO/I2C/SPI/CAN/USB/UART）的驱动与控制方法，重点说明硬件资源分配、典型应用场景及基础操作指令。
 
 ## GPIO
 
-GPIO资源信息：[Jetson Orin NX Series and Jetson Orin Nano Series Pinmux](https://developer.nvidia.com/downloads/jetson-orin-nx-and-orin-nano-series-pinmux-config-template)
+详细引脚分配参考官方文档：：[Jetson Orin NX Series and Jetson Orin Nano Series Pinmux](https://developer.nvidia.com/downloads/jetson-orin-nx-and-orin-nano-series-pinmux-config-template)
 
-- IO 扩展面板接口硬件信息
+- IO 扩展面板接口分配如下：
 
 | Pin # | Signal Name    | Description                                       | Direction | Pin Type    |
 | ----- | -------------- | ------------------------------------------------- | --------- | ----------- |
@@ -27,11 +27,13 @@ GPIO资源信息：[Jetson Orin NX Series and Jetson Orin Nano Series Pinmux](ht
 | 193   | I2S0_SDOUT_1V8 | OUT4: GPIO=Low for short, high for open.          | Output    | dry contact |
 |       |                | OUT4_COM: COM pin                                 |           |             |
 
-- 通过 gpioinfo 指令找到对应的line
+**软件操作方法**
+
+- 使用 `gpioinfo` 查询 GPIO 映射关系和状态：
 
 ![](/img/NG45XX_SOFTWARE/Driver/NG45XX_GPIO.png)
 
-- 通过gpioset控制GPIO
+- 使用 `gpioset` 控制 GPIO 输出：
 
 ```shell
 # To set GPIO12 to HIGH
@@ -42,37 +44,41 @@ sudo gpioset --mode=wait gpiochip0 144=0
 
 ## UART
 
+**UART 实例与资源分配**
+
 | Usage on Orin nano/NX | UART Instance | Base Address | Ball Name | Bus Name | DTS status | DTS alias |
 | --------------------- | ------------- | ------------ | --------- | -------- | ---------- | --------- |
 | Debug                 | UARTC         | 0x0c280000   | UART2     | ttyTCU0  | OK         | serial0   |
 | RS485                 | UARTA         | 0x03100000   | UART1     | ttyTHS1  | OK         | serial1   |
 | RS232                 | UARTB         | 0x03110000   | UART0     | ttyTHS3  | OK         | serial3   |
 
-- Debug
+- Debug 串口（ttyTCU0）
   
-  - 硬件连接，连接Debug线到PC
+  - **硬件连接**：将 Debug 线连接至 PC。
   
-  - 打开串口工具，配置波特率：115200，数据位：8，停止位：1，奇偶校验：无，流控制：无
+  - **串口参数**：波特率 115200，数据位 8，停止位 1，无奇偶校验，无流控。
+  
+  - **常用终端工具**：Windows 下可用 PuTTY、Xshell，Linux 下可用 minicom、screen。
 
-- RS232
+- RS232 接口（ttyTHS3）
   
-  - 硬件接口信息
+  - 硬件接口定义
   
   | Pin | Signal Name | Description                                    | Direction | Pin Type    |
   | --- | ----------- | ---------------------------------------------- | --------- | ----------- |
   | 99  | UART0_TXD   | Use for uart Ransmit (with 3.3 level shifter)  | Output    | CMOS – 1.8V |
   | 101 | UART0_RXD   | Use for uart  Receive (with 3.3 level shifter) | Input     | CMOS – 1.8V |
   
-  - 硬件连接，如下图
+  - 连接说明
     
-    - 使用接头1，连接PC
-    - 使用接头2，连接Jetson的RS232的`TX\RX`
+    - 使用接头1连接 PC，接头2连接 Jetson RS232 的 TX/RX。
+    - 确保电平转换正确，避免损坏硬件。
   
   ![](/img/NG45XX_SOFTWARE/Driver/NG45XX_RS232.png)
 
-- RS485
+- RS485 接口（ttyTHS1）
   
-  - 硬件接口信息
+  - 硬件接口定义
   
   | Pin | Signal Name | Description       | Direction | Pin Type     |
   | --- | ----------- | ----------------- | --------- | ------------ |
@@ -80,20 +86,20 @@ sudo gpioset --mode=wait gpiochip0 144=0
   | 205 | UART1_RXD   | Use for RS_485    | Input     | CMOS    1.8V |
   | 207 | UART1_RTS*  | RS_485 enable pin | Output    | CMOS    1.8V |
   
-  - 安装依赖库
+  - 依赖安装
   
   ```shell
   sudo apt-get update
   sudo apt-get install gpiod libgpiod-dev
   ```
   
-  - 编译
+  - 编译测试程序
   
   ```shell
   gcc -o rs485_test rs485_test.c -lgpiod
   ```
   
-  - 运行
+  - 运行示例
   
   ```shell
   sudo ./rs485_test [TTY_DIR] [DE_CHIP] [DE_LINE]
@@ -101,9 +107,12 @@ sudo gpioset --mode=wait gpiochip0 144=0
   sudo ./rs485_test /dev/ttyTHS1 /dev/gpiochip0 112
   ```
   
-  - 测试
-    启动程序，在终端输入`send`切换到发送模式，然后输入要发送的数据，并按回车键，程序会将数据发送到串口；输入`recv` 切换到接收模式，程序会切换到接收模式，并接收打印提示信息；输入`quit` 并按回车键。
-  - 代码
+  - 功能说明
+    - 启动后输入 `send` 切换到发送模式，输入内容后回车发送。
+    - 输入 `recv` 切换到接收模式，显示串口接收内容。
+    - 输入 `quit` 退出程序。
+
+- 参考代码
 
 ```c
 #include <stdio.h>
@@ -256,7 +265,7 @@ int main(int argc, char* argv[]) {
 
 ## SPI
 
-- SPI硬件接口信息
+- 硬件接口分配
 
 | Pin | Signal Name | Description                 | Direction | Pin Type    |
 | --- | ----------- | --------------------------- | --------- | ----------- |
@@ -266,11 +275,11 @@ int main(int argc, char* argv[]) {
 | 110 | SPI1_CS0*   | SPI 1 Chip Select 0         | Bidir     | CMOS – 3.3V |
 | 112 | SPI1_CS1*   | SPI 1 Chip Select 1         | Bidir     | CMOS – 3.3V |
 
-- 硬件连接，短接`MOSI`和`MISO`
+- **硬件连接**：短接 `MOSI` 和 `MISO`，用于回环测试。
 
-- 启动配置SPI
+- **SPI 使能与配置**
   
-  - 运行指令` sudo python /opt/nvidia/jetson-io/jetson-io.py`
+  - 运行指令，启动配置工具：` sudo python /opt/nvidia/jetson-io/jetson-io.py`
       ![](/img/NG45XX_SOFTWARE/NG45XX_40PIN_SPI1.png)
   
   - 选择 `Configure Jetson 40pin Header`
@@ -279,10 +288,11 @@ int main(int argc, char* argv[]) {
   - 选择 `Configure header pins manually`  
       ![](/img/NG45XX_SOFTWARE/NG45XX_40PIN_SPI3.png)
   
-  - 通过空格键选中 SPI1 和 SPI3 ，启用SPI
+  - 按空格选择 SPI1 和 SPI3，启用 SPI
+    
       ![](/img/NG45XX_SOFTWARE/NG45XX_40PIN_SPI4.png)
   
-  - 然后选择`back`，选择`Save and reboot to reconfigure pins`, 重启后即可使用。
+  - 返回并选择 `Save and reboot to reconfigure pins`，重启后生效
       ![](/img/NG45XX_SOFTWARE/NG45XX_40PIN_SPI5.png)
 
 - 测试方法，参考如下：
@@ -299,14 +309,16 @@ gcc spidev_test.c -o spidev_test
 
 ## CAN
 
-- 硬件接口信息
+- 硬件接口分配
 
 | Pin | Signal Name | Description     | Direction | Pin Type    |
 | --- | ----------- | --------------- | --------- | ----------- |
 | 145 | CAN_TX      | FD CAN Transmit | Output    | CMOS – 3.3V |
 | 143 | CAN_RX      | FD CAN Receive  | Input     | CMOS – 3.3V |
 
-- 硬件连接，两台设备互联D+和D- 
+- **硬件连接**：两台设备 CAN 的 D+ 对 D+，D- 对 D-。
+
+**软件安装与测试**
 
 - 安装`can-utils`工具
 
@@ -318,22 +330,24 @@ sudo apt-get install can-utils
 - 测试方法，参考如下：
 
 ```shell
-# 查询 can0 的状态和配置信息
+# 查看接口状态
 ip link show can0
 
-# 配置的 can 接口，波特率设置为 100kbps
+# 配置接口，设置波特率为 100kbps
 sudo ip link set can0 up type can bitrate 100000
 
-# 一台设备监听
+# 监听数据
 candump can0
 
-# 另一台设备，通过 can0 接口发送一条信息
+# 发送数据
 cansend can0 123#11.22.33.44
 ```
 
 ## RTC
 
-- 修改RTC时间
+基本使用操作
+
+- 设置 RTC 时间
 
 ```shell
 sudo hwclock --set --date="2000-01-01 12:00:00"
@@ -345,7 +359,7 @@ sudo hwclock --set --date="2000-01-01 12:00:00"
 sudo hwclock -r
 ```
 
-- 同步时间
+- 系统时间与 RTC 同步
 
 ```shell
 # 系统时间 → RTC

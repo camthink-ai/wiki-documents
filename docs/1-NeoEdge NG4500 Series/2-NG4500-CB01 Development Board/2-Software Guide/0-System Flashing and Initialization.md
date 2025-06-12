@@ -1,18 +1,18 @@
 # System  Flashing
 
-本章旨在介绍NG4500系列产品的烧录方法，主要提供烧录镜像包的操作步骤。以NG4511为例，详细说明其烧录过程。
+本章旨在介绍 NG4500 系列产品的烧录方法，重点提供烧录镜像包的具体操作步骤。本文以 NG4511 设备为例，详细说明其烧录流程。
 
 ## 准备工作
 
-- ubuntu电脑(推荐：20.04/22.04)
+- 一台 Ubuntu 电脑（推荐版本：20.04 或 22.04）
 
-- Jetson设备（如NG4511）
+- Jetson 设备（如 NG4511）
 
-- Micro USB 线缆
+- 一根 Micro USB 数据线
 
-## PC Ubuntu电脑环境配置
+## PC（Ubuntu 电脑）环境配置
 
-     烧录前需要预安装下面软件包，安装指令如下：
+     在烧录前，请确保已预先安装以下软件包。可通过以下命令进行安装：
 
 ```shell
 sudo apt update
@@ -24,21 +24,25 @@ sudo apt install -y build-essential git wget curl python3 python3-pip \
 
 ## 硬件准备​
 
-**软件烧录前，需要完成下述硬件操作。**
+**在进行软件烧录前，请完成以下硬件连接与设置：**
 
-1. 将 Micro USB 线从 JESTON 的 Micro USB 端口连接到 Linux 主机 PC 的 USB TypeA 端口。
+1. 使用 Micro USB 数据线，将 Jetson 设备的 Micro USB 端口连接至 Ubuntu 主机的 USB Type-A 端口。
 
-2. 连接完成后，将`SW1`开关，将拨码1拨到`on`，进如recovery模式
+2. 连接完成后，将设备上的 `SW1` 拨码开关的第 1 位拨至 `ON`，使设备进入 Recovery 模式。
 
 ![](/img/NG45XX_SOFTWARE/NG45XX_Recovery_SW1.png)
 
-3. 然后通过指令`lsusb`检查设备是否处于recovery模式，你会看到带有 ID 0955:623 的 NVidia Corp 设备。**（注：如果没有出现NVidia Corp 设备，说明未正确进入recovery模式，请检查recovery按键拨码和usb线缆。）**
+3. 若设备已进入 Recovery 模式，命令输出中会显示带有 **ID 0955:7623** 的 NVIDIA Corp 设备。
+   
+   > 注：如果没有出现NVidia Corp 设备，说明未正确进入recovery模式，请检查recovery按键拨码和usb线缆
 
 ![NG45XX_flash_lsusb](/img/NG45XX_flash_lsusb.jpg)
 
-## 烧录镜像包烧录方法
+## 烧录镜像包方法
 
-1. 下载&解压AIBOX 烧录包，链接如下
+请按以下步骤下载并解压 AIBOX 烧录包：
+
+1. 下载 AIBOX 烧录包，下载链接如下：
 
 | 设备型号-版本类型 | 镜像包链接（含JetPack）                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 镜像包链接（不含JetPack）                                                                                                                                                                                                                                                                                                                                                                                                                       | 硬件型号                 |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
@@ -47,26 +51,26 @@ sudo apt install -y build-essential git wget curl python3 python3-pip \
 | NG4520    | 镜像包：[aibox-NG4520-36.4.3-super-jetpack-V1.1.tgz](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4520-super_42938/aibox-NG4520-36.4.3-super-jetpack-V1.1.tgz)<br/>md5sum：[md5sum-aibox-NG4520-36.4.3-super-jetpack-V1.1.txt](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4520-super_42938/md5sum-aibox-NG4520-36.4.3-super-jetpack-V1.1.txt) | 镜像包：[aibox-NG4520-36.4.3-super-V1.1.tgz](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4520-super_43204/aibox-NG4520-36.4.3-super-V1.1.tgz)<br/>md5sum：[md5sum-aibox-NG4520-36.4.3-super-V1.1.txt](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4520-super_43204/md5sum-aibox-NG4520-36.4.3-super-V1.1.txt) | Jetson Orin nx 8GB   |
 | NG4521    | 镜像包：[aibox-NG4521-36.4.3-super-jetpack-V1.1.tgz](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4521-super_42939/aibox-NG4521-36.4.3-super-jetpack-V1.1.tgz)<br/>md5sum：[md5sum-aibox-NG4521-36.4.3-super-jetpack-V1.1.txt](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4521-super_42939/md5sum-aibox-NG4521-36.4.3-super-jetpack-V1.1.txt) | 镜像包：[aibox-NG4521-36.4.3-super-V1.1.tgz](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4521-super_43205/aibox-NG4521-36.4.3-super-V1.1.tgz)<br/>md5sum：[md5sum-aibox-NG4521-36.4.3-super-V1.1.txt](https://resource-cam-think.oss-cn-hongkong.aliyuncs.com/download/firmware/aibox/NG45XX/36.4.3/v1.1/aibox-NG4521-super_43205/md5sum-aibox-NG4521-36.4.3-super-V1.1.txt) | Jetson Orin nx 16GB  |
 
-2. 解压到Ubuntu电脑
+2. 下载完成后，解压烧录包
 
 ```
 sudo tar -zxvf aibox-NG4511-36.4.3-base-jetpack-V1.0.tgz -C ./
 ```
 
-3. 烧录设备，烧录命令如下：
+3. 解压完成后，切换到烧录目录，运行以下命令开始烧录
 
 ```
 cd aibox-NG4511-36.4.3-base-jetpack-V1.0
 sudo ./tools/kernel_flash/l4t_initrd_flash.sh --network usb0 --flash-only --showlogs
 ```
 
-4. 烧录完成后log显示`Flash is successful` 即为烧录成功，将SW1拨码1拨到off，重启即可。
+4. 烧录过程结束后，日志中出现 `Flash is successful` 即表示烧录成功。将SW1拨码1拨到off，重启即可。
 
 **注： 确认设备硬件版本方法**
 
-**A. 系统可正常启动并进入时​**​
+**A. ​系统已启动并可访问的情况下**​
 
-- 采用下述指令，返回设备型号信息
+- 可通过以下命令获取设备型号信息
 
 ```shell
 cat /proc/device-tree/model
@@ -75,7 +79,7 @@ cat /proc/device-tree/model
 NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super
 ```
 
-**B. 系统未启动无法访问时** 
+**B. 系统未启动且无法访问时** 
 
 - 查看设备标签或包装盒型号​确认
 

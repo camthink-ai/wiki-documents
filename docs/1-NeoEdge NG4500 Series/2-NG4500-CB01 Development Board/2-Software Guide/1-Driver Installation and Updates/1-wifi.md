@@ -1,31 +1,39 @@
 # WIFI
 
-本文档介绍了wifi 驱动安装和使用的说明，以rtl8821为例。
+本文档以 Realtek RTL8821CE 为例，介绍 NG4520平 台下 WIFI 驱动的安装与使用方法。
 
-## 方法
+## 安装方式
 
-有两种方式安装和使用。
+WIFI 驱动支持两种安装方式：
 
-1. 直接在系统内下载安装
+1. **系统内直接安装**（推荐，简单快捷）
 
-2. 下载源码编译后烧写
+2. **源码编译后烧写**（适用于定制或内核版本不兼容场景）
 
-## 系统内安装
+## 系统内直接安装
 
-进入系统后执行以下命令自动安装驱动程序
+**安装步骤如下：**
+
+1. 安装驱动
 
 ```
 $ sudo apt update
 $ sudo apt install rtl8821ce-dkms
 ```
 
-完成后执行modprobe
+2. 加载驱动
 
 ```
 $ sudo modprobe rtl8821ce
 ```
 
-执行demsg可看到相关的log，说明驱动设备已经成功加载。
+3. 验证驱动加载
+
+```
+$ dmesg | grep rtl
+```
+
+           典型日志输出示例：
 
 ```
 [   10.805932] rtl8821ce 0001:01:00.0: Adding to iommu group 3
@@ -35,29 +43,28 @@ $ sudo modprobe rtl8821ce
 [   11.320620] rtl8821ce 0001:01:00.0 wlP1p1s0: renamed from wlan0
 ```
 
-## 使用源码编译
+## 源码编译安装
 
-### 代码获取
+1. 代码获取
+- 官方仓库：[GitHub - tomaspinho/rtl8821ce](https://github.com/tomaspinho/rtl8821ce)
+- 或由 WIFI 厂商提供](https://github.com/tomaspinho/rtl8821ce)
+2. 目录放置
 
-源码的获取可以在github上查找，或者由wifi厂家提供
+            将源码放置于：
 
-rtl8821 github的源码在[GitHub - tomaspinho/rtl8821ce](https://github.com/tomaspinho/rtl8821ce)
+```
+Linux_for_Tegra/source/nvidia-oot/drivers/net/wireless/realtek/rtl8821ce
+```
 
-### 编译
+3. Makefile 配置
 
-将源码放到工程目录Linux_for_Tegra/source/nvidia-oot/drivers对应的驱动下，例如
-
-Linux_for_Tegra/source/nvidia-oot/drivers/net/wireless/realtek
-
-修改Makefile，将rtl8821ce加入编译
+            在主 Makefile 中添加：
 
 ```
 obj-m += rtl8821ce/
 ```
 
-根据实际情况修改驱动编译的Makefile
-
-rtl8821ce目录下Makefile修改的diff如下
+            按需修改 rtl8821ce 目录下 Makefile，**使能 TEGRA 平台支持**：
 
 ```
 diff --git a/Makefile b/Makefile
@@ -117,23 +124,25 @@ index 5b5dc9a..01b1e24 100755
  else
 ```
 
-修改后，执行kernel编译命令或者单独编译模块install到rootfs下，后续烧录即可。编译和烧录参考前面相关文档。
+4. 编译与烧录
 
-## 使用与验证
+            执行内核或模块编译，将模块安装到 rootfs 下，烧录系统。具体编译、烧录方法参见 Jetson 官方文档。
 
-系统启动后执行modprobe
+5. 使用与验证
+
+加载驱动
 
 ```
 $ sudo modprobe rtl8821ce
 ```
 
-使用命令lspci查看pci总线上的设备
+查看设备
 
 ```
 0001:01:00.0 Network controller: Realtek Semiconductor Co., Ltd. RTL8821CE 802.11ac PCIe Wireless Network Adapter
 ```
 
-dmesg命令可以看到设备被添加成功
+查看日志
 
 ```
 $ sudo dmesg | grep rtl
@@ -144,7 +153,7 @@ $ sudo dmesg | grep rtl
 [   10.441574] rtl8821ce 0001:01:00.0 wlP1p1s0: renamed from wlan0
 ```
 
-连接wifi
+查看网络接口
 
 ![RTL8821_wifi_connection1.png](/img/RTL8821_wifi_connection1.png)
 
@@ -163,7 +172,7 @@ wlP1p1s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0ons 0
 ```
 
-使用ping测试网络连接
+网络连通性测试
 
 ```
 $ ping -I wlP1p1s0 www.baidu.com
@@ -173,3 +182,7 @@ PING www.baidu.com(2409:8c20:6:1d55:0:ff:b09c:7d77 (2409:8c20:6:1d55:0:ff:b09c:7
 64 bytes from 2409:8c20:6:1d55:0:ff:b09c:7d77 (2409:8c20:6:1d55:0:ff:b09c:7d77): icmp_seq=3 ttl=48 time=80.5 ms
 64 bytes from 2409:8c20:6:1d55:0:ff:b09c:7d77 (2409:8c20:6:1d55:0:ff:b09c:7d77): icmp_seq=4 ttl=48 time=86.1 ms
 ```
+
+---
+
+如需支持其它 WIFI 芯片驱动，参考对应厂商文档和内核适配流程。

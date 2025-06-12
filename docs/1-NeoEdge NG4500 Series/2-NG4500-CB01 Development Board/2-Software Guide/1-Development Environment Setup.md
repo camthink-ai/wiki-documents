@@ -1,6 +1,6 @@
 # Development Environment Setup
 
-本章详细介绍了 ​**​Jetson Orin NX 的开发环境搭建​**​，涵盖了从 ​**​本地开发环境的配置​**​ 到 ​**​远程调试与桌面访问​**​ 的完整流程，旨在帮助开发者高效搭建适用于嵌入式AI边缘计算设备的开发体系。
+本章详细介绍 **NG4520** 的开发环境搭建流程，包括本地开发环境配置、源码部署、交叉编译、内核与设备树更新，以及远程调试与桌面访问等内容，旨在帮助开发者高效构建适用于嵌入式 AI 边缘计算设备的开发体系。
 
 ## 1. 本地源码开发环境搭建
 
@@ -8,7 +8,7 @@
 
 - Ubuntu 主机（推荐 20.04/22.04 LTS，空间>100GB ,用于交叉编译）
 
-- 安装必要工具，如下：
+- 安装必要开发工具：
 
 ```shell
 sudo apt update 
@@ -17,7 +17,7 @@ sudo apt install git-core build-essential bc flex bison libssl-dev
 
 ### 源码部署
 
-1. 下载并解压Linux_for_Tegra源码
+1. 下载并解压 Linux_for_Tegra 源码
 
 ```shell
 wget https://developer.nvidia.com/downloads/embedded/l4t/r36_release_v4.0/release/Jetson_Linux_R36.4.0_aarch64.tbz2
@@ -47,7 +47,7 @@ git clone git@gitlab.milesight.com:ai-developer/aibox/l4t.git  gitlab/Linux_for_
 cp -r gitlab/Linux_for_Tegra/* Linux_for_Tegra/
 ```
 
-5. 部署应用NVIDIA Tegra组件​​
+5. 部署NVIDIA Tegra组件​​
 
 ```shell
 cd Linux_for_Tegra
@@ -56,7 +56,7 @@ sudo ./apply_binaries.sh
 
 ### 交叉编译工具链部署
 
-下载和解压交叉编译工具链
+下载并解压交叉编译工具链
 
 ```shell
 wget https://developer.nvidia.com/downloads/embedded/l4t/r36_release_v3.0/toolchain/aarch64--glibc--stable-2022.08-1.tar.bz2
@@ -66,7 +66,7 @@ tar xf aarch64--glibc--stable-2022.08-1.tar.bz2 -C $HOME/l4t-gcc
 
 ### 编译方法
 
-环境配置，在编译前需要预配置环境变量（每次创建新终端，都要配置一次），指令如下：
+**环境变量配置**，每次新开终端编译前，需配置如下环境变量：
 
 ```shell
 cd Linux_for_Tegra/source
@@ -144,7 +144,7 @@ sudo cp $HOME/kernel_tegra234-NG45XX-p3768-0000+p3767-0003-nv-super.dtb /boot/dt
 
 ### 前置条件
 
-需要完成对AIBOX的网络配置，配置步骤如下：
+需要完成对AIBOX的**网络配置**，配置步骤如下：
 
 1. 点击桌面右上角 **Ethernet** → 选择 **"Wired Settings"**
 
@@ -206,7 +206,7 @@ sudo systemctl enable xrdp
 sudo systemctl start xrdp
 ```
 
-2. 然后windows下启动 “远程桌面连接”，输入JETSON的ip地址
+2. 在 Windows 上打开“远程桌面连接”，输入 Jetson 的 IP 地址
 
 3. 点击“连接”，输入账号密码
    
