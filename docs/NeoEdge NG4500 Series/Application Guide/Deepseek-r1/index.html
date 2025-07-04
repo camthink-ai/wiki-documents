@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.6.1">
 <title data-rh="true">Chatbot | CamThink</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/Application Guide/Deepseek-r1"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en_US"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Chatbot | CamThink"><meta data-rh="true" name="description" content="---"><meta data-rh="true" property="og:description" content="---"><link data-rh="true" rel="icon" href="/wiki-documents/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/Application Guide/Deepseek-r1"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/Application Guide/Deepseek-r1" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/en/docs/NeoEdge NG4500 Series/Application Guide/Deepseek-r1" hreflang="en-US"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/Application Guide/Deepseek-r1" hreflang="x-default"><link rel="stylesheet" href="/wiki-documents/assets/css/styles.d80740f4.css">
-<script src="/wiki-documents/assets/js/runtime~main.bd29f748.js" defer="defer"></script>
+<script src="/wiki-documents/assets/js/runtime~main.fdac1b4f.js" defer="defer"></script>
 <script src="/wiki-documents/assets/js/main.54361dcd.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -26,12 +26,11 @@
 <li>运行 DeepSeek-R1 模型</li>
 <li>使用 Open WebUI 提供网页界面（可选）</li>
 </ul>
-<p>【图片】<em>图示：基于 Open WebUI 的 Web 聊天界面（占位图）</em></p>
 <hr>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="2-环境准备">2. 环境准备<a href="#2-环境准备" class="hash-link" aria-label="2. 环境准备的直接链接" title="2. 环境准备的直接链接">​</a></h2>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="硬件需求">硬件需求<a href="#硬件需求" class="hash-link" aria-label="硬件需求的直接链接" title="硬件需求的直接链接">​</a></h3>
 <table><thead><tr><th>组件</th><th>要求</th></tr></thead><tbody><tr><td>设备</td><td>Jetson Orin（Nano / NX / AGX）</td></tr><tr><td>内存</td><td>≥ 8GB（更大模型需更高内存）</td></tr><tr><td>存储空间</td><td>≥ 10GB（取决于模型大小）</td></tr><tr><td>GPU</td><td>支持 CUDA 的 NVIDIA GPU</td></tr></tbody></table>
-<h3 class="anchor anchorWithStickyNavbar_LWe7" id="软件需求">软件需求<a href="#软件需求" class="hash-link" aria-label="软件需求的直接链接" title="软件需求的直接链接">​</a></h3>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="软件需求">软件需求<a href="#软件需求" class="hash-link" aria-label="软件需求的直接链接" title="软 件需求的直接链接">​</a></h3>
 <ul>
 <li>Ubuntu 20.04 / 22.04（建议使用 JetPack 5.1.1+）</li>
 <li>NVIDIA CUDA 工具包和驱动（JetPack 已预装）</li>
@@ -93,7 +92,7 @@
 </blockquote>
 <hr>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="7-故障排查">7. 故障排查<a href="#7-故障排查" class="hash-link" aria-label="7. 故障排查的直接链接" title="7. 故障排查的直接链接">​</a></h2>
-<table><thead><tr><th>问题</th><th>解决办法</th></tr></thead><tbody><tr><td>端口 11434 未监听</td><td>重启 Ollama 或检查 Docker 容器状态</td></tr><tr><td>模型加载失败</td><td>内存不足，尝试使用更小版本（如 1.5B）</td></tr><tr><td>无法访问 Web UI</td><td>检查 Docker 是否  运行并已连接宿主网络</td></tr><tr><td>找不到 Ollama 命令</td><td>重新运行安装脚本或将其加入 <code>$PATH</code></td></tr></tbody></table>
+<table><thead><tr><th>问题</th><th>解决办法</th></tr></thead><tbody><tr><td>端口 11434 未监听</td><td>重启 Ollama 或检查 Docker 容器状态</td></tr><tr><td>模型加载失败</td><td>内存不足，尝试使用更小版本（如 1.5B）</td></tr><tr><td>无法访问 Web UI</td><td>检查 Docker 是否运行并已连接宿主网络</td></tr><tr><td>找不到 Ollama 命令</td><td>重新运行安装脚本或将其加入 <code>$PATH</code></td></tr></tbody></table>
 <hr>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="8-附录">8. 附录<a href="#8-附录" class="hash-link" aria-label="8. 附录的直接链接" title="8. 附录的直接链接">​</a></h2>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="示例目录结构">示例目录结构<a href="#示例目录结构" class="hash-link" aria-label="示例目录结构的直接链接" title="示例目录结构的直接链接">​</a></h3>
