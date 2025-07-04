@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.6.1">
 <title data-rh="true">Hardware Connection | CamThink</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Hardware Guide/Hardware Connection"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en_US"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Hardware Connection | CamThink"><meta data-rh="true" name="description" content="Brief"><meta data-rh="true" property="og:description" content="Brief"><link data-rh="true" rel="icon" href="/wiki-documents/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Hardware Guide/Hardware Connection"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Hardware Guide/Hardware Connection" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/en/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Hardware Guide/Hardware Connection" hreflang="en-US"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Hardware Guide/Hardware Connection" hreflang="x-default"><link rel="stylesheet" href="/wiki-documents/assets/css/styles.d80740f4.css">
-<script src="/wiki-documents/assets/js/runtime~main.e6edeee5.js" defer="defer"></script>
+<script src="/wiki-documents/assets/js/runtime~main.bd29f748.js" defer="defer"></script>
 <script src="/wiki-documents/assets/js/main.54361dcd.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -52,13 +52,10 @@ Orin Nano/NX Core Modules (Orin Nano 4G/8G,Orin NX 8G/16G)fit to carrier board, 
 <img decoding="async" loading="lazy" alt="NG45XX_Bot_IO_Marker" src="/wiki-documents/assets/images/NG45XX_Bot_IO_Marker-27d156dcde539a1c5340ee5ad9bab8a2.png" width="1920" height="1200" class="img_ev3q"></li>
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="quick-connection-guide">Quick connection guide<a href="#quick-connection-guide" class="hash-link" aria-label="Quick connection guide的直接链接" title="Quick connection guide的直接链接">​</a></h3>
-<p><font color="#ff0000"> 待补充工程样机的PCBA组件图 (或换成组装图，视频)</font>!!!</p>
+<img src="/img/Hardware_Guide/Edge_AI_Box/HardwareConnection/NG45XX_PCBA_Topt_View.jpg" alt="NG45XX_PCBA_Topt_View" style="width:50%;max-width:600px;height:auto;display:block;margin:auto">
 <ol>
-<li>
-<p>确认开发套件所需的清单是否齐全，包括核心模组，载板，风扇及其它周边配件</p>
-</li>
-<li>
-<p>将风扇装配到Orin Nano/NX模组上</p>
+<li>确认开发套件所需的清单是否齐全，包括核心模组，载板，风扇及其它周边配件</li>
+<li>将风扇装配到Orin Nano/NX模组上<!-- -->
 <ul>
 <li>装配前确认风扇与SoC连接处理涂有导热硅脂</li>
 <li>风扇散热器有器件避让槽，安装时注意和模组对齐</li>
@@ -66,47 +63,32 @@ Orin Nano/NX Core Modules (Orin Nano 4G/8G,Orin NX 8G/16G)fit to carrier board, 
 <li>确认风扇用固定支架锁紧，四个固定螺丝不会松</li>
 </ul>
 </li>
-<li>
-<p>将装好风扇的Orin Nano/NX模组,插扣进260 Pins SO-DIMM SOCKET,确认紧扣后，再通过两个螺比，将模组锁到Carried Board。最后风扇电子线接插到PWM FAN Connector</p>
-</li>
-<li>
-<p>将4个支撑铜柱分别固定到四个固定孔位上，以支撑DemoKit。或将DemoKit通过外壳套件进行防护</p>
-</li>
-<li>
-<p>翻到Carried Board 的底面，将所需的组件装配上去</p>
+<li>将装好风扇的Orin Nano/NX模组,插扣进260 Pins SO-DIMM SOCKET,确认紧扣后，再通过两个螺比，将模组锁到Carried Board。最后风扇电子线接插到PWM FAN Connector</li>
+<li>将4个支撑铜柱分别固定到四个固定孔位上，以支撑DemoKit。或将DemoKit通过外壳套件进行防护</li>
+<li>翻到Carried Board 的底面，将所需的组件装配上去<!-- -->
 <ul>
 <li>将 RTC Battery CR1220固定到 BT1的 Holder上（Optional）</li>
 <li>将SSD固定到 J11(x4 Lane) 或 J13 (x1 Lane)的M.2 Key M 2280插槽。建议系统盘装到J11,存储拓展装到J13(可选)</li>
 <li>将WiFi&amp;BT模组固定到J19的 M.2 Key E 2230（Optional）</li>
 <li>将4G/5G模组固定到J15的M.2 Key B 2242, or M.2 Key B 2252 ,并将Sim卡插到J18的Sim卡槽 （Optional）</li>
-<li>将树莓派镜头模组，或其它可用镜头模组连接到J9或J10 的CSI接口 （Optional）</li>
-<li>若有外接 按键需求，可将电源按键连接到 J31的Wafer Connector, 将复位按键连接到 J32的Wafer Connector</li>
+<li>将树莓派镜头模组，或其它可用镜头模组连接到J9  或J10 的CSI接口 （Optional）</li>
+<li>若有外接按键需求，可将电源按键连接到 J31的Wafer Connector, 将复位按键连接到 J32的Wafer Connector</li>
 <li>若有音频功能需求，可以将外部音源连接到 J25 , J24 Audio Line IN接口，将 J38 Audio Line Output 连接到外部音频设备，将J34, J26 Speaker Out 连接到外部喇叭，或通过音频线接入到 J27的 3.5 Audio Phone Jack 上，实现音频输入输出</li>
 <li>若有其它模组或报警设备，可通过板载的Terminals 连接，包括RS485,RS232，CAN, DI，DO及外部5V供电</li>
 <li>若有其它模组或报警设备，可通过 J37 FFC Connector 拓展GPIO, SPI, I2C及3V3供电,来实现外部模组的拓展</li>
 <li>将调式串口工具连接到 J33的 UART2 接口</li>
 </ul>
 </li>
-<li>
-<p>HDMI接口连接到外部显示器</p>
-</li>
-<li>
-<p>将有线鼠标和键标连接到USB Type-A接口中任意两个</p>
-</li>
-<li>
-<p>将网线连接到 LAN 口中任意一个</p>
-</li>
-<li>
-<p>将USB Type-C 接口连接到调试电脑</p>
-</li>
-<li>
-<p>确认以上操作无误后，将电源适配器连接到 DC-JACK，即可开始进行套件开发调试</p>
-<p><strong>软件烧录和操作参考</strong>：<a href="http://192.168.13.9:3000/docs/Edge%20AI%20Box/NeoEdge%20NG45XX%20Series/Software%20Guide/System%20Flashing%20and%20Initialization" target="_blank" rel="noopener noreferrer">System Flashing</a></p>
-</li>
+<li>HDMI接口连接到外部显示器</li>
+<li>将有线鼠标和键标连接到USB Type-A接口中任意两个</li>
+<li>将网线连接到 LAN 口中任意一个</li>
+<li>将USB Type-C 接口连接到调试电脑</li>
+<li>确认以上操作无误后，将电源适配器连接到 DC-JACK，即可开始进行套件开发调试</li>
 </ol>
+<p><strong>软件烧录和操作参考</strong>：<a href="/wiki-documents/docs/NeoEdge NG4500 Series/NG4500-CB01 Development Board/Software Guide/System Flashing and Initialization">System Flashing</a></p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="interfaces--and-instructions"><strong>Interfaces  and instructions</strong><a href="#interfaces--and-instructions" class="hash-link" aria-label="interfaces--and-instructions的直接链接" title="interfaces--and-instructions的直接链接">​</a></h2>
-<p>There are related interafces detailed decription,which are using on the Board and product. More information please refer &quot;Jetson Orin NX Series and Jetson Orin Nano Series Pinmux&quot;.</p>
-<p><strong>NVMe</strong> 协议：Non-Volatile Memory Express，是一种高性能、高并发的存储协议，专为 SSD 设计。<br>
+<p>There are related interafces detailed decription,which are using on the Board and product. More information please refer &quot;Jetson Orin NX Series and Jetson Orin Nano Series Pinmux&quot;.
+<strong>NVMe</strong> 协议：Non-Volatile Memory Express，是一种高性能、高并发的存储协议，专为 SSD 设计。<br>
 <strong>PCIe</strong>: （Peripheral Component Interconnect Express）是用于高速串行通信的标准接口，广泛应用于计算机内部的各种扩展卡和设备。PCIe传输通过一对差分信号线进行数据传输，每个通道包含两对差分信号线（一个用于发送，一个用于接收）。支持多通道配置，如 x1、x2、x4、x8 等，表示使用的通道数量。如M.2 Key M Port1支持x4, M.2 Key M port2支持x1。</p>
 <table><thead><tr><th style="text-align:left">特性</th><th>Data Rate</th><th style="text-align:center">Orin Nano</th><th style="text-align:center">Orin NX</th></tr></thead><tbody><tr><td style="text-align:left">PCIe 3.0</td><td>1 GB/s @ Lane</td><td style="text-align:center">Y</td><td style="text-align:center">Y</td></tr><tr><td style="text-align:left">PCIe 4.0</td><td>2GB/s @ Lane</td><td style="text-align:center">X</td><td style="text-align:center">X</td></tr></tbody></table>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="j11-m2-key-m-4-lanes">J11: M.2 Key M (4 Lanes)<a href="#j11-m2-key-m-4-lanes" class="hash-link" aria-label="J11: M.2 Key M (4 Lanes)的直接链接" title="J11: M.2 Key M (4 Lanes)的直接链接">​</a></h3>
