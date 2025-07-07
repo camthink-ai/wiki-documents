@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.6.1">
 <title data-rh="true">Human Face Detect | CamThink</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://camthink-ai.github.io/wiki-documents/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://camthink-ai.github.io/wiki-documents/docs/NeoEyes NE101 Series/Application Guide/human-face-detect"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en_US"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Human Face Detect | CamThink"><meta data-rh="true" name="description" content="概述"><meta data-rh="true" property="og:description" content="概述"><link data-rh="true" rel="icon" href="/wiki-documents/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEyes NE101 Series/Application Guide/human-face-detect"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEyes NE101 Series/Application Guide/human-face-detect" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/en/docs/NeoEyes NE101 Series/Application Guide/human-face-detect" hreflang="en-US"><link data-rh="true" rel="alternate" href="https://camthink-ai.github.io/wiki-documents/docs/NeoEyes NE101 Series/Application Guide/human-face-detect" hreflang="x-default"><link rel="stylesheet" href="/wiki-documents/assets/css/styles.d80740f4.css">
-<script src="/wiki-documents/assets/js/runtime~main.930693c4.js" defer="defer"></script>
+<script src="/wiki-documents/assets/js/runtime~main.896b0755.js" defer="defer"></script>
 <script src="/wiki-documents/assets/js/main.54361dcd.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -21,10 +21,10 @@
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="1-预编译固件">1. 预编译固件<a href="#1-预编译固件" class="hash-link" aria-label="1. 预编译固件的直接链接" title="1. 预编译固件的直接链接">​</a></h4>
 <p>可直接下载最新预编译固件进行快速体验：</p>
 <ul>
-<li><a href="https://github.com/camthink-ai/esp-who/blob/master/bin/human_face_detect.zip" target="_blank" rel="noopener noreferrer">human_face_detect.zip</a></li>
+<li><a href="https://github.com/camthink-ai/esp-who/blob/master/bin" target="_blank" rel="noopener noreferrer">human_face_detect.zip</a></li>
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="2-源码开发环境">2. 源码开发环境<a href="#2-源码开发环境" class="hash-link" aria-label="2. 源码开发环境的直接链接" title="2. 源码开发环境的直接链接">​</a></h4>
-<p>如需进行二次开发，需准备以下环境 ：</p>
+<p>如需进行二次开发，需准备以下环境：</p>
 <ul>
 <li><strong>开发工具</strong>：Visual Studio Code（1.99.2或更高版本）</li>
 <li><strong>开发框架</strong>：ESP-IDF插件（v5.4.0或更高版本）</li>
@@ -43,7 +43,7 @@
 <ul>
 <li><a href="/wiki-documents/docs/NeoEyes NE101 Series/NE100-MB01 Development Board/Software Guide/System Flashing and Initialization">系统烧录与初始化</a></li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="3-串口输出解析">3. 串口输出解析<a href="#3-串口输出解析" class="hash-link" aria-label="3. 串口输出解析的直接链接" title="3. 串口输出解析的直接链接">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="3- 串口输出解析">3. 串口输出解析<a href="#3-串口输出解析" class="hash-link" aria-label="3. 串口输出解析的直接链接" title="3. 串口输出解析的直接链接">​</a></h4>
 <p>设备将通过串口输出人脸检测结果（波特率：115200）：</p>
 <p>示例输出：</p>
 <div class="codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">WhoDetect: 0, bbox: [0.826712, 47, 40, 169, 195], left_eye: [80, 105], left_mouth: [90, 151], nose: [101, 125], right_eye: [123, 99], right_mouth: [126, 146]</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="复制代码到剪贴板" title="复制" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
@@ -60,7 +60,7 @@
 <li><strong>left_mouth</strong>：左嘴角坐标(x,y)</li>
 <li><strong>right_mouth</strong>：右嘴角坐标(x,y)</li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="4-功能  验证">4. 功能验证<a href="#4-功能验证" class="hash-link" aria-label="4. 功能验证的直接链接" title="4. 功能验证的直接链接">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="4-功能验证">4. 功能验证<a href="#4-功能验证" class="hash-link" aria-label="4. 功能验证的直接链接" title="4. 功能验证的直接链接">​</a></h4>
 <ol>
 <li>将摄像头对准人脸或人脸照片</li>
 <li>观察串口输出的人脸特征点数据</li>
