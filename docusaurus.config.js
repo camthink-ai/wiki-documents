@@ -74,7 +74,7 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           editUrl: undefined,  // 关闭 “编辑此页”
-          routeBasePath: 'docs',
+          routeBasePath: '/',
         },
         blog: false,
         theme: { customCss: './src/css/custom.css' },
@@ -97,7 +97,7 @@ const config = {
           srcDark: 'img/logo_dark.svg',
         },
         items: [
-          { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
+          // { type: 'docSidebar', sidebarId: 'tutorialSidebar', position: 'left', label: 'Docs' },
           { href: 'https://github.com/camthink-ai',            position: 'right', label: 'GitHub' },
           { type: 'localeDropdown',                            position: 'right' },
         ],
