@@ -37,15 +37,23 @@
  **For program and debug, please ref**：[AI Camera System Flashing](../Software%20Guide/System%20Flashing%20and%20Initialization)
 
 ## **Interfaces description**
-### PIR  GPIOs Defined
+
+### Peripherals power Ctrl
+Before using the camera, ISP, battery level detection, flash, or light sensor, the CAM_PWR pin must be set high to enable their operation. Similarly, the TF_PWR pin must be set high before using the TF card.
+| PIN# | Pin Name | Functions   | Pin Type | Pull Up/Down | Alternate Function |
+| ---- | -------- | ----------- | -------- | ------------ | ------------------ |
+| 16   | CAM_PWR  | GPIO3       | O        | PD 10K       |                    |
+| 35   | TF_PWR   | GPIO42      | O        | PD 100K      |                    |
+
+### PIR GPIOs Defined
 | PIN# | Pin Name | Functions   | Pin Type | Pull Up/Down | Alternate Function |
 | ---- | -------- | ----------- | -------- | ------------ | ------------------ |
 | 1    | VDD      | Power supply| S        |              |                    |
 | 2    | GND      | GND         | S        |              |                    |
-| 3    | Serial_IN| Config Port | I/O/T    |              | GPIO2              |
-| 4    | INT/Dout | AlarmIN     | I/O/T    |              | GPIO41             |
-### 16Pin GPIOs Expansion
+| 3    | Serial_IN| Config Port | I/O/T    |              | GPIO41             |
+| 4    | INT/Dout | AlarmIN     | I/O/T    |              | GPIO2              |
 
+### 16Pin GPIOs Expansion
 The 16 pins expansion header provide communication interface like uart, I2C,  SPI and GPIOs. Developer can use these interfaces to expand sensor modules like PIR sensor, OLED module as their needed.
 | PIN# | Pin Name | Functions   | Pin Type | Pull Up/Down | Alternate Function |
 | ---- | -------- | ----------- | -------- | ------------ | ------------------ |
@@ -67,7 +75,6 @@ The 16 pins expansion header provide communication interface like uart, I2C,  SP
 | 16   | GPIO     | GPIO46      | I/O/T    |              |                    |
 
 ### Camera Sensor IOs
-
 Camera Module OV5640 support 8-bit paralle input interface. The IOs of main board config as below
 | PIN# | Pin Name  | Functions    | Pin Type | Pull Up/Down | ESP32-S3 PINs |
 | ---- | --------- | ------------ | -------- | ------------ | ------------- |
@@ -95,6 +102,30 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 22   | CSI_D2    | Data_Bit2    | I        |              | GPIO8         |
 | 23   | Null      |              |          |              |               |
 | 24   | Null      |              |          |              |               |
+> Note: 1. Set the CAM_PWR pin high before use. 
+
+### Flash and Light Sensor IOs
+| PIN# | Pin Name       | Functions    | Pin Type | Pull Up/Down | ESP32-S3 PINs |
+| ---- | -------------- | ------------ | -------- | ------------ | ------------- |
+| 24   | FLASH_LED      | LEDC_PWM     | O        | PD 100K      | GPIO47        |
+| 39   | LIGHT_RESISTOR | ADC          | A        |              | GPIO1         |
+> Note: 1. Set the CAM_PWR pin high before use; 2. A light intensity of 0% to 100% corresponds to an output voltage of 0 to 2.5V.
+
+### TF Card IOs
+| PIN# | Pin Name  | Functions    | Pin Type | Pull Up/Down | ESP32-S3 PINs |
+| ---- | --------- | ------------ | -------- | ------------ | ------------- |
+| 31   | CMD       | SDIO_CMD     | O        | PU 10K       | GPIO38        |
+| 32   | CLK       | SDIO_CLK     | O        | PU 10K       | GPIO39        |
+| 33   | DAT0      | SDIO_DA0     | I        | PU 10K       | GPIO40        |
+| 34   | CD        | SDIO_IRQ     | I        | PU 1M        | GPIO41        |
+> Note: 1. Set the TF_PWR pin high before use; 2. Cannot be used simultaneously with WiFi-Halow and 4G Cat1 modules due to pin conflicts.
+
+### Other IOs
+| PIN# | Pin Name  | Functions    | Pin Type | Pull Up/Down | ESP32-S3 PINs |
+| ---- | --------- | ------------ | -------- | ------------ | ------------- |
+| 23   | CFG_KEY   | IRQ_IN       | I        | PU 10K       | GPIO21        |
+| 22   | BAT_DET   | ADC          | A        |              | GPIO14        |
+> Note: 1. Before starting battery level detection, the CAM_PWR pin must be set high; 2. The battery level from 0% to 100% corresponds to a voltage range of 1.8 to 3V.
 
 ### Communication Module Pins Header defined
 
