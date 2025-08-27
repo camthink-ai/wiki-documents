@@ -55,7 +55,7 @@ flowchart LR
 
 1. **Firmware**：
    
-   - Download pre-compiled firmware for use：[lowpower_camera.zip](https://github.com/camthink-ai/lowpower_camera/tree/main/bin/NE_101_FCC.zip)
+   - Download pre-compiled firmware for use：[lowpower_camera.zip](https://github.com/camthink-ai/lowpower_camera/tree/main/bin)
 
 2. **Development Environment**：
    

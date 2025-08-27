@@ -201,7 +201,7 @@ Use Base64 image data to quickly preview images on web pages or tools:
 you can also copy and paste the Base64 data to [Base64 Image Viewer](https://base64.guru/converter/decode/image) for online preview.
 
 ### Camera Reset
-The operation of resetting the camera is to press and hold the camera button for 10 seconds and wait for the light to flash rapidly 5 times, which means the device has been successfully reset. After the reset, the device system will restore to factory settings. Please operate with caution. After the reset is successful, the device will wait for the light to indicate that the system is ready. User can refer to[「Device Configuration」](#设备配置)to reconfigure the camera.
+The operation of resetting the camera is to press and hold the camera button for 10 seconds and wait for the light to flash rapidly 5 times, which means the device has been successfully reset. After the reset, the device system will restore to factory settings. Please operate with caution. After the reset is successful, the device will wait for the light to indicate that the system is ready. User can refer to[「Device Configuration」](#camera-configuration)to reconfigure the camera.
 
 
 ## Product Installation

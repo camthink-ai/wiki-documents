@@ -2,7 +2,7 @@
 
 ## Flash the firmware
 
-Download Firmware from：[lowpower_camera.zip](https://github.com/camthink-ai/lowpower_camera/tree/main/bin/NE_101_FCC.zip)
+Download Firmware from：[lowpower_camera.zip](https://github.com/camthink-ai/lowpower_camera/tree/main/bin)
 
 ### Info
 

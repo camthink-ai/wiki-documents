@@ -94,7 +94,7 @@ For new users, please refer to the [Quick Start Guide](../1-Quick%20Start.md)o g
 
 - [Official Espressif documentation](https://www.espressif.com/en/products/socs/esp32-s3) 
 - [Espressif IoT Development Framework](https://docs.espressif.com/projects/esp-idf/en/latest/) 
-- [Open-source firmware repository](https://github.com/Milesight-IoT/ne100-firmware) 
+- [Open-source firmware repository](https://github.com/camthink-ai/lowpower_camera/tree/main/bin) 
 
 For further technical support, please contact our technical support team.
 
