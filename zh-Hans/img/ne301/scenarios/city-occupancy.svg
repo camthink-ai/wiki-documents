@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <defs>
+    <linearGradient id="occBg" x1="120" y1="0" x2="120" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#081636"/>
+      <stop offset="1" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="180" rx="20" fill="url(#occBg)"/>
+  <rect x="36" y="132" width="168" height="6" rx="3" fill="#38BDF8" opacity="0.4"/>
+  <g>
+    <rect x="44" y="76" width="48" height="56" rx="8" fill="#1D4ED8"/>
+    <rect x="102" y="60" width="60" height="72" rx="10" fill="#2563EB"/>
+    <rect x="172" y="88" width="30" height="44" rx="8" fill="#60A5FA"/>
+  </g>
+  <g stroke="#F8FAFC" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 126L86 102L110 118L132 98L156 116L182 100"/>
+  </g>
+  <g>
+    <circle cx="86" cy="102" r="7" fill="#F472B6"/>
+    <circle cx="132" cy="98" r="7" fill="#F97316"/>
+    <circle cx="156" cy="116" r="7" fill="#22C55E"/>
+  </g>
+  <g fill="#FACC15">
+    <circle cx="100" cy="36" r="8"/>
+    <path d="M100 36L204 20" stroke="#FACC15" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="206" cy="20" r="6"/>
+  </g>
+  <text x="20" y="38" fill="#F8FAFC" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">占有检测</text>
+  <text x="20" y="58" fill="#BFDBFE" font-size="12" font-family="Segoe UI, Arial, sans-serif">事件触发 · 区域监测 · 热点轨迹</text>
+</svg>

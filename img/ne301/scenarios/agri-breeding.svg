@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#064E3B"/>
+  <path d="M32 124C44 108 68 98 96 102C124 106 148 118 172 120C192 122 216 118 232 124V180H0V146C8 138 20 132 32 124Z" fill="#10B981"/>
+  <path d="M120 94C140 78 160 76 180 90" stroke="#ECFDF5" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="88" cy="104" rx="28" ry="22" fill="#F59E0B"/>
+  <ellipse cx="84" cy="102" rx="10" ry="8" fill="#FDE68A"/>
+  <ellipse cx="106" cy="102" rx="10" ry="8" fill="#FDE68A"/>
+  <path d="M96 118C102 120 108 121 114 121" stroke="#78350F" stroke-width="4" stroke-linecap="round"/>
+  <rect x="150" y="80" width="40" height="44" rx="10" fill="#22D3EE"/>
+  <path d="M170 80V68" stroke="#22D3EE" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="170" cy="68" r="6" fill="#F8FAFC"/>
+  <text x="24" y="40" fill="#BBF7D0" font-size="16" font-family="Segoe UI, Arial, sans-serif">智能养殖</text>
+</svg>

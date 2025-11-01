@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#166534"/>
+  <path d="M24 132C44 116 76 112 104 122C128 130 148 130 168 122C188 114 212 116 232 128V180H0V148C4 142 12 138 24 132Z" fill="#34D399"/>
+  <path d="M96 120L120 96L144 120" stroke="#F0FDF4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M76 100C76 82 92 68 112 68H132C152 68 168 82 168 100V118H76V100Z" fill="#F97316"/>
+  <circle cx="96" cy="104" r="8" fill="#FDE68A"/>
+  <circle cx="148" cy="104" r="8" fill="#FDE68A"/>
+  <path d="M108 84C112 82 116 81 120 81C124 81 128 82 132 84" stroke="#1E3A8A" stroke-width="4" stroke-linecap="round"/>
+  <path d="M188 84C200 84 212 92 216 104" stroke="#22D3EE" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="188" cy="84" r="10" fill="#22D3EE" opacity="0.8"/>
+  <text x="24" y="40" fill="#D1FAE5" font-size="16" font-family="Segoe UI, Arial, sans-serif">畜牧业周期性抓拍</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270" viewBox="0 0 480 270" fill="none">
+  <rect width="480" height="270" rx="24" fill="#312E81"/>
+  <circle cx="120" cy="120" r="48" fill="#6366F1" opacity="0.85"/>
+  <circle cx="240" cy="180" r="52" fill="#A855F7" opacity="0.85"/>
+  <circle cx="312" cy="110" r="46" fill="#22D3EE" opacity="0.85"/>
+  <circle cx="390" cy="150" r="40" fill="#F472B6" opacity="0.85"/>
+  <path d="M120 120L240 180L312 110L390 150" stroke="#E0E7FF" stroke-width="6" stroke-linecap="round"/>
+  <text x="40" y="60" fill="#E0E7FF" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="600">
+    其它集成
+  </text>
+  <text x="40" y="96" fill="#C7D2FE" font-size="18" font-family="Segoe UI, Arial, sans-serif">
+    模块接口 · 家居安防 · 车载系统
+  </text>
+</svg>

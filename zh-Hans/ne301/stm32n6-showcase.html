@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32N6 功能展示</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 为 Lucide 图标设置默认大小和边距 */
+        .lucide-icon {
+            width: 28px;
+            height: 28px;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6 md:p-12">
+
+    <div class="container mx-auto">
+        
+        <!-- 头部 -->
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+                Built on STM32N6. Intelligent at the Edge.
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto">
+                Compact, ultra-low power, and open for developers – NeoEyes NE301 combines real-time AI performance with modular hardware flexibility.
+            </p>
+        </header>
+
+        <!-- 功能网格 -->
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <!-- 类别1: 性能与可持续性 -->
+            <section class="bg-slate-800/70 p-6 rounded-2xl shadow-xl border border-slate-700 flex flex-col gap-5 backdrop-blur-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="zap" class="lucide-icon text-teal-400"></i>
+                    <h2 class="text-2xl font-semibold text-teal-400">Performance Meets Sustainability</h2>
+                </div>
+
+                <!-- 指标网格 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">600</span>
+                        <span class="text-lg ml-1">GOPS</span>
+                        <p class="text-sm text-slate-300 mt-1">Edge AI Inference</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">3</span>
+                        <span class="text-lg ml-1">TOPS/W</span>
+                        <p class="text-sm text-slate-300 mt-1">Ultra-Efficiency</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">μS</span>
+                        <span class="text-lg ml-1">Startup</span>
+                        <p class="text-sm text-slate-300 mt-1">ms Wake-up</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">25</span>
+                        <span class="text-lg ml-1">FPS</span>
+                        <p class="text-sm text-slate-300 mt-1">YOLOv8 (256x256)</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">800</span>
+                        <span class="text-lg ml-1">MHz</span>
+                        <p class="text-sm text-slate-300 mt-1">Arm® Cortex®-M85 Core</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">4.2MB</span>
+                        <p class="text-sm text-slate-300 mt-1">SRAM</p>
+                    </div>
+                     <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">64MB</span>
+                        <p class="text-sm text-slate-300 mt-1">PSRAM</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-3xl font-bold text-teal-300">128MB</span>
+                        <p class="text-sm text-slate-300 mt-1">Hyper Flash</p>
+                    </div>
+                </div>
+                
+                <!-- 功能列表 -->
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">WIFI 6 & BLE5.4</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">SD Card</h4>
+                    <p class="text-sm text-slate-300">Local storage scalable</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Support MIPI CSI and USB Camera</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Support for RS485, I2C, GPIO, Audio and More</h4>
+                </div>
+            </section>
+
+            <!-- 类别2: 视觉与AI部署 -->
+            <section class="bg-slate-800/70 p-6 rounded-2xl shadow-xl border border-slate-700 flex flex-col gap-5 backdrop-blur-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="brain-circuit" class="lucide-icon text-blue-400"></i>
+                    <h2 class="text-2xl font-semibold text-blue-400">Accelerated Vision & AI Deployment</h2>
+                </div>
+
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">H.264 Encoder</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">JPEG Encoder</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">ISP</h4>
+                </div>
+                 <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Open Source Firmware</h4>
+                </div>
+
+                <!-- 嵌套功能 -->
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white mb-2">Firmware Integrated Image Processing and AI Inference</h4>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-300 pl-2">
+                        <li>Dynamic update of AI model support</li>
+                        <li>Image Parameter Management</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Support HTTP/HTTPS/MQTT/MQTTS</h4>
+                </div>
+                 <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Supports local and remote OTA</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Integrated Image & Video Stream Inference</h4>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Support YOLO Model & STM32 Cube.ai</h4>
+                </div>
+            </section>
+
+            <!-- 类别3: 先进低功耗设计 -->
+            <section class="bg-slate-800/70 p-6 rounded-2xl shadow-xl border border-slate-700 flex flex-col gap-5 backdrop-blur-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="battery-charging" class="lucide-icon text-green-400"></i>
+                    <h2 class="text-2xl font-semibold text-green-400">Advanced Low-Power Design</h2>
+                </div>
+
+                <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                    <span class="text-3xl font-bold text-green-300">μs</span>
+                    <span class="text-lg ml-1">level</span>
+                    <p class="text-sm text-slate-300 mt-1">Sleep power consumption</p>
+                </div>
+
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Integrated STM32U0</h4>
+                    <p class="text-sm text-slate-300">Hardware Power Management Hub</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Integrated siwt917</h4>
+                    <p class="text-sm text-slate-300">Support ultra-low power remote</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Sleep/Standby/high-performance</h4>
+                    <p class="text-sm text-slate-300">power consumption mode management</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">MQTT Remote Wake-up Support</h4>
+                    <p class="text-sm text-slate-300">Unique hardware usage flexibility</p>
+                </div>
+                 <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">RTC/IO/Bluetooth Wake Support</h4>
+                    <p class="text-sm text-slate-300">Unified control for Scenario Based Power Savings</p>
+                </div>
+            </section>
+
+            <!-- 类别4: 硬件可扩展性 -->
+            <section class="bg-slate-800/70 p-6 rounded-2xl shadow-xl border border-slate-700 flex flex-col gap-5 backdrop-blur-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="layers" class="lucide-icon text-purple-400"></i>
+                    <h2 class="text-2xl font-semibold text-purple-400">Hardware Scalability & Adaptability</h2>
+                </div>
+
+                 <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-2xl font-bold text-purple-300">IP67</span>
+                        <p class="text-sm text-slate-300 mt-1">Outdoor Deployable</p>
+                    </div>
+                     <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-2xl font-bold text-purple-300">-20°C~50°C</span>
+                        <p class="text-sm text-slate-300 mt-1">Operating temperature</p>
+                    </div>
+                     <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-2xl font-bold text-purple-300">0%-95%RH</span>
+                        <p class="text-sm text-slate-300 mt-1">Working Humidity</p>
+                    </div>
+                    <div class="bg-slate-700/50 p-4 rounded-lg text-center transition-all hover:bg-slate-700">
+                        <span class="text-2xl font-bold text-purple-300">77x77x48 mm</span>
+                        <p class="text-sm text-slate-300 mt-1">Light-weight body</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">4xAA Battery Powered</h4>
+                    <p class="text-sm text-slate-300">Can be deployed anywhere without external power supply</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">PoE and Cat.1 Support</h4>
+                    <p class="text-sm text-slate-300">Suitable for various different network communication needs</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Selectable Camera Module Specs</h4>
+                    <p class="text-sm text-slate-300">Access high-resolution 4MP camera modules with tailored FOV options</p>
+                </div>
+                 <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Effortless Installation</h4>
+                    <p class="text-sm text-slate-300">Supplied with Multiple Mounting Brackets</p>
+                </div>
+                <div class="bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700">
+                    <h4 class="font-semibold text-white">Structured Hardware for Easy DIY</h4>
+                    <p class="text-sm text-slate-300">Ample resources enable easy sensor expansion</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="text-center mt-16 text-slate-500 text-sm">
+            Recreated from image | Modern Feature Showcase
+        </footer>
+
+    </div>
+
+    <!-- 激活 Lucide 图标 -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#1E293B"/>
+  <rect x="52" y="60" width="136" height="64" rx="12" fill="#0EA5E9"/>
+  <path d="M60 108H180" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+  <rect x="64" y="72" width="28" height="24" rx="6" fill="#38BDF8"/>
+  <rect x="100" y="72" width="28" height="24" rx="6" fill="#38BDF8"/>
+  <rect x="136" y="72" width="28" height="24" rx="6" fill="#38BDF8"/>
+  <path d="M52 132H188L176 152H64L52 132Z" fill="#64748B"/>
+  <path d="M72 132L88 120L104 132" stroke="#A855F7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M120 132L136 120L152 132" stroke="#A855F7" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="188" cy="92" r="20" fill="#22D3EE" opacity="0.7"/>
+  <path d="M188 76L196 92L180 92L188 108" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="24" y="40" fill="#E2E8F0" font-size="16" font-family="Segoe UI, Arial, sans-serif">工业产线</text>
+</svg>

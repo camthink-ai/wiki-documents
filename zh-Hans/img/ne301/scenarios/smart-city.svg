@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270" viewBox="0 0 480 270" fill="none">
+  <defs>
+    <linearGradient id="citySky" x1="240" y1="0" x2="240" y2="270" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0C154A"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="cityGlow" x1="240" y1="130" x2="240" y2="270" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38BDF8" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="270" rx="28" fill="url(#citySky)"/>
+  <rect x="24" y="150" width="432" height="110" rx="22" fill="url(#cityGlow)"/>
+  <g opacity="0.85">
+    <rect x="54" y="120" width="62" height="98" rx="10" fill="#1E3A8A"/>
+    <rect x="132" y="100" width="76" height="118" rx="12" fill="#1D4ED8"/>
+    <rect x="228" y="80" width="92" height="138" rx="14" fill="#2563EB"/>
+    <rect x="340" y="110" width="76" height="108" rx="12" fill="#1E40AF"/>
+  </g>
+  <g fill="#FACC15">
+    <circle cx="88" cy="64" r="8"/>
+    <circle cx="140" cy="44" r="6" opacity="0.5"/>
+    <circle cx="268" cy="48" r="10"/>
+    <circle cx="332" cy="36" r="7" opacity="0.35"/>
+    <circle cx="392" cy="70" r="9" opacity="0.65"/>
+  </g>
+  <path d="M40 200C120 184 180 184 244 198C308 212 356 214 440 200" stroke="#A5B4FC" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 14"/>
+  <g stroke="#F8FAFC" stroke-width="3" stroke-linecap="round" opacity="0.65">
+    <path d="M96 150L116 134L140 144L166 126"/>
+    <path d="M228 136L250 120L274 128L296 108"/>
+    <path d="M332 168L356 146L384 158L410 140"/>
+  </g>
+  <text x="36" y="64" fill="#F8FAFC" font-size="30" font-family="Segoe UI, Arial, sans-serif" font-weight="600">智慧城市</text>
+  <text x="36" y="98" fill="#DBEAFE" font-size="18" font-family="Segoe UI, Arial, sans-serif">低功耗 · 本地AI · 城市级部署</text>
+</svg>

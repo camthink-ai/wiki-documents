@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#312E81"/>
+  <rect x="72" y="40" width="96" height="120" rx="16" fill="#6366F1"/>
+  <rect x="92" y="60" width="56" height="40" rx="12" fill="#C7D2FE"/>
+  <circle cx="120" cy="120" r="20" fill="#F472B6"/>
+  <circle cx="120" cy="120" r="10" fill="#FCE7F3"/>
+  <path d="M54 96C66 84 82 78 96 78" stroke="#E0E7FF" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M186 96C174 84 158 78 144 78" stroke="#E0E7FF" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M120 32V24" stroke="#818CF8" stroke-width="4" stroke-linecap="round"/>
+  <text x="24" y="36" fill="#E0E7FF" font-size="16" font-family="Segoe UI, Arial, sans-serif">智能门铃/猫眼</text>
+</svg>

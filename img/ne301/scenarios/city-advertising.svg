@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <defs>
+    <linearGradient id="adBg" x1="120" y1="0" x2="120" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1F2937"/>
+    </linearGradient>
+    <linearGradient id="adScreen" x1="120" y1="40" x2="120" y2="132" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F97316"/>
+      <stop offset="1" stop-color="#FACC15"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="180" rx="20" fill="url(#adBg)"/>
+  <rect x="40" y="42" width="160" height="92" rx="16" fill="url(#adScreen)"/>
+  <rect x="60" y="56" width="24" height="64" rx="8" fill="#FDE68A"/>
+  <rect x="92" y="56" width="24" height="64" rx="8" fill="#FDE68A"/>
+  <rect x="124" y="56" width="24" height="64" rx="8" fill="#FDE68A"/>
+  <rect x="156" y="56" width="24" height="64" rx="8" fill="#FDE68A"/>
+  <path d="M40 140H92L80 162H52C45.3726 162 40 156.627 40 150V140Z" fill="#2563EB"/>
+  <path d="M148 140H200V150C200 156.627 194.627 162 188 162H160L148 140Z" fill="#2563EB"/>
+  <path d="M68 126C88 110 118 104 148 110C168 114 184 120 204 130" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="148" cy="110" r="10" fill="#F472B6"/>
+  <circle cx="90" cy="118" r="7" fill="#38BDF8"/>
+  <circle cx="182" cy="126" r="7" fill="#38BDF8"/>
+  <text x="20" y="34" fill="#F8FAFC" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">智慧广告屏</text>
+  <text x="20" y="52" fill="#FDE68A" font-size="12" font-family="Segoe UI, Arial, sans-serif">客流洞察 · 边缘播控 · 精准推送</text>
+</svg>

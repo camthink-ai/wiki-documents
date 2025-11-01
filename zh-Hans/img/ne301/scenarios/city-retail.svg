@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <defs>
+    <linearGradient id="retailBg" x1="120" y1="0" x2="120" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#312E81"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="180" rx="20" fill="url(#retailBg)"/>
+  <path d="M44 70H196L184 120H56L44 70Z" fill="#6366F1"/>
+  <path d="M56 120H184V144C184 149.523 179.523 154 174 154H66C60.4771 154 56 149.523 56 144V120Z" fill="#1E3A8A"/>
+  <rect x="74" y="62" width="28" height="16" rx="4" fill="#C4B5FD"/>
+  <rect x="106" y="62" width="28" height="16" rx="4" fill="#C4B5FD"/>
+  <rect x="138" y="62" width="28" height="16" rx="4" fill="#C4B5FD"/>
+  <path d="M82 136L90 124L98 136" stroke="#FACC15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M146 136L154 124L162 136" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M72 126H168" stroke="#F8FAFC" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+  <circle cx="120" cy="88" r="14" fill="#F472B6" opacity="0.85"/>
+  <path d="M104 106C108 94 120 92 120 92C132 92 136 96 140 106" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round"/>
+  <text x="20" y="38" fill="#E0E7FF" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">无人零售</text>
+  <text x="20" y="56" fill="#C7D2FE" font-size="12" font-family="Segoe UI, Arial, sans-serif">自助结算 · 客群分析 · 边缘识别</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#0F172A"/>
+  <path d="M52 126C52 108 68 92 88 92H152C172 92 188 108 188 126V150H52V126Z" fill="#1D4ED8"/>
+  <rect x="72" y="42" width="96" height="68" rx="48" fill="#FACC15"/>
+  <rect x="64" y="72" width="112" height="48" rx="24" fill="#FDE68A"/>
+  <path d="M72 120L88 134" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M168 120L152 134" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="108" cy="78" r="6" fill="#0F172A"/>
+  <circle cx="132" cy="78" r="6" fill="#0F172A"/>
+  <path d="M108 94C112 96 116 97 120 97C124 97 128 96 132 94" stroke="#0F172A" stroke-width="4" stroke-linecap="round"/>
+  <text x="24" y="36" fill="#BFDBFE" font-size="16" font-family="Segoe UI, Arial, sans-serif">工业安全装备检测</text>
+</svg>

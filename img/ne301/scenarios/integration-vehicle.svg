@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#1F2937"/>
+  <path d="M48 124C48 104 64 88 84 88H156C176 88 192 104 192 124V148H48V124Z" fill="#2563EB"/>
+  <path d="M64 96L96 68H144L176 96" stroke="#60A5FA" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="84" cy="148" r="18" fill="#0EA5E9"/>
+  <circle cx="84" cy="148" r="10" fill="#F8FAFC"/>
+  <circle cx="156" cy="148" r="18" fill="#0EA5E9"/>
+  <circle cx="156" cy="148" r="10" fill="#F8FAFC"/>
+  <path d="M112 80C120 72 132 72 140 80" stroke="#FACC15" stroke-width="4" stroke-linecap="round"/>
+  <path d="M92 72C96 64 104 60 114 60C124 60 132 64 136 72" stroke="#F472B6" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M196 92C208 92 216 100 216 112" stroke="#F97316" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="196" cy="92" r="10" fill="#F97316"/>
+  <text x="24" y="40" fill="#E5E7EB" font-size="16" font-family="Segoe UI, Arial, sans-serif">车载系统</text>
+</svg>

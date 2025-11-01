@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270" viewBox="0 0 480 270" fill="none">
+  <rect width="480" height="270" rx="24" fill="#14532D"/>
+  <path d="M0 210C40 170 120 160 180 186C228 206 276 210 320 198C360 188 416 188 480 210V270H0V210Z" fill="#10B981"/>
+  <path d="M60 200C90 160 140 150 200 170C260 190 320 190 380 170C420 156 450 160 480 180" stroke="#F0FDF4" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10"/>
+  <circle cx="96" cy="92" r="28" fill="#FDE68A"/>
+  <path d="M160 150L200 110L240 130L280 90L320 120L360 96L400 124" stroke="#BBF7D0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="40" y="60" fill="#ECFDF5" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="600">
+    智慧农业 · 畜牧业
+  </text>
+  <text x="40" y="96" fill="#D1FAE5" font-size="18" font-family="Segoe UI, Arial, sans-serif">
+    周期采集 · 边缘分析 · 电池供电
+  </text>
+</svg>

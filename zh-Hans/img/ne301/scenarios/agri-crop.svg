@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none">
+  <rect width="240" height="180" rx="20" fill="#14532D"/>
+  <path d="M32 132C52 108 88 100 116 110C148 122 176 122 208 110C220 106 232 108 240 116V180H0V150C8 144 20 140 32 132Z" fill="#22C55E"/>
+  <path d="M64 108C80 90 112 84 140 96" stroke="#F0FDF4" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10"/>
+  <path d="M88 120C96 108 108 100 120 100C132 100 144 108 152 120" stroke="#FACC15" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="80" cy="76" r="22" fill="#FDE68A"/>
+  <rect x="156" y="60" width="52" height="36" rx="18" fill="#22D3EE" opacity="0.8"/>
+  <path d="M176 60V44" stroke="#22D3EE" stroke-width="4" stroke-linecap="round"/>
+  <text x="24" y="40" fill="#ECFDF5" font-size="16" font-family="Segoe UI, Arial, sans-serif">周期性抓拍农作物生长</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270" viewBox="0 0 480 270" fill="none">
+  <rect width="480" height="270" rx="24" fill="#0F172A"/>
+  <rect x="48" y="150" width="72" height="90" rx="12" fill="#38BDF8"/>
+  <rect x="138" y="120" width="86" height="120" rx="14" fill="#0EA5E9"/>
+  <rect x="240" y="102" width="96" height="138" rx="16" fill="#0891B2"/>
+  <path d="M60 150L110 110L150 140L220 80L300 130L360 90L420 120" stroke="#F8FAFC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  <circle cx="164" cy="140" r="12" fill="#34D399"/>
+  <circle cx="236" cy="86" r="16" fill="#FACC15"/>
+  <circle cx="308" cy="132" r="10" fill="#FB7185"/>
+  <text x="40" y="60" fill="#F8FAFC" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="600">
+    智能工厂
+  </text>
+  <text x="40" y="96" fill="#E2E8F0" font-size="18" font-family="Segoe UI, Arial, sans-serif">
+    安全识别 · 异常预警 · 模块扩展
+  </text>
+</svg>
