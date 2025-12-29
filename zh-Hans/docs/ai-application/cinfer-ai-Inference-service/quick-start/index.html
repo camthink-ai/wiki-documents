@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8XB41LWC1W"></script>
 <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-8XB41LWC1W",{anonymize_ip:!0})</script><link rel="stylesheet" href="/wiki-documents/zh-Hans/assets/css/styles.8fb02bc8.css">
-<script src="/wiki-documents/zh-Hans/assets/js/runtime~main.ebf4ce07.js" defer="defer"></script>
+<script src="/wiki-documents/zh-Hans/assets/js/runtime~main.c55ea4ed.js" defer="defer"></script>
 <script src="/wiki-documents/zh-Hans/assets/js/main.366027b1.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -39,7 +39,7 @@
 <li>Web服务器：Nginx</li>
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="模型支持">模型支持<a href="#模型支持" class="hash-link" aria-label="模型支持的直接链接" title="模型支持的直接链接">​</a></h3>
-<p>当前仅支持ONNX模型管理及部署，适用于以下ONNX模型任务，如果需要进行模型训练可见<a href="https://docs.ultralytics.com/zh/modes/train/#usage-examples" target="_blank" rel="noopener noreferrer">「yolo模型训练」</a>，软件操作可见<a href="/wiki-documents/zh-Hans/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/user-guide">「操作指南」</a></p>
+<p>当前仅支持ONNX模型管理及部署，适用于以下ONNX模型任务，如果需要进行模型训练可见<a href="https://docs.ultralytics.com/zh/modes/train/#usage-examples" target="_blank" rel="noopener noreferrer">「yolo模型训练」</a>，软件操作可见<a href="/wiki-documents/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/user-guide">「操作指南」</a></p>
 <table><thead><tr><th>模型类型</th><th>备注</th></tr></thead><tbody><tr><td>分类（Classification）</td><td>支持常见图像/视频分类模型，如动物/物品/场景识别等</td></tr><tr><td>检测（Detection）</td><td>支持目标检测模型（如YOLO、SSD）进行物体定位和分类</td></tr><tr><td>分割（Segmentation）</td><td>支持图像分割模型（如语义分割、实例分割，用于区域分割、车道线等）</td></tr><tr><td>OCR</td><td>支持文本检测与识别模型，针对图片中的文字提取</td></tr><tr><td>其他自定义ONNX模型</td><td>支持符合ONNX标准的自定义AI模型（如特定场景算法、特色推理等）</td></tr></tbody></table>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="安装与使用">安装与使用<a href="#安装与使用" class="hash-link" aria-label="安装与使用的直接链接" title="安装与使用的直接链接">​</a></h2>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="环境准备">环境准备<a href="#环境准备" class="hash-link" aria-label="环境准备的直接链接" title="环境准备的直接链接">​</a></h3>
@@ -84,7 +84,7 @@
 <p></p><p>登录成功进入Dashboard，这里可以查看服务的资源占用情况</p>
 <img decoding="async" loading="lazy" alt="ciner-dashboard" src="/wiki-documents/zh-Hans/assets/images/dashboard-cd81de874e688ecb75759c883cf1ea4d.png" width="3022" height="1580" class="img_ev3q"><p></p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="4查看模型管理">4.查看模型管理<a href="#4查看模型管理" class="hash-link" aria-label="4.查看模型管理的直接链接" title="4.查看模型管理的直接链接">​</a></h4>
-<p></p><p>点击 <strong>Model Management</strong> 菜单，查看模型列表，当前项目内置了一个OCR模型，我们可以进一步测试这个模型来验证服务是否正常，首先我们需要点击此默认模型右侧的「Publish」按钮进行模型发布，先新增一个Toke，查看下方流程</p>
+<p></p><p>点击 <strong>Model Management</strong> 菜单，查看模型列表，当前项目内置了一个OCR模型，我们可以进一步测试这个模型来验证服务是  否正常，首先我们需要点击此默认模型右侧的「Publish」按钮进行模型发布，先新增一个Toke，查看下方流程</p>
 <img decoding="async" loading="lazy" alt="ciner-model-management" src="/wiki-documents/zh-Hans/assets/images/model-management-0d4281465c85401ad9e4d03d8eec59e1.png" width="3020" height="1574" class="img_ev3q">
 <img decoding="async" loading="lazy" alt="ciner-model-management" src="/wiki-documents/zh-Hans/assets/images/model-management-push-3ee87142d9a6bf6d3e2c04e24fc6ca83.png" width="3018" height="1574" class="img_ev3q"><p></p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="5新增接口请求token">5.新增接口请求Token<a href="#5新增接口请求token" class="hash-link" aria-label="5.新增接口请求Token的直接链接" title="5.新增接口请求Token的直接链接">​</a></h4>
@@ -110,9 +110,9 @@
 <p>可以通过 <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">http://localhost:8000/docs</a> 查看API文档，进行应用集成对接
 <img decoding="async" loading="lazy" alt="ciner-api-doc" src="/wiki-documents/zh-Hans/assets/images/api-doc-07e13ad02732dd7b56ce6a48207e8c82.png" width="1264" height="1067" class="img_ev3q"></p>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="beaveriot集成">BeaverIoT集成<a href="#beaveriot集成" class="hash-link" aria-label="BeaverIoT集成的直接链接" title="BeaverIoT集成的直接链接">​</a></h4>
-<p>BeaverIoT已经集成了Cinfer推理服务，具体使用详见文档<a href="/wiki-documents/zh-Hans/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/application-integration/beaveriot-integration">「Beaveriot Integration」</a></p>
+<p>BeaverIoT已经集成了Cinfer推理服务，具体使用详见文档<a href="/wiki-documents/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/application-integration/beaveriot-integration">「Beaveriot Integration」</a></p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="操作指南">操作指南<a href="#操作指南" class="hash-link" aria-label="操作指南的直接链接" title="操作指南的直接链接">​</a></h2>
-<p>软件详细说明及操作使用详见<a href="/wiki-documents/zh-Hans/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/user-guide">「User Guide」</a></p>
+<p>软件详细说明及操作使用详见<a href="/wiki-documents/zh-Hans/docs/ai-application/cinfer-ai-Inference-service/user-guide">「User Guide」</a></p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="其他命令">其他命令<a href="#其他命令" class="hash-link" aria-label="其他命令的直接链接" title="其他命令的直接链接">​</a></h2>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="多实例部署">多实例部署<a href="#多实例部署" class="hash-link" aria-label="多实例部署的直接链接" title="多实例部署的直接链接">​</a></h3>
 <div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain"># 部署生产环境</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">./deploy.sh --name prod --gpu yes</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"># 同时部署开发环境</span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">./deploy.sh --name dev --backend-port 8009 --frontend-port 3009</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="复制代码到剪贴板" title="复制" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div>
@@ -141,7 +141,7 @@
 <li><strong>模型文件</strong>：存储在<code>/app/data/models</code>目录</li>
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="访问服务">访问服务<a href="#访问服务" class="hash-link" aria-label="访问服务的直接链接" title="访问服务的直接链接">​</a></h3>
-<p>部署完成后，可通过以下地址访问服务：</p>
+<p>部署完成后 ，可通过以下地址访问服务：</p>
 <ul>
 <li>
 <p><strong>分离部署</strong>：</p>
