@@ -92,7 +92,7 @@ I2C devices are allocated by bus. Devices on the same bus are distinguished by d
 
 | I2C Bus | Device | Slave Address |
 |:--------|:-------|:--------------|
-| I2C0 | IMX678 (Image Sensor), NAU88C10 (Audio Codec) | 0x50, 0x1A |
+| I2C0 | IMX678 (Image Sensor), NAU88C10 (Audio Codec) | 0x10, 0x1A |
 | I2C1 | TMP1075 (Temperature Sensor), AT24C02D (EEPROM), PI6CG18201 (PCIe Clock) | 0x49, 0x50, 0x6A |
 | I2C2 | LSM6DSR (IMU) | 0x6A |
 
@@ -125,7 +125,7 @@ Slave address **0x50**, 2 Kb (256 × 8), standby current < 1 µA.
 
 ### Image Sensor (IMX678)
 
-Slave address **0x50**, 1/1.8-inch 4K CMOS, 60fps full-pixel output.
+Slave address **0x10**, 1/1.8-inch 4K CMOS, 60fps full-pixel output.
 
 | Pin | Function |
 |:---|:---|
