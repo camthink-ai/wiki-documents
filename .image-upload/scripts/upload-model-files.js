@@ -25,6 +25,7 @@ const MODELS = [
   'yolov11n_256_quant_pc_uf_pose_coco-st',
   'yolov8n_256_quant_pc_ui_pose_coco',
   'yolov8n_256_quant_pc_ui_iseg_coco',
+  'blazeface_128_fd_ui',
 ];
 
 const PUBLIC_BASE = 'https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list';

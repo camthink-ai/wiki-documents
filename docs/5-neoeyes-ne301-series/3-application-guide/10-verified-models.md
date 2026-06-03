@@ -1,12 +1,12 @@
 ---
-description: NE301 已验证模型，涵盖通用目标检测、人员检测、姿态估计、仪表读数检测和实例分割共 10 个模型，包含验证效果对比图和模型包下载链接，帮助用户快速选择和部署适合场景的 AI 模型。
-keywords: [NE301, 模型验证, YOLOv8, YOLO11, 目标检测, 姿态估计, 实例分割, ST YOLO-X, 边缘AI, TFLite]
-tags: [NE301, 模型部署, 目标检测, 姿态估计, 实例分割, 边缘AI]
+description: NE301 已验证模型，涵盖通用目标检测、人员检测、姿态估计、人脸检测、仪表读数检测和实例分割共 11 个模型，包含验证效果对比图和模型包下载链接，帮助用户快速选择和部署适合场景的 AI 模型。
+keywords: [NE301, 模型验证, YOLOv8, YOLO11, 目标检测, 姿态估计, 人脸检测, BlazeFace, 实例分割, ST YOLO-X, 边缘AI, TFLite]
+tags: [NE301, 模型部署, 目标检测, 姿态估计, 人脸检测, 实例分割, 边缘AI]
 ---
 
 # NE301 Verified Models
 
-NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出所有经过实际设备验证的模型。
+NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出所有经过实际设备验证的模型（共 11 个）。
 
 ## 硬件约束
 
@@ -14,8 +14,7 @@ NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出�
 |:-----|:----|:-----|:----|
 | NPU | STM32N6，TFLite Int8 | 最大分辨率 | 480×480 |
 | 输入格式 | uint8, RGB888 | 模型存储 | 10 MB（2 个分区，各 5MB） |
-| 同时加载 | 1 个模型 | 输出量化 | `_uf`=float32, `_ui`=int8 |
-
+| 同时加载 | 1 个模型 | 输出量化 | `_uf`=float32, `_ui`=int8, `_fd`=人脸检测 |
 
 ---
 
@@ -69,6 +68,14 @@ NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出�
 |:-----|:----:|:----:|:----:|:----:|:---------|:------:|:------:|
 | YOLOv8n Seg | 256×256 | _ui | 3.6MB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_iseg_coco-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> person 86%</div><div><span style={{color:'#4caf50'}}>●</span> person 83%</div><div><span style={{color:'#ff9800'}}>●</span> person 77%</div><div><span style={{color:'#ff9800'}}>●</span> person 73%</div><div style={{color:'#888',marginTop:'4px'}}>4 segments</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_iseg_coco.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_iseg_coco.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_iseg_coco_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | AGPL-3.0 |
 
+## 6. 人脸检测
+
+检测人脸位置并输出 6 个关键点（左右眼、鼻尖、嘴中心、左右耳），适用于人脸定位、表情分析等场景。
+
+| 架构 | 尺寸 | 量化 | 大小 | 验证效果 | 模型文件 | OTA 包 | License |
+|:-----|:----:|:----:|:----:|:----:|:---------|:------:|:------:|
+| BlazeFace | 128×128 | _ui | 245KB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/blazeface_128_fd_ui-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> face 89% · 6 keypoints</div><div style={{color:'#888',marginTop:'4px'}}>1 face detected</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/blazeface_128_fd_ui.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/blazeface_128_fd_ui.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/blazeface_128_fd_ui_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | Apache 2.0 |
+
 ---
 
 ## 模型部署
@@ -82,4 +89,4 @@ NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出�
 
 ---
 
-**文档版本**：v1.5 · **最后更新**：2026-06-02
+**文档版本**：v1.6 · **最后更新**：2026-06-03
