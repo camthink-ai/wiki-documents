@@ -14,7 +14,7 @@ NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model infer
 |:----------|:------|:----------|:------|
 | NPU | STM32N6, TFLite Int8 | Max Resolution | 480×480 |
 | Input Format | uint8, RGB888 | Model Storage | 10 MB (2 partitions, 5MB each) |
-| Simultaneous Load | 1 model | Output Quantization | `_uf`=float32, `_ui`=int8, `_fd`=face detection |
+| Simultaneous Load | 1 model | Output Quantization | `_uf`=float32, `_ui`=int8 |
 
 
 ---
