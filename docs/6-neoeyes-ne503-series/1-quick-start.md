@@ -77,7 +77,15 @@ NE503 出厂默认 IP 为 `10.0.0.1`。本章节引导您完成首次登录、�
 
 输入默认凭据登录：用户名 `admin`，密码 `password`。
 
-登录后进入 Dashboard 仪表盘，可看到 CPU / 内存使用率、网络流量、存储空间、AI 推理状态和摄像头实时画面预览。
+登录后进入 Dashboard 仪表盘，页面从上到下分为以下区域：
+
+- **Device Status**：设备运行时间、各芯片温度（SoC / MCU / CPU / Board）、补光灯亮度、IR LED 开关、IR-CUT 滤光片模式
+- **Resource Monitoring**：CPU / NPU / 内存 / 存储四项实时使用率仪表盘
+- **Stream Preview**：摄像头实时画面预览
+- **Applications**：已安装应用列表及运行状态、资源占用
+- **AI Models**：已加载模型概览
+- **Monitor**：系统资源趋势图
+- **Device Info**：设备名称、IP 地址、MAC 地址、固件版本、构建日期
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-dashboard.png)
 
@@ -116,9 +124,9 @@ NE503 出厂默认 IP 为 `10.0.0.1`。本章节引导您完成首次登录、�
 
 ### 1. 查看实时画面与镜头控制
 
-进入 **Media** 页面，页面分为 **Media** 和 **Control** 两个标签页。
+进入 **Media** 页面，页面分为四个标签页：**Media**、**Control**、**Image** 和 **Audio**。
 
-**Media 标签页**：显示摄像头实时画面预览，可在画面上直接查看 AI 检测结果叠加效果。
+**Media 标签页**：显示摄像头实时画面预览，下方提供码流设置（编码格式、分辨率、帧率、码率、GOP）和 RTSP 开关及地址显示。
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-media.png)
 
@@ -134,7 +142,7 @@ RTSP 是 NE503 与外部系统对接的主要视频协议。设备提供三路�
 
 | 码流 | 地址 | 用途 |
 |------|------|------|
-| 主码流 | `rtsp://<设备IP>:8554/main` | 4K 高清录像 |
+| 主码流 | `rtsp://<设备IP>:8554/main` | 4K 高清录像（3840×2160） |
 | 子码流 | `rtsp://<设备IP>:8554/sub` | 低带宽预览 |
 | 三码流 | `rtsp://<设备IP>:8554/third` | AI 分析 / 移动端 |
 
@@ -172,7 +180,7 @@ NE503 通过容器运行时部署第三方 AI 应用，用户可以自行开发�
 
 点击 Import 卡片后弹出 **Application Setup Wizard**，共 6 步：
 
-**Step 1 · Source** — 选择镜像来源并输入地址。支持 **Registry Image**（从 Docker Hub 或私有仓库拉取）和 **Upload Archive**（上传本地 `.tar` / `.tar.gz` 文件）。以 NX Witness 为例，选择 Registry Image，输入 `ptr727/nxwitness:6.1.1.42624`，点击 Continue。
+**Step 1 · Source** — 选择镜像来源并输入地址。支持 **Registry Image**（从 Docker Hub 或私有仓库拉取）、**Upload Archive**（上传本地 `.tar` / `.tar.gz` 文件）和 **Upload Package**（上传 app.yaml 清单 + 镜像文件的完整配置包）。以 NX Witness 为例，选择 Registry Image，输入 `ptr727/nxwitness:6.1.1.42624`，点击 Continue。
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/wizard-step1-source.png)
 
@@ -210,11 +218,7 @@ NX Witness 验证：
 | NX Witness 管理界面 | `https://<设备IP>:7001` |
 | RTSP 流 | `rtsp://<设备IP>:554/` |
 
-浏览器访问 `https://<设备IP>:7001`，首次打开进入 NX Witness 设置向导：
-
-![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/nx-verify-7001.png)
-
-选择 **Setup New Site**，按向导创建管理员账号，添加 NE503 的 RTSP 码流（`rtsp://<设备IP>:8554/main`）即可开始使用。
+浏览器访问 `https://<设备IP>:7001`，首次打开进入 NX Witness 设置向导。选择 **Setup New Site**，按向导创建管理员账号，添加 NE503 的 RTSP 码流（`rtsp://<设备IP>:8554/main`）即可开始使用。
 
 **NX Witness 常见问题**：
 
