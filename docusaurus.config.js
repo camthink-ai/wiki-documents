@@ -6,12 +6,15 @@ import { themes as prismThemes } from 'prism-react-renderer';
 /* -------------------------------------------------- */
 
 const DEPLOY_ENV = process.env.DEPLOY_ENV || 'local';
-const BASE_URL = process.env.BASE_URL ?? '/';
+const BASE_URL = process.env.BASE_URL ?? (
+  DEPLOY_ENV === 'github-pages' ? '/wiki-documents/' : '/'
+);
 // 根据部署环境设置默认 SITE_URL
 const SITE_URL = process.env.SITE_URL ?? (
   DEPLOY_ENV === 'test' ? 'http://42.194.138.11:3002' :
     DEPLOY_ENV === 'production' ? 'https://wiki.camthink.ai' :
-      'http://localhost:3000'
+      DEPLOY_ENV === 'github-pages' ? 'https://harryhua-ai.github.io' :
+        'http://localhost:3000'
 );
 
 const configuredPlugins = [
