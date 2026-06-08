@@ -1,101 +1,39 @@
 ---
-description: Complete guide to NE503 container application development, covering project creation, app.yaml configuration specification, multi-container mode, plugin system, SDK usage examples, Dockerfile best practices, build and deployment workflow, permission configuration, version management, and troubleshooting.
-keywords: [NE503 application development, container application, app.yaml, Python SDK, Dockerfile, permission configuration, multi-container, plugin system, aipc-cli, image build]
-tags: [application development, NE503, container, developer guide, deployment]
+description: NE503 container application development reference, covering the complete app.yaml field definitions, Dockerfile patterns, permission model, and multi-container configuration.
+keywords: [NE503, application development, app.yaml, Dockerfile, container, permission model]
+tags: [application development, NE503, reference, container]
 ---
 
-# Application Development
+# Application Development Reference
 
-This guide covers how to develop, build, deploy, and manage container applications on the NE503 AIPC platform. From project creation to device installation, it covers the complete application lifecycle.
+This document is the complete configuration reference for NE503 container applications, covering all `app.yaml` field definitions, Dockerfile authoring patterns, security sandbox model, and multi-container architecture. For a step-by-step tutorial for beginners, please refer to [SDK Examples](./3-sdk-examples.md).
 
-## 1. Quick Start
+## 1 Application Overview
 
-The following workflow demonstrates the complete steps to create an AI detection application from scratch and deploy it to a device:
+Applications on the NE503 platform run as OCI containers, with their lifecycle managed by the App Manager. Each application declares its image, resource requirements, and permissions through an `app.yaml` manifest file.
 
-```bash
-# 1. Create project
-mkdir my-app && cd my-app
+**Core Concepts:**
 
-# 2. Create application code
-cat > app.py << 'EOF'
-from hailo_ipc_sdk import InferenceClient, EventClient
+- **Single-Container Mode** -- Most applications only need one container. Simply specify the image in `spec.image`.
+- **Multi-Container Mode** -- Complex applications can be split into main + sub containers for process-level isolation. Only the main container has platform service access.
+- **Principle of Least Privilege** -- All permissions (video streams, inference, device control, etc.) must be explicitly declared. Undeclared permissions are not available.
 
-inference = InferenceClient()
-events = EventClient()
-
-for frame, result in inference.subscribe(stream="cam0_main", model="yolov8n", fps=10):
-    if result.objects:
-        print(f"Detected {len(result.objects)} objects")
-        events.publish("app/my_app/detection", {"count": len(result.objects)})
-EOF
-
-# 3. Create application manifest
-cat > app.yaml << 'EOF'
-apiVersion: v1
-kind: Application
-metadata:
-  id: my_app
-  name: My Application
-  version: 1.0.0
-spec:
-  image: aipc/my_app:1.0.0
-  resources:
-    memory: "256Mi"
-  permissions:
-    inference:
-      models: [yolov8n]
-    events:
-      publish: [app/my_app/*]
-EOF
-
-# 4. Create Dockerfile
-cat > Dockerfile << 'EOF'
-FROM aipc/python-base:1.0
-COPY . /app/
-CMD ["python", "app.py"]
-EOF
-
-# 5. Build and deploy
-docker build -t aipc/my_app:1.0.0 .
-docker save aipc/my_app:1.0.0 | gzip > my_app.tar.gz
-scp app.yaml my_app.tar.gz root@<device-ip>:/tmp/
-ssh root@<device-ip> "cd /tmp && gunzip my_app.tar.gz && \
-  aipc-cli app install app.yaml my_app.tar && aipc-cli app start my_app"
-```
-
----
-
-## 2. Project Structure
+**Project File Structure:**
 
 ```
 my-app/
-├── app.yaml          # Required: application manifest
-├── Dockerfile        # Required: build definition
+├── app.yaml          # Application manifest (required)
+├── Dockerfile        # Build definition (required)
 ├── app.py            # Entry point
-├── requirements.txt  # Optional: Python dependencies
-├── config/           # Optional: configuration directory
-└── tests/            # Optional: test code
+├── requirements.txt  # Python dependencies (optional)
+└── config/           # Configuration files (optional)
 ```
 
----
+## 2 app.yaml Complete Reference
 
-## 3. SDK Installation
+The application manifest is the core configuration file of the AIPC platform. This section explains all fields level by level.
 
-The AIPC SDK is not published to the public PyPI and must be installed using one of the following methods:
-
-| Method | Dockerfile Usage | Use Case |
-|:---|:---|:---|
-| Base image (recommended) | `FROM aipc/python-base:1.0` | SDK pre-installed, zero configuration |
-| Wheel file | `COPY hailo_ipc_sdk-*.whl /tmp/`<br />`RUN pip install /tmp/hailo_ipc_sdk-*.whl` | Offline environment |
-| Private PyPI | `RUN pip install -i https://pypi.internal/ aipc-sdk` | Enterprise internal use |
-
----
-
-## 4. app.yaml Configuration Specification
-
-The application manifest is the core configuration file of the AIPC platform, defining basic information, resource requirements, permission settings, and more.
-
-### 4.1 Minimal Configuration
+### 2.1 Minimal Configuration
 
 ```yaml
 apiVersion: v1
@@ -108,187 +46,295 @@ spec:
   image: aipc/my_app:1.0.0
 ```
 
-### 4.2 Complete Single-Container Configuration
+### 2.2 Complete Single-Container Configuration
+
+The following example includes all available fields, grouped and explained by level:
 
 ```yaml
 apiVersion: v1
 kind: Application
 
 metadata:
-  id: my_app                          # Required: unique identifier (lowercase letters, digits, underscores)
-  name: My Application                # Required: display name
-  version: 1.0.0                      # Required: semantic version
-  description: Application description # Required: application description
-  author: Your Name                   # Optional: author
-  email: your@email.com               # Optional: contact email
+  id: my_app                          # Required - unique identifier
+  name: My Application                # Required - display name
+  version: 1.0.0                      # Required - semantic version
+  description: Application description # Optional - application description
+  author: Developer                   # Optional - author
+  email: dev@example.com              # Optional - contact email
 
 spec:
-  image: aipc/my_app:1.0.0            # Image name and tag
+  image: aipc/my_app:1.0.0            # Required - container image (docker.io/ prefix is automatically added when no registry prefix is specified)
 
+  # ── Resource Limits ──────────────────────────────
   resources:
-    cpu: "50%"                        # CPU limit (percentage or core count)
-    memory: "256Mi"                   # Memory limit (Mi/Gi)
+    cpu: "50%"                         # CPU limit, supports percentage ("50%") or core count ("1.5")
+    memory: "256Mi"                    # Memory limit, supports Mi/Gi suffix ("512Mi", "1Gi")
 
+  # ── Permission Declarations ──────────────────────
   permissions:
-    video:
-      - cam0_main.raw                 # Raw video stream (DMA-BUF shared memory)
-      - cam0_main                     # Encoded video stream (Unix Socket)
-    inference:
-      models: [yolov8n, person_v1]    # Available model list
-      max_qps: 30                     # Maximum QPS
-      max_concurrent: 2               # Maximum concurrent inferences
-      allow_register_model: false     # Whether to allow registering new models
-    events:
-      publish: [app/my_app/*]         # Publishable topics (supports wildcards)
-      subscribe: [model/*/detections, system/*]
-    device:
-      light: true                     # Fill light
-      ir_cut: true                    # IR-CUT filter
-      ptz: false                      # PTZ control
-      lens: false                     # Lens zoom/focus
+    video:                             # Video stream access
+      - cam0_main.raw                  #   Raw video stream (DMA-BUF shared memory, zero-copy)
+      - cam0_main                      #   Encoded video stream (Unix Domain Socket)
+      - cam0_sub                       #   Sub-stream
+    inference:                         # AI inference
+      models: [yolov8n, person_v1]     #   Allowed model list
+      max_qps: 30                      #   Maximum inference requests per second
+      max_concurrent: 2                #   Maximum concurrent inferences
+      allow_register_model: false      #   Whether to allow dynamic registration of new models
+    events:                            # Event bus
+      publish: [app/my_app/*]          #   Publishable topics (supports * wildcard)
+      subscribe: [model/*/detections, system/*]  # Subscribable topics
+    device:                            # Device control
+      light: true                      #   Fill light
+      ir_cut: true                     #   IR-CUT filter
+      ptz: false                       #   PTZ control
+      lens: false                      #   Lens zoom/focus
       gpio:
-        read: [12, 13]                # Readable GPIO pins
-        write: [21, 22]               # Writable GPIO pins
-    network:
-      mode: isolated                  # isolated maps to container network "none" at runtime (no network namespace), bridge=NAT with port mapping (multi-container mode only), host=share host network
-      outbound:                       # Outbound whitelist (isolated mode)
+        read: [12, 13]                 #   Readable GPIO pin numbers
+        write: [21, 22]                #   Writable GPIO pin numbers
+    network:                           # Network access
+      mode: isolated                   #   Network mode: isolated (default) or host
+      outbound:                        #   Outbound whitelist (only effective in isolated mode)
         - "https://api.example.com"
-      inbound:                        # Inbound ports (host mode)
+        - "mqtt://broker.example.com:8883"
+      inbound:                         #   Inbound ports (only effective in host mode)
         - 8554
 
+  # ── Environment Variables ────────────────────────
   env:
     - name: LOG_LEVEL
       value: INFO
+    - name: CUSTOM_CONFIG
+      value: "production"
 
+  # ── Volume Mounts ────────────────────────────────
   volumes:
-    - host: /opt/aipc/data/my_app
-      container: /app/data
-      readonly: false
+    - host: /opt/aipc/data/my_app      # Host path (automatically adapts to deployment prefix)
+      container: /app/data             # Container path
+      readonly: false                  # Whether read-only mount
 
+  # ── Security Sandbox ────────────────────────────
   security:
-    no_new_privileges: true           # Disable privilege escalation (default: true)
-    readonly_rootfs: true             # Read-only root filesystem (default: true)
+    no_new_privileges: true            # Disable privilege escalation (default: true)
+    readonly_rootfs: true              # Read-only root filesystem (default: true)
 
-  autostart: true                     # Auto-start on boot
-  restart_policy: on-failure          # always | on-failure | no (container-level restart policy)
-  restart_max_retries: 3
+  # ── Startup Policy ──────────────────────────────
+  autostart: true                      # Auto-start on boot (default: false)
+  restart_policy: on-failure           # Basic restart policy: always | on-failure | no
 
+  # ── Health Check ────────────────────────────────
   healthcheck:
     enabled: true
-    interval: 30s
-    timeout: 5s
-    retries: 3
+    type: command                      # Check type: command | http | tcp
+    command: "/app/main --health"      # command type: command to execute
+    path: /healthz                     # http type: check path
+    port: 8080                         # http/tcp type: port number
+    interval: 30s                      # Check interval
+    timeout_seconds: 5                 # Timeout in seconds
+    retries: 3                         # Consecutive failure threshold
 
+  # ── Auto Restart (Enhanced, with exponential backoff) ──
   auto_restart:
-    enabled: true
-    max_retries: 3
-    retry_delay_seconds: 10
-    backoff_multiplier: 2.0
-```
+    enabled: true                      # Enable auto restart
+    max_retries: 3                     # Maximum restart attempts (0 = unlimited)
+    retry_delay_seconds: 10            # Initial retry delay in seconds
+    backoff_multiplier: 2.0            # Backoff multiplier (each failure delay x this value, capped at 5 minutes)
+    health_check_interval_seconds: 30  # Health check polling interval in seconds
 
-### 4.3 metadata Field Reference
-
-| Field | Required | Description |
-|:---|:---|:---|
-| `id` | Yes | Unique identifier, lowercase letters/digits/underscores, immutable after creation |
-| `name` | Yes | Display name |
-| `version` | Yes | Semantic version (major.minor.patch) |
-| `description` | Yes | Application description |
-| `author` | No | Author name |
-| `email` | No | Contact email |
-
----
-
-## 5. Multi-Container Mode
-
-Suitable for complex applications requiring process isolation. The Main container has platform service access permissions, while Sub containers run in an isolated environment.
-
-```yaml
-spec:
-  containers:
-    main:
-      image: smart-detection-main:1.0
-      role: main                      # Must be declared
-      permissions:
-        video: [cam0_main.raw]
-        inference:
-          models: [yolov8n]
-      resources:
-        cpu: "100%"
-        memory: "512Mi"
-      ports:
-        - containerPort: 8080
-          protocol: TCP
-      env:
-        - name: SUB_DETECTOR_ADDR
-          value: "detector:50051"
-
-    detector:
-      image: smart-detection-detector:1.0
-      role: sub                       # Sub container, cannot declare permissions
-      resources:
-        cpu: "50%"
-        memory: "256Mi"
-      ports:
-        - containerPort: 50051
-          protocol: TCP
-
-  networking:
-    mode: internal                    # internal | bridge | host
-    ingress:
-      - port: 8080
-        target: main:8080
-        protocol: HTTP
-
-  lifecycle:
-    startup_order: [detector, main]   # Start detector first
-    shutdown_order: [main, detector]  # Stop main first
-
-  volumes:
-    - host: /opt/aipc/data/smart_detection
-      container: /app/data
-```
-
-| Role | Permissions | Description |
-|:---|:---|:---|
-| **main** | Gets platform Socket access, can declare permissions | Responsible for interacting with platform services |
-| **sub** | Fully isolated, cannot declare permissions | Communicates with main via shared network namespace |
-
----
-
-## 6. Plugin System
-
-Applications can declare capabilities they provide (`plugin.capabilities`) and other plugins they depend on (`plugin_dependencies`):
-
-```yaml
-spec:
+  # ── Plugin System ───────────────────────────────
   plugin:
     capabilities:
-      - id: rtsp-server               # Capability unique identifier
-        version: "1.0"
-        transport: both               # grpc | event | both
+      - id: rtsp-server                # Capability unique identifier
+        version: "1.0"                 # Capability version
+        transport: both                # Communication mode: grpc | event | both
         description: RTSP streaming service
-        proto: "rtsp.RtspService"     # gRPC service definition
-        topics:
+        proto: "rtsp.RtspService"      # gRPC service definition (required for grpc/both)
+        topics:                        # Event topics (required for event/both)
           publish:
             - "plugin/rtsp/stream-status"
           subscribe:
             - "system/video-config-changed"
 
-  plugin_dependencies:
-    - capability: rtsp-server
-      min_version: "1.0"
-      required: true
-    - capability: object-storage
-      min_version: "2.1"
-      required: false
+  plugin_dependencies:                 # Declare dependencies on other plugin capabilities
+    - capability: rtsp-server          # Capability identifier
+      min_version: "1.0"               # Minimum version requirement
+      required: true                   # Whether this is a hard dependency
 ```
 
----
+### 2.3 Top-Level Fields
 
-## 7. Dockerfile Best Practices
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `apiVersion` | string | Yes | API version, currently fixed as `v1` |
+| `kind` | string | Yes | Resource type: `Application`, `ModelService`, `BusinessService` |
+| `metadata` | object | Yes | Application metadata, see [2.4 metadata Field](#24-metadata-field) |
+| `spec` | object | Yes | Application spec, see [2.5 spec Field](#25-spec-field) |
 
-### Python (Base Image)
+### 2.4 metadata Field
+
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `id` | string | Yes | Unique identifier, lowercase letters/digits/underscores, immutable after creation |
+| `name` | string | Yes | Application display name |
+| `version` | string | Yes | Semantic version number (major.minor.patch) |
+| `description` | string | No | Application description |
+| `author` | string | No | Author name |
+| `email` | string | No | Contact email |
+
+### 2.5 spec Field
+
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `image` | string | Required for single-container | Container image reference, registry prefix is automatically completed |
+| `resources` | object | No | Resource limits (`cpu`, `memory`) |
+| `permissions` | object | No | Permission declarations, see [2.6 permissions Field](#26-permissions-field) |
+| `env` | array | No | Environment variable list, each item contains `name` and `value` |
+| `volumes` | array | No | Volume mount list, see description below |
+| `security` | object | No | Security sandbox configuration, see [4 Permission Model](#4-permission-model) |
+| `autostart` | bool | No | Auto-start on boot, default `false` |
+| `restart_policy` | string | No | Basic restart policy: `always`, `on-failure`, `no` (default) |
+| `restart_max_retries` | int | No | Maximum restart attempts for basic restart |
+| `healthcheck` | object | No | Health check configuration |
+| `auto_restart` | object | No | Enhanced auto restart configuration (with exponential backoff, takes priority over `restart_policy`) |
+| `plugin` | object | No | Plugin capability declaration |
+| `plugin_dependencies` | array | No | Plugin dependency declaration |
+| `containers` | map | No | Multi-container mode, see [5 Multi-Container Configuration](#5-multi-container-configuration) |
+| `networking` | object | No | Multi-container network configuration |
+| `lifecycle` | object | No | Multi-container lifecycle configuration |
+
+### 2.6 permissions Field
+
+**video** -- Video stream access list:
+
+| Value | Description |
+|:---|:---|
+| `cam0_main.raw` | Raw video stream (DMA-BUF shared memory, zero-copy transfer) |
+| `cam0_main` | Encoded video stream (Unix Domain Socket) |
+| `cam0_sub` | Sub-stream |
+
+When declaring a `.raw` stream, the platform automatically mounts the `/dev/dma_heap` device and shares the IPC namespace to support memory mapping.
+
+**inference** -- AI inference permissions:
+
+| Field | Type | Default | Description |
+|:---|:---|:---|:---|
+| `models` | string[] | -- | Allowed model ID list (required, automatically registered with AI Runtime at startup) |
+| `max_qps` | int | 0 | Maximum inference requests per second |
+| `max_concurrent` | int | 0 | Maximum concurrent inferences |
+| `allow_register_model` | bool | false | Whether to allow dynamic registration of new models at runtime |
+
+**events** -- Event bus permissions:
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `publish` | string[] | Publishable topic patterns, supports `*` wildcard (e.g., `app/my_app/*`) |
+| `subscribe` | string[] | Subscribable topic patterns, supports `*` wildcard (e.g., `model/*/detections`) |
+
+**device** -- Device control permissions:
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `light` | bool | Fill light control |
+| `ir_cut` | bool | IR-CUT filter control |
+| `ptz` | bool | PTZ control |
+| `lens` | bool | Lens zoom/focus control |
+| `gpio.read` | int[] | List of readable GPIO pin numbers |
+| `gpio.write` | int[] | List of writable GPIO pin numbers |
+
+**network** -- Network access permissions:
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `mode` | string | `isolated` (default, independent network namespace) or `host` (shared host network) |
+| `outbound` | string[] | Outbound whitelist, only effective in `isolated` mode |
+| `inbound` | int[] | Inbound port list, only effective in `host` mode |
+
+### 2.7 volumes Field
+
+Each volume mount item contains:
+
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `host` | string | Yes | Host path (`/opt/aipc` prefix is automatically adapted to the actual deployment path) |
+| `container` | string | Yes | Mount path inside the container |
+| `readonly` | bool | No | Whether to mount as read-only, default `false` |
+
+The platform automatically mounts the `/run/aipc` directory, enabling the container to access all IPC Sockets (`ai-runtime.sock`, `event-bus.sock`, etc.). No manual declaration is needed.
+
+### 2.8 healthcheck Field
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `enabled` | bool | Whether to enable health checks |
+| `type` | string | Check type: `command` (execute command), `http` (HTTP request), `tcp` (TCP connection) |
+| `command` | string | Command to execute when `type=command` |
+| `path` | string | Request path when `type=http` |
+| `port` | int | Port number when `type=http` or `type=tcp` |
+| `interval` | string | Check interval (e.g., `30s`) |
+| `timeout_seconds` | int | Single check timeout in seconds |
+| `retries` | int | Number of consecutive failures before marking as unhealthy |
+
+### 2.9 auto_restart Field
+
+Enhanced auto restart policy with exponential backoff support. When `auto_restart.enabled` is `true`, it takes priority over `restart_policy`.
+
+| Field | Type | Default | Description |
+|:---|:---|:---|:---|
+| `enabled` | bool | false | Whether to enable auto restart |
+| `max_retries` | int | 0 | Maximum restart attempts (0 means unlimited retries) |
+| `retry_delay_seconds` | int | 5 | Initial retry delay in seconds |
+| `backoff_multiplier` | float | 1.5 | Backoff multiplier, each failure delay is multiplied by this value, capped at 5 minutes |
+| `health_check_interval_seconds` | int | 30 | Background health check polling interval in seconds |
+
+**Backoff Calculation Example** (`retry_delay_seconds: 10`, `backoff_multiplier: 2.0`):
+
+- 1st restart: 10 seconds delay
+- 2nd restart: 20 seconds delay
+- 3rd restart: 40 seconds delay
+- ...capped at 300 seconds (5 minutes)
+
+### 2.10 plugin Field
+
+Declares the plugin capabilities provided by the application for other applications to discover and depend on.
+
+**capabilities item:**
+
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `id` | string | Yes | Capability unique identifier |
+| `version` | string | Yes | Capability semantic version |
+| `transport` | string | Yes | Communication mode: `grpc`, `event`, `both` |
+| `description` | string | No | Capability description |
+| `proto` | string | Required for grpc/both | gRPC service definition (e.g., `"rtsp.RtspService"`) |
+| `topics` | object | Required for event/both | Contains `publish` and `subscribe` topic lists |
+
+The plugin runtime Socket path is `/run/aipc/plugins/<app_id>.sock`.
+
+**plugin_dependencies item:**
+
+| Field | Type | Required | Description |
+|:---|:---|:---|:---|
+| `capability` | string | Yes | Dependent capability ID |
+| `min_version` | string | No | Minimum version requirement |
+| `required` | bool | No | Whether this is a hard dependency (when true, the application cannot start if the dependency is not met) |
+
+### 2.11 Validation Rules
+
+The App Manager performs the following validations during installation:
+
+1. `apiVersion` must be `v1`
+2. `kind` must be `Application`, `ModelService`, or `BusinessService`
+3. `metadata.id`, `metadata.name`, `metadata.version` are required
+4. In single-container mode, `spec.image` is required; in multi-container mode, each container's `image` is required
+5. `network.mode` only allows `isolated` or `host`; `inbound` is only available in `host` mode
+6. In multi-container mode, there must be exactly one container with `role: main`, and sub containers cannot declare any permissions
+7. Plugin capability event topics must have corresponding publish/subscribe permissions in `permissions.events`
+
+## 3 Dockerfile Patterns
+
+### 3.1 Python -- Base Image (Recommended)
+
+The SDK is pre-installed in the base image, no additional installation steps required:
 
 ```dockerfile
 FROM aipc/python-base:1.0
@@ -300,7 +346,7 @@ USER appuser
 CMD ["python", "app.py"]
 ```
 
-### Python (Wheel File, Offline Environment)
+### 3.2 Python -- Wheel File (Offline Environment)
 
 ```dockerfile
 FROM python:3.9-slim
@@ -313,7 +359,7 @@ USER appuser
 CMD ["python", "app.py"]
 ```
 
-### Go (Multi-Stage Build)
+### 3.3 Go -- Multi-Stage Build
 
 ```dockerfile
 FROM golang:1.25-alpine AS builder
@@ -333,364 +379,233 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 ENTRYPOINT ["/app/main"]
 ```
 
----
+### 3.4 Best Practices
 
-## 8. Build and Deployment
+- **Non-root execution** -- Create a dedicated user (UID 1000) and switch using the `USER` directive. The platform automatically injects the AIPC group GID (1001) for Socket access; no manual configuration needed.
+- **Image slimming** -- Use multi-stage builds, `--no-cache-dir`, and clean up temporary files to reduce image size.
+- **Read-only filesystem compatibility** -- Avoid writing to system directories such as `/etc` and `/var`. Data should be written to `volumes` mount paths.
+- **Proxy builds** -- Use `--build-arg HTTP_PROXY=...` when cross-compiling on x86 development machines.
+- **Cross-architecture** -- Use `docker buildx build --platform linux/arm64` to build ARM images.
 
-### 8.1 Application Lifecycle
+## 4 Permission Model
 
-```mermaid
-graph TB
-    A[Development Environment] --> B[Application Development]
-    B --> C[Local Testing]
-    C --> D[Build and Package]
-    D --> E[Test and Verify]
-    E --> F[Image Distribution]
-    F --> G[Device Installation]
-    G --> H[Runtime Monitoring]
-    H --> I[Update and Maintenance]
-```
+NE503 employs a multi-layer security sandbox. All security policies are enforced by the platform; developers do not need to configure them in the Dockerfile.
 
-### 8.2 Build Image
+### 4.1 Linux Capabilities
 
-```bash
-# Basic build
-docker build -t my-app:1.0.0 .
+The following dangerous capabilities are automatically dropped when a container starts:
 
-# Cross-architecture build (x86 dev machine → ARM device)
-docker buildx build --platform linux/arm64 -t my-app:1.0.0 --load .
+| Dropped Capability | Risk |
+|:---|:---|
+| `CAP_SYS_ADMIN` | Superuser privileges |
+| `CAP_NET_ADMIN` | Network configuration modification |
+| `CAP_SYS_MODULE` | Kernel module loading |
+| `CAP_SYS_TIME` | System clock modification |
+| `CAP_SYS_BOOT` | System reboot |
+| `CAP_SYS_NICE` | Process priority modification |
+| `CAP_SYS_RESOURCE` | Bypass resource limits |
+| `CAP_SYS_RAWIO` | Direct I/O port access |
+| `CAP_SYS_PTRACE` | Process tracing |
+| `CAP_SYS_CHROOT` | Root directory modification |
+| `CAP_MKNOD` | Device file creation |
 
-# Build with proxy
-docker build --build-arg HTTP_PROXY=http://proxy:port \
-             --build-arg HTTPS_PROXY=http://proxy:port \
-             -t my-app:1.0.0 .
-```
+### 4.2 Seccomp System Call Filtering
 
-### 8.3 Export Image
+The App Manager loads a Seccomp configuration file when starting a container. The default policy uses a whitelist mode (`defaultAction: SCMP_ACT_ERRNO`), allowing only common system calls. The configuration file path is set by the platform administrator; developers do not need to be concerned with it.
 
-```bash
-# Export as tar
-docker save my-app:1.0.0 -o my-app.tar
+### 4.3 Filesystem and Namespace Isolation
 
-# Export and compress (recommended, gzip reduces size by ~70%)
-docker save my-app:1.0.0 | gzip > my-app.tar.gz
-
-# Verify exported file
-docker load -i my-app.tar && docker images | grep my-app
-```
-
-### 8.4 Transfer to Device
-
-```bash
-# SCP (recommended)
-scp app.yaml my-app.tar.gz root@<device-ip>:/tmp/
-
-# rsync (suitable for large files, supports resume)
-rsync -avz --progress app.yaml my-app.tar.gz root@<device-ip>:/tmp/
-```
-
-### 8.5 Install Application
-
-**CLI Method:**
-
-```bash
-ssh root@<device-ip>
-cd /tmp && gunzip my-app.tar.gz
-aipc-cli app install app.yaml my-app.tar
-aipc-cli app start my_app
-```
-
-**Web Console Method:**
-
-1. Open browser and navigate to `http://<device-ip>:8080`
-2. Go to the **App Management** page
-3. Click **Import** to start the installation wizard
-4. Select the image source and fill in the configuration
-5. Confirm installation
-
----
-
-## 9. Permission Configuration
-
-The AIPC platform uses fine-grained permission control. Applications must explicitly declare required permissions, following the principle of least privilege.
-
-### Video Stream Access
-
-```yaml
-permissions:
-  video:
-    - cam0_main.raw      # Raw video stream (DMA-BUF shared memory, zero-copy)
-    - cam0_main          # Encoded video stream (Unix Domain Socket)
-    - cam0_sub           # Sub-stream
-```
-
-### AI Inference
-
-```yaml
-permissions:
-  inference:
-    models: [yolov8n, person_v1]    # Available models
-    max_qps: 30                      # Maximum QPS
-    max_concurrent: 2                # Maximum concurrent inferences
-    allow_register_model: false      # Whether to allow registering new models
-```
-
-### Event Bus
-
-```yaml
-permissions:
-  events:
-    publish: [app/my_app/alerts, alerts/*]
-    subscribe: [model/*/detections, device/camera/*, system/health]
-```
-
-### Device Control
-
-```yaml
-permissions:
-  device:
-    light: true           # Fill light
-    ir_cut: true          # IR-CUT filter
-    ptz: true             # PTZ
-    lens: true            # Lens
-    gpio:
-      read: [12, 13]
-      write: [21, 22]
-```
-
-### Network Access
-
-```yaml
-permissions:
-  network:
-    mode: isolated                    # isolated (default) or host
-    outbound:                         # Only in isolated mode
-      - "https://api.example.com"
-      - "mqtt://broker.example.com:8883"
-    inbound:                          # Only in host mode
-      - 8554
-```
-
-### Least Privilege Practices
-
-```yaml
-# Wrong: over-privileged
-permissions:
-  inference:
-    models: ["*"]
-  device:
-    gpio:
-      read: [0-100]
-
-# Correct: declare only necessary permissions
-permissions:
-  inference:
-    models: [person_detection_v1]
-    max_qps: 30
-  device:
-    gpio:
-      read: [12]
-```
-
----
-
-## 10. Version Management
-
-### Version Numbering Rules
-
-Uses semantic versioning: `MAJOR.MINOR.PATCH`
-
-- **MAJOR**: Incompatible API changes
-- **MINOR**: Backward-compatible feature additions
-- **PATCH**: Backward-compatible bug fixes
-
-Pre-release tags: `-dev.N`, `-alpha.N`, `-beta.N`, `-rc.N`
-
-### Update Workflow
-
-```bash
-# 1. Update version number
-sed -i 's/version: 1.0.0/version: 1.1.0/' app.yaml
-
-# 2. Build new image
-docker build -t my-app:1.1.0 .
-
-# 3. Export and transfer
-docker save my-app:1.1.0 | gzip > my-app-v1.1.0.tar.gz
-scp app.yaml my-app-v1.1.0.tar.gz root@<device-ip>:/tmp/
-
-# 4. Stop old version, install new version
-ssh root@<device-ip>
-cd /tmp && gunzip my-app-v1.1.0.tar.gz
-aipc-cli app stop my_app
-aipc-cli app remove my_app
-aipc-cli app install /tmp/app.yaml /tmp/my-app-v1.1.0.tar
-aipc-cli app start my_app
-```
-
-### Rollback
-
-```bash
-aipc-cli app stop my_app
-aipc-cli app remove my_app
-gunzip my-app.tar.gz.backup
-aipc-cli app install app.yaml.backup my-app.tar.backup
-aipc-cli app start my_app
-```
-
----
-
-## 11. Testing
-
-### Unit Testing
-
-```python
-# tests/test_app.py
-import unittest
-from unittest.mock import Mock, patch
-
-class TestApp(unittest.TestCase):
-    def setUp(self):
-        self.app = MyApp()
-
-    @patch('app.InferenceClient')
-    def test_inference_client(self, mock_client):
-        mock_client.return_value.subscribe.return_value = iter([])
-        result = self.app.inference_client()
-        self.assertIsNotNone(result)
-
-    def test_cleanup(self):
-        with patch.object(self.app, 'inference') as mock_inf:
-            with patch.object(self.app, 'events') as mock_ev:
-                self.app.cleanup()
-                mock_inf.close.assert_called_once()
-                mock_ev.close.assert_called_once()
-```
-
-```bash
-pip install pytest pytest-cov pytest-mock
-pytest tests/ -v --cov=app --cov-report=html
-```
-
-### Integration Testing
-
-```bash
-# Start test container
-docker run --rm --network host -e APP_ID=my_app -e TEST_MODE=1 my-app:1.0.0
-
-# Verify SDK can be imported
-docker run --rm my-app:1.0.0 python -c "import hailo_ipc_sdk; print('OK')"
-```
-
-### Performance Testing
-
-Verify that inference latency and memory growth are within acceptable ranges:
-
-```python
-# tests/test_performance.py
-def test_inference_latency():
-    times = []
-    for _ in range(100):
-        start = time.time()
-        # Simulate inference
-        time.sleep(0.001)
-        times.append(time.time() - start)
-    assert sum(times) / len(times) < 0.1, "Average latency too high"
-    assert max(times) < 0.5, "Maximum latency too high"
-
-def test_memory_usage():
-    import psutil
-    process = psutil.Process()
-    initial = process.memory_info().rss / 1024 / 1024
-    for i in range(1000):
-        app.process_frame(f"frame_{i}")
-    growth = process.memory_info().rss / 1024 / 1024 - initial
-    assert growth < 100, f"Excessive memory growth: {growth}MB"
-```
-
-### Security Testing
-
-```python
-def test_no_hardcoded_secrets():
-    import inspect
-    source = inspect.getsource(MyApp)
-    for pattern in ['API_KEY', 'PASSWORD', 'SECRET', 'TOKEN', 'PRIVATE_KEY']:
-        assert pattern not in source, f"Found hardcoded secret pattern: {pattern}"
-```
-
----
-
-## 12. Release Checklist
-
-### Pre-Release
-
-- [ ] Code formatting check passed (`make fmt && make lint`)
-- [ ] `app.yaml` format validated (`aipc-cli validate app.yaml`)
-- [ ] Image built successfully with reasonable size
-- [ ] Unit test coverage >= 80%
-- [ ] Integration tests passed
-- [ ] No hardcoded secrets (`grep -r "API_KEY\|PASSWORD\|SECRET" . --exclude-dir=.git`)
-- [ ] Dockerfile security check (`hadolint`)
-- [ ] Documentation and changelog updated
-
-### During Release
-
-- [ ] File integrity verified (`file my-app.tar.gz`, `yamllint app.yaml`)
-- [ ] Installation workflow tested
-- [ ] Rollback plan ready (backup old version files)
-
-### Post-Release
-
-- [ ] Application status is Running (`aipc-cli app list`)
-- [ ] No anomalies in logs (`aipc-cli app logs my_app --tail 20`)
-- [ ] Resource usage is normal (`aipc-cli app stats my_app`)
-- [ ] Health check passed (`aipc-cli app stats my_app`)
-
-### Handling Release Failures
-
-```bash
-# Quick rollback
-aipc-cli app stop my_app
-aipc-cli app remove my_app
-aipc-cli app install app.yaml.backup my-app.tar.gz.backup
-aipc-cli app start my_app
-
-# Diagnose issues
-free -h && df -h
-systemctl status containerd app-manager
-aipc-cli app logs my_app --all > app.log
-```
-
----
-
-## 13. Troubleshooting
-
-| Problem | Diagnostic Command | Common Causes |
+| Security Mechanism | Default | Overridable via app.yaml |
 |:---|:---|:---|
-| Application fails to start | `aipc-cli app logs <id>`<br />`systemctl status app-manager`<br />`systemctl status containerd` | Image import failed, permission configuration error, insufficient resources, health check failed |
-| Image build failed | `docker build --build-arg HTTP_PROXY=...` | Network issues (use proxy), image too large (use multi-stage build) |
-| Empty inference results | `aipc-cli model list` | permissions.inference.models does not include target model |
-| Cannot access video stream | `aipc-cli stream list` | permissions.video stream name is incorrect (`.raw` for raw stream, no suffix for encoded stream) |
-| Cannot connect to external services | `aipc-cli app exec <id> -- curl <url>` | Network mode is isolated and outbound is not configured |
-| Image import failed | `systemctl status containerd`<br />`ctr -n aipc images import <tar>`<br />`file <tar>` | containerd error, corrupted file format |
-| Multi-container startup failed | — | Sub container cannot declare permissions; confirm only one `role: main`; check startup_order |
+| `no_new_privileges` | true | `security.no_new_privileges: false` |
+| `readonly_rootfs` | true | `security.readonly_rootfs: false` |
+| PID namespace isolation | Independent | Not overridable |
+| Mount namespace isolation | Independent | Not overridable |
+| UTS namespace isolation | Independent | Shared in `host` network mode |
+| Network namespace isolation | Independent | Shared when `permissions.network.mode: host` |
+| IPC namespace isolation | Independent | Automatically shared when `.raw` video stream is declared (required for DMA-BUF) |
+| PIDs limit | 128 | Not overridable |
 
-### Debug Commands
+### 4.4 Network Isolation
 
-```bash
-aipc-cli app exec my_app -- bash        # Enter container
-aipc-cli app info my_app --verbose      # Detailed information
-aipc-cli app info my_app --network      # View network configuration
-aipc-cli app info my_app --volumes      # View mount points
-aipc-cli app logs my_app -f             # Follow logs in real time
+- **Isolated mode** (default): The container has an independent network namespace and can only access external addresses through the `outbound` whitelist.
+- **Host mode**: The container shares the host network stack and can declare ports to listen on via `inbound`. Suitable for scenarios that require exposing services externally, such as RTSP streaming.
+
+### 4.5 Socket Access Mechanism
+
+The platform mounts the `/run/aipc` directory into all containers. This directory contains all IPC Sockets. Containers gain access through the AIPC group GID (1001). This mechanism is automatically injected by the platform; developers do not need to add user group configurations in the Dockerfile.
+
+## 5 Multi-Container Configuration
+
+When an application requires process-level isolation, multi-container mode can be used. For example, splitting the inference engine and business logic into separate containers enables independent updates and resource limits.
+
+### 5.1 Architecture Model
+
+| Role | Platform Service Access | permissions | Typical Use |
+|:---|:---|:---|:---|
+| **main** | Has access to AI Runtime, Event Bus, and other platform Sockets | Can be declared | Business logic, platform interaction |
+| **sub** | None, fully isolated | Cannot be declared | Independent algorithm processes, third-party services |
+
+Constraints:
+- There must be exactly one container with `role: main`
+- Sub containers cannot declare any permissions
+- Containers communicate with each other through shared network namespace
+
+### 5.2 Complete Example
+
+```yaml
+apiVersion: v1
+kind: Application
+metadata:
+  id: smart_detection
+  name: Smart Detection
+  version: 1.0.0
+spec:
+  containers:
+    main:
+      image: smart-detection-main:1.0
+      role: main                          # Must be declared
+      permissions:
+        video: [cam0_main.raw]
+        inference:
+          models: [yolov8n]
+      resources:
+        cpu: "100%"
+        memory: "512Mi"
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http                      # Service discovery name
+      env:
+        - name: SUB_DETECTOR_ADDR
+          value: "detector:50051"
+      volumes:
+        - name: shared-data               # Container-level volume mount
+          container: /app/shared
+          readonly: false
+      security:
+        readonly_rootfs: false
+
+    detector:
+      image: smart-detection-detector:1.0
+      role: sub                           # Sub container, cannot declare permissions
+      resources:
+        cpu: "50%"
+        memory: "256Mi"
+      ports:
+        - containerPort: 50051
+          protocol: TCP
+      command: ["/app/detector"]          # Override ENTRYPOINT
+      args: ["--workers=4"]               # Append arguments
+
+  networking:
+    mode: internal                        # internal (default) | bridge | host
+    ingress:
+      - port: 8080                        # External port
+        target: main:8080                 # Target container:port
+        protocol: HTTP                    # HTTP | TCP | UDP
+
+  lifecycle:
+    startup_order: [detector, main]       # Start sub first
+    shutdown_order: [main, detector]      # Stop main first
+
+  volumes:                                # Application-level shared volumes (visible to all containers)
+    - host: /opt/aipc/data/smart_detection
+      container: /app/data
 ```
 
----
+### 5.3 ContainerSpec Field
 
-## 14. Related Documentation
+Each container (entries under `containers`) supports the following fields:
 
-- [Platform Architecture](../3-platform-development/0-platform-architecture.md) — Understand system design and data flow
-- [Python SDK Reference](./2-sdk-reference.md) — SDK API signatures and data types
-- [SDK Examples](./3-sdk-examples.md) — Complete application examples and development guide
-- [CLI Tool](../5-system-integration/3-cli-guide.md) — aipc-cli complete command reference
-- [Container Application Management](../6-reference/service-reference/1-app-manager.md) — App Manager in-depth analysis
+| Field | Type | Description |
+|:---|:---|:---|
+| `image` | string | Container image |
+| `role` | string | `main` or `sub` |
+| `permissions` | object | Permission declarations (only main container can declare) |
+| `resources` | object | Resource limits (`cpu`, `memory`) |
+| `env` | array | Environment variable list |
+| `ports` | array | Port declaration list, each item contains `containerPort`, `protocol`, `name` |
+| `command` | string[] | Override image ENTRYPOINT |
+| `args` | string[] | Append arguments |
+| `healthcheck` | object | Container-level health check |
+| `volumes` | array | Container-level volume mounts, each item contains `name`, `container`, `readonly` |
+| `security` | object | Container-level security configuration (inherits application-level `spec.security` when not set) |
+
+### 5.4 Network Modes
+
+| Mode | Description | Use Case |
+|:---|:---|:---|
+| `internal` | Containers share network namespace, not externally accessible (default) | Internal microservice communication |
+| `bridge` | Connect to LAN via `aipc-br0` bridge | Services requiring LAN discovery |
+| `host` | Share host network stack | Services that need to expose ports externally |
+
+### 5.5 Startup and Shutdown Order
+
+- `startup_order` -- Specifies the container startup order. When not specified, all sub containers are started first, then the main container. There is a 500ms interval between each container startup.
+- `shutdown_order` -- Specifies the container stop order. When not specified, it defaults to the reverse of the startup order (stop main first, then sub). The stop timeout is 10 seconds.
+
+### 5.6 Auto-Injected Environment Variables
+
+In multi-container mode, the platform automatically injects the following environment variables for each container:
+
+| Variable | Description |
+|:---|:---|
+| `APP_ID` | Application ID (from `metadata.id`) |
+| `APP_ROLE` | Container role (`main` or `sub`) |
+| `CONTAINER_NAME` | Container name (key name in `containers`) |
+| `AIPC_HOST_PREFIX` | Platform deployment path prefix (e.g., `/data/aipc`) |
+
+## 6 Lifecycle Management
+
+The complete lifecycle from installation to uninstallation is managed by the App Manager:
+
+| Phase | CLI Command | Description |
+|:---|:---|:---|
+| **install** | `aipc-cli app install <yaml> <tar>` | Import image, validate manifest, register to application repository |
+| **start** | `aipc-cli app start <id>` | Preload models, create container, start running |
+| **stop** | `aipc-cli app stop <id>` | Gracefully stop container (default timeout 10 seconds) |
+| **uninstall** | `aipc-cli app uninstall <id>` | Stop container, delete image and instance data, unregister |
+| **update** | Stop + uninstall old version, then install + start new version | Hot update is not currently supported; manual replacement required |
+
+**Installation Methods:**
+
+- **Local image file** -- Pass a `.tar` or `.tar.gz` file, which is directly imported into containerd.
+- **Remote image registry** -- Pass an image reference (e.g., `docker.io/my/app:1.0`), which is automatically pulled and normalized to a full reference.
+
+**Fault Recovery:**
+
+- At startup, overlayfs snapshot corruption is detected (common after power loss), and the image is automatically re-unpacked from the content store.
+- At installation, the image tar backup is saved for rebuilding after power loss recovery.
+
+## 7 Environment Variable Reference
+
+Container environment variables automatically injected by the platform:
+
+| Variable | Source | Description |
+|:---|:---|:---|
+| `APP_ID` | `metadata.id` | Application unique identifier |
+| `APP_ROLE` | `containerSpec.role` | Container role (multi-container mode only) |
+| `CONTAINER_NAME` | containers key name | Container name (multi-container mode only) |
+| `AIPC_HOST_PREFIX` | Platform configuration | Deployment path prefix, used for path conversion |
+| `<Custom>` | `spec.env` | Variables declared by the user in app.yaml |
+
+Connection configuration variables automatically read by the SDK (usually no modification needed; the platform provides them through Socket mounting):
+
+| Variable | Default | Description |
+|:---|:---|:---|
+| `AI_RUNTIME_ENDPOINT` | `unix:///run/aipc/ai-runtime.sock` | AI Runtime gRPC endpoint |
+| `EVENT_BUS_ENDPOINT` | `unix:///run/aipc/event-bus.sock` | Event Bus gRPC endpoint |
+| `DEVICE_CONTROL_ENDPOINT` | `unix:///run/aipc/device-control.sock` | Device control gRPC endpoint |
+| `CAMERA_CONTROL_ENDPOINT` | `unix:///run/aipc/camera-control.sock` | Camera control gRPC endpoint |
+| `SHM_BASE_PATH` | `/run/aipc/shm` | Shared memory base path |
+| `LOG_LEVEL` | `INFO` | Log level |
+| `DEBUG` | `0` | Debug mode switch |
+
+## 8 Related Documentation
+
+- [Python SDK Reference](./2-sdk-reference.md) -- SDK API signatures and data types
+- [SDK Examples](./3-sdk-examples.md) -- Complete application examples and development tutorial
+- [Platform Architecture](../3-platform-development/0-platform-architecture.md) -- System design and data flow
+- [CLI Tool](../5-system-integration/3-cli-guide.md) -- aipc-cli complete command reference
+- [App Manager Service Reference](../6-reference/service-reference/1-app-manager.md) -- App Manager in-depth analysis
