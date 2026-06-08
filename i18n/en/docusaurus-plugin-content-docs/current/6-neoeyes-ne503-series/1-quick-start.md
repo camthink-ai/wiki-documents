@@ -50,7 +50,7 @@ The NE503 serves as both a smart IPC and an edge computing platform. Consider bo
 
 ### 3. Power Supply and Boot
 
-The NE503 supports two power supply methods, with power consumption 5–6W (typical load):
+The NE503 supports two power supply methods, with power consumption < 5W (typical load):
 
 | Method | Connection | Use Case |
 |--------|------------|----------|
@@ -218,6 +218,8 @@ NX Witness verification:
 | NX Witness management interface | `https://<device-ip>:7001` |
 | RTSP stream | `rtsp://<device-ip>:554/` |
 
+> Port 554 in the table above is NX Witness's own RTSP service port, which is different from NE503's port 8554. When adding the NE503 camera stream in NX Witness, use the NE503 RTSP address `rtsp://<device-ip>:8554/main`.
+
 Open `https://<device-ip>:7001` in a browser. On first access, the NX Witness setup wizard appears. Select **Setup New Site**, follow the wizard to create an admin account, and add the NE503 RTSP stream (`rtsp://<device-ip>:8554/main`) to get started.
 
 **NX Witness Troubleshooting**:
@@ -255,7 +257,7 @@ The NE503 provides a RESTful API for programmatic management and data retrieval.
 
 ```bash
 # Login to get Token
-curl -X POST http://<device-ip>:8080/api/v1/auth/login \
+curl -X POST http://<device-ip>:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"<your-password>"}'
 
@@ -294,7 +296,7 @@ Go to **Settings → Storage**:
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-storage.png)
 
-The NE503 has built-in 64GB eMMC for system and application data. To expand storage, use a TF card (UHS-I supported). The M.2 SSD (PCIe 3.0 x 2 Lanes) interface is not yet supported and will be enabled via a future firmware update. Clean up or expand when storage usage exceeds 80%.
+The NE503 has built-in 64GB eMMC for system and application data. To expand storage, use a TF card (UHS-I supported). The M.2 SSD (SoC natively supports PCIe Gen4, see hardware documentation for details) interface is not yet supported and will be enabled via a future firmware update. Clean up or expand when storage usage exceeds 80%.
 
 ---
 
@@ -337,7 +339,7 @@ The process manager lists all running processes on the device, displaying PID, n
 | Web Console | `http://<device-ip>:8080` | Web Login | `admin` / `password` |
 | SSH Login | `root` / `root` | Default IP | `10.0.0.1` |
 | RTSP Main Stream | `rtsp://<device-ip>:8554/main` | RTSP Sub Stream | `rtsp://<device-ip>:8554/sub` |
-| RTSP Third Stream | `rtsp://<device-ip>:8554/third` | Power Supply | PoE 802.3AT or DC 12V, 5–6W |
+| RTSP Third Stream | `rtsp://<device-ip>:8554/third` | Power Supply | PoE 802.3AT or DC 12V, < 5W |
 
 ### aipc-cli Command Reference
 

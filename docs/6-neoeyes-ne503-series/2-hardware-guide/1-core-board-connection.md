@@ -127,6 +127,8 @@ Hailo15H SoC 原生 PCIe Gen4 与 USB 接口。PCIe 时钟由板载 PI6CG18201 �
 | I2C1 | TMP1075（温度传感器）、AT24C02D（EEPROM）、PI6CG18201（PCIe 时钟） | 0x49、0x50、0x6A |
 | I2C2 | LSM6DSR（陀螺仪） | 0x6A |
 
+> 注：PI6CG18201（I2C1，地址 0x6A）和 LSM6DSR（I2C2，地址 0x6A）位于不同的 I2C 总线上，不存在地址冲突。
+
 I2C0 总线通过连接器引出至接口板，挂接 IMX678 和 NAU88C10（见下文扩展接口）。
 
 ### 温度传感器（TMP1075DSGR）
@@ -192,6 +194,8 @@ I2C1 从设备地址 **0x6A**，25 MHz，PCIe Gen4 低抖动 0.3 ps。
 | H_SPI_CLK | FLASH_CLK |
 | H_SPI_CS1 | FLASH_CS1（镜头驱动片选） |
 
+> 注：上表中功能列的 FLASH_DQ0 ~ FLASH_DQ3、FLASH_CLK 名称来自 SoC QSPI 控制器的引脚命名。这些引脚通过 CS1 片选连接到镜头驱动芯片 AN41908A，与 QSPI Flash（CS0）共享同一组数据线和时钟线，通过不同片选信号区分访问目标。
+
 ### 音频编解码器（I2S + I2C0）
 
 核心板通过 I2S 数据接口和 I2C0 控制总线引出音频通道，挂接 NAU88C10 音频编解码器（位于接口板上），I2C0 从设备地址 **0x1A**。
@@ -243,7 +247,7 @@ I2C1 从设备地址 **0x6A**，25 MHz，PCIe Gen4 低抖动 0.3 ps。
 
 ### UART0（调试串口）
 
-SoC 原生 UART0，通过连接器引出，用于系统调试。
+SoC 原生 UART0，通过连接器引出。该串口具有双重角色：既作为 SoC 调试串口用于系统日志输出与交互调试，同时也作为核心板与接口板 MCU（STM32G0B0）之间的主通信通道。
 
 | 引脚 | 功能 |
 |:---|:---|

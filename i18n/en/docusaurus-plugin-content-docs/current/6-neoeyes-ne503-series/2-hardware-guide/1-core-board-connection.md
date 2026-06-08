@@ -127,6 +127,8 @@ The following I2C devices are physically soldered on the core board, allocated b
 | I2C1 | TMP1075 (Temperature Sensor), AT24C02D (EEPROM), PI6CG18201 (PCIe Clock) | 0x49, 0x50, 0x6A |
 | I2C2 | LSM6DSR (IMU) | 0x6A |
 
+> Note: PI6CG18201 (I2C1, address 0x6A) and LSM6DSR (I2C2, address 0x6A) are on different I2C buses, so there is no address conflict.
+
 I2C0 bus is routed to the interface board via connectors, connecting IMX678 and NAU88C10 (see Expansion Interfaces below).
 
 ### Temperature Sensor (TMP1075DSGR)
@@ -192,6 +194,8 @@ The core board SPI bus is routed via CS1 chip select to connect the AN41908A-VBA
 | H_SPI_CLK | FLASH_CLK |
 | H_SPI_CS1 | FLASH_CS1 (Lens driver chip select) |
 
+> Note: The function column names FLASH_DQ0 ~ FLASH_DQ3 and FLASH_CLK above come from the SoC QSPI controller pin naming. These pins are connected to the lens driver chip AN41908A via CS1 chip select, sharing the same data and clock lines as the QSPI Flash (CS0), distinguished by different chip select signals.
+
 ### Audio Codec (I2S + I2C0)
 
 The core board routes audio channels via I2S data interface and I2C0 control bus, connecting to the NAU88C10 audio codec (located on the interface board). I2C0 slave address **0x1A**.
@@ -243,7 +247,7 @@ The following interfaces are used for system debugging and firmware flashing, wi
 
 ### UART0 (Debug Serial Port)
 
-SoC native UART0, routed via connector for system debugging.
+SoC native UART0, routed via connector for system debugging. This serial port has a dual role: it serves as the SoC debug serial port for system log output and interactive debugging, and also acts as the primary communication channel between the core processing board and the interface board MCU (STM32G0B0).
 
 | Pin | Function |
 |:---|:---|

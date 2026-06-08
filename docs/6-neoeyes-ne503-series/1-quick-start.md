@@ -216,7 +216,9 @@ NX Witness 验证：
 | 服务 | 地址 |
 |------|------|
 | NX Witness 管理界面 | `https://<设备IP>:7001` |
-| RTSP 流 | `rtsp://<设备IP>:554/` |
+| RTSP 流 | `rtsp://<设备IP>:554/`（具体流路径以 NX Witness 配置为准） |
+
+> 表中端口 554 是 NX Witness 自身的 RTSP 服务端口，与 NE503 的 8554 端口是不同的服务。
 
 浏览器访问 `https://<设备IP>:7001`，首次打开进入 NX Witness 设置向导。选择 **Setup New Site**，按向导创建管理员账号，添加 NE503 的 RTSP 码流（`rtsp://<设备IP>:8554/main`）即可开始使用。
 
@@ -255,7 +257,7 @@ NE503 提供 RESTful API，支持程序化管理和数据获取。所有接口�
 
 ```bash
 # 登录获取 Token
-curl -X POST http://<设备IP>:8080/api/v1/auth/login \
+curl -X POST http://<设备IP>:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"<你的密码>"}'
 
@@ -294,7 +296,7 @@ AI 推理结果和设备告警通过 Event Bus 以结构化事件输出，支持
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-storage.png)
 
-NE503 内置 64GB eMMC 用于系统和应用数据。如需扩展存储，可通过 TF 卡（支持 UHS-I）扩展。M.2 SSD（PCIe 3.0 × 2 Lanes）接口暂未支持，后续通过固件升级启用。建议在存储使用率超过 80% 时及时清理或扩展。
+NE503 内置 64GB eMMC 用于系统和应用数据。如需扩展存储，可通过 TF 卡（支持 UHS-I）扩展。M.2 KEY M（SoC 原生支持 PCIe Gen4，具体速率以硬件文档为准）接口暂未支持，后续通过固件升级启用。建议在存储使用率超过 80% 时及时清理或扩展。
 
 ---
 

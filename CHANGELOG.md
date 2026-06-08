@@ -6,6 +6,11 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-06-08]
+
+### Added
+- **NeoEyes NE503 Complete Technical Documentation**: Full platform documentation covering software platform (architecture, app development, SDK reference, SDK examples, CLI guide, RESTful API), service reference (AI Runtime, App Manager, Event Bus, Media Streaming, Device Control, Device Discovery, Web Console), platform development (development guide, contributing, test environment, deployment, HAL porting), and advanced reference (troubleshooting, config reference, FAQ, benchmarks), with comprehensive quality review against source code and device verification (full bilingual support).
+
 ## [2026-06-02]
 
 ### Updated
