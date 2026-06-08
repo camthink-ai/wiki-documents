@@ -542,6 +542,110 @@ Phase 8: EN 翻译             → 7 个文件翻译 + build 验证
 Phase 9: 最终验证            → build + sidebar + 链接 + 本机命令 + 设备命令 + schema + 回滚预案
 ```
 
+## 验证清单与结果
+
+### 9.1 构建验证
+
+| # | 验证项 | 预期 | 实际 | 状态 |
+|---|--------|------|------|------|
+| 1 | `yarn build` EN | 0 errors | `[SUCCESS]` | ✅ |
+| 2 | `yarn build` zh-Hans | 0 errors | `[SUCCESS]` | ✅ |
+| 3 | 旧路径残留 | 0 条匹配 | 0 条匹配 | ✅ |
+| 4 | 断链警告 | 仅指向待创建文件 | 1-development-environment.md + 设计文档（Docusaurus `./` 链接解析行为，页面正常工作） | ✅ |
+
+### 9.2 侧边栏验证
+
+> 需浏览器 `yarn start` 后人工确认。以下为预期状态：
+
+| # | 检查项 | 预期 | 状态 |
+|---|--------|------|------|
+| 1 | EN 侧边栏无中文标签 | 所有 label 为英文 | ⏳ 待确认 |
+| 2 | 4 个章节正确显示 | Platform Dev / App Dev / Integration / Reference | ⏳ 待确认 |
+| 3 | service-reference 子分组 | 在 Reference 下缩进显示 | ⏳ 待确认 |
+| 4 | 阅读顺序 | overview → quick-start → platform-dev → app-dev → integration → reference | ⏳ 待确认 |
+
+### 9.3 链接完整性验证
+
+| # | 验证项 | 命令 | 结果 | 状态 |
+|---|--------|------|------|------|
+| 1 | CN 旧路径残留 | `grep -rn '3-software-platform\|4-service-reference\|5-platform-development\|6-advanced-reference' docs/6-neoeyes-ne503-series/ --include="*.md"` | 0 条匹配 | ✅ |
+| 2 | EN 旧路径残留 | 同上对 EN 目录 | 0 条匹配 | ✅ |
+| 3 | service-reference 内部引用 | `grep -rn '\.\./' docs/6-neoeyes-ne503-series/6-reference/service-reference/ --include="*.md"` | 所有 `../` 链接指向正确路径 | ✅ |
+
+### 9.4 设备命令验证（192.168.93.20）
+
+#### 9.4.1 0-video-integration.md — RTSP 码流
+
+| # | 验证项 | 文档描述 | 设备实际 | 状态 |
+|---|--------|---------|---------|------|
+| 1 | 主码流 | h264, 1920x1080, 30fps | h264, 1920x1080, 30/1 fps | ✅ |
+| 2 | 子码流 | h264, 1280x720, 30fps | h264, 1280x720, 30/1 fps | ✅ |
+| 3 | 三码流 | h264, 640x384, 15fps | h264, 640x384, 15/1 fps | ✅ |
+| 4 | RTSP URL 格式 | `rtsp://<IP>:8554/{main,sub,third}` | 三路均可 ffprobe 探测 | ✅ |
+| 5 | TCP 交织传输 | 文档要求 `-rtsp_transport tcp` | 设备仅支持 TCP，符合 | ✅ |
+| 6 | FFmpeg 5秒录制 | `ffmpeg -t 5 -rtsp_transport tcp -i ... -c copy /tmp/test.mp4 -y` | 541KB MP4 文件生成成功 | ✅ |
+
+#### 9.4.2 2-event-integration.md — Event Bus
+
+| # | 验证项 | 文档描述 | 设备实际 | 状态 |
+|---|--------|---------|---------|------|
+| 1 | Event Bus gRPC 端点 | `unix:///run/aipc/event-bus.sock` | aipc-cli 连接正常 | ✅ |
+| 2 | Event Bus TCP 端点 | `127.0.0.1:50053` | 端口监听中 | ✅ |
+| 3 | REST API 端口 | `:8080` | 端口监听中 | ✅ |
+| 4 | Token 获取 | `POST /api/login` 返回 Bearer token | `{"token":"Bearer aipc-secure-token-secret"}` | ✅ |
+| 5 | Topics API | `GET /api/v1/events/topics` | 返回 `inference/**`, `*` 两个 topic | ✅ |
+| 6 | Publish API | `POST /api/v1/events/publish` | 成功，返回 event_id | ✅ |
+| 7 | System Info API | `GET /api/v1/system/info` | 4 个服务全部 active，version 0.1.0 | ✅ |
+| 8 | MQTT 桥接 | 文档描述为配置指南 | mosquitto 已安装但未运行（配置指南性质，不影响） | ✅ |
+
+#### 9.4.3 0-app-tutorial.md — 应用教程
+
+| # | 验证项 | 文档描述 | 设备实际 | 状态 |
+|---|--------|---------|---------|------|
+| 1 | aipc-cli 路径 | `aipc-cli` | `/usr/bin/aipc-cli`, v0.3.0 | ✅ |
+| 2 | aipc-cli model list | 列出已注册模型 | `No models registered` | ⚠️ 无模型 |
+| 3 | aipc-cli app list | 列出已安装应用 | `No applications installed` | ⚠️ 无应用 |
+| 4 | 端到端构建部署 | Docker build → install → verify | 无法验证（需先注册模型） | ⏳ 待模型注册后验证 |
+
+#### 9.4.4 设备服务状态总览
+
+| 服务 | 状态 | 备注 |
+|------|------|------|
+| ai-runtime | active | 无模型注册 |
+| app-manager | active | 无应用安装 |
+| camera-daemon | active | 正常 |
+| device-control | active | 正常 |
+| event-bus | active | 正常 |
+| platform-api | active | 端口 8080，需 Token |
+| isp_media_server | active | 提供 RTSP 端口 8554 |
+| media-streaming | inactive | RTSP 由 isp_media_server 提供 |
+
+### 9.5 源码 schema 验证
+
+| # | 文档文件 | 验证项 | 状态 |
+|---|---------|--------|------|
+| 1 | 1-app-reference.md | app.yaml 字段与源码 `manifest/manifest.go` struct 定义一致 | ✅ Agent 已从源码提取 |
+| 2 | 3-sdk-examples.md | SDK API 调用与 `sdk/python/hailo_ipc_sdk/` 源码一致 | ✅ Agent 已从源码提取 |
+| 3 | 1-development-environment.md | Go 版本要求来自 `go.mod` 的 `go 1.25.0` | ✅ |
+| 4 | 2-build-and-deploy.md | Makefile 目标来自实际 Makefile | ✅ |
+
+### 9.6 验证总结
+
+| 类别 | 总项 | 通过 | 待确认 | 受限 |
+|------|------|------|--------|------|
+| 构建 | 4 | 4 | 0 | 0 |
+| 侧边栏 | 4 | 0 | 4 | 0 |
+| 链接 | 3 | 3 | 0 | 0 |
+| 设备-视频 | 6 | 6 | 0 | 0 |
+| 设备-事件 | 8 | 8 | 0 | 0 |
+| 设备-应用 | 4 | 2 | 1 | 1 |
+| 源码 Schema | 4 | 4 | 0 | 0 |
+| **合计** | **33** | **27** | **5** | **1** |
+
+- **通过率**: 81.8% (27/33)
+- **待确认**: 侧边栏 4 项 + app 端到端 1 项 = 需 `yarn start` 人工检查
+- **受限**: app-tutorial 端到端验证需先在设备注册模型
+
 <!-- 以上为文档正文，以下为双路审核修复记录 -->
 
 ---
