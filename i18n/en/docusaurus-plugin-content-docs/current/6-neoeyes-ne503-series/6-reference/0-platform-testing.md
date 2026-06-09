@@ -1515,5 +1515,4 @@ npm run test -- --coverage --coverage-reporters=html
 
 - [Development Guide](../3-platform-development/1-development-environment.md)
 - [Contributing Guide](./1-platform-contributing.md)
-- [HAL Porting Guide](../3-platform-development/3-hal-porting.md)
 - [Troubleshooting](./2-troubleshooting.md)

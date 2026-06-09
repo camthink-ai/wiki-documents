@@ -171,5 +171,4 @@ To verify Layer 2 (including HAL stub and camera-daemon), run `make layer2`.
 
 - [Platform Architecture](./0-platform-architecture.md) — Four-layer architecture and core service details
 - [Build and Deploy](./2-build-and-deploy.md) — Layered build, cross-compilation, and deployment process
-- [HAL Porting Guide](./3-hal-porting.md) — HAL v2 interface implementation and SoC porting
 - [Application Development Reference](../4-application-development/1-app-reference.md) — Application container development and Python SDK usage

@@ -184,7 +184,7 @@ graph LR
     HAL_API --> JETSON[Jetson 实现 NVIDIA]
 ```
 
-当前实现：Hailo-15（完整）+ Stub（测试）。RK3588 和 Jetson 通过 HAL 移植指南可扩展支持。
+当前实现：Hailo-15（完整）+ Stub（测试）。RK3588 和 Jetson 可通过实现对应的 HAL 接口扩展支持。
 
 ---
 

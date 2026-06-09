@@ -171,5 +171,4 @@ make layer1
 
 - [平台架构](./0-platform-architecture.md) — 四层架构和核心服务详解
 - [构建与部署](./2-build-and-deploy.md) — 分层构建、交叉编译和部署流程
-- [HAL 移植指南](./3-hal-porting.md) — HAL v2 接口实现和 SoC 移植
 - [应用开发参考](../4-application-development/1-app-reference.md) — 应用容器开发和 Python SDK 使用

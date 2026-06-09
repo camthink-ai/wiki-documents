@@ -321,7 +321,6 @@ make hal-v2
 make hal-v2 HAL_PLATFORM=hailo15 SDK_PATH=/opt/poky/4.0.23
 ```
 
-详细的 HAL 接口实现和 SoC 移植流程请参考 [HAL 移植指南](./3-hal-porting.md)。
 
 ### 6.3 SDK 开发（Python）
 
@@ -739,7 +738,6 @@ chmod 777 /run/aipc
 ## 12 相关文档
 
 - [平台架构](./0-platform-architecture.md) -- NE503 软件平台四层架构与服务依赖关系
-- [HAL 移植指南](./3-hal-porting.md) -- HAL 接口实现和 SoC 移植流程
 - [贡献指南](../6-reference/1-platform-contributing.md) -- 代码风格、Git 工作流和 PR 流程
 - [平台测试](../6-reference/0-platform-testing.md) -- 测试层级和测试环境配置
 - [故障排查](../6-reference/2-troubleshooting.md) -- 运行时问题排查和性能分析
