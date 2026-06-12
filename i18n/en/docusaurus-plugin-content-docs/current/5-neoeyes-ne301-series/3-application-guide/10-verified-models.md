@@ -1,12 +1,12 @@
 ---
-description: Verified models for NE301, covering 11 models across general object detection, person detection, pose estimation, face detection, instance segmentation, and meter reading detection, with verification result images and download links to help users quickly select and deploy AI models for their scenarios.
+description: Verified models for NE301, covering 12 models across general object detection, person detection, pose estimation, face detection, meter reading detection (digital and analog gauges), and instance segmentation, with verification result images and download links to help users quickly select and deploy AI models for their scenarios.
 keywords: [NE301, model verification, YOLOv8, YOLO11, object detection, pose estimation, face detection, BlazeFace, instance segmentation, ST YOLO-X, edge AI, TFLite]
 tags: [NE301, model deployment, object detection, pose estimation, face detection, instance segmentation, edge AI]
 ---
 
 # NE301 Verified Models
 
-NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model inference. The tables below list all models verified on actual devices (11 models total).
+NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model inference. The tables below list all models verified on actual devices (12 models total).
 
 ## Hardware Constraints
 
@@ -55,11 +55,14 @@ Each detected person outputs 17 keypoints (COCO keypoint format), suitable for a
 
 ## 4. Meter Reading Detection
 
-Detects digits (0-9) on meter displays, suitable for water, electricity, and gas meter reading scenarios.
+Supports two types of meter reading: **digital meters** and **analog gauges**. Digital meters recognize digits 0-9 on the display, suitable for water, electricity, and gas meter scenarios; analog gauges compute the pointer angle via 4 keypoints (dial center, max scale, min scale, pointer tip) and output the actual reading value, suitable for pressure gauges, thermometers, and other analog instruments.
 
 | Architecture | Size | Quant | Size | Verification Result | Model Files | OTA Package | License |
 |:-------------|:----:|:-----:|:----:|:--------------------|:-----------:|:-----------:|:------:|
 | YOLOv8n | 256×256 | _ui | 3.1MB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> "0" 81%</div><div><span style={{color:'#4caf50'}}>●</span> "0" 74%</div><div><span style={{color:'#ff9800'}}>●</span> "0" 57%</div><div><span style={{color:'#ff9800'}}>●</span> "0" 33%</div><div><span style={{color:'#f44336'}}>●</span> "3" 43%</div><div><span style={{color:'#f44336'}}>●</span> "5" 30%</div><div><span style={{color:'#f44336'}}>●</span> "5" 21%</div><div style={{color:'#888',marginTop:'4px'}}>7 detections</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | AGPL-3.0 |
+| YOLOv8n Pose | 256×256 | _ui | 3.2MB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> gauge 92% · 4 keys</div><div style={{color:'#1565c0',marginTop:'2px',fontWeight:'600'}}>↻ reading 46.99</div><div style={{color:'#888',marginTop:'4px'}}>1 gauge · ratio 0.47 · ccw</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | AGPL-3.0 |
+
+> **Analog gauge model note**: The reading value is output via the Web UI and Webhook, and requires App ≥ v2.1.0.78 / Web ≥ v1.3.4.7 firmware.
 
 ## 5. Instance Segmentation (COCO 80 Classes)
 
@@ -90,4 +93,4 @@ Two types of files are available for download from the tables above:
 
 ---
 
-**Document version**: v1.6 · **Last updated**: 2026-06-03
+**Document version**: v1.7 · **Last updated**: 2026-06-12

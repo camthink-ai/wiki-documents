@@ -1,12 +1,12 @@
 ---
-description: NE301 已验证模型，涵盖通用目标检测、人员检测、姿态估计、人脸检测、仪表读数检测和实例分割共 11 个模型，包含验证效果对比图和模型包下载链接，帮助用户快速选择和部署适合场景的 AI 模型。
+description: NE301 已验证模型，涵盖通用目标检测、人员检测、姿态估计、人脸检测、仪表读数检测（含数字表与指针表）和实例分割共 12 个模型，包含验证效果对比图和模型包下载链接，帮助用户快速选择和部署适合场景的 AI 模型。
 keywords: [NE301, 模型验证, YOLOv8, YOLO11, 目标检测, 姿态估计, 人脸检测, BlazeFace, 实例分割, ST YOLO-X, 边缘AI, TFLite]
 tags: [NE301, 模型部署, 目标检测, 姿态估计, 人脸检测, 实例分割, 边缘AI]
 ---
 
 # NE301 Verified Models
 
-NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出所有经过实际设备验证的模型（共 11 个）。
+NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出所有经过实际设备验证的模型（共 12 个）。
 
 ## 硬件约束
 
@@ -54,11 +54,14 @@ NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出�
 
 ## 4. 仪表读数检测
 
-检测仪表盘上的数字（0-9），适用于水表、电表、气表等读数识别场景。
+支持**数字表**与**指针表**两类读数检测。数字表识别表盘上的 0-9 数字，适用于水表、电表、气表等场景；指针表通过 4 个关键点（表盘中心、最大值刻度、最小值刻度、指针尖端）计算指针角度，直接输出实际读数值，适用于压力表、温度表等模拟仪表。
 
 | 架构 | 尺寸 | 量化 | 大小 | 验证效果 | 模型文件 | OTA 包 | License |
 |:-----|:----:|:----:|:----:|:----:|:---------|:------:|:------:|
 | YOLOv8n | 256×256 | _ui | 3.1MB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> "0" 81%</div><div><span style={{color:'#4caf50'}}>●</span> "0" 74%</div><div><span style={{color:'#ff9800'}}>●</span> "0" 57%</div><div><span style={{color:'#ff9800'}}>●</span> "0" 33%</div><div><span style={{color:'#f44336'}}>●</span> "3" 43%</div><div><span style={{color:'#f44336'}}>●</span> "5" 30%</div><div><span style={{color:'#f44336'}}>●</span> "5" 21%</div><div style={{color:'#888',marginTop:'4px'}}>7 detections</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_od_meter_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | AGPL-3.0 |
+| YOLOv8n Pose | 256×256 | _ui | 3.2MB | <div style={{display:'flex',gap:'8px',alignItems:'start'}}><img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge-output.jpg" style={{width:'140px',borderRadius:'6px',flexShrink:0}} /><div style={{fontSize:'0.85em',lineHeight:'1.6'}}><div><span style={{color:'#4caf50'}}>●</span> gauge 92% · 4 keys</div><div style={{color:'#1565c0',marginTop:'2px',fontWeight:'600'}}>↻ reading 46.99</div><div style={{color:'#888',marginTop:'4px'}}>1 gauge · ratio 0.47 · ccw</div></div></div> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge.tflite" style={{background:'#e3f2fd',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>tflite</a><a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge.json" style={{background:'#f3e5f5',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>json</a> | <a href="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/application-guide/verified-model-list/yolov8n_256_quant_pc_ui_pose_gauge_pkg.bin" style={{background:'#e8f5e9',padding:'2px 8px',borderRadius:'4px',fontSize:'0.8em',textDecoration:'none',margin:'2px',display:'inline-block'}}>bin</a> | AGPL-3.0 |
+
+> **指针表读数模型说明**：读数值（reading）通过 Web 界面与 Webhook 输出，需配合 App ≥ v2.1.0.78 / Web ≥ v1.3.4.7 固件。
 
 ## 5. 实例分割（COCO 80 类）
 
@@ -89,4 +92,4 @@ NE301 基于 STM32N6 NPU，支持 TFLite Int8 量化模型推理。下表列出�
 
 ---
 
-**文档版本**：v1.6 · **最后更新**：2026-06-03
+**文档版本**：v1.7 · **最后更新**：2026-06-12
