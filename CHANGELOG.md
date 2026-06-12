@@ -6,6 +6,16 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-06-12]
+
+### Updated
+- **NeoEyes NE503 System Flashing**: Restructured for operator readability — added a flow overview with path selection, a DIP-switch quick-reference table, and per-subsection service-scope labels in §1; deduplicated the §3.3/§5.1 U-Boot flow and reordered §7 troubleshooting to match the actual operation sequence; promoted macOS to a first-class supported platform alongside Ubuntu in §1.2; migrated all 18 screenshots to CDN; streamlined the §2.3 SPI-flash log presentation with side-by-side screenshots (full bilingual support).
+
+## [2026-06-08]
+
+### Added
+- **NeoEyes NE503 Complete Technical Documentation**: Full platform documentation covering software platform (architecture, app development, SDK reference, SDK examples, CLI guide, RESTful API), service reference (AI Runtime, App Manager, Event Bus, Media Streaming, Device Control, Device Discovery, Web Console), platform development (development guide, contributing, test environment, deployment, HAL porting), and advanced reference (troubleshooting, config reference, FAQ, benchmarks), with comprehensive quality review against source code and device verification (full bilingual support).
+
 ## [2026-06-02]
 
 ### Updated
