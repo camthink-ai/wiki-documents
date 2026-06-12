@@ -59,7 +59,7 @@ graph TB
 | **device-control** | Go | `unix:///run/aipc/device-control.sock` | 硬件外设控制（灯光/PTZ/镜头/GPIO），MCU UART 通信 |
 | **device-discovery** | Go | `unix:///run/aipc/device-discovery.sock` | 网络设备发现（CT-Disc 协议），设备注册与状态管理 |
 | **platform-api** | Go | `:8080` | HTTP/RESTful API 网关，代理所有后端 gRPC 服务 |
-| **camera-daemon** | C++ | `camera.sock`（FD 发布）+ `camera-control.sock`（gRPC 控制）+ `/run/aipc/shm/`（SHM） | 视频采集、双通道帧分发（FD/SHM）、编码、RTSP 流媒体 |
+| **camera-daemon** | C++ | `unix:///run/aipc/camera.sock`（FD 发布）+ `unix:///run/aipc/camera-control.sock`（gRPC 控制）+ `/run/aipc/shm/`（SHM） | 视频采集、双通道帧分发（FD/SHM）、编码、RTSP 流媒体 |
 
 ### 2.2 gRPC API 定义
 

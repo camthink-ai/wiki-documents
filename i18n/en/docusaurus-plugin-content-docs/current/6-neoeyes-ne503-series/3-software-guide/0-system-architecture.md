@@ -59,7 +59,7 @@ The platform services layer consists of multiple microservices that communicate 
 | **device-control** | Go | `unix:///run/aipc/device-control.sock` | Hardware peripheral control (light/PTZ/lens/GPIO), MCU UART communication |
 | **device-discovery** | Go | `unix:///run/aipc/device-discovery.sock` | Network device discovery (CT-Disc protocol), device registration and state management |
 | **platform-api** | Go | `:8080` | HTTP/RESTful API gateway, proxying all backend gRPC services |
-| **camera-daemon** | C++ | `camera.sock` (FD publish) + `camera-control.sock` (gRPC control) + `/run/aipc/shm/` (SHM) | Video capture, dual-channel frame dispatch (FD/SHM), encoding, RTSP streaming |
+| **camera-daemon** | C++ | `unix:///run/aipc/camera.sock` (FD publish) + `unix:///run/aipc/camera-control.sock` (gRPC control) + `/run/aipc/shm/` (SHM) | Video capture, dual-channel frame dispatch (FD/SHM), encoding, RTSP streaming |
 
 ### 2.2 gRPC API Definitions
 
