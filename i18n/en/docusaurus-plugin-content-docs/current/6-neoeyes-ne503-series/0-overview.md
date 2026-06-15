@@ -70,7 +70,7 @@ NE503 core specifications are as follows:
     </tr>
     <tr>
       <td>System Power</td>
-      <td>< 5-6W (typical load)</td>
+      <td>5–6W (typical load)</td>
     </tr>
     <tr>
       <td rowSpan="3">Imaging System</td>
@@ -267,7 +267,7 @@ The interface board manages all peripherals and communication interfaces through
 | Item | Specification |
 |------|---------------|
 | Power Supply | DC 12V adapter or PoE 802.3AT (single-cable) |
-| System Power | < 5-6W (typical load) |
+| System Power | 5–6W (typical load) |
 
 ## System Architecture
 
