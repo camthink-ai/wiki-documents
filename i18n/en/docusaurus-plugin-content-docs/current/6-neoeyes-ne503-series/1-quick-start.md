@@ -77,7 +77,15 @@ Open a browser and navigate to `http://10.0.0.1:8080`:
 
 Log in with the default credentials: username `admin`, password `password`.
 
-After logging in, you will see the Dashboard with CPU / memory usage, network traffic, storage space, AI inference status, and a live camera preview.
+After logging in, you will see the Dashboard. The page is organized into the following sections from top to bottom:
+
+- **Device Status**: Device uptime, chip temperatures (SoC / MCU / CPU / Board), light brightness, IR LED toggle, IR-CUT filter mode
+- **Resource Monitoring**: Real-time gauges for CPU / NPU / Memory / Storage usage
+- **Stream Preview**: Live camera preview
+- **Applications**: Installed app list with running status and resource usage
+- **AI Models**: Overview of loaded models
+- **Monitor**: System resource trend charts
+- **Device Info**: Device name, IP address, MAC address, firmware version, build date
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-dashboard.png)
 
@@ -116,9 +124,9 @@ After completing the initial configuration, verify that the camera feed and vide
 
 ### 1. Live View and Lens Control
 
-Go to the **Media** page, which has two tabs: **Media** and **Control**.
+Go to the **Media** page, which has four tabs: **Media**, **Control**, **Image**, and **Audio**.
 
-**Media tab**: Displays the live camera preview. AI detection results are overlaid directly on the image.
+**Media tab**: Displays the live camera preview. Below the preview are stream settings (codec, resolution, frame rate, bitrate, GOP) and an RTSP toggle with the stream URL.
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-media.png)
 
@@ -134,7 +142,7 @@ RTSP is the primary video protocol for integrating NE503 with external systems. 
 
 | Stream | Address | Use Case |
 |--------|---------|----------|
-| Main stream | `rtsp://<device-ip>:8554/main` | 4K high-definition recording |
+| Main stream | `rtsp://<device-ip>:8554/main` | 4K high-definition recording (3840×2160) |
 | Sub stream | `rtsp://<device-ip>:8554/sub` | Low-bandwidth preview |
 | Third stream | `rtsp://<device-ip>:8554/third` | AI analysis / mobile |
 
@@ -172,7 +180,7 @@ Select **App Management** in the navigation bar. Click the **Import** card at th
 
 Clicking the Import card opens the **Application Setup Wizard** with 6 steps:
 
-**Step 1 · Source** — Select the image source and enter the address. Supports **Registry Image** (pull from Docker Hub or private registry) and **Upload Archive** (upload a local `.tar` / `.tar.gz` file). For NX Witness, select Registry Image and enter `ptr727/nxwitness:6.1.1.42624`, then click Continue.
+**Step 1 · Source** — Select the image source and enter the address. Supports **Registry Image** (pull from Docker Hub or private registry), **Upload Archive** (upload a local `.tar` / `.tar.gz` file), and **Upload Package** (upload an app.yaml manifest + image file for complete configuration). For NX Witness, select Registry Image and enter `ptr727/nxwitness:6.1.1.42624`, then click Continue.
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/wizard-step1-source.png)
 
@@ -208,13 +216,11 @@ NX Witness verification:
 | Service | Address |
 |---------|---------|
 | NX Witness management interface | `https://<device-ip>:7001` |
-| RTSP stream | `rtsp://<device-ip>:554/` |
+| RTSP stream | `rtsp://<device-ip>:554/` (specific stream path depends on NX Witness configuration) |
 
-Open `https://<device-ip>:7001` in a browser. On first access, the NX Witness setup wizard appears:
+> Port 554 in the table above is NX Witness's own RTSP service port, which is different from NE503's port 8554. When adding the NE503 camera stream in NX Witness, use the NE503 RTSP address `rtsp://<device-ip>:8554/main`.
 
-![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/nx-verify-7001.png)
-
-Select **Setup New Site**, follow the wizard to create an admin account, and add the NE503 RTSP stream (`rtsp://<device-ip>:8554/main`) to get started.
+Open `https://<device-ip>:7001` in a browser. On first access, the NX Witness setup wizard appears. Select **Setup New Site**, follow the wizard to create an admin account, and add the NE503 RTSP stream (`rtsp://<device-ip>:8554/main`) to get started.
 
 **NX Witness Troubleshooting**:
 
@@ -251,7 +257,7 @@ The NE503 provides a RESTful API for programmatic management and data retrieval.
 
 ```bash
 # Login to get Token
-curl -X POST http://<device-ip>:8080/api/v1/auth/login \
+curl -X POST http://<device-ip>:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"<your-password>"}'
 
@@ -290,7 +296,7 @@ Go to **Settings → Storage**:
 
 ![](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-storage.png)
 
-The NE503 has built-in 64GB eMMC for system and application data. To expand storage, use a TF card (UHS-I supported). The M.2 SSD (PCIe 3.0 x 2 Lanes) interface is not yet supported and will be enabled via a future firmware update. Clean up or expand when storage usage exceeds 80%.
+The NE503 has built-in 64GB eMMC for system and application data. To expand storage, use a TF card (UHS-I supported). The M.2 SSD (SoC natively supports PCIe Gen4, see hardware documentation for details) interface is not yet supported and will be enabled via a future firmware update. Clean up or expand when storage usage exceeds 80%.
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: NeoEyes NE503 is an edge AI computing platform based on the Hailo-15H SoC, featuring a 20 TOPS NPU, 4K video encoding, containerized application management, a web console, and multi-model concurrent inference for smart security, industrial inspection, and AIoT applications.
+description: NeoEyes NE503 is an edge AI smart camera and computing platform based on the Hailo-15H SoC, featuring a 20 TOPS NPU, 4K video encoding, containerized application management, a web console, and multi-model concurrent inference for smart security, industrial inspection, and AIoT applications.
 keywords: [NeoEyes NE503, Hailo-15H, edge AI platform, 20 TOPS, AI camera, smart IPC, containerized applications, edge computing, AI-ISP, RTSP]
 tags: [NE503, AI camera, edge computing, smart IPC, AIoT]
 ---
@@ -70,7 +70,7 @@ NE503 core specifications are as follows:
     </tr>
     <tr>
       <td>System Power</td>
-      <td>5–6W (typical load)</td>
+      <td>< 5-6W (typical load)</td>
     </tr>
     <tr>
       <td rowSpan="3">Imaging System</td>
@@ -118,7 +118,7 @@ NE503 core specifications are as follows:
     </tr>
     <tr>
       <td>Expansion Interfaces</td>
-      <td>RS-485 / Fill Light Interface</td>
+      <td>RS-485 (fill light connector is an internal module, not a user-facing external interface)</td>
     </tr>
     <tr>
       <td rowSpan="2">Software Platform</td>
@@ -209,14 +209,14 @@ The NE503 imaging system pairs a Sony IMX678 (1/1.8") image sensor with an AF au
     </tr>
     <tr>
       <td>Electromechanical</td>
-      <td>AF autofocus and auto-zoom, P-Iris auto aperture, IR-Cut electromagnetic switching</td>
+      <td>AF autofocus and auto-zoom, IR-Cut electromagnetic switching</td>
     </tr>
   </tbody>
 </table>
 
 ### Lens Drive & Image Stabilization
 
-The onboard gyroscope supports EIS electronic image stabilization. Combined with AF auto-zoom and auto focus, it maintains image stability even at the telephoto end.
+The NE503 supports AF autofocus and auto-zoom with 4x optical zoom. Lens control is handled by the SoC via SPI CS1 (the default runtime control path), while the MCU provides lens homing and limit protection via SPI1. The onboard gyroscope supports EIS electronic image stabilization, maintaining image stability even at the telephoto end.
 
 ## Hardware Architecture
 
@@ -237,11 +237,11 @@ The Processor Board integrates the SoC, NPU, memory, storage, and camera interfa
 | DSP | 350 GOPS |
 | Memory | 8 GB LPDDR4 |
 | Storage | 64 GB eMMC |
-| SSD Expansion | M.2 KEY M (PCIe 3.0) ⚠️ Not yet supported |
+| SSD Expansion | M.2 KEY M (SoC natively supports PCIe Gen4, see hardware documentation for details) ⚠️ Not yet supported |
 
 ### Interface Board
 
-The interface board manages all peripherals and communication interfaces through an independent MCU (Arm Cortex-M0+, 64 MHz), communicating with the Processor Board via UART0, and integrates the system power input and distribution circuitry. SoC interfaces such as the Ethernet PHY and TF card slot are also routed to the interface board via board-to-board connectors.
+The interface board manages all peripherals and communication interfaces through an independent MCU (Arm Cortex-M0+, 64 MHz), communicating with the Processor Board via UART0, and integrates the system power input and distribution circuitry. The Ethernet PHY is located on the core processing board, while SoC interfaces such as the TF card slot are routed to the interface board via board-to-board connectors.
 
 #### External Interfaces
 
@@ -251,14 +251,14 @@ The interface board manages all peripherals and communication interfaces through
 | RS-485 | Serial communication bus |
 | Ethernet | 100M LAN, supports PoE 802.3AT power supply |
 | TF Card | Supports UHS-I high-speed storage cards |
-| Fill Light Interface | Supports IR/white fill light connection |
+| Fill Light Interface | Supports IR fill light (supported), White fill light (reserved) |
 
 #### MCU Management
 
 | Item | Specification |
 |------|---------------|
 | MCU | Arm Cortex-M0+ @ 64 MHz |
-| Management Scope | AF lens, fill light, IR-CUT, heater, fan, Alarm IO, RS-485, light sensor |
+| Management Scope | AF lens, fill light, IR-CUT, heater (reserved), fan (reserved), Alarm IO, RS-485, light sensor |
 | Thermal Control | 12V fan (reserved) + 12V heater (reserved) |
 | RTC | Supercapacitor power-fail retention |
 
@@ -267,9 +267,9 @@ The interface board manages all peripherals and communication interfaces through
 | Item | Specification |
 |------|---------------|
 | Power Supply | DC 12V adapter or PoE 802.3AT (single-cable) |
-| System Power | 5–6W (typical load) |
+| System Power | < 5-6W (typical load) |
 
-## Software Architecture
+## System Architecture
 
 <div align="center">
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/overview/software-stack.png" alt="Software Stack Architecture" width="80%" />
@@ -355,7 +355,7 @@ With 20 TOPS local computing power, containerized microservice architecture, and
 
 <div className="scenario-overview" style={{ display: "flex", gap: "16px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap" }}>
   <p style={{ flex: "1", margin: 0, lineHeight: 1.6 }}>
-    NE503's independent MCU peripheral control ensures industrial-grade reliability—even if containers crash, underlying hardware power-off and limit protection remain active. Rich IO interfaces support connecting various industrial sensors and actuators.
+    NE503's independent MCU peripheral control ensures industrial-grade reliability—even if containers crash, underlying hardware limit protection remains active. Rich IO interfaces support connecting various industrial sensors and actuators.
   </p>
 </div>
 
