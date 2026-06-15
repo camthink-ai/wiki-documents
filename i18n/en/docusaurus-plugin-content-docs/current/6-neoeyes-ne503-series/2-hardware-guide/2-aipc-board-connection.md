@@ -21,30 +21,30 @@ The interface board uses an independent MCU (STM32G0B0RET6) to manage external I
 
 | # | Function | Chip/Module | Description | Category |
 |:--|:---------|:------------|:------------|:---------|
-| 4 | IR-CUT Driver | IR-CUT device | Day/night filter switching | Internal |
-| 5 | Light Sensor Detection | Photoresistor | ADC ambient light sampling | Internal |
-| 6 | IR Light Board Driver | External light board | Near/Far-IR LED PWM | Internal |
-| 7 | LENS Driver | AN41908A-VBA | SPI lens driver | Internal |
-| 8 | System LED | — | Blue status LED | Internal |
-| 9 | Temperature Sensor | LMT87DCK | ADC temperature sampling | Internal |
-| 10 | Bidirectional Reset | SN74LVC1G14DCK + PD8 | SoC resets MCU (chip) / MCU resets Processor Board (PD8) | Internal |
-| 11 | RTC | Supercapacitor | VBAT power-fail retention | Internal |
+| 3 | IR-CUT Driver | IR-CUT device | Day/night filter switching | Internal |
+| 4 | Light Sensor Detection | Photoresistor | ADC ambient light sampling | Internal |
+| 5 | IR Light Board Driver | External light board | Near/Far-IR LED PWM | Internal |
+| 6 | LENS Driver | AN41908A-VBA | SPI lens driver | Internal |
+| 7 | System LED | — | Blue status LED | Internal |
+| 8 | Temperature Sensor | LMT87DCK | ADC temperature sampling | Internal |
+| 9 | Bidirectional Reset | SN74LVC1G14DCK + PD8 | SoC resets MCU (chip) / MCU resets Processor Board (PD8) | Internal |
+| 10 | RTC | Supercapacitor | VBAT power-fail retention | Internal |
 
 **Internal Reserved Resources** — Reserved features, not yet enabled:
 
 | # | Function | Chip/Module | Description | Category |
 |:--|:---------|:------------|:------------|:---------|
-| 12 | Radar Power Enable | — | PB0 power control | Internal (Reserved) |
-| 13 | Dual-Light Board Driver | External light board | White/Red LED PWM | Internal (Reserved) |
-| 14 | Fan Driver | — | 12V fan enable | Internal (Reserved) |
-| 15 | Heater | — | 12V heater enable | Internal (Reserved) |
+| 11 | Radar Power Enable | — | PB0 power control | Internal (Reserved) |
+| 12 | Dual-Light Board Driver | External light board | White/Red LED PWM | Internal (Reserved) |
+| 13 | Fan Driver | — | 12V fan enable | Internal (Reserved) |
+| 14 | Heater | — | 12V heater enable | Internal (Reserved) |
 
 **Debug Interfaces** — For development and debugging:
 
 | # | Function | Description | Category |
 |:--|:---------|:------------|:---------|
-| 16 | ST-LINK | SWD debug port | Debug |
-| 17 | Debug UART1 | USART1 | Debug |
+| 15 | ST-LINK | SWD debug port | Debug |
+| 16 | Debug UART1 | USART1 | Debug |
 
 ## External Interfaces
 
