@@ -450,5 +450,5 @@ The `Building Python SDK Documentation` stage prints many `ModuleNotFoundError: 
 - [System Architecture](./0-system-architecture.md) — Four-layer architecture and core services
 - [System Flashing](./2-system-flashing.md) — System image flashing and upgrades
 - [Software Deployment](./3-software-deployment.md) — Platform software deployment and iterative development
-- [Config Reference](./4-reference/1-config-reference.md) — Service configuration parameters
-- [Troubleshooting](./4-reference/0-troubleshooting.md) — Runtime issue diagnostics
+- [Platform Services](./4-reference/0-platform-services.md) — Service responsibilities and source pointers
+- [Troubleshooting](./4-reference/1-troubleshooting.md) — Runtime issue diagnostics

@@ -277,6 +277,4 @@ Event Bus 采用发布/订阅模式，支持 MQTT 风格通配符匹配：
 - [应用开发指南](../4-application-guide/1-app-development/1-app-reference.md) — 如何编写和部署容器应用
 - [Python SDK 参考](../4-application-guide/1-app-development/2-sdk-reference.md) — SDK API 签名与使用示例
 - [RESTful API 参考](../4-application-guide/2-3rd-party-integration/0-restful-api.md) — HTTP API 端点完整参考
-- [AI 推理服务](./4-reference/service-reference/0-ai-runtime.md) — AI Runtime 深度解析
-- [容器应用管理](./4-reference/service-reference/1-app-manager.md) — App Manager 深度解析
-- [配置文件参考](./4-reference/1-config-reference.md) — 所有配置文件详细参数
+- [平台服务总览](./4-reference/0-platform-services.md) — 各服务职责、协作关系与源码指针

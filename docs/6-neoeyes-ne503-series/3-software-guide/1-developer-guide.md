@@ -450,5 +450,5 @@ lib/
 - [System Architecture](./0-system-architecture.md) — 四层架构和核心服务详解
 - [System Flashing](./2-system-flashing.md) — 系统镜像烧录和升级
 - [Software Deployment](./3-software-deployment.md) — 平台软件部署和迭代开发
-- [Config Reference](./4-reference/1-config-reference.md) — 服务配置参数
-- [Troubleshooting](./4-reference/0-troubleshooting.md) — 运行时问题排查
+- [Platform Services](./4-reference/0-platform-services.md) — 各服务职责与源码指针
+- [Troubleshooting](./4-reference/1-troubleshooting.md) — 运行时问题排查

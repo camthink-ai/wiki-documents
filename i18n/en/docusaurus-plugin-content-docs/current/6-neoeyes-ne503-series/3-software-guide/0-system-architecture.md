@@ -278,6 +278,4 @@ Installation path: `/opt/aipc/` (binaries in `bin/`, configuration in `etc/`).
 - [Application Development Guide](../4-application-guide/1-app-development/1-app-reference.md) — How to write and deploy container applications
 - [Python SDK Reference](../4-application-guide/1-app-development/2-sdk-reference.md) — SDK API signatures and usage examples
 - [RESTful API Reference](../4-application-guide/2-3rd-party-integration/0-restful-api.md) — Complete HTTP API endpoint reference
-- [AI Inference Service](./4-reference/service-reference/0-ai-runtime.md) — AI Runtime deep dive
-- [Container Application Management](./4-reference/service-reference/1-app-manager.md) — App Manager deep dive
-- [Configuration File Reference](./4-reference/1-config-reference.md) — Detailed parameters for all configuration files
+- [Platform Services Overview](./4-reference/0-platform-services.md) — Service responsibilities, collaboration, and source pointers
