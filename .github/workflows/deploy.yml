@@ -1,24 +1,139 @@
 name: Deploy wiki
 
 on:
+  # 1. 自动触发：当代码推送到 main 分支时
   push:
     branches:
       - main
 
+  # 2. 手动触发：在 GitHub Actions 页面显示"Run workflow"按钮
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  deploy_to_github_pages:
-    name: 🚀 Deploy to GitHub Pages
+  # =======================================================
+  # JOB 1: 自动部署到测试服务器
+  # 此 Job 仅在 push 事件发生时运行
+  # =======================================================
+  # deploy_to_test_server:
+  #   name: 🧪 Deploy to Test Server
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push'
+
+  #   steps:
+  #     # 0. 显示部署信息
+  #     - name: 0. Display deployment info
+  #       run: |
+  #         echo "🧪 开始部署到内网测试服务器"
+  #         echo "🌐 目标服务器: 42.194.138.11"
+  #         echo "👤 触发用户: ${{ github.actor }}"
+  #         echo "🔖 提交 SHA: ${{ github.sha }}"
+  #         echo "📅 触发时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+  #     # 1. 检出源码
+  #     - name: 1. Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     # 2. 安装 Node.js（并缓存 yarn 依赖）
+  #     - name: 2. Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 20
+  #         cache: yarn
+
+  #     # 3. 安装依赖
+  #     - name: 3. Install dependencies
+  #       run: yarn install --frozen-lockfile
+
+  #     # 4. 构建 Docusaurus 静态网站 (测试服务器版本)
+  #     - name: 4. Build website for Test Server
+  #       env:
+  #         NODE_ENV: production
+  #         GITHUB_ACTIONS: true
+  #         DEPLOY_ENV: test
+  #         BASE_URL: /
+  #         SITE_URL: http://42.194.138.11:3002
+  #       run: yarn build
+
+  #     # 5. 使用 rsync 部署到测试服务器
+  #     - name: 5. Deploy to Test Server via SSH (rsync)
+  #       uses: burnett01/rsync-deployments@5.2
+  #       with:
+  #         switches: -avzr --delete
+  #         path: ./build/
+  #         remote_path: ${{ secrets.TEST_SERVER_PATH }}
+  #         remote_host: ${{ secrets.TEST_SERVER_HOST }}
+  #         remote_user: ${{ secrets.TEST_SERVER_USER }}
+  #         remote_key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+
+  # =======================================================
+  # JOB 2: 自动部署到生产服务器
+  # 此 Job 仅在 push 事件发生时运行（推送到 main 分支时自动触发）
+  # =======================================================
+  deploy_to_cloud_server:
+    name: ☁️ Deploy to Cloud Server (Auto)
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'camthink-ai' && github.event_name == 'push'
+
+    steps:
+      # 0. 显示部署信息
+      - name: 0. Display deployment info
+        run: |
+          echo "🚀 开始部署到生产服务器"
+          echo "👤 触发用户: ${{ github.actor }}"
+          echo "🔖 提交 SHA: ${{ github.sha }}"
+          echo "📅 触发时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      # 1. 检出源码 (手动触发时也需要重新检出代码)
+      - name: 1. Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. 安装 Node.js（并缓存 yarn 依赖）
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: yarn
+
+      # 3. 安装依赖
+      - name: 3. Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # 4. 构建 Docusaurus 静态网站 (生产服务器版本)
+      - name: 4. Build website for Production Server
+        env:
+          NODE_ENV: production
+          GITHUB_ACTIONS: true
+          DEPLOY_ENV: production
+          BASE_URL: /
+          SITE_URL: https://wiki.camthink.ai
+        run: yarn build
+
+      # 5. 使用 rsync 部署到生产服务器
+      - name: 5. Deploy to Production Server via SSH (rsync)
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --delete
+          path: ./build/
+          remote_path: ${{ secrets.TARGET_PATH }}
+          remote_host: ${{ secrets.SERVER_HOST }}
+          remote_user: ${{ secrets.SERVER_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  # =======================================================
+  # Harry 补充：fork (harryhua-ai) GitHub Pages 预览
+  # 推送到 fork 后即时生成预览站点，确认无误再 PR 到上游
+  # 仅 harryhua-ai 仓库运行；job 级权限独立声明（pages/id-token 写）
+  # =======================================================
+  preview_on_pages:
+    name: 🔎 Preview on GitHub Pages (fork)
+    if: github.repository_owner == 'harryhua-ai'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
 
     environment:
@@ -38,7 +153,7 @@ jobs:
       - name: 3. Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: 4. Build website
+      - name: 4. Build website (fork preview)
         env:
           NODE_ENV: production
           DEPLOY_ENV: github-pages
