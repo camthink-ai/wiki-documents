@@ -80,7 +80,7 @@ NE503 构建系统分为三层：
 **拉取镜像：**
 
 ```bash
-docker pull zerobot/ne503-dev-env-full
+docker pull camthink/ne503-dev:latest
 ```
 
 **创建持久开发容器：**
@@ -89,7 +89,7 @@ docker pull zerobot/ne503-dev-env-full
 docker run -d --name ne503-dev \
   -v $(pwd):/ne503 \
   -w /ne503 \
-  zerobot/ne503-dev-env-full \
+  camthink/ne503-dev:latest \
   bash -c "sleep infinity"
 ```
 

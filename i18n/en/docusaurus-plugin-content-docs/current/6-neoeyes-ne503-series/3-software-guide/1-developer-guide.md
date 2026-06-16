@@ -80,7 +80,7 @@ The image is **multi-platform** (amd64 + arm64); on Apple Silicon it pulls the a
 **Pull the image:**
 
 ```bash
-docker pull zerobot/ne503-dev-env-full
+docker pull camthink/ne503-dev:latest
 ```
 
 **Create a persistent dev container:**
@@ -89,7 +89,7 @@ docker pull zerobot/ne503-dev-env-full
 docker run -d --name ne503-dev \
   -v $(pwd):/ne503 \
   -w /ne503 \
-  zerobot/ne503-dev-env-full \
+  camthink/ne503-dev:latest \
   bash -c "sleep infinity"
 ```
 
