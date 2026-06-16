@@ -49,15 +49,16 @@ graph LR
 ### 2.1 传输发布包
 
 ```bash
-scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/tmp/
+scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/data/
 ```
 
 ### 2.2 执行部署
 
 ```bash
 ssh root@<device-ip>
-cd /tmp && tar xzf aipc-hailo15-<version>.tar.gz
-cd aipc-hailo15-<version> && ./deploy.sh
+# root 分区已满（3.3G、已用 99%），直接在 /data 分区解压
+cd /data && tar xzf aipc-hailo15-<version>.tar.gz
+cd aipc-hailo15-<version> && ./deploy.sh --prefix /data/aipc
 ```
 
 预期输出（节选关键阶段，省略逐文件 `+ xxx -> ...` 日志）：
@@ -67,7 +68,7 @@ cd aipc-hailo15-<version> && ./deploy.sh
 [deploy]   Current version:  unknown（首次）或旧版本号
 [deploy]   Package version:  1.0.0
 [deploy]   Config deploy:    yes
-[deploy]   Install prefix:   /opt/aipc
+[deploy]   Install prefix:   /data/aipc
 Proceed with deployment? [y/N] y
 [deploy] [1/8] Creating runtime directories...
 [deploy] [2/8] Backing up current installation...
@@ -95,7 +96,7 @@ Proceed with deployment? [y/N] y
 
 | 参数 | 说明 |
 |------|------|
-| `--prefix /data/aipc` | 安装到指定目录（推荐 `/data`，root 分区仅 100M） |
+| `--prefix /data/aipc` | 安装到指定目录（推荐 `/data`：root 分区 3.3G 已用 99%，仅剩约 60M） |
 | `--force` | 强制部署，跳过确认提示 |
 | `--rollback` | 回滚到上一版本 |
 | `--status` | 查看当前部署状态 |
@@ -120,7 +121,7 @@ scp build/output/device-control root@<device-ip>:/opt/aipc/bin/
 ssh root@<device-ip> "systemctl restart device-control"
 ```
 
-设备 `/opt` 空间不足时（root 分区约 100M），可部署到 `/data`：
+设备 `/opt` 空间不足时（root 分区 3.3G 已用 99%，仅剩约 60M），可部署到 `/data`：
 
 ```bash
 scp build/output/device-control root@<device-ip>:/data/aipc/bin/
@@ -159,14 +160,6 @@ make deploy-all TARGET=root@<device-ip> REMOTE_PREFIX=/data/aipc
 | `systemd/` | systemd 服务单元 |
 | `deploy.sh` | 热替换部署脚本 |
 | `VERSION` | 版本元数据 |
-
-### 模型文件
-
-模型不包含在发布包中，需单独部署：
-
-```bash
-make download-models TARGET=root@<device-ip> REMOTE_PREFIX=/data/aipc
-```
 
 ## 5. 部署验证
 

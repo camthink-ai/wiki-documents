@@ -1,12 +1,12 @@
 ---
-description: NE503 AIPC 平台架构详解，涵盖四层分层架构、7 个平台服务、HAL v2 硬件抽象、Python SDK、容器安全模型、零拷贝优化及多平台支持，帮助开发者和集成商深入理解系统设计与数据流。
-keywords: [NE503架构, AIPC平台, HAL硬件抽象, 容器隔离, 零拷贝, gRPC, DMA-BUF, 边缘AI, Python SDK, 事件总线]
+description: NE503 AIPC 平台架构详解，涵盖四层分层架构、7 个平台服务、HAL v2 硬件抽象、Python SDK、零拷贝优化及多平台支持，帮助开发者和集成商深入理解系统设计与数据流。
+keywords: [NE503架构, AIPC平台, HAL硬件抽象, 零拷贝, gRPC, DMA-BUF, 边缘AI, Python SDK, 事件总线]
 tags: [平台架构, NE503, 边缘AI, 开发者文档, 系统设计]
 ---
 
 # System Architecture
 
-NE503 AIPC（AI IPC）平台是一个面向边缘 AI 计算的完整软件栈，采用四层分层架构设计，支持多 SoC 平台（Hailo-15 / RKxxx / Jetson）通过硬件抽象层实现平滑迁移。本文档详细介绍平台各层架构、核心服务、数据流和安全模型。
+NE503 AIPC（AI IPC）平台是一个面向边缘 AI 计算的完整软件栈，采用四层分层架构设计，支持多 SoC 平台（Hailo-15 / RKxxx / Jetson）通过硬件抽象层实现平滑迁移。本文档详细介绍平台各层架构、核心服务与数据流。
 
 ## 1. 四层架构总览
 
@@ -143,72 +143,9 @@ Web 控制台通过 REST API 和 WebSocket 与 platform-api 通信，实时推�
 
 ---
 
-## 5. 容器隔离与安全
+## 5. 关键技术特性
 
-NE503 采用多层纵深防御架构，核心原则：**最小权限、访问路径收敛、显式授权**。
-
-### 5.1 安全分层模型
-
-```
-┌──────────────────────────────────────────────┐
-│          应用容器层                            │
-│   Namespaces / Seccomp / Capabilities        │
-│   Cgroup / ReadOnly Rootfs                   │
-└────────────────┬─────────────────────────────┘
-                  │ gRPC over Unix Socket（组权限控制）
-┌────────────────┴─────────────────────────────┐
-│          平台服务层                            │
-│   认证 / 权限收敛 / 审计日志                   │
-└────────────────┬─────────────────────────────┘
-                  │ HAL C API
-┌────────────────┴─────────────────────────────┐
-│          硬件层                                │
-│   TrustZone / Secure Boot                     │
-└──────────────────────────────────────────────┘
-```
-
-### 5.2 容器隔离机制
-
-应用容器通过 Linux 内核机制实现多层隔离：
-
-| 隔离层 | 机制 | 说明 |
-|:---|:---|:---|
-| 进程隔离 | Namespaces | PID / NET / IPC / UTS / MOUNT 等命名空间隔离 |
-| 系统调用过滤 | Seccomp BPF | 白名单模式，仅允许安全系统调用 |
-| 能力裁剪 | Capabilities | 移除危险能力（如 `CAP_SYS_ADMIN`） |
-| 资源限制 | Cgroups | CPU、内存、进程数限制 |
-| 文件系统 | ReadOnly Rootfs | 只读根文件系统 + No New Privileges |
-
-### 5.3 访问路径收敛
-
-所有资源访问必须经过平台服务，容器无法直接访问硬件。Unix Socket 权限通过 Linux 组（AIPC group GID）控制，仅在容器启动时自动注入 Main 容器，Sub 容器无法访问任何 Socket。
-
-### 5.4 声明式权限模型
-
-应用通过 `app.yaml` 的 `permissions` 字段声明式声明所需权限（视频流、推理模型、事件主题、设备控制、网络出站等），未声明的权限默认不可访问。详见 [应用开发参考](../4-application-guide/1-app-development/1-app-reference.md)。
-
-### 5.5 网络安全
-
-| 模式 | 说明 |
-|:---|:---|
-| **Isolated（默认）** | 无网络访问，仅通过 SDK 与平台服务通信 |
-| **Bridge（仅多容器）** | 通过 `aipc-br0` 网桥，出站白名单控制 |
-| **Host** | 共享宿主机网络栈 |
-
-Platform API 支持可选的 Bearer Token（JWT）认证，公开端点仅 `/api/login` 和 `/api/v1/system/health`。
-
-### 5.6 多容器安全边界
-
-| 角色 | 权限 |
-|:---|:---|
-| **Main 容器** | 获得平台 Socket 访问权限，可调用 AI 推理、事件总线等 |
-| **Sub 容器** | 完全隔离，仅通过共享网络命名空间与 Main 容器内部通信 |
-
----
-
-## 6. 关键技术特性
-
-### 6.1 零拷贝优化
+### 5.1 零拷贝优化
 
 ```mermaid
 sequenceDiagram
@@ -231,7 +168,7 @@ sequenceDiagram
 - 引用计数管理帧生命周期（`hal_frame_buffer_ref` / `hal_frame_buffer_release`）
 - AI Runtime 与 Camera Daemon 之间通过 `SCM_RIGHTS` 传递 FD（无需内存拷贝）
 
-### 6.2 事件驱动架构
+### 5.2 事件驱动架构
 
 Event Bus 采用发布/订阅模式，支持 MQTT 风格通配符匹配：
 
@@ -243,7 +180,7 @@ Event Bus 采用发布/订阅模式，支持 MQTT 风格通配符匹配：
 
 所有服务产生的推理结果、容器事件、设备事件均通过 Event Bus 分发，第三方应用通过 SDK 的 `EventClient` 订阅感兴趣的主题。
 
-### 6.3 容器化应用平台
+### 5.3 容器化应用平台
 
 - 基于 containerd 运行时，OCI 标准镜像部署
 - 多容器支持（Main + Sub），插件化依赖解析
@@ -252,7 +189,7 @@ Event Bus 采用发布/订阅模式，支持 MQTT 风格通配符匹配：
 
 ---
 
-## 7. 系统配置
+## 6. 系统配置
 
 平台使用 YAML 配置文件管理所有服务参数，配置文件位于 `configs/` 目录：
 
@@ -272,9 +209,9 @@ Event Bus 采用发布/订阅模式，支持 MQTT 风格通配符匹配：
 
 ---
 
-## 8. 相关文档
+## 7. 相关文档
 
-- [应用开发指南](../4-application-guide/1-app-development/1-app-reference.md) — 如何编写和部署容器应用
-- [Python SDK 参考](../4-application-guide/1-app-development/2-sdk-reference.md) — SDK API 签名与使用示例
+- [应用开发指南](../4-application-guide/1-app-development/reference/1-app-reference.md) — 如何编写和部署容器应用
+- [Python SDK 参考](../4-application-guide/1-app-development/reference/2-sdk-reference.md) — SDK API 签名与使用示例
 - [RESTful API 参考](../4-application-guide/2-3rd-party-integration/0-restful-api.md) — HTTP API 端点完整参考
 - [平台服务总览](./4-reference/0-platform-services.md) — 各服务职责、协作关系与源码指针

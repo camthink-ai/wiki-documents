@@ -49,15 +49,16 @@ graph LR
 ### 2.1 Transfer Package
 
 ```bash
-scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/tmp/
+scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/data/
 ```
 
 ### 2.2 Execute Deployment
 
 ```bash
 ssh root@<device-ip>
-cd /tmp && tar xzf aipc-hailo15-<version>.tar.gz
-cd aipc-hailo15-<version> && ./deploy.sh
+# root partition is nearly full (3.3G, 99% used); extract directly in /data
+cd /data && tar xzf aipc-hailo15-<version>.tar.gz
+cd aipc-hailo15-<version> && ./deploy.sh --prefix /data/aipc
 ```
 
 Expected output (key stages excerpted; per-file `+ xxx -> ...` logs omitted):
@@ -67,7 +68,7 @@ Expected output (key stages excerpted; per-file `+ xxx -> ...` logs omitted):
 [deploy]   Current version:  unknown (first deploy) or previous version
 [deploy]   Package version:  1.0.0
 [deploy]   Config deploy:    yes
-[deploy]   Install prefix:   /opt/aipc
+[deploy]   Install prefix:   /data/aipc
 Proceed with deployment? [y/N] y
 [deploy] [1/8] Creating runtime directories...
 [deploy] [2/8] Backing up current installation...
@@ -95,7 +96,7 @@ Proceed with deployment? [y/N] y
 
 | Option | Description |
 |--------|-------------|
-| `--prefix /data/aipc` | Install to specified directory (recommended: `/data`, as root partition is only 100M) |
+| `--prefix /data/aipc` | Install to specified directory (recommended: `/data` — root partition is 3.3G / 99% used, only ~60M free) |
 | `--force` | Force deployment, skip confirmation prompts |
 | `--rollback` | Roll back to previous version |
 | `--status` | Display current deployment status |
@@ -120,7 +121,7 @@ scp build/output/device-control root@<device-ip>:/opt/aipc/bin/
 ssh root@<device-ip> "systemctl restart device-control"
 ```
 
-If `/opt` runs low on space (root partition is ~100M), deploy to `/data` instead:
+If `/opt` runs low on space (root partition 3.3G, 99% used, ~60M free), deploy to `/data` instead:
 
 ```bash
 scp build/output/device-control root@<device-ip>:/data/aipc/bin/
@@ -159,14 +160,6 @@ make deploy-all TARGET=root@<device-ip> REMOTE_PREFIX=/data/aipc
 | `systemd/` | systemd service units |
 | `deploy.sh` | Hot-swap deployment script |
 | `VERSION` | Version metadata |
-
-### Model Files
-
-Models are not included in the release package and must be deployed separately:
-
-```bash
-make download-models TARGET=root@<device-ip> REMOTE_PREFIX=/data/aipc
-```
 
 ## 5. Deployment Verification
 

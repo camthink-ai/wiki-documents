@@ -1,5 +1,5 @@
 ---
-description: NE503 troubleshooting guide covering general troubleshooting workflows, service startup failures, AI inference, video streaming, device control, web console, log diagnostics, performance monitoring, and error code quick reference to help quickly identify and resolve platform issues.
+description: NE503 troubleshooting guide covering general troubleshooting workflows, service startup failures, video streaming, device control, web console, log diagnostics, performance monitoring, and error code quick reference to help quickly identify and resolve platform issues.
 keywords: [NE503 troubleshooting, AIPC diagnostics, gRPC, journalctl, NPU overheating, RTSP, WebSocket, web console, error codes]
 tags: [Advanced Reference, NE503, Troubleshooting, Diagnostic Commands]
 ---
@@ -131,182 +131,17 @@ flowchart TD
     N --> O
 ```
 
-### 3.5 Socket Connection Test
+### 3.5 Socket Permission Check
 
 ```bash
-# Test gRPC service using grpcurl
-grpcurl -plaintext unix:///run/aipc/ai-runtime.sock list
-
-# Test if service responds
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# Check Socket permissions
+# Check Socket directory and file permissions
 ls -ld /run/aipc/
 ls -la /run/aipc/*.sock
 ```
 
-## 4. AI Inference Troubleshooting
+## 4. Video Streaming Troubleshooting
 
-### 4.1 Model Loading Failure
-
-```mermaid
-flowchart TD
-    A["Model registration failed"] --> B{"Error type"}
-    B -->|"Path error"| C["Check model path"]
-    B -->|"Permission issue"| D["Check file permissions"]
-    B -->|"NPU device busy"| E["Restart ai-runtime"]
-    B -->|"Model format error"| F["Validate HEF file"]
-
-    C --> G["ls -la /opt/aipc/models/"]
-    D --> H["ls -la /path/to/model.hef"]
-    E --> I["systemctl restart ai-runtime"]
-    F --> J["hailo-model-analyzer"]
-
-    G --> K["Confirm path exists"]
-    H --> L["Check file owner/group"]
-    I --> M["Wait for service restart"]
-    J --> N["Check model format"]
-
-    K --> O["Fix path"]
-    L --> P["chmod 644"]
-    M --> Q["Re-register"]
-    N --> R["Convert or repair model"]
-```
-
-**Diagnostic commands:**
-
-```bash
-# View model registration logs
-journalctl -u ai-runtime | grep -i "model"
-
-# Check NPU device status
-hailortcli scan
-
-# Validate model files
-ls -la /opt/aipc/models/
-file /opt/aipc/models/yolov8n.hef
-```
-
-### 4.2 Inference Timeout
-
-```mermaid
-flowchart TD
-    A["Inference timeout"] --> B{"Check queue status"}
-    B -->|"Queue full"| C["Increase concurrency limit"]
-    B -->|"Session quota"| D["Adjust session limits"]
-    B -->|"Model too large"| E["Optimize model or add memory"]
-    B -->|"NPU overheating"| F["Reduce load or improve cooling"]
-
-    C --> G["Update scheduler config (global_concurrent_limit, queue_size)"]
-    D --> H["Adjust default_session.max_qps"]
-    E --> I["Optimize model size"]
-    F --> J["Monitor temperature changes"]
-
-    G --> K["global_concurrent_limit: 16"]
-    H --> L["max_qps: 50"]
-    I --> M["Model quantization/pruning"]
-    J --> N["Temperature limit 85C"]
-
-    K --> O["Restart ai-runtime"]
-    L --> O
-    M --> O
-    N --> O
-    O --> P["Test inference performance"]
-```
-
-**Diagnostic commands:**
-
-```bash
-# View inference statistics
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-
-# List registered models
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# Monitor system resources
-top -p $(pidof ai-runtime)
-```
-
-### 4.3 NPU Overheating
-
-```mermaid
-flowchart TD
-    A["Temperature alert"] --> B{"Current temperature"}
-    B -->|"> 85C"| C["Trigger shutdown protection"]
-    B -->|"> 80C"| D["Auto throttling"]
-
-    C --> E["Check cooling system"]
-    D --> F["Reduce inference load"]
-
-    E --> G["Clean fans"]
-    E --> H["Improve ventilation"]
-    F --> I["Reduce concurrent sessions"]
-    F --> J["Lower inference FPS"]
-
-    G --> K["Physical maintenance"]
-    H --> L["Environment optimization"]
-    I --> M["Adjust scheduler"]
-    J --> N["Configure auto inference"]
-
-    K --> O["Monitor temperature"]
-    L --> O
-    M --> O
-    N --> O
-```
-
-**Monitoring commands:**
-
-```bash
-# Check NPU temperature
-hailortcli scan | grep Temperature
-
-# View ai-runtime temperature logs
-journalctl -u ai-runtime | grep -i "temperature"
-
-# View performance statistics
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-```
-
-### 4.4 Session Quota Exceeded
-
-```mermaid
-flowchart TD
-    A["Quota exceeded error"] --> B["View current usage"]
-    B --> C["Analyze session usage patterns"]
-    C --> D{"Optimization plan"}
-
-    D -->|"Increase quota"| E["Adjust max_qps"]
-    D -->|"Reduce concurrency"| F["Lower max_concurrent"]
-    D -->|"Queue strategy"| G["Switch to fair strategy"]
-    D -->|"Priority adjustment"| H["Elevate high-priority sessions"]
-
-    E --> I["default_session.max_qps: 50"]
-    F --> J["global_concurrent_limit: 16"]
-    G --> K["scheduler.strategy: fair"]
-    H --> L["priority: 7"]
-
-    I --> M["Restart service"]
-    J --> M
-    K --> M
-    L --> M
-```
-
-**Diagnostic commands:**
-
-```bash
-# List registered models
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# View quota statistics
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-
-# View session creation logs
-journalctl -u ai-runtime | grep -i "session"
-```
-
-## 5. Video Streaming Troubleshooting
-
-### 5.1 RTSP Connection Failure
+### 4.1 RTSP Connection Failure
 
 ```mermaid
 flowchart TD
@@ -316,7 +151,7 @@ flowchart TD
     B -->|"Network issue"| E["Check client network"]
 
     C --> F["systemctl start camera-daemon"]
-    D --> G["netstat -tulpn | grep 8554"]
+    D --> G["Check port 8554 usage"]
     E --> H["Test connection from client"]
 
     F --> I["Wait for service startup"]
@@ -341,28 +176,24 @@ systemctl status camera-daemon
 # View RTSP logs
 journalctl -u camera-daemon -f
 
-# Test RTSP connection
-ffmpeg -rtsp_transport tcp -i rtsp://localhost:8554/main -t 10 -f null -
-
-# Check port usage
-netstat -tulpn | grep 8554
+# Test RTSP connection (replace <device-ip> with the actual device IP)
+ffmpeg -rtsp_transport tcp -i rtsp://<device-ip>:8554/main -t 10 -f null -
 ```
 
-> For Web Console WebSocket disconnection troubleshooting (video playback layer), see [Application Troubleshooting — Video Stream Integration](../../4-application-guide/0-app-troubleshooting.md#2-video-stream-integration-troubleshooting).
+> For Web Console WebSocket disconnection troubleshooting (video playback layer), see [Application Troubleshooting — Video Stream Integration](../../4-application-guide/1-app-development/reference/troubleshooting.md#2-video-stream-integration-troubleshooting).
 
-## 6. Device Control Troubleshooting
+## 5. Device Control Troubleshooting
 
 | Symptom | Possible Cause | Diagnostic Command |
 |---------|---------------|-------------------|
-| PTZ not responding | device-control not started / MCU UART communication failure | `systemctl status device-control`; `journalctl -u device-control -f`; `grpcurl ... DeviceControl/Pan` |
 | Lens control abnormality | Focus/zoom/iris motor fault | `grpcurl ... DeviceControl/GetLensStatus`; `grpcurl ... DeviceControl/LensResetZero` |
 | UART communication failure | Baud rate/wiring/voltage issue | `ls -la /dev/ttyS*`; `stty -F /dev/ttyS0 921600` |
 
 The complete gRPC interface is defined in `platform/device-control/proto/device.proto`.
 
-## 7. Web Console Troubleshooting
+## 6. Web Console Troubleshooting
 
-### 7.1 Browser Compatibility
+### 6.1 Browser Compatibility
 
 | Browser | Minimum Version | Support Level | Known Issues | Solution |
 |---------|----------------|--------------|-------------|----------|
@@ -374,7 +205,7 @@ The complete gRPC interface is defined in `platform/device-control/proto/device.
 
 Chrome 88+ or Edge 88+ recommended for the best experience. Safari auto-degrades to MSE with slightly lower performance.
 
-### 7.2 WebSocket and Video Playback Troubleshooting
+### 6.2 WebSocket and Video Playback Troubleshooting
 
 Video playback relies on WebSocket to transport H.264 frames. Common issues:
 
@@ -386,7 +217,7 @@ Video playback relies on WebSocket to transport H.264 frames. Common issues:
 | Artifacts/mosaic | Network packet loss / decoder incompatibility | Switch browser or check network quality |
 | High latency | Network latency / buffer too large | Ensure sufficient LAN bandwidth, reduce encoding GOP |
 
-### 7.3 API Request Failures
+### 6.3 API Request Failures
 
 | Status Code | Meaning | Solution |
 |-------------|---------|----------|
@@ -396,35 +227,9 @@ Video playback relies on WebSocket to transport H.264 frames. Common issues:
 | 500 | Server error | Check `/var/log/aipc/platform-api.log` |
 | 503 | Service unavailable | Check service status, restart if needed |
 
-### 7.4 Log Viewing
+## 7. Log Level Adjustment
 
-**Browser-side:** Open Developer Tools (F12) → Console tab to view errors.
-
-**Server-side:**
-
-```bash
-# AI inference service log
-tail -f /var/log/aipc/ai-runtime.log
-
-# Platform API service log
-tail -f /var/log/aipc/platform-api.log
-
-# App manager log
-tail -f /var/log/aipc/app-manager.log
-
-# Device control service log
-tail -f /var/log/aipc/device-control.log
-
-# Event bus log
-tail -f /var/log/aipc/event-bus.log
-
-# Camera daemon log
-tail -f /var/log/aipc/camera-daemon.log
-```
-
-## 8. Log Level Adjustment
-
-### 8.1 Temporarily Adjust Log Level
+### 7.1 Temporarily Adjust Log Level
 
 ```bash
 # Temporarily set to debug level
@@ -435,7 +240,7 @@ sudo journalctl -u ai-runtime -f
 sudo journalctl -u camera-daemon -p err
 ```
 
-### 8.2 Modify Configuration File
+### 7.2 Modify Configuration File
 
 The actual config files on the device are located at `/opt/aipc/etc/*.yaml` (the path specified in systemd ExecStart). The `configs/` directory in the source repo is only a template.
 
@@ -447,7 +252,7 @@ service:
   log_level: debug  # debug, info, warn, error
 ```
 
-### 8.3 Log Level Reference
+### 7.3 Log Level Reference
 
 | Level | Description |
 |-------|-------------|
@@ -456,7 +261,7 @@ service:
 | `warn` | Non-fatal warnings |
 | `error` | Critical errors |
 
-### 8.4 Log Analysis Tips
+### 7.4 Log Analysis Tips
 
 ```bash
 # View error rate
@@ -469,9 +274,9 @@ journalctl -u ai-runtime | grep "error" | sort | uniq -c | sort -nr
 journalctl -u ai-runtime | grep -E "(timeout|connection refused|permission denied)"
 ```
 
-## 9. Performance Monitoring
+## 8. Performance Monitoring
 
-### 9.1 System Resource Monitoring
+### 8.1 System Resource Monitoring
 
 ```bash
 # Monitor CPU usage
@@ -487,7 +292,7 @@ iostat -x 1 5
 iftop -i eth0
 ```
 
-### 9.2 Service Performance Metrics
+### 8.2 Service Performance Metrics
 
 ```bash
 # AI Runtime statistics
@@ -500,7 +305,7 @@ aipc-cli app info <app-id>
 grpcurl -plaintext -d '{}' unix:///run/aipc/device-control.sock aipc.device.DeviceControl/GetDeviceStatus
 ```
 
-### 9.3 Real-time Monitoring Script
+### 8.3 Real-time Monitoring Script
 
 ```bash
 #!/bin/bash
@@ -520,26 +325,23 @@ while true; do
 done
 ```
 
-## 10. Common Diagnostic Commands Quick Reference
+## 9. Common Diagnostic Commands Quick Reference
 
 | Scenario | Command | Description |
 |----------|---------|-------------|
 | View service status | `systemctl status ai-runtime camera-daemon app-manager` | Check core platform services |
 | View service logs | `journalctl -u <service-name> -f` | View service logs in real time |
-| Test gRPC connection | `grpcurl -plaintext unix:///run/aipc/service.sock list` | Test gRPC service availability |
 | Check Socket | `ls -la /run/aipc/` | View Unix Socket files |
-| Check port usage | `netstat -tulpn \| grep 8554` | Check RTSP port usage |
 | Check system resources | `top -p $(pidof service)` | Monitor service resource usage |
 | View container status | `aipc-cli app list` | List all container applications |
 | Test network connection | `curl http://localhost:8080/api/v1/media/status` | Test API endpoint |
 | View model status | `grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels` | List registered models |
 | Check NPU status | `hailortcli scan` | View Hailo device status |
-| Test PTZ control | `grpcurl -plaintext -d '{"direction": "PAN_LEFT", "speed": 50}' unix:///run/aipc/device-control.sock aipc.device.DeviceControl/Pan` | Test PTZ control |
 | View event logs | `aipc-cli event-log list` | View event bus logs |
 | Check disk usage | `df -h /opt/aipc` | Check disk space |
 | Check memory usage | `free -h` | Check system memory |
 
-## 11. Error Code Reference
+## 10. Error Code Reference
 
 The following are business error codes returned by platform-api. The full definition is in `platform/platform-api/handlers/response.go`.
 
@@ -562,7 +364,7 @@ Code ranges: **1xxx** General/Request · **2xxx** Auth · **3xxx** Service/Infra
 | 8003 | Storage full | 8004 | Access denied | 9000 | SSH config error |
 | 9001 | SSH service error | 10000 | Process not found | 10001 | Process kill failed |
 
-## 12. Troubleshooting Summary
+## 11. Troubleshooting Summary
 
 1. **Check service status first** -- Use `systemctl status` to confirm if services are running
 2. **View error logs** -- Use `journalctl` to view detailed error information
@@ -575,4 +377,4 @@ Code ranges: **1xxx** General/Request · **2xxx** Auth · **3xxx** Service/Infra
 
 - [Services Overview](./0-platform-services.md) — Service responsibilities, collaboration, and source pointers
 - [Platform Architecture](../0-system-architecture.md)
-- [App Troubleshooting](../../4-application-guide/0-app-troubleshooting.md) — Application development troubleshooting (containers, video streams, event bus)
+- [App Troubleshooting](../../4-application-guide/1-app-development/reference/troubleshooting.md) — Application development troubleshooting (containers, video streams, event bus)

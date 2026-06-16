@@ -1,12 +1,12 @@
 ---
-description: NE503 AIPC platform architecture deep dive, covering the four-layer architecture, 7 platform services, HAL v2 hardware abstraction, Python SDK, container security model, zero-copy optimization, and multi-platform support. Designed to help developers and integrators thoroughly understand system design and data flow.
-keywords: [NE503 architecture, AIPC platform, HAL hardware abstraction, container isolation, zero-copy, gRPC, DMA-BUF, edge AI, Python SDK, event bus]
+description: NE503 AIPC platform architecture deep dive, covering the four-layer architecture, 7 platform services, HAL v2 hardware abstraction, Python SDK, zero-copy optimization, and multi-platform support. Designed to help developers and integrators thoroughly understand system design and data flow.
+keywords: [NE503 architecture, AIPC platform, HAL hardware abstraction, zero-copy, gRPC, DMA-BUF, edge AI, Python SDK, event bus]
 tags: [platform architecture, NE503, edge AI, developer documentation, system design]
 ---
 
 # System Architecture
 
-The NE503 AIPC (AI IPC) platform is a complete software stack designed for edge AI computing. It adopts a four-layer architecture and supports multiple SoC platforms (Hailo-15 / RKxxx / Jetson) with seamless migration through a hardware abstraction layer. This document provides a detailed overview of each architectural layer, core services, data flow, and the security model.
+The NE503 AIPC (AI IPC) platform is a complete software stack designed for edge AI computing. It adopts a four-layer architecture and supports multiple SoC platforms (Hailo-15 / RKxxx / Jetson) with seamless migration through a hardware abstraction layer. This document provides a detailed overview of each architectural layer, core services, and data flow.
 
 ## 1. Four-Layer Architecture Overview
 
@@ -143,73 +143,9 @@ Access URL: `http://<device-ip>:8080`.
 
 ---
 
-## 5. Container Isolation and Security
+## 5. Key Technical Features
 
-NE503 adopts a multi-layered defense-in-depth architecture. Core principles: **least privilege, access path convergence, and explicit authorization**.
-
-### 5.1 Security Layer Model
-
-```
-┌──────────────────────────────────────────────┐
-│          Application Container Layer          │
-│   Namespaces / Seccomp / Capabilities        │
-│   Cgroup / ReadOnly Rootfs                   │
-└────────────────┬─────────────────────────────┘
-                  │ gRPC over Unix Socket (group permission control)
-┌────────────────┴─────────────────────────────┐
-│          Platform Services Layer              │
-│   Authentication / Permission Convergence    │
-│   Audit Logging                              │
-└────────────────┬─────────────────────────────┘
-                  │ HAL C API
-┌────────────────┴─────────────────────────────┐
-│          Hardware Layer                       │
-│   TrustZone / Secure Boot                    │
-└──────────────────────────────────────────────┘
-```
-
-### 5.2 Container Isolation Mechanisms
-
-Application containers are isolated through multiple Linux kernel mechanisms:
-
-| Isolation Layer | Mechanism | Description |
-|:---|:---|:---|
-| Process isolation | Namespaces | PID / NET / IPC / UTS / MOUNT namespace isolation |
-| Syscall filtering | Seccomp BPF | Allowlist mode, only safe system calls permitted |
-| Capability trimming | Capabilities | Removes dangerous capabilities (e.g., `CAP_SYS_ADMIN`) |
-| Resource limits | Cgroups | CPU, memory, and process count limits |
-| Filesystem | ReadOnly Rootfs | Read-only root filesystem + No New Privileges |
-
-### 5.3 Access Path Convergence
-
-All resource access must go through platform services. Containers cannot access hardware directly. Unix Socket permissions are controlled through Linux groups (AIPC group GID), automatically injected only into the Main container at startup. Sub containers cannot access any sockets.
-
-### 5.4 Declarative Permission Model
-
-Applications declare required permissions (video streams, inference models, event topics, device control, network outbound, etc.) through the `permissions` field in `app.yaml`. Undeclared permissions are inaccessible by default. See [App Development Reference](../4-application-guide/1-app-development/1-app-reference.md) for details.
-
-### 5.5 Network Security
-
-| Mode | Description |
-|:---|:---|
-| **Isolated (default)** | No network access, communicates with platform services only through SDK |
-| **Bridge (multi-container only)** | Connected via `aipc-br0` bridge, outbound allowlist control |
-| **Host** | Shares host network stack |
-
-Platform API supports optional Bearer Token (JWT) authentication. Public endpoints are limited to `/api/login` and `/api/v1/system/health`.
-
-### 5.6 Multi-Container Security Boundary
-
-| Role | Permissions |
-|:---|:---|
-| **Main Container** | Granted platform Socket access, can call AI inference, event bus, etc. |
-| **Sub Container** | Fully isolated, communicates with Main container only through shared network namespace |
-
----
-
-## 6. Key Technical Features
-
-### 6.1 Zero-Copy Optimization
+### 5.1 Zero-Copy Optimization
 
 ```mermaid
 sequenceDiagram
@@ -232,7 +168,7 @@ Core mechanisms:
 - Reference counting manages frame lifecycle (`hal_frame_buffer_ref` / `hal_frame_buffer_release`)
 - FD passing between AI Runtime and Camera Daemon via `SCM_RIGHTS` (no memory copy required)
 
-### 6.2 Event-Driven Architecture
+### 5.2 Event-Driven Architecture
 
 The Event Bus uses a publish/subscribe pattern with MQTT-style wildcard matching:
 
@@ -244,7 +180,7 @@ The Event Bus uses a publish/subscribe pattern with MQTT-style wildcard matching
 
 All inference results, container events, and device events generated by services are dispatched through the Event Bus. Third-party applications subscribe to topics of interest using the SDK's `EventClient`.
 
-### 6.3 Containerized Application Platform
+### 5.3 Containerized Application Platform
 
 - Based on containerd runtime, OCI standard image deployment
 - Multi-container support (Main + Sub), plugin-based dependency resolution
@@ -253,7 +189,7 @@ All inference results, container events, and device events generated by services
 
 ---
 
-## 7. System Configuration
+## 6. System Configuration
 
 The platform uses YAML configuration files to manage all service parameters. Configuration files are located in the `configs/` directory:
 
@@ -273,9 +209,9 @@ Installation path: `/opt/aipc/` (binaries in `bin/`, configuration in `etc/`).
 
 ---
 
-## 8. Related Documentation
+## 7. Related Documentation
 
-- [Application Development Guide](../4-application-guide/1-app-development/1-app-reference.md) — How to write and deploy container applications
-- [Python SDK Reference](../4-application-guide/1-app-development/2-sdk-reference.md) — SDK API signatures and usage examples
+- [Application Development Guide](../4-application-guide/1-app-development/reference/1-app-reference.md) — How to write and deploy container applications
+- [Python SDK Reference](../4-application-guide/1-app-development/reference/2-sdk-reference.md) — SDK API signatures and usage examples
 - [RESTful API Reference](../4-application-guide/2-3rd-party-integration/0-restful-api.md) — Complete HTTP API endpoint reference
 - [Platform Services Overview](./4-reference/0-platform-services.md) — Service responsibilities, collaboration, and source pointers

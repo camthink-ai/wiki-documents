@@ -1,5 +1,5 @@
 ---
-description: NE503 故障排查手册，涵盖通用排查流程、服务启动失败、AI 推理、视频流、设备控制、Web 控制台、日志与诊断、性能监控、错误码速查，帮助快速定位和解决平台各类问题。
+description: NE503 故障排查手册，涵盖通用排查流程、服务启动失败、视频流、设备控制、Web 控制台、日志与诊断、性能监控、错误码速查，帮助快速定位和解决平台各类问题。
 keywords: [NE503 故障排查, AIPC 诊断, gRPC, journalctl, NPU 过温, RTSP, WebSocket, Web 控制台, 错误码]
 tags: [高级参考, NE503, 故障排查, 诊断命令]
 ---
@@ -131,182 +131,17 @@ flowchart TD
     N --> O
 ```
 
-### 3.5 Socket 连接测试
+### 3.5 Socket 权限检查
 
 ```bash
-# 使用 grpcurl 测试 gRPC 服务
-grpcurl -plaintext unix:///run/aipc/ai-runtime.sock list
-
-# 测试服务是否响应
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# 检查 Socket 权限
+# 检查 Socket 目录与文件权限
 ls -ld /run/aipc/
 ls -la /run/aipc/*.sock
 ```
 
-## 4. AI 推理排查
+## 4. 视频流排查
 
-### 4.1 模型加载失败
-
-```mermaid
-flowchart TD
-    A[模型注册失败] --> B{错误类型}
-    B -->|路径错误| C[检查模型路径]
-    B -->|权限问题| D[检查文件权限]
-    B -->|NPU 设备忙| E[重启 ai-runtime]
-    B -->|模型格式错误| F[校验 HEF 文件]
-
-    C --> G[ls -la /opt/aipc/models/]
-    D --> H[ls -la /path/to/model.hef]
-    E --> I[systemctl restart ai-runtime]
-    F --> J[hailo-model-analyzer]
-
-    G --> K[确认路径存在]
-    H --> L[检查文件属主/属组]
-    I --> M[等待服务重启完成]
-    J --> N[检查模型格式]
-
-    K --> O[修正路径]
-    L --> P[chmod 644]
-    M --> Q[重新注册]
-    N --> R[转换或修复模型]
-```
-
-**诊断命令：**
-
-```bash
-# 查看模型注册日志
-journalctl -u ai-runtime | grep -i "model"
-
-# 检查 NPU 设备状态
-hailortcli scan
-
-# 校验模型文件
-ls -la /opt/aipc/models/
-file /opt/aipc/models/yolov8n.hef
-```
-
-### 4.2 推理超时
-
-```mermaid
-flowchart TD
-    A[推理超时] --> B{检查队列状态}
-    B -->|队列已满| C[提高并发上限]
-    B -->|会话配额| D[调整会话限制]
-    B -->|模型过大| E[优化模型或增加内存]
-    B -->|NPU 温度过高| F[降低负载或改善散热]
-
-    C --> G["更新调度器配置（global_concurrent_limit、queue_size）"]
-    D --> H["调整 default_session.max_qps"]
-    E --> I[优化模型大小]
-    F --> J[监控温度变化]
-
-    G --> K[global_concurrent_limit: 16]
-    H --> L[max_qps: 50]
-    I --> M[模型量化/剪枝]
-    J --> N[温度上限 85°C]
-
-    K --> O[重启 ai-runtime]
-    L --> O
-    M --> O
-    N --> O
-    O --> P[测试推理性能]
-```
-
-**诊断命令：**
-
-```bash
-# 查看推理统计信息
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-
-# 查看已注册模型
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# 监控系统资源
-top -p $(pidof ai-runtime)
-```
-
-### 4.3 NPU 过温
-
-```mermaid
-flowchart TD
-    A[温度告警] --> B{当前温度}
-    B -->|> 85°C| C[触发停机保护]
-    B -->|> 80°C| D[自动降频]
-
-    C --> E[检查散热系统]
-    D --> F[降低推理负载]
-
-    E --> G[清理风扇]
-    E --> H[改善通风]
-    F --> I[减少并发会话]
-    F --> J[降低推理 FPS]
-
-    G --> K[物理维护]
-    H --> L[环境优化]
-    I --> M[调整调度器]
-    J --> N[配置自动推理]
-
-    K --> O[监控温度]
-    L --> O
-    M --> O
-    N --> O
-```
-
-**监控命令：**
-
-```bash
-# 检查 NPU 温度
-hailortcli scan | grep Temperature
-
-# 查看 ai-runtime 温度日志
-journalctl -u ai-runtime | grep -i "temperature"
-
-# 查看性能统计
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-```
-
-### 4.4 会话配额超限
-
-```mermaid
-flowchart TD
-    A[配额超限错误] --> B[查看当前用量]
-    B --> C[分析会话使用模式]
-    C --> D{优化方案}
-
-    D -->|提高配额| E[调整 max_qps]
-    D -->|降低并发| F[降低 max_concurrent]
-    D -->|排队策略| G[切换为 fair 策略]
-    D -->|优先级调整| H[提升高优先级会话]
-
-    E --> I[default_session.max_qps: 50]
-    F --> J[global_concurrent_limit: 16]
-    G --> K[scheduler.strategy: fair]
-    H --> L[priority: 7]
-
-    I --> M[重启服务]
-    J --> M
-    K --> M
-    L --> M
-```
-
-**诊断命令：**
-
-```bash
-# 查看已注册模型
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels
-
-# 查看配额统计
-grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/GetStats
-
-# 查看会话创建日志
-journalctl -u ai-runtime | grep -i "session"
-```
-
-## 5. 视频流排查
-
-### 5.1 RTSP 连接失败
+### 4.1 RTSP 连接失败
 
 ```mermaid
 flowchart TD
@@ -316,7 +151,7 @@ flowchart TD
     B -->|网络问题| E[检查客户端网络]
 
     C --> F[systemctl start camera-daemon]
-    D --> G["netstat -tulpn | grep 8554"]
+    D --> G["检查 8554 端口占用"]
     E --> H[从客户端测试连接]
 
     F --> I[等待服务启动]
@@ -341,28 +176,24 @@ systemctl status camera-daemon
 # 查看 RTSP 日志
 journalctl -u camera-daemon -f
 
-# 测试 RTSP 连接
-ffmpeg -rtsp_transport tcp -i rtsp://localhost:8554/main -t 10 -f null -
-
-# 查看端口占用
-netstat -tulpn | grep 8554
+# 测试 RTSP 连接（将 <device-ip> 换成设备实际 IP）
+ffmpeg -rtsp_transport tcp -i rtsp://<device-ip>:8554/main -t 10 -f null -
 ```
 
-> Web 控制台 WebSocket 断连（视频流播放层面）的排查见 [Application Troubleshooting — 视频流集成排查](../../4-application-guide/0-app-troubleshooting.md#2-视频流集成排查)。
+> Web 控制台 WebSocket 断连（视频流播放层面）的排查见 [Application Troubleshooting — 视频流集成排查](../../4-application-guide/1-app-development/reference/troubleshooting.md#2-视频流集成排查)。
 
-## 6. 设备控制排查
+## 5. 设备控制排查
 
 | 现象 | 可能原因 | 诊断命令 |
 |------|---------|---------|
-| PTZ 无响应 | device-control 未启动 / MCU UART 通信异常 | `systemctl status device-control`；`journalctl -u device-control -f`；`grpcurl ... DeviceControl/Pan` |
 | 镜头控制异常 | 对焦/变焦/光圈电机故障 | `grpcurl ... DeviceControl/GetLensStatus`；`grpcurl ... DeviceControl/LensResetZero` |
 | UART 通信失败 | 波特率/接线/电压异常 | `ls -la /dev/ttyS*`；`stty -F /dev/ttyS0 921600` |
 
 gRPC 接口完整定义见源码 `platform/device-control/proto/device.proto`。
 
-## 7. Web 控制台排查
+## 6. Web 控制台排查
 
-### 7.1 浏览器兼容性
+### 6.1 浏览器兼容性
 
 | 浏览器 | 最低版本 | 支持程度 | 已知问题 | 解决方案 |
 |--------|---------|----------|---------|---------|
@@ -374,7 +205,7 @@ gRPC 接口完整定义见源码 `platform/device-control/proto/device.proto`。
 
 推荐使用 Chrome 88+ 或 Edge 88+ 以获得最佳体验。Safari 自动降级为 MSE 方案，性能略低。
 
-### 7.2 WebSocket 与视频播放排查
+### 6.2 WebSocket 与视频播放排查
 
 视频流播放依赖 WebSocket 传输 H.264 帧。常见问题：
 
@@ -386,7 +217,7 @@ gRPC 接口完整定义见源码 `platform/device-control/proto/device.proto`。
 | 花屏/马赛克 | 网络丢包 / 解码器不兼容 | 切换浏览器或检查网络质量 |
 | 高延迟 | 网络延迟 / 缓冲区过大 | 确保局域网带宽充足，减小编码 GOP |
 
-### 7.3 API 请求失败
+### 6.3 API 请求失败
 
 | 状态码 | 含义 | 解决方案 |
 |--------|------|---------|
@@ -396,35 +227,9 @@ gRPC 接口完整定义见源码 `platform/device-control/proto/device.proto`。
 | 500 | 服务器错误 | 查看 `/var/log/aipc/platform-api.log` |
 | 503 | 服务不可用 | 检查服务状态，必要时重启 |
 
-### 7.4 日志查看
+## 7. 日志级别调整
 
-**浏览器端：** 打开开发者工具（F12）→ Console 标签页查看错误信息。
-
-**服务器端：**
-
-```bash
-# AI 推理服务日志
-tail -f /var/log/aipc/ai-runtime.log
-
-# Platform API 服务日志
-tail -f /var/log/aipc/platform-api.log
-
-# 应用管理器日志
-tail -f /var/log/aipc/app-manager.log
-
-# 设备控制服务日志
-tail -f /var/log/aipc/device-control.log
-
-# 事件总线日志
-tail -f /var/log/aipc/event-bus.log
-
-# 摄像头守护进程日志
-tail -f /var/log/aipc/camera-daemon.log
-```
-
-## 8. 日志级别调整
-
-### 8.1 临时调整日志级别
+### 7.1 临时调整日志级别
 
 ```bash
 # 临时查看 debug 级别日志（需先在配置文件中将 log_level 设为 debug）
@@ -434,7 +239,7 @@ sudo journalctl -u ai-runtime -f
 sudo journalctl -u camera-daemon -p err
 ```
 
-### 8.2 修改配置文件
+### 7.2 修改配置文件
 
 设备上的实际配置文件位于 `/opt/aipc/etc/*.yaml`（systemd ExecStart 指定的路径）。源码仓库 `configs/` 目录只是模板。
 
@@ -446,7 +251,7 @@ service:
   log_level: debug  # debug, info, warn, error
 ```
 
-### 8.3 日志级别说明
+### 7.3 日志级别说明
 
 | 级别 | 说明 |
 |------|------|
@@ -455,7 +260,7 @@ service:
 | `warn` | 非致命警告 |
 | `error` | 关键错误 |
 
-### 8.4 日志分析技巧
+### 7.4 日志分析技巧
 
 ```bash
 # 查看错误率
@@ -468,9 +273,9 @@ journalctl -u ai-runtime | grep "error" | sort | uniq -c | sort -nr
 journalctl -u ai-runtime | grep -E "(timeout|connection refused|permission denied)"
 ```
 
-## 9. 性能监控
+## 8. 性能监控
 
-### 9.1 系统资源监控
+### 8.1 系统资源监控
 
 ```bash
 # 监控 CPU 占用
@@ -486,7 +291,7 @@ iostat -x 1 5
 iftop -i eth0
 ```
 
-### 9.2 服务性能指标
+### 8.2 服务性能指标
 
 ```bash
 # AI Runtime 统计
@@ -499,7 +304,7 @@ aipc-cli app info <app-id>
 grpcurl -plaintext -d '{}' unix:///run/aipc/device-control.sock aipc.device.DeviceControl/GetDeviceStatus
 ```
 
-### 9.3 实时监控脚本
+### 8.3 实时监控脚本
 
 ```bash
 #!/bin/bash
@@ -519,26 +324,23 @@ while true; do
 done
 ```
 
-## 10. 常用诊断命令速查表
+## 9. 常用诊断命令速查表
 
 | 场景 | 命令 | 说明 |
 |------|------|------|
 | 查看服务状态 | `systemctl status ai-runtime camera-daemon app-manager` | 查看核心平台服务状态 |
 | 查看服务日志 | `journalctl -u <service-name> -f` | 实时查看服务日志 |
-| 测试 gRPC 连接 | `grpcurl -plaintext unix:///run/aipc/service.sock list` | 测试 gRPC 服务可用性 |
 | 检查 Socket | `ls -la /run/aipc/` | 查看 Unix Socket 文件 |
-| 检查端口占用 | `netstat -tulpn \| grep 8554` | 检查 RTSP 端口占用 |
 | 检查系统资源 | `top -p $(pidof service)` | 监控服务资源占用 |
 | 查看容器状态 | `aipc-cli app list` | 列出所有容器应用 |
 | 测试网络连接 | `curl http://localhost:8080/api/v1/media/status` | 测试 API 端点 |
 | 查看模型状态 | `grpcurl -plaintext -d '{}' unix:///run/aipc/ai-runtime.sock aipc.inference.InferenceService/ListModels` | 列出已注册模型 |
 | 检查 NPU 状态 | `hailortcli scan` | 查看 Hailo 设备状态 |
-| 测试 PTZ 控制 | `grpcurl -plaintext -d '{"direction": "PAN_LEFT", "speed": 50}' unix:///run/aipc/device-control.sock aipc.device.DeviceControl/Pan` | 测试 PTZ 控制 |
 | 查看事件日志 | `aipc-cli event-log list` | 查看事件总线日志 |
 | 查看磁盘占用 | `df -h /opt/aipc` | 检查磁盘空间 |
 | 查看内存占用 | `free -h` | 检查系统内存 |
 
-## 11. 错误码表
+## 10. 错误码表
 
 以下为 platform-api 返回的业务错误码，完整定义见源码 `platform/platform-api/handlers/response.go`。
 
@@ -561,7 +363,7 @@ done
 | 8003 | 存储已满 | 8004 | 访问拒绝 | 9000 | SSH 配置错误 |
 | 9001 | SSH 服务错误 | 10000 | 进程未找到 | 10001 | 进程终止失败 |
 
-## 12. 排查总结
+## 11. 排查总结
 
 1. **优先检查服务状态** -- 使用 `systemctl status` 确认服务是否运行
 2. **查看错误日志** -- 使用 `journalctl` 查看详细错误信息
@@ -574,4 +376,4 @@ done
 
 - [平台服务总览](./0-platform-services.md) — 各服务职责、协作关系与源码指针
 - [平台架构](../0-system-architecture.md)
-- [App Troubleshooting](../../4-application-guide/0-app-troubleshooting.md) — 应用开发故障排查（容器应用、视频流集成、事件总线）
+- [App Troubleshooting](../../4-application-guide/1-app-development/reference/troubleshooting.md) — 应用开发故障排查（容器应用、视频流集成、事件总线）
