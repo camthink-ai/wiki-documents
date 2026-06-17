@@ -76,7 +76,7 @@ const config = {
   /* 3️⃣  国际化                                         */
   /* -------------------------------------------------- */
   i18n: {
-    defaultLocale: 'zh-Hans',
+    defaultLocale: 'en',
     locales: ['zh-Hans', 'en'],
     localeConfigs: {
       'zh-Hans': { htmlLang: 'zh-Hans', label: '中文' },
