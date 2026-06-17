@@ -2,9 +2,9 @@ import React from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Translate, { translate } from '@docusaurus/Translate';
 import ProductCarousel from '@site/src/components/ProductCarousel';
+import { Icon } from '@site/src/components/icons';
 import '../css/welcome.css';
 
 export default function Home(): JSX.Element {
@@ -18,89 +18,41 @@ export default function Home(): JSX.Element {
 
                 {/* ================= HERO ================= */}
                 <div className="hero-section hero-platform">
-                    <div className="hero-bg-animation"></div>
-                    <div className="hero-glow hero-glow-1"></div>
-                    <div className="hero-glow hero-glow-2"></div>
-
                     <div className="hero-content">
-                        <div className="hero-badge">🚀 Open Hardware · Edge AI · Open Source</div>
+                        <div className="hero-pill">
+                            <span className="hero-pill-dot"></span>
+                            <Translate id="homepage.hero.pill">开源 · 边缘 AI 生态</Translate>
+                        </div>
 
                         <h1 className="hero-title">
-                            <span className="title-gradient">CamThink</span><br />
-                            Edge AI Platform Wiki
+                            <Translate id="homepage.hero.title.l1">开源的</Translate>{' '}
+                            <span className="title-accent">
+                                <Translate id="homepage.hero.title.l2">边缘 AI 生态</Translate>
+                            </span>
                         </h1>
 
                         <p className="hero-subtitle">
-                            Build Intelligent Devices for the Real World
+                            <Translate id="homepage.hero.subtitle">开放硬件 × 开源软件 —— 从 AI 相机、边缘网关到 NeoMind，一站式构建你的 IoT + AI 应用</Translate>
                         </p>
-
-                        <p className="hero-description">
-                            <Translate id="homepage.hero.desc.p1">CamThink 是一个面向现实世界的边缘 AI 平台，</Translate><br />
-                            <Translate id="homepage.hero.desc.p2">提供从</Translate> <strong><Translate id="homepage.hero.desc.bold1">开放硬件设计</Translate></strong>、<strong><Translate id="homepage.hero.desc.bold2">系统软件</Translate></strong> <Translate id="homepage.hero.desc.to">到</Translate> <strong><Translate id="homepage.hero.desc.bold3">AI 模型部署</Translate></strong> <Translate id="homepage.hero.desc.p3">的完整解决方案。</Translate>
-                        </p>
-
-                        <div className="hero-tags">
-                            <span>🔧 Hardware-first</span>
-                            <span>🧠 Edge Intelligence</span>
-                            <span>⚡ Low Power</span>
-                            <span>🔓 Fully Open</span>
-                        </div>
 
                         <div className="hero-actions">
-                            <Link to="/docs" className="btn-primary">
-                                <Translate id="homepage.hero.start">开始探索</Translate>
+                            <Link to="/docs/" className="btn-primary">
+                                <Translate id="homepage.hero.cta.start">浏览文档</Translate>
+                                <Icon.ArrowRight size={16} className="btn-arrow" />
                             </Link>
                             <Link to="https://github.com/camthink-ai" className="btn-github">
-                                GitHub
+                                <Icon.Github size={18} className="btn-github-icon" />
+                                <Translate id="homepage.hero.cta.github">GitHub Star</Translate>
                             </Link>
                         </div>
-
-                        <div className="hero-scroll-indicator" onClick={() => document.getElementById('platform-overview')?.scrollIntoView({ behavior: 'smooth' })}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
-                                <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
-                            </svg>
-                        </div>
                     </div>
+
                 </div>
 
                 {/* Stats Section Removed */}
 
-                {/* ================= PLATFORM OVERVIEW ================= */}
-                <div className="section-container" id="platform-overview">
-                    <div className="section-header">
-                        <span className="section-label">PLATFORM</span>
-                        <h2 className="section-title"><Translate id="homepage.platform.title">CamThink 平台能力总览</Translate></h2>
-                        <p className="section-desc">
-                            <Translate id="homepage.platform.desc">一个覆盖硬件、系统、AI 工具链与边缘部署的完整平台</Translate>
-                        </p>
-                    </div>
-
-                    <div className="platform-grid-row-3">
-                        <div className="platform-card">
-                            <h3>🧩 Hardware</h3>
-                            <p><Translate id="homepage.platform.card.hardware">开放原理图、PCB、模块化设计，支持快速定制、量产与批量部署。</Translate></p>
-                        </div>
-                        <div className="platform-card">
-                            <h3>🖥 OS & BSP</h3>
-                            <p><Translate id="homepage.platform.card.os">RTOS / Linux 支持，完整驱动与 Board Support Package。</Translate></p>
-                        </div>
-                        <div className="platform-card">
-                            <h3>🧠 AI Tools</h3>
-                            <p><Translate id="homepage.platform.card.tools">模型管理、调用、训练、量化、转换、部署全流程云平台支持。</Translate></p>
-                        </div>
-                    </div>
-
-                    <div className="platform-grid-row-2">
-                        <div className="platform-card">
-                            <h3>⚡ Edge Runtime</h3>
-                            <p><Translate id="homepage.platform.card.runtime">本地推理、低延迟响应、稳定运行。</Translate></p>
-                        </div>
-                        <div className="platform-card">
-                            <h3>🌐 Connectivity</h3>
-                            <p><Translate id="homepage.platform.card.connect">MQTT / HTTP等多协议支持，开放平台，支持本地与私有云部署。</Translate></p>
-                        </div>
-                    </div>
-                </div>
+                {/* PLATFORM capability section removed — consolidated into the
+                    PLATFORM PANORAMA tech stack below to avoid redundancy. */}
 
                 {/* ================= PRODUCTS ================= */}
                 <div className="section-container" id="core-products">
@@ -132,25 +84,25 @@ export default function Home(): JSX.Element {
                                 <div className="stack-apps-grid">
                                     <div className="app-card">
                                         <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M5 21V7l8-4 8 4v14" /><path d="M8 21v-2a2 2 0 0 1 4 0v2" /><path d="M10 9a2 2 0 1 0 4 0" /></svg>
+                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg>
                                         </span>
                                         <span><Translate id="homepage.stack.app.building">智能楼宇</Translate></span>
                                     </div>
                                     <div className="app-card">
                                         <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9 2.5 2.5 0 0 0-5 0c0 1.5 1 2.5 2 4.5" /><path d="M12 21V7a2 2 0 0 1 2-2 2.5 2.5 0 0 1 0 5 2 2 0 0 0 2 2h0" /></svg>
+                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></svg>
                                         </span>
                                         <span><Translate id="homepage.stack.app.agriculture">智慧农业</Translate></span>
                                     </div>
                                     <div className="app-card">
                                         <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 12h10" /></svg>
                                         </span>
                                         <span><Translate id="homepage.stack.app.vision">视觉分析</Translate></span>
                                     </div>
                                     <div className="app-card">
                                         <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
+                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z" /><rect x="3" y="14" width="7" height="7" rx="1" /><path d="M14 14h7v7h-7z" /></svg>
                                         </span>
                                         <span><Translate id="homepage.stack.app.other">其它领域</Translate></span>
                                     </div>
@@ -161,9 +113,53 @@ export default function Home(): JSX.Element {
                         {/* Connector */}
                         <div className="stack-connector"></div>
 
-                        {/* Layer 2: Middleware - ENRICHED */}
+                        {/* Layer 2: NeoMind Platform — NeoMind + AI ToolStack */}
                         <div className="stack-layer">
-                            <div className="layer-label"><Translate id="homepage.stack.layer.software">软件平台</Translate></div>
+                            <div className="layer-label"><Translate id="homepage.stack.layer.neomind">应用配套</Translate></div>
+                            <div className="layer-content">
+                                <div className="neomind-layer-grid">
+
+                                    {/* Block 1: NeoMind */}
+                                    <Link to="/docs/neomind/product-overview/what-is-neomind" className="neomind-block">
+                                        <div className="neomind-block-head">
+                                            <span className="neomind-block-title"><Translate id="homepage.stack.mw.neomind">NeoMind</Translate></span>
+                                            <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.platformsub">Edge AI platform · device management & application runtime</Translate></span>
+                                        </div>
+                                        <div className="neomind-block-chips">
+                                            <span className="nm-chip">Device Management</span>
+                                            <span className="nm-chip">Real-time Dashboard</span>
+                                            <span className="nm-chip">Rule Engine</span>
+                                            <span className="nm-chip">AI Agent</span>
+                                            <span className="nm-chip">Extension Ecosystem</span>
+                                            <span className="nm-chip">Notifications</span>
+                                        </div>
+                                    </Link>
+
+                                    {/* Block 2: AI ToolStack */}
+                                    <Link to="/docs/neoeyes-ne301-series/application-guide/ai-tool-stack/" className="neomind-block">
+                                        <div className="neomind-block-head">
+                                            <span className="neomind-block-title"><Translate id="homepage.stack.mw.toolstack">AI ToolStack</Translate></span>
+                                            <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.toolsub">Full model lifecycle · training / quantization / conversion / deployment</Translate></span>
+                                        </div>
+                                        <div className="neomind-block-chips">
+                                            <span className="nm-chip">Model Management</span>
+                                            <span className="nm-chip">Model Training</span>
+                                            <span className="nm-chip">Quantization</span>
+                                            <span className="nm-chip">Conversion</span>
+                                            <span className="nm-chip">Edge Deployment</span>
+                                        </div>
+                                    </Link>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Connector */}
+                        <div className="stack-connector"></div>
+
+                        {/* Layer 3: Middleware - ENRICHED */}
+                        <div className="stack-layer">
+                            <div className="layer-label"><Translate id="homepage.stack.layer.software">软件生态</Translate></div>
                             <div className="layer-content">
                                 <div className="middleware-container">
                                     <div className="stack-middleware-grid">
@@ -237,7 +233,10 @@ export default function Home(): JSX.Element {
                             <div className="layer-label"><Translate id="homepage.stack.layer.hardware">硬件生态</Translate></div>
                             <div className="layer-content">
                                 <div className="stack-hw-grid">
-                                    <div className="hw-stack-card hw-4500">
+                                    <Link to="/docs/neoedge-ng4500-series/overview" className="hw-stack-card hw-4500">
+                                        <div className="hw-card-image">
+                                            <img src="https://www.camthink.ai/resource/neoedge_ng4500_ai_box.png" alt="NeoEdge NG4500" loading="lazy" />
+                                        </div>
                                         <div className="hw-info">
                                             <div className="hw-type">High Performance Edge</div>
                                             <h3 className="hw-name">NeoEdge NG4500</h3>
@@ -246,8 +245,24 @@ export default function Home(): JSX.Element {
                                             <span>NVIDIA Jetson</span>
                                             <span>Up to 100+ TOPS</span>
                                         </div>
-                                    </div>
-                                    <div className="hw-stack-card hw-301">
+                                    </Link>
+                                    <Link to="/docs/neoeyes-ne503-series/overview" className="hw-stack-card hw-503">
+                                        <div className="hw-card-image">
+                                            <img src="https://resources.camthink.ai/official-site/menu/ne503.png" alt="NeoEyes NE503" loading="lazy" />
+                                        </div>
+                                        <div className="hw-info">
+                                            <div className="hw-type">AI Camera Pro</div>
+                                            <h3 className="hw-name">NeoEyes NE503</h3>
+                                        </div>
+                                        <div className="hw-chip-info">
+                                            <span>Hailo-15H SoC</span>
+                                            <span>20 TOPS · 4K</span>
+                                        </div>
+                                    </Link>
+                                    <Link to="/docs/neoeyes-ne301-series/overview" className="hw-stack-card hw-301">
+                                        <div className="hw-card-image">
+                                            <img src="https://www.camthink.ai/resource/neoesye_ne301_computer_vision_camera.png" alt="NeoEyes NE301" loading="lazy" />
+                                        </div>
                                         <div className="hw-info">
                                             <div className="hw-type">Intelligent Vision</div>
                                             <h3 className="hw-name">NeoEyes NE301</h3>
@@ -256,8 +271,11 @@ export default function Home(): JSX.Element {
                                             <span>STM32N6 (Arm Cortex-M55)</span>
                                             <span>NPU Integrated</span>
                                         </div>
-                                    </div>
-                                    <div className="hw-stack-card hw-101">
+                                    </Link>
+                                    <Link to="/docs/neoeyes-ne101-series/overview" className="hw-stack-card hw-101">
+                                        <div className="hw-card-image">
+                                            <img src="https://www.camthink.ai/resource/neoeyes_ne101_modular_camera.png" alt="NeoEyes NE101" loading="lazy" />
+                                        </div>
                                         <div className="hw-info">
                                             <div className="hw-type">Low Power IoT</div>
                                             <h3 className="hw-name">NeoEyes NE101</h3>
@@ -266,27 +284,11 @@ export default function Home(): JSX.Element {
                                             <span>ESP32-S3</span>
                                             <span>Low-frequency capture</span>
                                         </div>
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
 
-                    </div>
-                </div>
-
-                {/* ================= HOW TO USE WIKI ================= */}
-                <div className="cta-section">
-                    <h2><Translate id="homepage.cta.title">如何使用本 Wiki</Translate></h2>
-                    <div className="wiki-steps-container">
-                        <div className="wiki-step-row-3">
-                            <div className="wiki-step-item"><Translate id="homepage.cta.step1">明确应用需求</Translate></div>
-                            <div className="wiki-step-item"><Translate id="homepage.cta.step2">选择产品系列</Translate></div>
-                            <div className="wiki-step-item"><Translate id="homepage.cta.step3">完成快速入门</Translate></div>
-                        </div>
-                        <div className="wiki-step-row-2">
-                            <div className="wiki-step-item"><Translate id="homepage.cta.step4">设备调试与应用部署</Translate></div>
-                            <div className="wiki-step-item"><Translate id="homepage.cta.step5">二次开发或定制服务</Translate></div>
-                        </div>
                     </div>
                 </div>
 
@@ -296,7 +298,7 @@ export default function Home(): JSX.Element {
                     <div className="community-overlay"></div>
 
                     <div className="community-content">
-                        <div className="section-header dark-mode-force">
+                        <div className="section-header">
                             <span className="section-label">COMMUNITY</span>
                             <h2 className="section-title"><Translate id="homepage.community.title">加入开发者社区</Translate></h2>
                             <p className="section-desc">
@@ -305,29 +307,25 @@ export default function Home(): JSX.Element {
                         </div>
 
                         <div className="community-grid">
-                            <Link to="https://discord.gg/p9QSYhHJ" className="community-card">
-                                <div className="community-icon">💬</div>
+                            <Link href="https://discord.gg/a8NbPGAJw9" className="community-card">
+                                <div className="community-icon"><Icon.Discord /></div>
                                 <h3>Discord Server</h3>
                                 <p><Translate id="homepage.community.discord">加入实时讨论，获取技术支持</Translate></p>
-                                <span className="community-link-text">Join Server &rarr;</span>
+                                <span className="community-link-text">Join Server <Icon.ArrowRight size={14} /></span>
                             </Link>
 
-                            <Link to="https://github.com/camthink-ai" className="community-card">
-                                <div className="community-icon">
-                                    <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
-                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                                    </svg>
-                                </div>
+                            <Link href="https://github.com/camthink-ai/community/discussions" className="community-card">
+                                <div className="community-icon"><Icon.Github /></div>
                                 <h3>GitHub Discussions</h3>
                                 <p><Translate id="homepage.community.github">提交 Issue，参与功能提案</Translate></p>
-                                <span className="community-link-text">View Discussions &rarr;</span>
+                                <span className="community-link-text">View Discussions <Icon.ArrowRight size={14} /></span>
                             </Link>
 
-                            <Link to="mailto:support@camthink.ai" className="community-card">
-                                <div className="community-icon">📧</div>
+                            <Link href="https://www.camthink.ai/company/contact-us/" className="community-card">
+                                <div className="community-icon"><Icon.Mail /></div>
                                 <h3>Contact Us</h3>
                                 <p><Translate id="homepage.community.contact">产品咨询与商业合作</Translate></p>
-                                <span className="community-link-text">Send Email &rarr;</span>
+                                <span className="community-link-text">Send Email <Icon.ArrowRight size={14} /></span>
                             </Link>
                         </div>
                     </div>

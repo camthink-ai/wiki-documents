@@ -210,3 +210,28 @@
       margin-left: 5px;
   }
 }
+
+/* ============================================================ */
+/* Footer — 强制纯黑背景，覆盖 Docusaurus 默认深色样式            */
+/* ============================================================ */
+.footer,
+[data-theme='dark'] .footer,
+[data-theme='light'] .footer {
+  background-color: #000000 !important;
+  border-top: 1px solid #1a1a1a;
+}
+
+.footer .footer__title,
+.footer .footer__link-item,
+.footer .footer__copyright {
+  color: #e6e6e6;
+}
+
+.footer .footer__link-item:hover {
+  color: var(--ifm-color-primary);
+}
+
+.footer .footer__title {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

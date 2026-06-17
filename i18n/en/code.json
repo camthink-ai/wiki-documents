@@ -350,6 +350,39 @@
   "homepage.hero.start": {
     "message": "Start"
   },
+  "homepage.hero.pill": {
+    "message": "Open Source · Edge AI Ecosystem"
+  },
+  "homepage.hero.title.l1": {
+    "message": "The Open Source"
+  },
+  "homepage.hero.title.l2": {
+    "message": "Edge AI Ecosystem"
+  },
+  "homepage.hero.subtitle": {
+    "message": "Open hardware × open software — from AI cameras and edge gateways to NeoMind. One-stop build for IoT + AI apps"
+  },
+  "homepage.hero.cta.start": {
+    "message": "Browse Docs"
+  },
+  "homepage.hero.cta.github": {
+    "message": "Star on GitHub"
+  },
+  "homepage.hero.hw.title": {
+    "message": "Edge hardware that pairs with the software platform"
+  },
+  "homepage.hero.hw.ne101": {
+    "message": "ESP32-S3 low-power camera"
+  },
+  "homepage.hero.hw.ne301": {
+    "message": "STM32N6 on-device AI camera"
+  },
+  "homepage.hero.hw.ne503": {
+    "message": "20 TOPS containerized IPC"
+  },
+  "homepage.hero.hw.ng4500": {
+    "message": "Jetson edge AI gateway"
+  },
   "homepage.platform.title": {
     "message": "CamThink Platform Overview"
   },
@@ -399,7 +432,22 @@
     "message": "Other Fields"
   },
   "homepage.stack.layer.software": {
-    "message": "Software Platform"
+    "message": "Software Ecosystem"
+  },
+  "homepage.stack.layer.neomind": {
+    "message": "Application Suite"
+  },
+  "homepage.stack.mw.neomind": {
+    "message": "NeoMind"
+  },
+  "homepage.stack.mw.toolstack": {
+    "message": "AI ToolStack"
+  },
+  "homepage.stack.neomind.platformsub": {
+    "message": "Edge AI platform · device management & application runtime"
+  },
+  "homepage.stack.neomind.toolsub": {
+    "message": "Full model lifecycle · training / quantization / conversion / deployment"
   },
   "homepage.stack.mw.ai": {
     "message": "AI Inference & Frameworks"
@@ -493,5 +541,32 @@
   },
   "carousel.link.usecases": {
     "message": "Use Cases"
+  },
+  "carousel.neomind.title": {
+    "message": "NeoMind (Edge AI Platform)"
+  },
+  "carousel.neomind.tagline": {
+    "message": "Rust + React edge AI platform · Out-of-the-box IoT + AI integration"
+  },
+  "carousel.neomind.desc": {
+    "message": "Device management, real-time dashboards, rule engine, AI Agent, extension ecosystem, and message notifications — all built in. Supports MQTT/Webhook/BLE protocols. Can be deployed standalone or as the companion software for CamThink hardware."
+  },
+  "carousel.link.userguide": {
+    "message": "User Guide"
+  },
+  "carousel.link.devguide": {
+    "message": "Developer Guide"
+  },
+  "carousel.ne503.title": {
+    "message": "NeoEyes NE503 (AI Camera Pro)"
+  },
+  "carousel.ne503.tagline": {
+    "message": "Hailo-15H based 20 TOPS 4K edge AI smart camera"
+  },
+  "carousel.ne503.desc": {
+    "message": "Hailo-15H SoC + 20 TOPS NPU + Sony IMX678 4K imaging. Containerized app deployment, multi-model concurrent inference, RTSP/Event output. IP67 + PoE integrated delivery for vision applications and edge AI development."
+  },
+  "carousel.link.swguide": {
+    "message": "Software Guide"
   }
 }

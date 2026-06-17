@@ -69,9 +69,60 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Quick Access (Product Series) ================= */}
   <h2 className="docs-section-title">快速入口</h2>
   <div className="doc-categories-grid">
+    {/* NeoMind */}
+    <div className="category-card">
+      <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-header">
+        <img src="https://resources.camthink.ai/NeoMind/dashboardDemo.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoMind 平台</div>
+        <div className="cat-desc">边缘 AI 应用平台 —— 设备管理、实时仪表板、规则引擎与 AI Agent。</div>
+        <div className="cat-links">
+          <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-link-item">产品概述</Link>
+          <Link to="/docs/neomind/quick-start/five-minute-guide" className="cat-link-item">快速入门</Link>
+          <Link to="/docs/neomind/developer-guide/overview" className="cat-link-item">开发指南</Link>
+          <Link to="/docs/neomind/use-cases/object-detection" className="cat-link-item">应用案例</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NG4500 */}
+    <div className="category-card">
+      <Link to="/docs/neoedge-ng4500-series/overview" className="cat-header">
+        <img src="https://resources.camthink.ai/wiki/img/Overview/NG45xx/NG45XX.png" style={{height: '80px', pointerEvents: 'none'}} alt="NG4500" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEdge NG4500</div>
+        <div className="cat-desc">NVIDIA Jetson 边缘计算网关，21~100 TOPS 强劲算力。</div>
+        <div className="cat-links">
+          <Link to="/docs/neoedge-ng4500-series/overview" className="cat-link-item">产品概述</Link>
+          <Link to="/docs/neoedge-ng4500-series/quick-start" className="cat-link-item">快速入门</Link>
+          <Link to="/docs/neoedge-ng4500-series/ng4500-cb01-development-board/dev-guide" className="cat-link-item">硬件指南</Link>
+          <Link to="/docs/neoedge-ng4500-series/application-guide/deepseek-r1" className="cat-link-item">LLM 部署</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NE503 */}
+    <div className="category-card">
+      <Link to="/docs/neoeyes-ne503-series/overview" className="cat-header">
+        <img src="https://resources.camthink.ai/official-site/menu/ne503.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE503" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEyes NE503</div>
+        <div className="cat-desc">Hailo-15H AI 相机，20 TOPS 算力，4K 影像与高性能推理。</div>
+        <div className="cat-links">
+          <Link to="/docs/neoeyes-ne503-series/overview" className="cat-link-item">产品概述</Link>
+          <Link to="/docs/neoeyes-ne503-series/quick-start" className="cat-link-item">快速入门</Link>
+          <Link to="/docs/neoeyes-ne503-series/hardware-guide/specifications" className="cat-link-item">硬件指南</Link>
+          <Link to="/docs/neoeyes-ne503-series/software-guide/system-architecture" className="cat-link-item">软件指南</Link>
+        </div>
+      </div>
+    </div>
+
     {/* NE301 */}
     <div className="category-card">
-      <Link to="/docs/neoeyes-ne301-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'}}>
+      <Link to="/docs/neoeyes-ne301-series/overview" className="cat-header">
         <img src="https://resources.camthink.ai/wiki/img/ne301/overview/301.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE301" />
       </Link>
       <div className="cat-body">
@@ -88,7 +139,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
 
     {/* NE101 */}
     <div className="category-card">
-      <Link to="/docs/neoeyes-ne101-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)'}}>
+      <Link to="/docs/neoeyes-ne101-series/overview" className="cat-header">
         <img src="https://resources.camthink.ai/wiki/img/Overview/NE101/NE101.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE101" />
       </Link>
       <div className="cat-body">
@@ -99,23 +150,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
           <Link to="/docs/neoeyes-ne101-series/quick-start" className="cat-link-item">快速入门</Link>
           <Link to="/docs/neoeyes-ne101-series/ne100-mb01-development-board/dev-guide" className="cat-link-item">开发指南</Link>
           <Link to="/docs/neoeyes-ne101-series/application-guide/low-power-image-acquisition" className="cat-link-item">低功耗应用</Link>
-        </div>
-      </div>
-    </div>
-
-    {/* NG4500 */}
-    <div className="category-card">
-      <Link to="/docs/neoedge-ng4500-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)'}}>
-        <img src="https://resources.camthink.ai/wiki/img/Overview/NG45xx/NG45XX.png" style={{height: '80px', pointerEvents: 'none'}} alt="NG4500" />
-      </Link>
-      <div className="cat-body">
-        <div className="cat-title">NeoEdge NG4500</div>
-        <div className="cat-desc">NVIDIA Jetson 边缘计算网关，21~100 TOPS 强劲算力。</div>
-        <div className="cat-links">
-          <Link to="/docs/neoedge-ng4500-series/overview" className="cat-link-item">产品概述</Link>
-          <Link to="/docs/neoedge-ng4500-series/quick-start" className="cat-link-item">快速入门</Link>
-          <Link to="/docs/neoedge-ng4500-series/ng4500-cb01-development-board/dev-guide" className="cat-link-item">硬件指南</Link>
-          <Link to="/docs/neoedge-ng4500-series/application-guide/deepseek-r1" className="cat-link-item">LLM 部署</Link>
         </div>
       </div>
     </div>

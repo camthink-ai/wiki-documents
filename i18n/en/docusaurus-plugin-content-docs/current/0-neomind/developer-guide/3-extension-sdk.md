@@ -1,0 +1,337 @@
+---
+description: "neomind-extension-sdk reference: Extension trait, ExtensionMetadata, MetricDescriptor, neomind_export! FFI macro, capability declaration, ML model lifecycle (lazy-load + keep-loaded), cross-platform packaging (cdylib + panic=unwind)."
+keywords: [NeoMind, Extension SDK, neomind_export, FFI, capability, ML model, packaging]
+tags: [NeoMind, Developer Guide]
+---
+
+# Extension SDK
+
+The `neomind-extension-sdk` crate (latest v0.6.3) is the core library for writing NeoMind extensions. It defines the `Extension` trait, metadata / metric / command types, and the `neomind_export!` macro that turns your impl into an FFI entry point the main process's `neomind-extension-runner` can load.
+
+> This page covers the SDK itself. For the end-to-end build flow, see [Extension Development](./7-extension-development.md).
+
+## How It Works
+
+```
+┌────────────────────────┐         ┌──────────────────────────┐
+│  Your extension crate   │         │  neomind-extension-runner │
+│  (cdylib)               │         │  (main-process submodule) │
+│                         │  FFI    │                          │
+│  impl Extension ──┐     │ ◀─────▶ │  ExtensionProxy          │
+│  neomind_export! ─┤     │  C ABI  │   - spawn process         │
+│   emits extern "C"│     │         │   - capability check      │
+│   entry fns       │     │         │   - metric/command relay  │
+└────────────────────┴────┘         └──────────────────────────┘
+```
+
+- You only write the trait impl + one line of `neomind_export!`
+- The SDK macro emits the agreed C ABI entry points (`extern "C"` functions)
+- The runner loads your `.so` / `.dylib` / `.dll`, invokes the entries, and wraps your extension in an `ExtensionProxy` registered with the main process
+- Data crosses the FFI boundary as serde JSON (metric values, command args, config)
+
+## Cargo.toml Template
+
+```toml
+[package]
+name = "my-extension"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "neomind_extension_my_extension"   # prefix MUST be neomind_extension_
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+neomind-extension-sdk = "0.6.3"   # or path = "../NeoMind/crates/neomind-extension-sdk"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+async-trait = "0.1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+semver = "1"
+
+[profile.release]
+panic = "unwind"    # REQUIRED — panics must unwind so the runner can catch them
+opt-level = 3
+lto = "thin"
+```
+
+**Critical settings**:
+
+- `crate-type = ["cdylib"]` — produce a dynamic library
+- lib name prefix `neomind_extension_` — the runner looks up extensions by this naming convention
+- `panic = "unwind"` — so a panic is caught by the runner rather than killing the process
+
+## The Extension Trait
+
+Every extension implements the `Extension` trait. The full signature is re-exported in `neomind_extension_sdk::prelude`.
+
+```rust
+use async_trait::async_trait;
+use neomind_extension_sdk::prelude::*;
+
+#[async_trait]
+pub trait Extension: Send + Sync + 'static {
+    // ===== Required =====
+    fn metadata(&self) -> &ExtensionMetadata;
+    async fn execute_command(&self, command: &str, args: &serde_json::Value)
+        -> Result<serde_json::Value>;
+
+    // ===== Optional: declarations & lifecycle =====
+    fn metrics(&self) -> &[MetricDescriptor] { &[] }
+    fn commands(&self) -> &[ExtensionCommand] { &[] }
+    fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
+    fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
+    async fn health_check(&self) -> Result<bool> { Ok(true) }
+    async fn configure(&mut self, _config: &serde_json::Value) -> Result<()> { Ok(()) }
+
+    // ===== Optional: event subscriptions =====
+    fn event_subscriptions(&self) -> &[&str] { &[] }
+    fn handle_event(&self, _ty: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
+
+    // ===== Optional: streaming (video etc.) =====
+    fn stream_capability(&self) -> Option<StreamCapability> { None }
+    async fn process_chunk(&self, _chunk: DataChunk) -> Result<StreamResult> { /* ... */ }
+    async fn init_session(&self, _session: &StreamSession) -> Result<()> { /* ... */ }
+    async fn process_session_chunk(&self, _sid: &str, _chunk: DataChunk) -> Result<StreamResult> { /* ... */ }
+    async fn close_session(&self, _sid: &str) -> Result<SessionStats> { /* ... */ }
+
+    // ===== Optional: push mode (sensors etc.) =====
+    fn set_output_sender(&self, _sender: Arc<mpsc::Sender<PushOutputMessage>>) { }
+    async fn start_push(&self, _session_id: &str) -> Result<()> { /* ... */ }
+    async fn stop_push(&self, _session_id: &str) -> Result<()> { Ok(()) }
+
+    // ===== Required: type erasure support =====
+    fn as_any(&self) -> &dyn std::any::Any;
+}
+```
+
+### ABI Version
+
+The SDK uses **ABI Version 3**. The runner checks the ABI version on load — version mismatches are rejected. After upgrading the SDK major version, you must recompile your extension.
+
+```rust
+// One of the entry functions auto-generated by the macro
+#[no_mangle]
+pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
+```
+
+**Method semantics**:
+
+| Method | When Called | Your Job |
+|--------|-------------|----------|
+| `metadata()` | on load | return static id / name / version |
+| `metrics()` | on load + UI query | declare metrics this extension produces (so the dashboard can pick them) |
+| `commands()` | on load + UI query | declare commands this extension supports (so the AI agent can call them) |
+| `produce_metrics()` | periodic runner poll | return current metric values (poll mode) |
+| `execute_command()` | user / agent triggers a command | execute and return JSON |
+| `configure()` | user changes config | apply new config (hot reload) |
+| `health_check()` | runner heartbeat | return false to be marked unhealthy |
+| `handle_event()` | a subscribed event fires | custom event response |
+| `event_subscriptions()` | on load | declare which event types you care about |
+| `stream_capability()` | on load | declare streaming capability (stateful/stateless) |
+| `process_chunk()` | stream data arrives | process a single data chunk (e.g. video frame) |
+| `init_session()` / `close_session()` | session start/end | initialize/teardown stateful stream processing |
+| `set_output_sender()` | push mode starts | save the output channel for later push |
+| `start_push()` / `stop_push()` | push starts/stops | start/stop the background push task |
+
+## Metadata / Metric / Command
+
+**ExtensionMetadata** full struct (returned by `metadata()`):
+
+```rust
+pub struct ExtensionMetadata {
+    pub id: String,                              // globally unique id
+    pub name: String,                            // display name
+    pub version: semver::Version,                // semantic version
+    pub description: Option<String>,             // description
+    pub author: Option<String>,                  // author
+    pub homepage: Option<String>,                // homepage URL
+    pub license: Option<String>,                 // license
+    pub config_parameters: Option<Vec<ParameterDefinition>>, // user-configurable params
+    #[serde(skip)]
+    pub file_path: Option<PathBuf>,              // internal use (filled at runtime)
+}
+```
+
+### ParameterDefinition (Config Parameter Definition)
+
+`config_parameters` defines parameters users can configure in the Web UI. When a user changes them, `configure()` is called for hot-reload:
+
+```rust
+pub struct ParameterDefinition {
+    pub name: String,           // parameter name (e.g. "api_key")
+    pub display_name: String,   // UI label (e.g. "API Key")
+    pub description: String,    // help text
+    pub param_type: MetricDataType, // type: String / Float / Integer / Boolean / Enum
+    pub required: bool,         // is it required
+    pub default_value: Option<MetricValue>, // default value
+    pub min: Option<f64>,       // numeric range (optional)
+    pub max: Option<f64>,
+    pub options: Vec<String>,   // Enum type option list
+}
+```
+
+**Usage example**: a weather extension declaring an API key and units parameter:
+
+```rust
+config_parameters: Some(vec![
+    ParameterDefinition {
+        name: "api_key".into(),
+        display_name: "API Key".into(),
+        description: "OpenWeatherMap API key".into(),
+        param_type: MetricDataType::String,
+        required: true,
+        ..Default::default()
+    },
+    ParameterDefinition {
+        name: "units".into(),
+        display_name: "Units".into(),
+        description: "metric or imperial".into(),
+        param_type: MetricDataType::Enum { options: vec!["metric".into(), "imperial".into()] },
+        default_value: Some(MetricValue::String("metric".into())),
+        ..Default::default()
+    },
+]),
+```
+
+**MetricDescriptor** (returned by `metrics()`): declares a data stream. The dashboard's "data source picker" lists every metric declared here; the DataSourceId format is `extension:{id}:{metric_name}`.
+
+**ExtensionCommand** (returned by `commands()`): declares a callable command. The agent's tool system auto-exposes these to the LLM, so users can trigger them from AI Chat.
+
+> Use the SDK's builders (`MetricBuilder`, `CommandBuilder`, `ParamBuilder`) for safer chain-style construction over hand-written literals.
+
+## The neomind_export! Macro
+
+After implementing the trait, **just one line**:
+
+```rust
+neomind_extension_sdk::neomind_export!(MyExtension);
+```
+
+The macro expands to the agreed `extern "C"` entry points (construct instance, call metadata / metrics / commands / execute_command, etc.). The runner loads these by symbol-name convention.
+
+> Don't hand-write FFI functions — let the macro do it. If you need custom construction (e.g. read initial config from env), implement `Default` for your type so the macro can use `Default::default()`.
+
+## Capability System
+
+Extensions run in an isolated process and **must declare required capabilities** at startup. The runner authorizes exactly those; calls requiring undeclared capabilities are rejected.
+
+Extensions call platform capabilities via `CapabilityContext`. Below is the complete list of built-in capability constants:
+
+| Capability Constant | Meaning |
+|---------------------|---------|
+| `device_metrics_read` | Read device metrics |
+| `device_metrics_write` | Write device metrics (virtual devices) |
+| `device_control` | Send commands to devices |
+| `storage_query` | Query the time-series database |
+| `event_publish` | Publish events |
+| `event_subscribe` | Subscribe to events |
+| `telemetry_history` | Query telemetry history |
+| `metrics_aggregate` | Aggregate metric queries |
+| `extension_call` | Call another extension's command |
+| `agent_trigger` | Trigger agent execution |
+| `rule_trigger` | Trigger a rule |
+| `network` | outbound network (HTTP / MQTT clients, etc.) |
+| `filesystem:read` / `filesystem:write` | file IO (path-scoped) |
+| `ml-model` | load / run ML models |
+| `camera` | camera access |
+| `serial` | serial port access |
+
+> Capabilities embody **least privilege** — declare only what you actually need. `network` + `ml-model` is typical for vision extensions; a read-only data extension might just need `network` + `device_metrics_write`.
+
+### Invoking Capabilities
+
+```rust
+use neomind_extension_sdk::capability::CapabilityContext;
+
+async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
+    let ctx = CapabilityContext::default();
+    let response = ctx.invoke_capability("device_metrics_write", &json!({
+        "device_id": "virtual-sensor",
+        "metric": "status",
+        "value": "ok",
+        "is_virtual": true
+    }));
+    Ok(json!({ "capability_response": response }))
+}
+```
+
+## ML Model Lifecycle
+
+Vision extensions usually need ML models. The SDK provides unified lifecycle management:
+
+| Phase | Behavior |
+|-------|----------|
+| **Lazy load** | the model isn't loaded at extension startup — it's loaded on the first command call |
+| **Keep loaded** | once loaded, it stays resident (until the extension process exits), avoiding reload per inference |
+| **Explicit release** | rarely needed; for huge models you can manually reload after swapping the model path in `configure()` |
+
+**Why lazy load**: don't block the runner at startup; multiple extensions starting together won't all load their models simultaneously (models are often GB-sized).
+
+**Why keep loaded**: model loading is a seconds-to-tens-of-seconds operation; reloading per inference would make the extension feel "stuck".
+
+Canonical pattern:
+
+```rust
+pub struct YoloExtension {
+    model: OnceLock<YoloModel>,   // initialized once per process
+}
+
+async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
+    let model = self.model.get_or_try_init(|| {
+        YoloModel::load("yolov8n.onnx")   // loads only on first call
+    })?;
+    let result = model.infer(/* ... */)?;
+    Ok(json!({ "detections": result }))
+}
+```
+
+## Cross-Platform Packaging
+
+Extensions must support every NeoMind target platform — one binary per platform:
+
+| Platform | Artifact |
+|----------|----------|
+| macOS (arm64) | `libneomind_extension_<name>.dylib` |
+| macOS (x86_64) | `.dylib` |
+| Linux (x86_64) | `libneomind_extension_<name>.so` |
+| Linux (arm64) | `.so` |
+| Windows (x86_64) | `neomind_extension_<name>.dll` |
+
+**Cross-compile** with `cross` or a GitHub Actions matrix (the NeoMind-Extensions repo CI is the canonical template).
+
+**Packaging a `.nep`**: bundle the multi-platform binaries + metadata.json + (optional) model files into a single `.nep` archive. Users install it from the NeoMind Extensions page in one click; the runner picks the binary matching the current platform.
+
+## Verify & Debug
+
+```bash
+# 1. Build locally
+cargo build --release
+
+# 2. Copy the artifact into NeoMind's extension dir
+cp target/release/libneomind_extension_my_extension.* ~/.neomind/extensions/my-extension/
+
+# 3. Trigger discovery
+curl -X POST http://localhost:9375/api/extensions/discover
+
+# 4. Check whether the runner loaded it
+# Web UI: Extensions page (Loaded / Crashed / Disabled)
+# Logs: data/logs/ or journalctl
+```
+
+**Common load-failure causes**:
+
+- Wrong lib name prefix (must be `neomind_extension_`)
+- `panic = "abort"` (must be `unwind`)
+- Platform mismatch (arm64 binary on x86_64)
+- Missing capability declaration, runtime call rejected
+
+## Next Steps
+
+- End-to-end build → [Extension Development](./7-extension-development.md)
+- Real extension code → [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) (weather / YOLO / OCR / face recognition / streaming)
+- API surface (metric / command HTTP endpoints) → [REST API Reference](./4-rest-api.md)
+
+---
+
+*Last updated: 2026-06-15*

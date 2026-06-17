@@ -1,0 +1,27 @@
+diff --git a/node_modules/dagre-d3-es/src/dagre/rank/network-simplex.js b/node_modules/dagre-d3-es/src/dagre/rank/network-simplex.js
+index e4913e8..87f88e2 100644
+--- a/node_modules/dagre-d3-es/src/dagre/rank/network-simplex.js
++++ b/node_modules/dagre-d3-es/src/dagre/rank/network-simplex.js
+@@ -57,6 +57,7 @@ function networkSimplex(g) {
+   var e, f;
+   while ((e = leaveEdge(t))) {
+     f = enterEdge(t, g, e);
++    if (!f) break;
+     exchangeEdges(t, g, e, f);
+   }
+ }
+@@ -179,9 +180,12 @@ function enterEdge(t, g, edge) {
+   }
+ 
+   var candidates = _.filter(g.edges(), function (edge) {
++    var tv = t.node(edge.v);
++    var tw = t.node(edge.w);
++    if (!tv || !tw) return false;
+     return (
+-      flip === isDescendant(t, t.node(edge.v), tailLabel) &&
+-      flip !== isDescendant(t, t.node(edge.w), tailLabel)
++      flip === isDescendant(t, tv, tailLabel) &&
++      flip !== isDescendant(t, tw, tailLabel)
+     );
+   });
+ 

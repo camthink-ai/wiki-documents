@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Icon } from '@site/src/components/icons';
 
 type VideoItem = {
     videoId: string;
@@ -38,7 +39,7 @@ export default function VideoCarousel({ videos }: VideoCarouselProps) {
                 disabled={isPrevDisabled}
                 aria-label="Previous"
             >
-                ❮
+                <Icon.ChevronLeft size={24} />
             </button>
 
             <div className="carousel-viewport">
@@ -73,7 +74,7 @@ export default function VideoCarousel({ videos }: VideoCarouselProps) {
                 disabled={isNextDisabled}
                 aria-label="Next"
             >
-                ❯
+                <Icon.ChevronRight size={24} />
             </button>
         </div>
     );

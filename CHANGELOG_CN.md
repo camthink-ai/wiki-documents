@@ -6,7 +6,29 @@
 
 > 本更新日志自 **2025-12-23** 起开始记录，此前的历史变更未作追溯。
 
-## [2026-06-12]
+## [2026-06-16]
+
+### 新增 (Added)
+- **NeoMind 文档 Phase 1 — 开发者指南扩展**: 新增面向开发者的页面——AI 辅助开发、设备类型开发、仪表盘组件开发、贡献指南——内含基于生产级扩展的真实代码范式（中英文完整支持）。
+- **首页加入 NeoMind**: 在 ProductCarousel 中新增 NeoMind 作为第 4 张幻灯片（带 NEW 角标），含 4 个入口链接（产品概览 / 快速开始 / 用户指南 / 开发者指南），i18n/en/code.json 同步英文翻译。
+
+### 更新 (Updated)
+- **NeoMind 文档 Phase 1 — 内容充实**: 完整重写用户指南章节（扩展、通知、自动化规则、数据推送、数据转换），加入真实截图与故障排查步骤。刷新 concepts / product-overview / quick-start / use-cases 的示例并修正技术细节——包括 crash-loop 阈值（50s 窗口、3 次重试）、移除过时版本字符串。所有 24 个变更文档中英文同步。
+- **NeoMind 图片迁移**: 102 张 NeoMind 图片迁移至 `https://resources.camthink.ai/NeoMind/`。删除本地 `static/img/neomind/` 目录；24 个文档中共 136 处图片引用改为远程 URL（中英文完整支持）。
+
+## [2026-06-17]
+
+### 新增 (Added)
+- **首页 Hero 改版**: 替换 hero 背景图为全新设计的 product-matrix 视觉，完整呈现 CamThink Edge AI 产品矩阵（NG4500 / NE503 / NE301 / NE101 + NeoMind / AI ToolStack 软件）。Hero 文字样式不再跟随明暗主题切换——白色标题带暗色光晕、白色副标题、不透明白底橙字 pill 标签、半透明黑色 GitHub Star 按钮（含背景模糊），明暗模式下对比度始终一致。
+
+### 更新 (Changed)
+- **架构图交互化**: 平台层的 NeoMind 与 AI ToolStack 卡片改为可点击链接——NeoMind 跳转其产品概览页，AI ToolStack 跳转 NE301 AI ToolStack 应用指南。去除左侧装饰条；卡片保留圆角悬浮样式及 hover 抬升效果；所有链接状态均抑制下划线。
+- **平台层卡片样式**: 14px 圆角、标题前圆点装饰、chip 改为 pill 形状并在 hover 时填充主题色。
+- **页脚**: 强制纯黑背景 `#000`（覆盖 Docusaurus 默认深色样式，明暗主题统一）；删除 Wiki 列中冗余的 `Home` 链接。
+- **首页文案**: "应用工具及平台" → "应用配套"（英文同步：Application Tools & Platform → Application Suite）；hero 副标题去除结尾句号（中英文同步）。
+
+### 修复 (Fixed)
+- **图标集**: 用 Lucide 标准路径替换畸形的 SVG 图标——应用层（Building / Sprout / ScanLine / Shapes，分别对应智能楼宇 / 智慧农业 / 视觉分析 / 其它领域）、图标库（`Hardware` 改服务器机箱、`Connectivity` 改 Wi-Fi 信号弧、`Overview` 改文件图标）、轮播资源链接（`Quickstart` 改火箭、`DevGuide` 改代码尖括号 `<>`）。
 
 ### 更新 (Updated)
 - **NeoEyes NE503 系统烧录**: 以操作员可读性为目标重组——新增流程概览与路径判断、拨码开关速查表、§1 各子节服务对象标注；合并 §3.3/§5.1 重复的 U-Boot 流程，§7 故障排查按真实操作顺序重排；§1.2 将 macOS 提升为与 Ubuntu 并列的一等支持平台；18 张截图迁移至 CDN；精简 §2.3 SPI Flash 日志呈现并改用并排截图（中英文完整支持）。

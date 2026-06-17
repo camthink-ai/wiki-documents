@@ -55,33 +55,13 @@
     padding: 5rem 2rem;
 }
 
-#platform-overview {
-    min-height: 90vh;
-    /* Make it feel like a second screen */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background-color: var(--ct-section-alt-bg);
-    /* Use solid color for robustness */
-}
-
 /* Light/Dark mode alternate background variables */
 .welcome-page-container {
     /* ... existing vars ... */
-    --ct-section-alt-bg: #F2F4F8;
-    /* Slightly darker than Hero BG */
 }
 
 [data-theme='dark'] .welcome-page-container {
     /* ... existing vars ... */
-    --ct-section-alt-bg: #141414;
-    /* Slightly darker than Hero BG */
-}
-
-[data-theme='dark'] #platform-overview {
-    background-color: var(--ct-section-alt-bg);
-    background-image: none;
-    /* Remove gradient */
 }
 
 /* REMOVED .section-container::before gradient to fix stiff transitions */
@@ -439,87 +419,7 @@
 }
 
 
-/* ================= PLATFORM GRID ================= */
-/* Common Card Styles */
-.platform-card {
-    background: var(--ifm-card-background-color);
-    border: 1px solid var(--ifm-color-emphasis-200);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-align: left;
-}
-
-[data-theme='dark'] .platform-card {
-    background: var(--ct-color-card-dark);
-    border-color: var(--ct-color-border-dark);
-}
-
-.platform-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    border-color: var(--ct-color-primary);
-}
-
-.platform-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    /* Prevent wrapping title */
-}
-
-/* Row 1: 3 items */
-.platform-grid-row-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-/* Row 2: 2 items centered */
-.platform-grid-row-2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    width: 66%;
-    /* Roughly 2/3 width to align with top items visually */
-    margin: 0 auto;
-}
-
-/* Responsive Grid adjustment */
-@media screen and (max-width: 996px) {
-
-    .platform-grid-row-3,
-    .platform-grid-row-2 {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        width: 100%;
-    }
-}
-
-.platform-card {
-    background: var(--ifm-card-background-color);
-    border: 1px solid var(--ifm-color-emphasis-200);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-align: left;
-}
-
-[data-theme='dark'] .platform-card {
-    background: var(--ct-color-card-dark);
-    border-color: var(--ct-color-border-dark);
-}
-
-.platform-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    border-color: var(--ct-color-primary);
-}
-
-.platform-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
+/* PLATFORM GRID section removed — consolidated into PLATFORM PANORAMA. */
 
 /* ================= PRODUCT CARDS ================= */
 .product-card-container {
@@ -781,22 +681,6 @@
     position: relative;
 }
 
-/* Vertical line for the timeline effect on the left */
-.layer-label::after {
-    content: '';
-    position: absolute;
-    right: -1rem;
-    /* Place between label and content */
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--ifm-color-emphasis-200);
-}
-
-[data-theme='dark'] .layer-label {
-    border-right-color: var(--ifm-color-emphasis-200);
-}
-
 .layer-content {
     flex: 1;
     position: relative;
@@ -861,7 +745,8 @@
     background: linear-gradient(180deg, rgba(64, 169, 255, 0.05) 0%, rgba(64, 169, 255, 0.02) 100%);
     border: 1px dashed rgba(64, 169, 255, 0.4);
     border-radius: 16px;
-    padding: 2.5rem 2rem;
+    /* Vertical padding only — keep card left/right edges aligned with other layers */
+    padding: 1.75rem 0;
 }
 
 .stack-middleware-grid {
@@ -873,6 +758,8 @@
 .mw-column {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 1rem;
 }
 
@@ -885,23 +772,20 @@
     margin-bottom: 0.8rem;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
 }
 
+/* Column title — dot removed per design; keep clean centered title. */
 .mw-col-title::before {
-    content: '';
-    display: block;
-    width: 6px;
-    height: 6px;
-    background: var(--ct-color-primary);
-    transform: rotate(45deg);
-    /* Diamond shape bullet */
+    content: none;
 }
 
 .mw-chips-wrap {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
+    justify-content: center;
 }
 
 .mw-chip {
@@ -922,10 +806,116 @@
     color: #e3e3e3;
 }
 
+/* NeoMind platform layer — two distinct blocks (NeoMind + AI ToolStack) */
+.neomind-layer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.neomind-block {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    background: var(--ifm-card-background-color);
+    border: 1px solid color-mix(in srgb, var(--ifm-font-color-base) 8%, transparent);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem 1.5rem 1.6rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    color: inherit;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+/* 强制去除 Link 渲染的 <a> 在所有状态下（含 hover/active/focus）的下划线 */
+.neomind-block:hover,
+.neomind-block:focus,
+.neomind-block:active,
+.neomind-block:visited {
+    text-decoration: none;
+}
+
+[data-theme='dark'] .neomind-block {
+    background: color-mix(in srgb, var(--ifm-font-color-base) 4%, #1a1a1a);
+    border-color: color-mix(in srgb, var(--ifm-font-color-base) 10%, transparent);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.neomind-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+    border-color: color-mix(in srgb, var(--ct-color-primary, #F24A00) 45%, transparent);
+}
+
+[data-theme='dark'] .neomind-block:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.neomind-block-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ifm-font-color-base) 8%, transparent);
+}
+
+.neomind-block-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ifm-font-color-base);
+    letter-spacing: 0.1px;
+}
+
+/* 标题前缀圆点（主题色锚点） */
+.neomind-block-title::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ct-color-primary, #F24A00) 18%, transparent);
+    flex-shrink: 0;
+}
+
+.neomind-block-sub {
+    font-size: 0.8rem;
+    color: var(--ifm-color-emphasis-600);
+    line-height: 1.4;
+}
+
+.neomind-block-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.nm-chip {
+    background: color-mix(in srgb, var(--ifm-font-color-base) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ifm-font-color-base) 8%, transparent);
+    color: var(--ifm-font-color-base);
+    padding: 0.32rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.nm-chip:hover {
+    background: var(--ct-color-primary, #F24A00);
+    border-color: var(--ct-color-primary, #F24A00);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
 /* Bottom: Hardware */
 .stack-hw-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
 }
 
@@ -933,44 +923,72 @@
     background: var(--ifm-card-background-color);
     border: 1px solid var(--ifm-color-emphasis-200);
     color: var(--ifm-font-color-base);
-    padding: 1.5rem;
-    border-radius: 12px;
+    padding: 0;
+    border-radius: 0;
     text-align: left;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 140px;
-    transition: transform 0.2s;
+    min-height: 280px;
+    transition: transform 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
 }
 
 .hw-stack-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
     border-color: var(--ct-color-primary);
 }
 
+/* Hardware cards are links — never underline any text */
+.hw-stack-card,
+.hw-stack-card:hover,
+.hw-stack-card .hw-name,
+.hw-stack-card .hw-type,
+.hw-stack-card .hw-chip-info {
+    text-decoration: none !important;
+}
+
 .hw-stack-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    /* No decorative bottom underline on hardware cards */
+    display: none;
+}
+
+.hw-card-image {
     width: 100%;
-    height: 4px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--ifm-color-emphasis-200, #ccc) 30%, transparent);
+    overflow: hidden;
 }
 
-.hw-4500::after {
-    background: #a06fff;
+[data-theme='dark'] .hw-card-image {
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.hw-301::after {
-    background: #ff7a45;
+.hw-card-image img {
+    max-width: 85%;
+    max-height: 120px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-.hw-101::after {
-    background: #52c41a;
+.hw-stack-card:hover .hw-card-image img {
+    transform: scale(1.06);
+}
+
+.hw-stack-card .hw-info,
+.hw-stack-card .hw-chip-info {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.hw-info {
+    padding-top: 1.1rem;
 }
 
 .hw-type {
@@ -982,7 +1000,7 @@
 }
 
 .hw-name {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
     line-height: 1.3;
@@ -990,9 +1008,10 @@
 }
 
 .hw-chip-info {
-    font-size: 0.85rem;
-    margin-top: 1.5rem;
+    font-size: 0.82rem;
+    margin-top: auto;
     padding-top: 1rem;
+    padding-bottom: 1.25rem;
     border-top: 1px solid var(--ifm-color-emphasis-200);
     display: flex;
     flex-direction: column;
@@ -1024,7 +1043,20 @@
 
     .stack-apps-grid,
     .stack-middleware-grid,
+    .stack-hw-grid,
+    .neomind-layer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet: hardware grid steps down to 2 columns before going single-column */
+@media screen and (max-width: 1200px) and (min-width: 901px) {
     .stack-hw-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* NeoMind layer steps down to a single column on mid-width screens */
+    .neomind-layer-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -1206,41 +1238,34 @@
     text-align: center;
     /* Default Text Color for Light Mode */
     color: var(--ct-hero-text);
+    background: #ffffff;
 }
 
-/* Background Image with Overlay */
+/* Simple, clean background — light: white with a hairline top border accent */
 .community-bg-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
     z-index: 0;
-    /* Default Light Mode Background */
-    background-image: url('../../static/img/index/community_bg_light.jpg');
+    background: linear-gradient(to bottom, #fafafa 0%, #ffffff 80%);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Dark Mode Background Switch */
 [data-theme='dark'] .community-bg-image {
-    background-image: url('../../static/img/index/community_bg_dark.jpg');
+    background: linear-gradient(to bottom, #16181d 0%, #0d0f12 80%);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+[data-theme='dark'] .community-section {
+    background: #0d0f12;
+    color: #ffffff;
+}
+
+/* Overlay removed — simple bg stands alone */
 .community-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    /* Light Mode Overlay: Subtle white fade to ensure text readability */
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
-}
-
-[data-theme='dark'] .community-overlay {
-    /* Dark Mode Overlay: Dark transparent to blend with dark BG */
-    background: linear-gradient(135deg, rgba(22, 22, 22, 0.8) 0%, rgba(22, 22, 22, 0.6) 100%);
+    display: none;
 }
 
 .community-content {
@@ -1276,11 +1301,8 @@
 }
 
 .community-card {
-    background: rgba(255, 255, 255, 0.6);
-    /* Light Mode Glass */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 16px;
     padding: 2.5rem 2rem;
     text-align: center;
@@ -1290,32 +1312,42 @@
     flex-direction: column;
     align-items: center;
     height: 100%;
-    color: var(--ct-hero-text) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    color: #1a1a1a !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme='dark'] .community-card {
-    background: rgba(255, 255, 255, 0.05);
-    /* Dark Mode Glass */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white !important;
-    box-shadow: none;
+    background: #1a1d24;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .community-card:hover {
     transform: translateY(-5px);
     border-color: var(--ct-color-primary);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme='dark'] .community-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--ct-color-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .community-icon {
-    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
     margin-bottom: 1.5rem;
+    color: var(--ct-color-primary);
+    background: color-mix(in srgb, var(--ct-color-primary, #F24A00) 10%, transparent);
+}
+
+[data-theme='dark'] .community-icon {
+    background: color-mix(in srgb, var(--ct-color-primary, #F24A00) 18%, transparent);
 }
 
 .community-card h3 {
@@ -1604,3 +1636,319 @@
         /* Hide arrows on mobile, rely on swipe/dots */
     }
 }
+
+/* ============================================================ */
+/* ============== HOMEPAGE REDESIGN (2026-06) ================= */
+/* ============================================================ */
+
+/* Hide legacy decorative elements (animated bg + glow blobs) */
+.hero-bg-animation,
+.hero-glow,
+.hero-glow-1,
+.hero-glow-2,
+.hero-scroll-indicator {
+    display: none !important;
+}
+
+/* Cleaner hero spacing */
+.hero-section {
+    padding: 6rem 1.5rem 7rem;
+    min-height: calc(100vh - 60px);
+    justify-content: center;
+}
+
+.hero-content {
+    max-width: 920px;
+    padding: 0 0.5rem;
+}
+
+/* ============================================================ */
+/* Hero — composite image as full-bleed background + dark scrim   */
+/* The background image is always dark, so we force light text +   */
+/* a dark scrim in BOTH site themes for consistent contrast.       */
+/* ============================================================ */
+.hero-section.hero-platform {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-image: url('/img/hero-platform.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--ct-hero-bg);
+    /* Text color follows the site theme (dark in light mode, light in dark
+       mode). The theme-aware scrim below provides the matching backing. */
+}
+
+/* Full-screen frosted glass — blurs the entire composite background image
+   so the whole hero reads as a soft frosted panel, with text on top.
+   backdrop-filter blurs whatever is painted below this layer (the parent's
+   background-image). */
+.hero-section.hero-platform::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* 暗色蒙版：保证白字在任何背景图局部亮度下都有清晰对比。
+       明暗主题统一使用同一套蒙版（不切换）。 */
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.45) 0%,
+        rgba(0, 0, 0, 0.32) 45%,
+        rgba(0, 0, 0, 0.42) 100%
+    );
+    backdrop-filter: blur(3px) saturate(108%);
+    -webkit-backdrop-filter: blur(3px) saturate(108%);
+}
+
+.hero-section.hero-platform > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hero 文字对比度 — 仅 subtitle 保持白色 + halo（暗蒙版下白字最清晰）。
+   title / pill 按用户要求保留旧样式（跟随主题色，无强制覆盖）。 */
+.hero-section.hero-platform .hero-title {
+    font-size: clamp(2.85rem, 6.4vw, 4.75rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    /* "开源的" 部分白色；"边缘 AI 生态" 由 .title-accent 渲染橙色渐变 */
+    color: #ffffff !important;
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.45),
+        0 3px 12px rgba(0, 0, 0, 0.35);
+}
+
+.hero-section.hero-platform .hero-subtitle {
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.55),
+        0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.hero-section.hero-platform .hero-pill {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 8px 18px;
+}
+
+/* Pill 标签 — 不透明实色版（hero-platform 上） */
+.hero-section.hero-platform .hero-pill {
+    background: #ffffff;
+    border: 1px solid rgba(242, 74, 0, 0.35);
+    color: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.hero-section.hero-platform .hero-pill-dot {
+    background: var(--ct-color-primary, #F24A00);
+}
+
+.hero-section.hero-platform .btn-primary,
+.hero-section.hero-platform .btn-github {
+    padding: 15px 28px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+}
+.hero-section.hero-platform .btn-github {
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.hero-section.hero-platform .btn-github:hover {
+    background: rgba(0, 0, 0, 0.80);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Pill badge — small dot + label, no emoji */
+.hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(242, 74, 0, 0.08);
+    border: 1px solid rgba(242, 74, 0, 0.2);
+    color: var(--ct-color-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.75rem;
+    text-transform: none;
+}
+
+[data-theme='dark'] .hero-pill {
+    background: rgba(242, 74, 0, 0.12);
+    border-color: rgba(242, 74, 0, 0.3);
+}
+
+.hero-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ct-color-primary);
+    box-shadow: 0 0 0 4px rgba(242, 74, 0, 0.15);
+    animation: pill-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pill-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(242, 74, 0, 0.15); }
+    50%      { box-shadow: 0 0 0 6px rgba(242, 74, 0, 0.05); }
+}
+
+/* Hero title — clamp responsive, no gradient */
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 0 0 1.5rem;
+    color: var(--ct-hero-text) !important;
+}
+
+.title-accent {
+    color: #ffffff;
+}
+
+/* Subtitle — tighten */
+.hero-subtitle {
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    color: var(--ct-hero-subtext);
+    opacity: 1;
+    margin: 0 auto 2.5rem;
+    max-width: 640px;
+    font-weight: 400;
+    line-height: 1.55;
+}
+
+/* CTAs */
+.hero-actions {
+    margin-bottom: 4rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-github {
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-arrow {
+    margin-left: 6px;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover .btn-arrow {
+    transform: translateX(3px);
+}
+
+/* Hero product screenshot — wide, soft shadow, rounded */
+.hero-screenshot {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.hero-screenshot img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0;
+    border: 0;
+    /* Feather the generated composite's background into the page so the hard
+       rectangle dissolves. Works in both light & dark themes. */
+    -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 48%, #000 68%, rgba(0,0,0,0.65) 82%, transparent 100%);
+    mask-image: radial-gradient(ellipse 72% 72% at 50% 48%, #000 68%, rgba(0,0,0,0.65) 82%, transparent 100%);
+}
+
+[data-theme='dark'] .hero-screenshot img {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* Hide the legacy hero-description / hero-tags / hero-badge if still referenced */
+.hero-description,
+.hero-tags,
+.hero-badge {
+    display: none !important;
+}
+
+/* ============================================================ */
+/* SVG Icon System — replaces all emoji / character glyphs      */
+/* ============================================================ */
+
+/* GitHub icon inside hero secondary button */
+.btn-github-icon {
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+/* Community card icon container — keep existing dimensions, just ensure SVG fills */
+.community-icon svg {
+    display: block;
+}
+
+/* Community link-text inline arrow alignment */
+.community-link-text {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.35em;
+}
+
+/* Resource card icon + arrow — flex align for SVG */
+.resource-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ct-color-primary);
+    flex-shrink: 0;
+}
+
+.resource-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* btn-arrow inside hero primary button — keeps the slide-on-hover affordance */
+.btn-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover .btn-arrow {
+    transform: translateX(3px);
+}
+
+/* VideoCarousel chevron buttons */
+.carousel-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================================ */
+/* Hero Hardware Cluster — overlaps bottom-left of dashboard     */
+/* ============================================================ */
+
+.hero-screenshot {
+    position: relative;
+}
+
+/* Hero hardware cluster removed — hardware now lives in the composite hero image. */
+
+
+

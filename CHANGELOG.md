@@ -6,7 +6,29 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
-## [2026-06-12]
+## [2026-06-16]
+
+### Added
+- **NeoMind Documentation Phase 1 — Developer Guide Expansion**: New developer-facing pages — AI-assisted development, device-type development, dashboard component development, and contributing guide — with real code patterns drawn from production extensions (full bilingual support).
+- **NeoMind on Homepage**: Added NeoMind as the 4th slide in the ProductCarousel (with NEW badge), with 4 entry links (product overview / quick-start / user-guide / developer-guide) and English translations in i18n/en/code.json.
+
+### Updated
+- **NeoMind Documentation Phase 1 — Content Enrichment**: Full rewrite of the user guide sections (extensions, notifications, automation-rules, data-push, data-transforms) with real screenshots and troubleshooting steps. Refreshed examples and corrected technical details across concepts / product-overview / quick-start / use-cases — including the crash-loop threshold (50s window, 3 retries) and removal of obsolete version strings. ZH/EN parity maintained across all 24 changed docs.
+- **NeoMind Image Migration**: All 102 NeoMind images moved to `https://resources.camthink.ai/NeoMind/`. The local `static/img/neomind/` folder was removed; 136 image references across 24 docs now use remote URLs (full bilingual support).
+
+## [2026-06-17]
+
+### Added
+- **Homepage Hero Redesign**: Replaced the hero background with a new product-matrix visual showcasing the full CamThink Edge AI stack (NG4500, NE503, NE301, NE101 + NeoMind/AI ToolStack software). Hero text styling is now theme-independent — white title with dark halo, white subtitle, opaque white pill badge with orange accent, and a translucent dark GitHub Star button with backdrop blur for consistent contrast across light/dark modes.
+
+### Changed
+- **Architecture Diagram Interactivity**: NeoMind and AI ToolStack cards in the platform layer are now clickable links — NeoMind jumps to its product overview, AI ToolStack jumps to the NE301 AI ToolStack application guide. Removed the left accent bar; cards keep the rounded-corner elevated style with hover lift. Underlines suppressed on all link states.
+- **Platform Layer Card Styling**: 14px rounded corners, title prefix dot accent, chips restyled as pill shapes with solid-theme-color hover state.
+- **Footer**: Forced pure-black background (`#000`) overriding the default Docusaurus dark style in both themes; removed the redundant `Home` link from the Wiki column.
+- **Homepage Copy**: "应用工具及平台" → "应用配套" (English: "Application Tools & Platform" → "Application Suite"); dropped trailing period from the hero subtitle (both locales).
+
+### Fixed
+- **Icon Set**: Replaced malformed SVG icons with standard Lucide paths — application layer (Building / Sprout / ScanLine / Shapes for 智能楼宇 / 智慧农业 / 视觉分析 / 其它领域), icon library (`Hardware` → server chassis, `Connectivity` → Wi-Fi arcs, `Overview` → file icon), and carousel resource links (`Quickstart` → rocket, `DevGuide` → code brackets `<>`).
 
 ### Updated
 - **NeoEyes NE503 System Flashing**: Restructured for operator readability — added a flow overview with path selection, a DIP-switch quick-reference table, and per-subsection service-scope labels in §1; deduplicated the §3.3/§5.1 U-Boot flow and reordered §7 troubleshooting to match the actual operation sequence; promoted macOS to a first-class supported platform alongside Ubuntu in §1.2; migrated all 18 screenshots to CDN; streamlined the §2.3 SPI-flash log presentation with side-by-side screenshots (full bilingual support).

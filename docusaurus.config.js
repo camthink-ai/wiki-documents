@@ -76,7 +76,7 @@ const config = {
   /* 3️⃣  国际化                                         */
   /* -------------------------------------------------- */
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale: 'zh-Hans',
     locales: ['zh-Hans', 'en'],
     localeConfigs: {
       'zh-Hans': { htmlLang: 'zh-Hans', label: '中文' },
@@ -171,14 +171,17 @@ const config = {
         links: [
           {
             title: 'Wiki', items: [
-              { label: 'Home', to: '/docs' },
+              { label: 'Wiki', to: '/docs/' },
               { label: 'NG4500', to: '/docs/neoedge-ng4500-series/overview' },
+              { label: 'NE503', to: '/docs/neoeyes-ne503-series/overview' },
+              { label: 'NE301', to: '/docs/neoeyes-ne301-series/overview' },
               { label: 'NE101', to: '/docs/neoeyes-ne101-series/overview' },
+              { label: 'NeoMind', to: '/docs/neomind/product-overview/what-is-neomind' },
             ]
           },
           {
             title: 'Community', items: [
-              { label: 'Discord', href: 'https://discord.com/invite/6TZb2Y8WKx' },
+              { label: 'Discord', href: 'https://discord.gg/a8NbPGAJw9' },
               { label: 'X', href: 'https://x.com/CamThinkAI' },
               { label: 'Youtube', href: 'https://www.youtube.com/@CamThink' },
             ],
