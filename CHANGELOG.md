@@ -20,6 +20,7 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 ### Added
 - **Homepage Hero Redesign**: Replaced the hero background with a new product-matrix visual showcasing the full CamThink Edge AI stack (NG4500, NE503, NE301, NE101 + NeoMind/AI ToolStack software). Hero text styling is now theme-independent — white title with dark halo, white subtitle, opaque white pill badge with orange accent, and a translucent dark GitHub Star button with backdrop blur for consistent contrast across light/dark modes.
+- **First-Visit English Redirect**: Added a client-side `Root` theme override (`src/theme/Root.tsx`) that redirects first-time visitors from the Chinese default locale to `/en/...` and remembers the user's locale choice in `localStorage`. The site default locale remains `zh-Hans`, so existing Chinese URLs, external bookmarks, and SEO indexing are preserved.
 
 ### Changed
 - **Architecture Diagram Interactivity**: NeoMind and AI ToolStack cards in the platform layer are now clickable links — NeoMind jumps to its product overview, AI ToolStack jumps to the NE301 AI ToolStack application guide. Removed the left accent bar; cards keep the rounded-corner elevated style with hover lift. Underlines suppressed on all link states.

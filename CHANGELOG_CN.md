@@ -20,6 +20,7 @@
 
 ### 新增 (Added)
 - **首页 Hero 改版**: 替换 hero 背景图为全新设计的 product-matrix 视觉，完整呈现 CamThink Edge AI 产品矩阵（NG4500 / NE503 / NE301 / NE101 + NeoMind / AI ToolStack 软件）。Hero 文字样式不再跟随明暗主题切换——白色标题带暗色光晕、白色副标题、不透明白底橙字 pill 标签、半透明黑色 GitHub Star 按钮（含背景模糊），明暗模式下对比度始终一致。
+- **首次访问默认英文**: 新增客户端 `Root` 主题覆盖（`src/theme/Root.tsx`），首次访问者自动从中文默认站跳转到 `/en/...`，并通过 `localStorage` 记住用户的语言选择。站点默认 locale 仍为 `zh-Hans`，因此现有中文 URL、外部书签与 SEO 索引全部保留。
 
 ### 更新 (Changed)
 - **架构图交互化**: 平台层的 NeoMind 与 AI ToolStack 卡片改为可点击链接——NeoMind 跳转其产品概览页，AI ToolStack 跳转 NE301 AI ToolStack 应用指南。去除左侧装饰条；卡片保留圆角悬浮样式及 hover 抬升效果；所有链接状态均抑制下划线。
