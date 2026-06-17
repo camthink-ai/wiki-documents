@@ -19,6 +19,7 @@
 ## [2026-06-17]
 
 ### 新增 (Added)
+- **NeoEyes NE503 应用开发指南**: 新增应用开发系列教程——SDK 工作流（hailo_ipc_sdk 嵌入与调用范式）、Hello World（构建→Web 部署→启动→验收最小闭环）、Person Detection（真实 AI 推理应用：SDK 订阅、模型/视频流发现、权限配置、事件发布与灯控联动），含 Python SDK 参考、示例与故障排查（中英文完整支持）。
 - **首页 Hero 改版**: 替换 hero 背景图为全新设计的 product-matrix 视觉，完整呈现 CamThink Edge AI 产品矩阵（NG4500 / NE503 / NE301 / NE101 + NeoMind / AI ToolStack 软件）。Hero 文字样式不再跟随明暗主题切换——白色标题带暗色光晕、白色副标题、不透明白底橙字 pill 标签、半透明黑色 GitHub Star 按钮（含背景模糊），明暗模式下对比度始终一致。
 
 ### 更新 (Changed)

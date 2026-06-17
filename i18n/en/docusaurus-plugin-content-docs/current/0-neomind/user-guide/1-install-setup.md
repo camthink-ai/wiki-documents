@@ -303,7 +303,7 @@ neomind device list
 neomind dashboard list
 ```
 
-If you get 401, see [Troubleshooting → CLI 401](./10-troubleshooting.md#cli-401-unauthorized).
+If you get 401, see [Troubleshooting → CLI 401](./10-troubleshooting.md#cli-commands-return-401-unauthorized).
 
 ## Next Steps
 

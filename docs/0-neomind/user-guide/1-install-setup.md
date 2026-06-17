@@ -303,7 +303,7 @@ neomind device list
 neomind dashboard list
 ```
 
-如果报 401，见 [故障排查 → CLI 报 401](./10-troubleshooting.md#cli-报-401-unauthorized)。
+如果报 401，见 [故障排查 → CLI 报 401](./10-troubleshooting.md#cli-命令报-401-unauthorized)。
 
 ## 下一步
 

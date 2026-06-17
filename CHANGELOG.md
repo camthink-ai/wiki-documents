@@ -19,6 +19,7 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 ## [2026-06-17]
 
 ### Added
+- **NeoEyes NE503 Application Development Guide**: New app-dev tutorial series — SDK Workflow (hailo_ipc_sdk embedding and calling patterns), Hello World (build → Web deploy → start → verify minimal closed loop), Person Detection (real AI inference app: SDK subscription, model/stream discovery, permission configuration, event publishing and light-control integration), with Python SDK reference, examples, and troubleshooting (full bilingual support).
 - **Homepage Hero Redesign**: Replaced the hero background with a new product-matrix visual showcasing the full CamThink Edge AI stack (NG4500, NE503, NE301, NE101 + NeoMind/AI ToolStack software). Hero text styling is now theme-independent — white title with dark halo, white subtitle, opaque white pill badge with orange accent, and a translucent dark GitHub Star button with backdrop blur for consistent contrast across light/dark modes.
 
 ### Changed
