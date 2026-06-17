@@ -125,7 +125,7 @@ flowchart TD
     F --> K[ls -la /usr/bin/]
     G --> L[yamllint config.yaml]
 
-    I --> M[kill -9 PID]
+    I --> M[kill PID]
     L --> N[修复语法错误]
     M --> O[重启服务]
     N --> O
@@ -319,7 +319,7 @@ while true; do
     echo "磁盘使用率:"
     df /opt/aipc | tail -1 | awk '{print $5}'
     echo "NPU 温度:"
-    hailortcli scan | grep Temperature | awk '{print $2}'
+    hailortcli fw-control --temperature | awk '{print $3}'
     sleep 5
 done
 ```
