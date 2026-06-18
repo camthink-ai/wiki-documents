@@ -23,6 +23,11 @@ Hello World does not depend on the AI SDK — it simply prints a counter in a lo
 The NE503 device is ARM64 architecture. If your development machine is Apple Silicon (M-series), it is also ARM64, so you can **build natively** at full speed. On an x86 machine, Docker buildx will automatically use QEMU emulation — slightly slower but fully functional.
 :::
 
+:::note Dev-machine Docker vs device container runtime
+- Docker on the **development machine** is only used for `docker buildx` cross-arch image builds (see §3) — a one-time action on your dev machine.
+- The **device** runs containers via **containerd**; apps run on the device **without depending on Docker** (the device OS ships with docker, but container orchestration is handled entirely by containerd — nothing for you to install or configure).
+:::
+
 ## 2. Application Structure
 
 The Hello World application consists of three files (full source in the repository at `apps/hello-world/`):

@@ -619,8 +619,12 @@ The two streams carry different frame formats, which determines whether they can
 
 | Stream | Resolution | Frame format | Inference |
 |:-------|:-----------|:-------------|:----------|
-| `sub` | 720p | **raw NV12** | ✅ The platform auto-resizes to the model input (e.g. 640×384) and feeds the NPU |
+| `sub` | 720p | **raw NV12** | ✅ Usable for inference (the platform resizes to the model input and feeds the NPU) |
 | `main` | 4K | **encoded H264** | ❌ Only for RTSP playback |
+
+:::note Match the stream resolution to the model input
+Keep the model input resolution as close as possible to the stream you subscribe to. When they differ, the platform still does a preprocessing resize, but that adds overhead and — at extreme aspect ratios — may affect accuracy. You can adjust the `sub` (and `third`) stream resolution in the Web Console to better match the model input (e.g. 640×384).
+:::
 
 `subscribe(stream="main")` gets no frames at all and **hangs indefinitely with no error and no timeout**. If your app is stuck at "Waiting for inference results", this is almost certainly the cause — change `main` to `sub`.
 

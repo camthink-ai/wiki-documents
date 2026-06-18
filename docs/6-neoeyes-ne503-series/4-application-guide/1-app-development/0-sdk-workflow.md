@@ -26,7 +26,7 @@ tags: [应用开发, NE503, SDK, 入门]
 | `EventClient` | 事件总线发布/订阅（跨应用、跨模块联动） | `publish(topic, payload)` / `on_event(topic, cb)` |
 | `DeviceClient` | 硬件控制与状态（补光灯、IR-CUT、PTZ、温度等） | `set_white_light(n)` / `get_device_status()` |
 
-除上述核心客户端外，SDK 还覆盖：`AppClient`（应用/容器管理）、`OverlayClient`（把检测框叠加到 RTSP/Web 画面）、`EncodedStreamClient`（H.264/H.265 编码流）、音频流与摄像头 ISP/编码控制等；`Config` 则是读取 `APP_ID`、各服务 socket 路径与调试开关的工具类（如 `Config.get_app_id()`、`Config.is_debug()`）。完整类与方法见 [Python SDK Reference](./reference/2-sdk-reference.md)。
+除上述核心客户端外，SDK 还覆盖：`AppClient`（应用/容器管理）、`OverlayClient`（把检测框叠加到 RTSP/Web 画面）、`EncodedStreamClient`（H.264/H.265 编码流）、音频流与摄像头 ISP/编码控制等；`Config` 则是读取 `APP_ID`、各服务 socket 路径与调试开关的工具类（如 `Config.get_app_id()`、`Config.is_debug()`）。完整类与方法见 [SDK 参考](./reference/2-sdk-reference.md)。
 
 :::note 不发布到 PyPI
 SDK **不在 PyPI 上**，源码在 `ne503` 源码仓库的 `sdk/python/hailo_ipc_sdk/` 目录内，必须随应用镜像一起带进设备——设备容器运行时**没有外网 pip**，不能指望运行时再装。
@@ -58,7 +58,7 @@ ne503/
 ```
 :::
 
-把 SDK 装进镜像有两条路，按你的项目结构选其一。
+把 SDK 装进镜像有三条路，按你的项目结构选其一。
 
 **方式 A：`build.sh` 自动复制（推荐，仓库示例应用都用这种）**
 
@@ -78,6 +78,27 @@ bash build.sh arm64     # 自动：复制 SDK → buildx → save，产物 image
 ```dockerfile
 COPY hailo_ipc_sdk /app/hailo_ipc_sdk
 RUN pip install --no-cache-dir /app/hailo_ipc_sdk
+```
+
+**方式 C：预先打成 wheel 再 `pip install`（最干净，适合分发与复用）**
+
+先把 SDK 打成一个 wheel 文件，再像普通依赖一样装进镜像——镜像里只带产物、不带整个源码树，且同一个 whl 可跨应用复用。仓库 `apps/model-showcase` 就是这种集成方式。
+
+1. 在开发机生成 wheel（一次性，产物名随 `setup.py` 的版本号变化）：
+
+```bash
+cd sdk/python
+pip wheel . --no-deps -w dist/
+# 产出 dist/hailo_ipc_sdk-0.2.1-py3-none-any.whl
+```
+
+SDK 是纯 Python，产出的是通用 wheel（`py3-none-any`），与设备 ARM64 架构无关。
+
+2. 把 whl 拷进应用目录，Dockerfile 里直接装：
+
+```dockerfile
+COPY hailo_ipc_sdk-0.2.1-py3-none-any.whl /app/
+RUN pip install --no-cache-dir /app/hailo_ipc_sdk-0.2.1-py3-none-any.whl
 ```
 
 关键是 **SDK 必须随镜像带入**，不能依赖运行时联网安装。
@@ -130,5 +151,5 @@ SDK 能调什么，**由 `app.yaml` 的 `permissions` 决定**，不是代码里
 
 - [Hello World](./1-hello-world.md) —— 不用 SDK，先跑通"构建→部署→启动→验收"的完整闭环；
 - [Person Detection](./2-person-detection.md) —— 用 SDK 的真实 AI 应用，含完整代码与设备实测；
-- SDK 各客户端的 API 逐条说明见 [Python SDK Reference](./reference/2-sdk-reference.md)；
+- SDK 各客户端的 API 逐条说明见 [SDK 参考](./reference/2-sdk-reference.md)；
 - 构建部署报错看 [应用故障排查](./reference/troubleshooting.md)。
