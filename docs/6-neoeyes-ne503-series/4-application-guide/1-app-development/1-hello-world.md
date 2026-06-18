@@ -26,6 +26,11 @@ Hello World 不依赖 AI SDK，只在一个循环里持续打印计数，适合�
 NE503 设备是 ARM64 架构。如果你的开发机是 Apple Silicon（M 系列芯片），同样是 ARM64，可以**原生构建**，速度快；如果是 x86 机器，Docker buildx 会自动用 QEMU 模拟，稍慢但同样可用。
 :::
 
+:::note 开发机与设备端的容器运行时是两回事
+- **开发机**装 Docker，仅用于 `docker buildx` 跨架构构建镜像（见 §3），是开发机上的一次性动作；
+- **设备端**运行容器用的是 **containerd**，应用在设备上跑起来**不依赖 Docker**（设备系统虽内置 docker，但容器编排完全由 containerd 完成，无需你安装或配置）。
+:::
+
 ## 2. 应用结构
 
 Hello World 应用由三个文件组成（完整源码在仓库 `apps/hello-world/`）：
