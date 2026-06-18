@@ -36,8 +36,8 @@ class BoundingBox:
     y: float
     width: float
     height: float
-    def to_xyxy() -> Tuple[float, float, float, float]
-    def to_xywh() -> Tuple[float, float, float, float]
+    def to_xyxy(self) -> Tuple[float, float, float, float]
+    def to_xywh(self) -> Tuple[float, float, float, float]
 ```
 
 #### DetectedObject

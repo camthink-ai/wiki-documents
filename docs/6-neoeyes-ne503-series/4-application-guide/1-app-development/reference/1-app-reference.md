@@ -120,6 +120,7 @@ spec:
   # ── 启动策略 ─────────────────────────────────
   autostart: true                      # 开机自启（默认 false）
   restart_policy: on-failure           # 基础重启策略：always | on-failure | no
+  restart_max_retries: 3               # 基础重启最大次数
 
   # ── 健康检查 ─────────────────────────────────
   healthcheck:

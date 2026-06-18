@@ -120,6 +120,7 @@ spec:
   # ── Startup Policy ──────────────────────────────
   autostart: true                      # Auto-start on boot (default: false)
   restart_policy: on-failure           # Basic restart policy: always | on-failure | no
+  restart_max_retries: 3               # Maximum restart attempts for basic restart
 
   # ── Health Check ────────────────────────────────
   healthcheck:
