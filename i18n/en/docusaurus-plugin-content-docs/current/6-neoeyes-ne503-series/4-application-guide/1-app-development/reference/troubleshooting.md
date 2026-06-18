@@ -142,13 +142,13 @@ ssh root@<device-ip> "df -h / /data"
 ssh root@<device-ip> "grep '^root' /etc/containerd/config.toml"
 
 # Fix: move to /data (restore design intent)
-ssh root@<device-ip> "
+ssh root@<device-ip> << 'EOF'
   cp /etc/containerd/config.toml /etc/containerd/config.toml.bak
-  sed -i 's|^root = \"/opt/aipc/containerd\"|root = \"/data/containerd\"|' /etc/containerd/config.toml
+  sed -i 's|^root = "/opt/aipc/containerd"|root = "/data/containerd"|' /etc/containerd/config.toml
   mkdir -p /data/containerd
   systemctl restart containerd && systemctl restart app-manager
   rm -rf /opt/aipc/containerd   # clean up the orphaned dir we moved away from
-"
+EOF
 ```
 
 #### #6 App volume directory doesn't exist

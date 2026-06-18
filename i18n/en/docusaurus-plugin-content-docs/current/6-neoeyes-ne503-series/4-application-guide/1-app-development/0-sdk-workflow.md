@@ -94,8 +94,8 @@ The SDK is pure Python, so this yields a universal wheel (`py3-none-any`) that i
 2. Copy the wheel into your app directory and install it directly in the Dockerfile:
 
 ```dockerfile
-COPY hailo_ipc_sdk-0.2.1-py3-none-any.whl /app/
-RUN pip install --no-cache-dir /app/hailo_ipc_sdk-0.2.1-py3-none-any.whl
+COPY hailo_ipc_sdk-0.2.1-py3-none-any.whl /tmp/
+RUN pip install --no-cache-dir /tmp/hailo_ipc_sdk-0.2.1-py3-none-any.whl && rm /tmp/hailo_ipc_sdk-0.2.1-py3-none-any.whl
 ```
 
 The key point: **the SDK must be carried into the image** — never depend on runtime network installation.

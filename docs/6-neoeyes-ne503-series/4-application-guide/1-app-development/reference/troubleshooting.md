@@ -145,13 +145,13 @@ ssh root@<设备IP> "df -h / /data"
 ssh root@<设备IP> "grep '^root' /etc/containerd/config.toml"
 
 # 修复：迁到 /data（恢复设计意图）
-ssh root@<设备IP> "
+ssh root@<设备IP> << 'EOF'
   cp /etc/containerd/config.toml /etc/containerd/config.toml.bak
-  sed -i 's|^root = \"/opt/aipc/containerd\"|root = \"/data/containerd\"|' /etc/containerd/config.toml
+  sed -i 's|^root = "/opt/aipc/containerd"|root = "/data/containerd"|' /etc/containerd/config.toml
   mkdir -p /data/containerd
   systemctl restart containerd && systemctl restart app-manager
   rm -rf /opt/aipc/containerd   # 清理已迁走的孤儿目录
-"
+EOF
 ```
 
 #### #6 应用卷目录不存在

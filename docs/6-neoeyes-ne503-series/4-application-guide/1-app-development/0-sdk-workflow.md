@@ -97,8 +97,8 @@ SDK 是纯 Python，产出的是通用 wheel（`py3-none-any`），与设备 ARM
 2. 把 whl 拷进应用目录，Dockerfile 里直接装：
 
 ```dockerfile
-COPY hailo_ipc_sdk-0.2.1-py3-none-any.whl /app/
-RUN pip install --no-cache-dir /app/hailo_ipc_sdk-0.2.1-py3-none-any.whl
+COPY hailo_ipc_sdk-0.2.1-py3-none-any.whl /tmp/
+RUN pip install --no-cache-dir /tmp/hailo_ipc_sdk-0.2.1-py3-none-any.whl && rm /tmp/hailo_ipc_sdk-0.2.1-py3-none-any.whl
 ```
 
 关键是 **SDK 必须随镜像带入**，不能依赖运行时联网安装。
