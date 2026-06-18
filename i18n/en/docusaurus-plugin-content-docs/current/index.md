@@ -29,7 +29,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     <p><strong>CamThink, Fueling Imagination to Edge Intelligence</strong></p>
     <p style={{marginBottom: '0'}}>CamThink is a brand that provides developers with a variety of **open-architecture hardware** and **open-source software**. We are committed to building an **edge AI perception suite** that can be widely used in the real world. Our focus is on providing multi-dimensional perception capabilities such as visual, audio, and environmental data, aiming to allow AI to understand the world more comprehensively and promote the popularization and development of edge intelligence technology. As a sub-brand of Milesight, CamThink inherits its strong R&D capabilities and global support network, providing a strong guarantee for product reliability and continuous innovation.</p>
   </div>
-  
+
   <div style={{height: '3rem'}}></div>
 
   {/* ================= Latest Updates ================= */}
@@ -69,9 +69,60 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Quick Access (Product Series) ================= */}
   <h2 className="docs-section-title">Quick Access</h2>
   <div className="doc-categories-grid">
+    {/* NeoMind */}
+    <div className="category-card">
+      <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-header">
+        <img src="https://resources.camthink.ai/NeoMind/dashboardDemo.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoMind Platform</div>
+        <div className="cat-desc">Edge AI application platform — device management, real-time dashboards, rule engine, and AI Agent.</div>
+        <div className="cat-links">
+          <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-link-item">Overview</Link>
+          <Link to="/docs/neomind/quick-start/five-minute-guide" className="cat-link-item">Quick Start</Link>
+          <Link to="/docs/neomind/developer-guide/overview" className="cat-link-item">Developer Guide</Link>
+          <Link to="/docs/neomind/use-cases/object-detection" className="cat-link-item">Use Cases</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NG4500 */}
+    <div className="category-card">
+      <Link to="/docs/neoedge-ng4500-series/overview" className="cat-header">
+        <img src="https://resources.camthink.ai/wiki/img/Overview/NG45xx/NG45XX.png" style={{height: '80px', pointerEvents: 'none'}} alt="NG4500" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEdge NG4500</div>
+        <div className="cat-desc">NVIDIA Jetson Edge Computing Gateway, 21~100 TOPS powerful computing.</div>
+        <div className="cat-links">
+          <Link to="/docs/neoedge-ng4500-series/overview" className="cat-link-item">Overview</Link>
+          <Link to="/docs/neoedge-ng4500-series/quick-start" className="cat-link-item">Quick Start</Link>
+          <Link to="/docs/neoedge-ng4500-series/ng4500-cb01-development-board/dev-guide" className="cat-link-item">Hardware Guide</Link>
+          <Link to="/docs/neoedge-ng4500-series/application-guide/deepseek-r1" className="cat-link-item">LLM Deploy</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NE503 */}
+    <div className="category-card">
+      <Link to="/docs/neoeyes-ne503-series/overview" className="cat-header">
+        <img src="https://resources.camthink.ai/official-site/menu/ne503.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE503" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEyes NE503</div>
+        <div className="cat-desc">Hailo-15H AI Camera, 20 TOPS computing, 4K imaging and high-performance inference.</div>
+        <div className="cat-links">
+          <Link to="/docs/neoeyes-ne503-series/overview" className="cat-link-item">Overview</Link>
+          <Link to="/docs/neoeyes-ne503-series/quick-start" className="cat-link-item">Quick Start</Link>
+          <Link to="/docs/neoeyes-ne503-series/hardware-guide/specifications" className="cat-link-item">Hardware Guide</Link>
+          <Link to="/docs/neoeyes-ne503-series/software-guide/system-architecture" className="cat-link-item">Software Guide</Link>
+        </div>
+      </div>
+    </div>
+
     {/* NE301 */}
     <div className="category-card">
-      <Link to="/docs/neoeyes-ne301-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'}}>
+      <Link to="/docs/neoeyes-ne301-series/overview" className="cat-header">
         <img src="https://resources.camthink.ai/wiki/img/ne301/overview/301.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE301" />
       </Link>
       <div className="cat-body">
@@ -88,7 +139,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
 
     {/* NE101 */}
     <div className="category-card">
-      <Link to="/docs/neoeyes-ne101-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)'}}>
+      <Link to="/docs/neoeyes-ne101-series/overview" className="cat-header">
         <img src="https://resources.camthink.ai/wiki/img/Overview/NE101/NE101.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE101" />
       </Link>
       <div className="cat-body">
@@ -102,34 +153,17 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         </div>
       </div>
     </div>
-
-    {/* NG4500 */}
-    <div className="category-card">
-      <Link to="/docs/neoedge-ng4500-series/overview" className="cat-header" style={{background: 'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)'}}>
-        <img src="https://resources.camthink.ai/wiki/img/Overview/NG45xx/NG45XX.png" style={{height: '80px', pointerEvents: 'none'}} alt="NG4500" />
-      </Link>
-      <div className="cat-body">
-        <div className="cat-title">NeoEdge NG4500</div>
-        <div className="cat-desc">NVIDIA Jetson Edge Computing Gateway, 21~100 TOPS powerful computing.</div>
-        <div className="cat-links">
-          <Link to="/docs/neoedge-ng4500-series/overview" className="cat-link-item">Overview</Link>
-          <Link to="/docs/neoedge-ng4500-series/quick-start" className="cat-link-item">Quick Start</Link>
-          <Link to="/docs/neoedge-ng4500-series/ng4500-cb01-development-board/dev-guide" className="cat-link-item">Hardware Guide</Link>
-          <Link to="/docs/neoedge-ng4500-series/application-guide/deepseek-r1" className="cat-link-item">LLM Deploy</Link>
-        </div>
-      </div>
-    </div>
   </div>
 
   <h2 className="docs-section-title">Video Demos</h2>
   <div className="videos-grid">
-    <VideoModal 
+    <VideoModal
       videoId="GH0RVLQjGeY"
       title="NeoEyes NE101 Firmware Flashing & First Look"
       description="Comprehensive display of flashing details and functions"
       coverImage="https://img.youtube.com/vi/GH0RVLQjGeY/maxresdefault.jpg"
     />
-    <VideoModal 
+    <VideoModal
       videoId="OsPkVlqArXs"
       title="NeoEyes NE301 Assembly Demo"
       description="From development board to finished camera"
@@ -139,7 +173,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
 
   {/* ================= SHORTS SECTION ================= */}
   <h2 className="docs-section-title" style={{marginTop: '4rem'}}>Featured Shorts</h2>
-  
+
   <VideoCarousel videos={[
     { videoId: 'mLg4TQ-i5KU', title: 'Start Exploring' },
     { videoId: 'n8zZIutqi3Q', title: 'AI Camera' },
