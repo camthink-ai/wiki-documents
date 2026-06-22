@@ -176,6 +176,7 @@ Claude 不会从零搭文件——它先拿 SDK 源码里的 `apps/template/` �
 for frame_seq, result in self.inference.subscribe(
     stream="sub", model="hailo_yolov8n_384_640", fps=5,
 ):
+    now = time.monotonic()                            # 单调时钟，专测时间间隔
     persons = [o for o in result.objects
                if o.label == "person" and o.score >= 0.3]
     if persons:

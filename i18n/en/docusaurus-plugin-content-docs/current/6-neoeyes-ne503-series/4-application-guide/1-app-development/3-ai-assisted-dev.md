@@ -176,6 +176,7 @@ With the placeholders fixed, the app still only reports "is there a person, this
 for frame_seq, result in self.inference.subscribe(
     stream="sub", model="hailo_yolov8n_384_640", fps=5,
 ):
+    now = time.monotonic()                            # monotonic clock — for measuring intervals
     persons = [o for o in result.objects
                if o.label == "person" and o.score >= 0.3]
     if persons:
