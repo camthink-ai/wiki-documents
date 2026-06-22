@@ -6,6 +6,11 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-06-22]
+
+### Added
+- **NeoEyes NE503 AI-Assisted Development Tutorial**: A new entry in the app-development series — describe the app you want in one sentence, and Claude (via the `ne503-dev` skill) writes the code (logic + manifest), builds the image, deploys to the device, and verifies end-to-end, with no commands typed. Full on-device demo with a brand-new app, a "loitering alert" (fires when someone stays in frame 10 s straight, resets when they leave) — covers the dwell state machine, tunable env vars, event-bus output, and live console logs (full bilingual support).
+
 ## [2026-06-16]
 
 ### Added
