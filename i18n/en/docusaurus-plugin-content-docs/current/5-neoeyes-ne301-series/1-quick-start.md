@@ -1,184 +1,167 @@
 ---
-description: Get started with NeoEyes NE301. Covers power-on, Web UI configuration, real-time inference preview, and MQTT data reporting setup.
-keywords: [NeoEyes NE301, Quick Start, Edge AI Preview, STM32N6, Web UI Config, MQTT Setup, Low Power AI]
-tags: [NeoEyes NE301, Quick Start, Edge Inference, STM32N6 AI, User Guide]
+description: Complete getting-started guide for NeoEyes NE301 — covers device assembly, Web UI login, and the seven modules (Feature Debugging, Model Validation, Application Management, Hardware Management, System Settings, Storage Management, Device Information) for deploying and debugging edge AI applications.
+keywords: [NE301 quick start, NeoEyes tutorial, AI camera config, Web UI debugging, model deployment, MQTT config, Webhook push, edge AI, firmware upgrade, real-time inference]
+tags: [Quick Start, NE301, User Guide, AI Debugging, Configuration]
 ---
 
 # Quick Start
 
 ## Overview
 
-This guide walks through everything you need to get started with NeoEyes NE301—from unpacking and powering on the device to configuring features, deploying models, and managing daily operation.
+This tutorial walks you through the NeoEyes NE301 from scratch: device installation, basic usage, configuration and debugging across the seven Web UI modules, model deployment, and data reporting.
 
 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center', alignItems: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/ne301-2.png" alt="ne301" style={{ flex: '0 0 auto', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/ne301-1.png" alt="ne301" style={{ flex: '0 0 auto', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## What You Need
+## Prerequisites
 
-- NeoEyes NE301 camera (main board, battery tray, enclosure)
-- Four AA batteries, or another DC / solar / wired power source
-- Phillips screwdriver plus the mounting brackets and fasteners you plan to use
-- Optional add-ons: Cat‑1 module, alternative lenses
-- A Wi‑Fi capable phone or PC to access the device Web UI
+- One NE301 main unit (mainboard, battery compartment, housing)
+- 4 x AA batteries, or an alternative DC / solar power supply
+- Phillips screwdriver, mounting bracket and fixings
+- Optional extensions: Cat-1 module, different lens modules
+- A WiFi-capable phone or computer to access the device's Web UI
 
-> The whole-unit SKU ships with the core firmware and a factory model preinstalled. Insert batteries and you can start debugging right away. If you are using the developer-kit SKU, confirm that the expansion boards are firmly connected before assembling the enclosure.
+> Tip: The fully-assembled version comes with core firmware and a factory model pre-installed — just load the batteries to start debugging. If you have the dev-board version, make sure all expansion boards are firmly connected before assembling.
 
 ## Using the Device
 
-### Power-On
+### Powering On
 
-Remove the rear cover with a screwdriver, install the batteries according to the tray layout, and wait for the blue LED on the front panel to light up—this indicates the system has booted. Once confirmed, reinstall the rear cover. The basic startup is now complete and you can move on to configuration.
-
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup1.jpg" alt="Power-on example" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup2.jpg" alt="Battery installation" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-</div>
-
-### Connect and Sign In
-
-NeoEyes NE301 exposes a built-in Wi‑Fi AP with a Web UI for AI inference preview, model and parameter management, and feature tuning. The SSID is `NE301{last 6 MAC digits}`. Make sure a phone or PC is available to join this AP; once connected, open `http://192.168.10.10` in a browser to configure the device. The detailed steps are listed below.
-
-1. **Confirm the device is on**  
-   Tap the capture button on the right side—if the fill light flashes, the device is active. During debugging, a short press triggers image capture and uploads it via the configured MQTT/MQTTS endpoint. Configuration steps are explained later in this guide.
-
-2. **Join the NE301 Wi‑Fi AP**  
-   After the system starts, scan for SSIDs that match `NE301{last 6 MAC digits}` and connect; no password is required. When the connection succeeds, open `192.168.10.10` in a browser to access the Web UI.
-
-> Short press the capture button for a snapshot; press and hold for 2 seconds to wake the Wi‑Fi AP (the blue LED lights up). The AP automatically sleeps after 10 minutes of inactivity—press the capture button again or change the sleep timer if needed.
-
-3. **Log in**  
-   The default username is fixed by the system, and the default password is `hicamthink`. You can change it later via **Home → System Settings → Device Password**. Enter the credentials to reach the main dashboard.
+Use a screwdriver to remove the NE301 rear cover, install the batteries according to the battery compartment layout, and wait for the blue light on the front of the camera to light up — this means the system has started successfully. Once confirmed, refit the rear cover. The device is now ready for configuration.
 
 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/login-en.png" alt="Login screen" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/login-hicamthink.png" alt="Default password reminder" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup1.jpg" alt="power-on" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup2.jpg" alt="battery install" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-After signing in you can adjust configurations and run diagnostics. The following sections describe each module in detail.
+### Connecting and Logging In
 
-## AI Features & Debugging
+The NE301 hosts a built-in WiFi AP that serves a Web UI for debugging model inference, parameters and features. The AP SSID follows the pattern `NE301{last 6 hex of MAC}`. Connect a phone or computer to this AP, then open a browser and navigate to `192.168.10.10` to reach the configuration page.
 
-### Guided Onboarding
+**Steps:**
 
-The first time you connect through a phone or PC, the interface shows a quick guided tour. Afterwards you land on the **Feature Debugging** page where you can switch models, upload new models, and preview edge inference in real time.
+1. **Confirm the device is on**: Briefly press the shutter button on the right side of the camera — if the indicator lights up, the device is running. During debugging, pressing the shutter makes the NE301 capture the current frame and upload it via your configured MQTT/MQTTS or Webhook endpoint.
+2. **Wake and connect the WiFi AP**: Long-press the shutter button for about 2 seconds to wake the WiFi AP (the blue system indicator on the front lights up). Find the `NE301{last 6 hex of MAC}` hotspot in your WiFi list and connect — no password is needed. Once connected, open `192.168.10.10` in a browser to load the configuration page.
 
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/guidance.png" alt="Guided onboarding" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/AI-off.png" alt="AI disabled" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/AI.png" alt="AI enabled" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-</div>
+> A short press triggers a capture; a 2-second long-press wakes the WiFi AP. The AP enters sleep after being idle for a while — if the page disconnects, long-press again to wake it, or adjust the sleep timer under System Settings → Device Password.
 
-### Low-Latency Inference
-
-NE301 supports millisecond-level real-time inference on video streams, enabling instant AI responses. Through the device Wi‑Fi AP, you can preview the stream locally on the Web UI and verify edge inference synchronously. Inference is enabled by default and can be turned off as needed.
+3. **Log in**: The web page opens to the login screen. The username is the built-in `admin` (not editable) and the initial password is `hicamthink`, which can be changed under System Settings → Device Password. Enter the password to enter the main UI.
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/inference-setting.png" alt="Inference settings" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  </div>
-
-### Flexible Model Deployment & Replacement
-
-The Web UI provides one-click model deployment and replacement to make AI application management effortless.
-
-- Out of the box: A YOLOv8 model is preloaded at the factory so you can quickly preview on‑device AI.
-
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-list.png" alt="Model list" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-upload.png" alt="Model upload" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-uploading.png" alt="Model flashing" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/login-en.png" alt="login page" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-- Rapid deployment: If you don’t want the default model, you can upload and deploy a new AI model via the Web UI—zero setup and zero code. You can also build a dataset from device snapshots, retrain a scene‑specific model, and redeploy.
-  - See also: [Train and deploy YOLOv8 on STM32N6](./3-application-guide/0-model-training-and-deployment/0-model-training-and-deployment.md)
+## Module Overview
 
+After logging in, the top navigation provides 7 modules covering everything from debugging to application integration and system management:
 
-### Hot-load Inference Parameters
-
-The system supports hot-loading inference parameters. Adjust sliders on the Web UI to change thresholds (confidence and NMS) in real time and immediately preview inference results, enabling rapid model tuning.
+| Module | Path | Purpose |
+|:---|:---|:---|
+| **Feature Debugging** | `/device-tool` | Live preview, model management, inference params, power modes, media streaming, wakeup sources |
+| **Model Validation** | `/model-verification` | Upload a local image for offline inference with the current model, returns JSON results |
+| **Application Management** | `/application-management` | Data reporting channels: MQTT/MQTTS and Webhook |
+| **Hardware Management** | `/hardware-management` | Image params (flip, ISP, capture) and supplement-light policy |
+| **System Settings** | `/system-settings` | Communication method, device password, firmware upgrade |
+| **Storage Management** | `/storage-management` | SD card status, capacity and storage policy |
+| **Device Information** | `/device-information` | Device name, MAC, SN, HW/SW versions, power and communication |
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/inference-setting.png" alt="Inference parameters" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/feature-debugging.png" alt="Feature Debugging main UI" style={{ maxWidth: '720px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-### Image-based Model Verification
+## 1. Feature Debugging
 
-Besides real-time streams, you can validate models directly with images. Upload local pictures from your phone or PC to the Web UI and run inference using the model currently deployed on the device. This lets you quickly test performance across scenarios without on‑site capture.
+The most frequently used module — integrates live preview, model deployment, inference tuning, power and operating modes, media streaming, and wakeup source configuration (PIR / Remote Control / Scheduled Capture).
 
-<!--
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-pic1.png" alt="Model verification" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-pic2.png" alt="Model verification" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-pic3.png" alt="Model verification" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-</div>
--->
+### 1.1 First-time Guidance
 
-The specific effects are shown below:
+The first time a phone or PC connects, a guided wizard appears (Select Model → inference params → wakeup source). Follow it for initial setup, or click Skip. The main Feature Debugging UI appears afterwards.
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-validation.gif" alt="Verification preview" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/guidance.png" alt="Guidance" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-### AI Preview
+### 1.2 Live Preview Toolbar
 
-The AI preview page displays the latest inference results in real time. You can start or stop inference, trigger snapshots, export annotation coordinates, and download single images or zipped batches for dataset labeling.
+The toolbar at the top of the page controls the live view:
 
-- **Model selection**: Choose the factory model or upload your own.
-- **Threshold tuning**: Adjust confidence, NMS, and other inference parameters on the fly.
-- **Push notifications**: Combine with the MQTT settings described later to forward inference results upstream.
+- **Reload**: Reload the live video stream.
+- **Photo Capture**: Manually trigger a capture.
+- **AI Inference**: Toggle real-time AI overlay (on by default).
+- **Stream Info**: View current stream parameters.
+- **Snapshot**: Save the current frame as a snapshot.
+- **Fullscreen**: Fullscreen preview.
 
-### Streaming Preview
+The device supports millisecond-level real-time inference on the live stream — preview the feed and verify AI results in real time on the Web UI via the local WiFi AP, with no cloud service required.
 
-The streaming preview page offers a low-latency RTSP/HTTP preview capture. This is useful for monitoring the installation angle, verifying focus, or checking lighting conditions.
+### 1.3 Model Management
 
-### Trigger Management
+The **Current Model** area shows the deployed model. The NE301 runs TFLite Int8 inference on the STM32N6 NPU; model packages come in two output-format suffixes: `_uf` (float32 output) and `_ui` (int8 output). The factory-preset model is a YOLOv8 Nano object detection model (COCO 80 classes, `_uf` / Float32 output variant). Click `upload / Choose File` to upload a new model package and replace it in one step — the new model takes effect immediately.
 
-> Configure how images are captured: via manual triggers, periodic jobs, motion/face detection, pull-based capture, and IO events.
-
-- **Datagram type**: Select whether each upload contains only image data or image + JSON metadata.
-- **Manual trigger**: Buttons for capture, refresh, and download.
-  - *Capture*: Immediately grabs an image.
-  - *Refresh*: Updates the preview list.
-  - *Download*: Retrieves the selected picture.
-- **Auto capture**: Used for scheduled sampling where periodic upload is required.
-  - Interval: Time between captures (seconds). Defaults to “Off”.
-  - Sampling duration: How long the schedule runs (minutes). Set to 0 to capture indefinitely.
-  - Capture count: The number of images per schedule run (maximum 20, default 10). Set to 0 for bulk capture until you stop it manually.
-  - Stop capture: Halts the current schedule; otherwise it stops automatically when the duration elapses.
-  - Latest timestamp: Shows when the last capture occurred.
-  - Capture records: Lists the most recent images. Click the thumbnail to enlarge, download locally, and examine metadata.
-- **Resident detection**: Designed for lightweight presence monitoring. The device takes a reference frame, compares subsequent frames within a time window, and runs YOLO inference when significant differences are detected. Typical use cases include intrusion alerts, space utilization, and visitor counting.
-- **Face detection**: Detects faces in the frame, counts them, and runs inference to determine the face region.
-- **Pull capture**: Some HTTP endpoints support on-demand capture from external systems. Configure the HTTP push target and enable this feature to trigger uploads via API calls.
-- **IO trigger**: Enables capture based on state changes on the expansion IO header. Choose between high-level or low-level triggers depending on the sensor you connect.
-
-#### PIR Configuration
-
-Adjust PIR (Passive Infrared) sensor parameters for your environment (e.g., corridor, outdoor) to avoid false alarms.
-
-- **Menu**: Web UI -> **Feature Debugging** -> **Wake-up Source** -> **IO Trigger - PIR**
-
-- **Parameters**:
-  - **Sensitivity**: Range 0-255. Recommended: 20-50 for indoor; lower for outdoor to reduce false positives from wind or small animals.
-  - **Blind Time**: Non-responsive window after a trigger event to prevent repetitive firing.
-  - **Window Time**: Time window to valid trigger determination.
-  - **Pulse Count**: Number of pulses required to register a valid trigger. Set to 2 or 3 to filter noise effectively.
-
-### Remote Control
-
-> Used to configure the remote control function of the NE301 device. Users can send remote control commands according to actual scenario requirements to achieve communication between the device and the server. Please note that keeping this function enabled for a long time will increase the network overhead of the device.
-
-- **Enable Remote Control**: When enabled, it supports setting the device to receive control commands via network communication for remote control.
-- **Configuration Method**: Implemented by configuring the data receiving topic in `Application Management - MQTT/MQTTS`. When the device receives a message on this topic, it executes the corresponding control command based on the message content.
+To train a model tailored to your own scenario, see [Training and Deploying YOLOv8 on STM32N6](./3-application-guide/0-model-training-and-deployment/0-model-training-and-deployment.md).
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/remote-control.png" alt="Remote Control" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/change-model.gif" alt="model replacement" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-The currently supported remote control commands for the latest firmware version are as follows:
+### 1.4 Hot-reloading Inference Parameters
 
-Capture Command:
+**Inference Settings** supports hot-reload — drag the slider or type a value and it takes effect immediately, no reboot:
+
+- **NMS Threshold**: Non-Maximum Suppression threshold, range 0–100, default 50. Lower values suppress overlapping boxes more aggressively.
+- **Confidence Threshold**: Range 0–100, default 20. Detections below this threshold are filtered out.
+
+### 1.5 Power and Operating Modes
+
+To balance performance against power draw, Feature Debugging exposes three performance-related settings:
+
+- **Power Mode**:
+  - `Full Speed Mode` (default): Full-load operation, highest inference FPS, highest power draw.
+  - `Low Power Mode`: Reduced compute and clock — ideal for long-term, battery-powered duty.
+- **Operating Mode**: Currently supports `Image Mode`; more modes will be added.
+- **Work frequency**: CPU clock — `HSE 200 MHz` / `HSE 400 MHz` / `HSI 800 MHz` / `HSE 800 MHz` (default). Higher frequency = faster inference and higher power; lower frequency suits energy-saving scenarios.
+
+> Tip: For long-running battery deployments, combine `Low Power Mode` + a lower Work frequency with the wakeup-source policy below to significantly extend battery life.
+
+### 1.6 Media Streaming (RTMP / RTSP)
+
+**Stream Settings** pushes the device feed to an external server via RTMP or RTSP, integrated directly into Feature Debugging — no CLI required.
+
+- **Stream Type**: Select `RTMP` or `RTSP`.
+- **URL**: Stream server address (max 256 chars).
+- **Secret Key**: Stream key (max 128 chars, show/hide toggle).
+- **Status / Connection Duration**: Live connection state (disconnected / connected) and duration.
+- Click `connect` to start pushing; status turns connected when successful.
+
+> Advanced debugging can still use the CLI `rtmp_url <url> [stream_key]`. For a full live-streaming recipe, see [RTMP Video Streaming](./3-application-guide/8-rtmp-video-streaming.md).
+
+### 1.7 Wakeup Source Configuration
+
+Wakeup sources control what events wake the device from low-power sleep to capture a frame. There are three — IO Trigger-PIR, Remote Control, and Scheduled Capture — each enabled by a switch that expands into detailed settings.
+
+#### IO Trigger-PIR
+
+Triggers a capture via the PIR (passive infrared) sensor — suited for human-detection scenes like corridors and entrances. Configure after enabling:
+
+- **Usage**: `Rising Edge` or `Falling Edge`, matching the sensor signal edge.
+- **Sensitivity**: Range 0–255. Indoors 20–50 recommended; lower it outdoors to reduce false triggers from wind and motion.
+- **Ignore Time**: Time window after a trigger during which the sensor does not respond (0–15) — prevents rapid repeat triggers.
+- **Pulse Count**: Number of signal pulses required for a valid trigger (1–4); 2–3 filters out interference.
+- **Window Time**: Time window for evaluating a valid trigger (0–3).
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/pir-config.png" alt="PIR trigger config" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+#### Remote Control
+
+When enabled, the device accepts server-issued commands (remote capture, sleep, etc.) via the Data Receiving Topic configured under Application Management → MQTT. Leaving it on long-term adds network overhead — enable as needed.
+
+Supported remote commands:
+
+Capture:
 
 ```json
 {
@@ -192,7 +175,7 @@ Capture Command:
 }
 ```
 
-Sleep Command:
+Sleep:
 
 ```json
 {
@@ -204,222 +187,247 @@ Sleep Command:
 }
 ```
 
-### RTMP Streaming
+#### Scheduled Capture
 
-RTMP streaming can be fully configured via the Web UI, while retaining CLI commands for developer debugging.
+When enabled, supports two Capture Modes — click `confirm` after configuration to apply:
 
-- **Menu**: Web UI -> **Feature Debugging** -> **Media Stream**
-
-- **Operations**:
-  1. **Enable RTMP**: Select to enable RTMP mode in the settings.
-  2. **Configuration**:
-      - **URL**: Enter RTMP Server URL (max 256 chars).
-      - **Stream Key**: Enter streaming key (max 128 chars, supports show/hide).
-  3. **Connect**: Click "Connect". The status LED turns green upon success.
-
-- **CLI Command (Advanced)**:
-  ```bash
-  # Check help for details
-  rtmp_url <url> [stream_key] # Configure stream address
-  ```
-
-### Scheduled Capture
-
-
-Use scheduled capture when you need periodic uploads without manual intervention or external IO triggers.
-
-- Enable scheduled capture: Turn on to configure periodic image capture.
-- Time schedule mode: Define one or more times during the day or week to take a snapshot. Supported range is 00:00–23:59, and up to 8 daily/weekly time points.
-- Interval mode: Set a capture interval by minutes, hours, or days. At most one interval rule is supported at a time.
+- **Interval**: Capture at a fixed interval.
+  - **Interval Type**: `Normal` (regular interval) or `Scheduled` (planned interval).
+  - **Interval**: Interval value, unit selectable in `minute` / `hour` / `day`.
+  - The page shows **Next Capture** (next capture time) so you can verify the schedule.
+- **Fixed Point**: Capture at fixed times of day — click `add` to add multiple time points (00:00–23:59).
 
 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/scheduled-capture.png" alt="Interval capture" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/scheduled-capture2.png" alt="Time schedule" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/scheduled-capture-fixed.png" alt="Fixed point capture" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## Application Management
+Combine with PIR or other hardware triggers for a "scheduled patrol + event capture" hybrid strategy.
 
-> Configure MQTT or MQTTS parameters so NE301 can push data to your backend.
+## 2. Model Validation
 
-Select the protocol (MQTT / MQTTS), fill in the fields below, then click **Save & Connect**.
-
-- **Host**: MQTT broker hostname or IP.
-- **MQTT Port**: Default 1883 (or 8883 when SSL is enabled).
-- **Topic**: The topic the device publishes to.
-- **Client ID**: Unique identifier for this device.
-- **QoS**: Choose QoS 0, 1, or 2.
-- **Username** / **Password**: Credentials for the broker.
-- **SSL**: Turn on to use MQTTS. Additional certificate fields appear:
-  - **CA Certificate**: Upload the broker’s CA certificate.
-  - **Client Certificate**: Upload the device client certificate.
-  - **Client Key**: Upload the device private key.
+Model Validation lets you test the deployed model offline — no need to capture on-site. Click or drag to upload a local image (jpeg / png / jpg / webp) on the Model Validation page; the device runs inference with the current model, **overlays green detection boxes on the image**, and shows the JSON result (class, confidence, coordinates) below, so you can quickly evaluate model performance across scenes.
 
 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/MQTT.png" alt="MQTT" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/MQTTS.png" alt="MQTTS" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-pic1.png" alt="Model Validation upload entry" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-pic2.png" alt="Inference result (detection boxes + JSON)" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/model-validation.gif" alt="Model Validation demo" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-> For more information about MQTT configuration and application, please refer to [MQTT Data Interaction](./3-application-guide/2-mqtt-data-interaction/2-mqtt-data-interaction.md).
+## 3. Application Management
 
-### Hardware Management
+Application Management configures the device's data reporting channel — **MQTT/MQTTS** or **Webhook**, switched via the top tabs. Choose by scenario: MQTT for bidirectional communication (reporting + remote control), Webhook for lightweight one-way data push.
 
-Hardware Management consists of two modules — **Image Management** and **Lighting Management** — for adjusting camera parameters and fill light settings.
+### 3.1 MQTT/MQTTS
 
-#### Image Management
+For scenarios that need bidirectional communication (data reporting + remote control commands).
 
-Configure camera orientation and capture parameters. The top of the page shows the camera module connection status.
+- **Protocol**: Select `MQTT` or `MQTTS` (SSL-encrypted); choosing MQTTS expands the certificate options.
+- **Server Address**: Domain or IP of the MQTT server.
+- **Port**: MQTT default `1883`, MQTTS default `8883`.
+- **Data Receiving Topic**: Topic the device subscribes to for server-issued remote commands.
+- **Data Reporting Topic**: Topic the device publishes capture and inference data to.
+- **Client ID**: Unique client identifier in the MQTT service.
+- **QoS**: Quality of Service — `QoS 0` / `QoS 1` / `QoS 2`.
+- **Username / Password**: Credentials for connection authentication.
+- **CA Certificate** (MQTTS only): Upload the CA certificate to verify server identity.
+- **Client Certificate** (MQTTS only): Upload the client certificate for mutual authentication.
+- **Private Key** (MQTTS only): Upload the client private key for encrypted communication.
+- **SNI (Server Name Indication)** (MQTTS only): For servers hosting multiple TLS certificates.
+
+<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/application-management-mqtt.png" alt="MQTT config" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/application-management-mqtts.png" alt="MQTTS certificate config" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+> For more on MQTT, see [MQTT Data Interaction](./3-application-guide/2-mqtt-data-interaction/2-mqtt-data-interaction.md).
+
+### 3.2 Webhook
+
+For scenarios that only need to push capture / inference data to your own service, without bidirectional communication. The device HTTP(S) POSTs data to a URL you specify — lighter to integrate than MQTT.
+
+- **Enable Push**: Toggle Webhook push on/off.
+- **Push Status**: Current enabled / disabled state.
+- **HTTP(S) Push URL**: Server URL that receives the data — HTTP or HTTPS.
+- **Authentication**: Auth method (e.g. None) per your server's requirements.
+- **Custom CA Certificate**: For HTTPS, upload a self-signed CA cert; defaults to the built-in CA bundle (Using built-in CA bundle). Supports upload and Clear.
+- **Test Push**: Send a test request to verify the URL and certificate.
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/application-management-webhook.png" alt="Webhook config" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+## 4. Hardware Management
+
+Hardware Management has two sub-modules — **Image Management** and **Lighting Management** — switched via the top tabs. The camera module connection status is shown at the top (Connection Status).
+
+### 4.1 Image Management
+
+Configures frame orientation and capture parameters:
 
 - **Camera configuration**
-  - **Flip Horizontal**: Mirror the image horizontally; useful when the physical mounting requires a horizontal correction.
-  - **Flip Vertical**: Mirror the image vertically; useful when the physical mounting requires a vertical correction.
-
+  - **Flip Horizontal**: Mirror the frame horizontally — for installations that need a flipped image.
+  - **Flip Vertical**: Flip the frame vertically.
+  - **ISP mode**: Image Signal Processing mode — optimizes image quality for the lighting environment. Default `Outdoor / bright light`; switch based on your installation environment.
 - **Capture configuration**
-  - **Skip frames**: Number of frames to skip before capturing, default 30. Helps obtain a stable image.
-  - **Resolution**: Capture resolution. Supported values: 1280×720, 1920×1080, 2688×1520.
-  - **JPEG quality**: JPEG image quality, default 80. Higher quality produces larger files; images exceeding 1 MB are automatically uploaded in chunks, which increases transfer time.
+  - **Skip frames**: Frames to skip before capture, default 30 — lets the image stabilize before the shot.
+  - **Resolution**: Capture resolution — `1280x720` / `1920x1080` / `2688x1520`.
+  - **JPEG quality**: JPEG quality, default 80. Higher quality means larger files; images over 1 MB are auto-chunked for upload, increasing transfer time.
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/image-management.png" alt="Image Management" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/image-management.png" alt="Image Management" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-#### Lighting Management
+### 4.2 Lighting Management
 
-**Work Supplement Light** — choose a fill light mode based on your deployment:
+**Work Supplement Light** supports three modes:
 
-- **Always On**: The fill light stays on continuously.
-- **Custom**: Define a time range (for example 20:00–06:00); the fill light stays on during that range.
-- **Always Off**: The fill light is always off.
+- **Always On**: Light always on.
+- **Custom**: On during a custom time range (e.g. 20:00–06:00).
+- **Always Off**: Light always off.
 
-> Tip: The fill light is most effective at short range. Choose **Always Off** in power-sensitive deployments.
+> Tip: The supplement light is only effective at close range; for power-sensitive scenarios, choose Always Off.
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/lighting-management.png" alt="Lighting Management" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/lighting-management.png" alt="Lighting Management" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-### System Settings: Connectivity, Device, Import/Export
+## 5. System Settings
 
-> The menus adapt to the communication modules present. In addition to Wi‑Fi and Cat‑1, you’ll find Bluetooth (BLE), device security, and import/export utilities.
+System Settings contains three sub-modules: **Communications**, **Device Password**, and **Firmware Upgrade**.
 
-#### Connectivity Management
+### 5.1 Communications
 
-NeoEyes NE301 supports Wi‑Fi, Cat‑1, and PoE. Configuration options vary by connectivity type.
+The NE301 supports three communication options: WiFi, Cat-1, and POE. **Change Communication Method** switches between them. With WiFi selected, the page auto-scans and lists nearby hotspots.
 
-- **Wi‑Fi**: The standard SKU scans nearby networks. Select your SSID, enter credentials, and save. NE301 remembers the most recent network.
+**WiFi connection flow**: Find the target hotspot in the scan list, click `connect` on the right, enter the password in the "Enter Wi-Fi Password" dialog and click `confirm`. The device always saves the most recent SSID and password.
 
 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/communications.png" alt="Network configuration" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wifipwd.png" alt="Wi-Fi password" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wificonnected.png" alt="Wi-Fi connected" style={{ flex: '1 1 220px', maxWidth: '300px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/communications-wifi.png" alt="WiFi scan list" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wifi-connect-password.png" alt="WiFi password input" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-- **Cat‑1**: NeoEyes NE301 Cat‑1 units support licensed networks outside North America. Install a SIM card and configure the cellular settings:
-  1. Remove the front cover with a screwdriver.
-  2. Insert the SIM card into the slot on the front of the board.
-  3. Reassemble the cover.
-  4. Browse to `192.168.10.10`.
-  5. In **Cellular**, fill in APN, username, password, PIN, authentication type, and any required AT commands.
-  6. Click **Send** to test. If the connection succeeds, *Cellular Status* shows `connect`. Click **Save** to persist.
-  7. **Details** displays signal strength and other network information for diagnostics.
-
-- **PoE Network Settings**: Supports power and communication via Ethernet (PoE).
-  - **Menu**: Web UI -> **System Settings** -> **Connectivity** -> **PoE Network**
-  - **Connection Status**: Displays "Cable Connected" and current power status (e.g., `POE_ONLINE`) when plugged in.
-  - **IP Mode**:
-    - **DHCP (Recommended)**: Default. Automatically obtains IP from router.
-    - **Static**: For fixed IP scenarios. Requires manual entry of IP, Subnet Mask, Gateway, and Main/Backup DNS.
-  - **Monitoring**: Displays specific error codes (e.g., `POE_STATUS_DHCP_FAILED`, `POE_STATUS_IP_CONFLICT`) to assist troubleshooting.
-
-<!-- BLE management section intentionally omitted for now -->
-
-#### Device Password
-
-- **Device AP**
-  - **Wi‑Fi Name**: Defaults to `NE301{last 6 MAC digits}` (MAC is printed on the enclosure label).
-  - **Wi‑Fi Password**: Default `hicamthink`. Change it after the first login. The AP restarts after modification—reconnect from your phone or PC.
-  - **Sleep time**: Idle timeout for the AP. Default 10 minutes. Interaction with the Web UI resets the timer. To conserve power, avoid extremely long durations.
-
-- **Login password**
-  - Username: System-defined and cannot be changed.
-  - Enter the current password plus the new password twice, and click **Save** to apply.
-  - We recommend 8–20 characters with letters, numbers, and symbols. Avoid weak passwords derived from device info.
-
-- **Forgot password / Reset**
-  - If the password is lost, run the hardware reset sequence to restore defaults (including the password `hicamthink`).
-  - Resetting erases all custom configuration (models, network settings, parameters). Export a backup beforehand.
-
-- **Other tips**
-  - Toggle show/hide to avoid typos while entering passwords.
-  - Always click **Save** after making changes.
+- **WiFi**: Built into the standard version. Select a target hotspot, enter the password, and connect. The device always stores the most recent SSID and password.
+- **Cat-1**: Requires a SIM card in the front-cover slot (most regions except North America are supported); once inserted, the page auto-reads the **IMEI**. Under Cellular, fill in **APN**, **Cellular Username**, **Cellular Password**, and **PIN Code** per your carrier, then choose **Authentication** (auth type), **Operator** (default Auto), and **Roaming** (toggle). The **AT Commands** section lets you enter AT commands and click `Send` to test the modem response. After filling in the fields, click `save`, then `connect` to dial up; use `details` to view network registration details.
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/device-pwd.png" alt="Password management" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/communications-cellular.png" alt="Cat-1 Cellular configuration" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-### Import & Export
+- **POE** (Power over Ethernet): After plugging in the cable, the page shows "cable connected" and the power status (e.g. `POE_ONLINE`). IP acquisition supports DHCP (default, automatic) and Static (manual IP / mask / gateway / DNS). Network issues surface as specific error codes (e.g. `POE_STATUS_DHCP_FAILED`, `POE_STATUS_IP_CONFLICT`).
 
-Firmware, models, and configuration files can all be imported or exported—useful for upgrades, migration, and batch deployment.
+> Note: Switching communication methods or connecting to an external WiFi network may close the local WiFi AP and disconnect the current configuration page. After confirming the device has joined the target network, access it via the new network.
 
-- **Firmware (local OTA)**
-  - Firmware is packaged into three files: APP, Web, and FSBL. You may update them individually (APP and Web can be upgraded via the device web page; FSBL upgrade requires console access).
-    - APP file example: [ne301_App_signed_v2.0.1.30_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_App_signed_v2.0.1.30_pkg.bin)
-    - Web file example: [ne301_Web_v1.3.4.4_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_Web_v1.3.4.4_pkg.bin)
-    - FSBL file example: [ne301_FSBL_signed_v1.0.0.2_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_FSBL_signed_v1.0.0.2_pkg.bin)
-  - Upload or drag the files into the target area. The system validates and flashes them automatically, then reboots. Do not interrupt power.
-  - Optionally enable “Keep current configuration” to preserve existing settings.
-  - If the upgrade fails, the previous firmware remains to ensure the device is still usable.
+### 5.2 Device Password
 
-- **Model import (Optional)**
-  - Upload a model package that contains the weights and parameter definitions.
-    - Model package example: [ne301_Model_v2.0.0.0_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_Model_v2.0.0.0_pkg.bin)
-  - After deployment, activate it under “Feature Debugging”.
-  - Combine with “Hot-load inference parameters” to fine-tune confidence/NMS thresholds per scenario.
-  - You can revert to the factory model via a device reset.
+#### Local WiFi Settings
 
-- **Configuration import (Optional)**
-  - Upload a `.json` configuration file. The system shows the modules to be overwritten before applying.
-  - Some changes take effect immediately; low-level network changes may require a reboot.
+- **WiFi Name**: Device hotspot name, following `NE301{last 6 hex of MAC}` — the MAC is on the housing label.
+- **WiFi Password**: Default **no password** (open hotspot — connect without a password); you can set a WiFi password here, and the AP restarts after changing it, so you may need to reconnect. The web login password (default `hicamthink`) is in Login Password below.
+- **Sleep Time**: Auto-off timer for the WiFi AP, default 30 minutes; any web activity resets the timer. Avoid long durations to save battery.
 
-- **Configuration export**
-  - Exports the current setup as a `.json` file for backup or batch provisioning.
-  - Always export before firmware upgrades or factory resets to avoid losing parameters.
+#### Login Password
 
-- **Precautions**
-  - Keep the device powered during import/export—do not close the page or cut power.
-  - Configurations may not be compatible across firmware versions. If an import fails, refer to the release notes or upgrade to a compatible build first.
-
-> Always keep the device powered and the browser window open until the import/export process finishes.
-
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}> 
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/import-firmware.png" alt="Firmware Import" style={{ flex: '1 1 220px', maxWidth: '300px' }} /> 
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/import-firmware2.png" alt="Firmware Upload" style={{ flex: '1 1 220px', maxWidth: '300px' }} /> 
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/import-firmware3.png" alt="Firmware Writing" style={{ flex: '1 1 220px', maxWidth: '300px' }} /> 
-</div> 
-
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}> 
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/export-firmware.png" alt="Export" style={{ flex: '1 1 280px', maxWidth: '360px' }} /> 
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/export-firmware2.png" alt="Export Loading" style={{ flex: '1 1 280px', maxWidth: '360px' }} />
- </div>
-
-
-## Device Information
-
-This page summarizes the hardware and software status:
-
-- **Device name**: Defaults to `NE301{last 6 MAC digits}`. The name is embedded in JSON payloads (field `devName`).
-- **MAC address**, **SN**, **Hardware version**, **Firmware version**
-- **Camera module**: Model information for the image sensor.
-- **Expansion modules**: Displayed when optional boards are connected.
-- **Storage card**: Capacity and model of the TF card.
-- **Power**: Battery or external. Batteries show three levels (green/amber/red). When powered externally (solar, USB, PoE), the interface shows “Always powered”.
-- **Communication**: Wi‑Fi / Cat‑1 / PoE mode currently in use.
+- **Username**: Built-in, not editable.
+- **Password**: Enter the current and new password to save. Recommend 8–20 chars with letters, digits and symbols; avoid weak passwords tied to device info.
+- Show/hide toggle supported. If you forget the password, perform a Device Reset to restore factory settings and reset the password to `hicamthink` (reset clears all custom config — export a backup first).
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/device-information1.png" alt="Device dashboard" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/device-pwd.png" alt="Device Password" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## Device Reset
+### 5.3 Firmware Upgrade
 
-Quickly double-press the capture button and hold for ~10 seconds to restore factory settings.
-This will erase models, networks, and parameters — please export configuration beforehand.
+View firmware versions, perform local upgrades, and import/export models and configuration. The top of the page shows the current firmware version info; the lower section provides Import and Export actions.
 
-> Tip: Always back up configurations before firmware upgrades or batch deployments to enable rapid recovery.
+**Firmware Information**
+
+The NE301 firmware consists of the following parts, each shown with its version number, tagged by whether it needs routine upgrade:
+
+- **App Version**: Main application firmware — the device's core logic. **[Routine]** Primary target of routine upgrades.
+- **Web Version**: Web frontend — this configuration UI itself. **[Routine]** Upgraded alongside App.
+- **FSBL Version**: First-stage bootloader. **[Special]** Only for boot-related updates; no routine upgrade needed.
+- **AI Model Version**: Current model package version. **[On demand]** Changes on model import / replacement (see below).
+- **WakeCore Version**: Wake core firmware — handles low-power wake-up. **[Rarely]** Not part of routine upgrades.
+
+**Import**
+
+Three categories, each with its own entry point and method:
+
+1. **Firmware upgrade (APP / Web / FSBL)**: Routine upgrades cover APP and Web; FSBL is only upgraded in special cases. All three are flashed by uploading a `_pkg.bin` package via the Web UI (**the Web UI only accepts the `_pkg.bin` suffix — plain `.bin` files cannot be upgraded this way**).
+   - **APP / Web**: Click **Import Firmware** on this page and select the matching `pkg.bin` file.
+   - **FSBL**: Dedicated path — after logging in, navigate to `http://192.168.10.10/import-fsbl` in the browser and upload `ne301_FSBL_signed_*_pkg.bin`.
+   - **Upgrade order**: Recommended **FSBL → APP → Web**, waiting for the device to reboot and reconnect to the AP between each step.
+   - **Firmware examples** (downloadable from GitHub Releases):
+     - APP: [ne301_App_signed_v2.0.1.30_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_App_signed_v2.0.1.30_pkg.bin)
+     - Web: [ne301_Web_v1.3.4.4_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_Web_v1.3.4.4_pkg.bin)
+     - FSBL: [ne301_FSBL_signed_v1.0.0.2_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_FSBL_signed_v1.0.0.2_pkg.bin)
+2. **Model import (as needed)**: Upload a model package (model file + params) under Feature Debugging → Current Model; verify inference results on the Feature Debugging page after deployment (see 1.3 Model Management).
+3. **Config import (as needed)**: Re-import a previously exported `.json` config file for batch deployment or disaster recovery. Cross-version imports may have incompatibilities — if an import fails, check the release notes or upgrade to a compatible version first.
+
+Clicking **Import Firmware** opens the following dialog. Upload the matching `_pkg.bin` package for each category, then click **Confirm Burn** to start flashing:
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/firmware-import.png" alt="Import Firmware dialog" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+**Export**
+
+- **Export Firmware**: One-click export of the current device config (`.json`) for backup and batch deployment across devices. Recommended before any upgrade or reset.
+
+> Keep power stable during upgrade or import; do not power off or refresh the page before it finishes. A failed upgrade keeps the old version — the device will not brick.
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/firmware-upgrade.png" alt="Firmware Upgrade" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+## 6. Storage Management
+
+Storage Management handles the SD card — captures and inference results can be written to a local SD card so data is retained locally when the network is down.
+
+- **SD Card Status**: Whether an SD card is detected (Not Detected means none is inserted or recognized).
+- **Capacity**: Used / total capacity (e.g. Used 0 GB / 0.00 GB).
+- **Storage Policy**: Currently supports `Loop Coverage` — when the SD card fills up, the oldest data is overwritten automatically so recording continues uninterrupted.
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/storage-management.png" alt="Storage Management" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+## 7. Device Information
+
+Shows the device's core attributes:
+
+| Field | Description |
+|:---|:---|
+| Device Name | Device name, default `NE301{last 6 hex of MAC}`, editable; uploaded in the `devName` field of the JSON report |
+| MAC Address | Device MAC address |
+| SN | Unique device identifier, used for identification and after-sales |
+| Hardware Version | Hardware version |
+| Software Version | Current firmware version |
+| Camera Module | Camera module model |
+| Function Extension Module | Extension module model, `--` if none |
+| Memory Card | Storage card model and capacity, `--` if none |
+| Power Supply | Battery shows level (high / mid / low, colored green / orange / red); external power (solar / USB / POE) shows constant power |
+| Communication | Communication method: wifi / cat-1 / poe |
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/device-information.png" alt="Device Information" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+## Factory Reset
+
+**Steps**
+
+Quickly press the shutter button twice, then long-press for about 10 seconds — the device restores to factory defaults.
+
+**What gets cleared**
+
+A reset wipes all custom configuration, including:
+
+- Custom models (restored to the factory-preset model)
+- Network and communication settings (WiFi / Cat-1 / POE, etc.)
+- All function parameters and the device password (the password reverts to the default `hicamthink`)
+
+**Back up first**
+
+A reset is irreversible. Before resetting, export the current configuration (`.json`) via System Settings → Firmware Upgrade → Export Firmware so you can restore it afterwards or deploy it across devices.
