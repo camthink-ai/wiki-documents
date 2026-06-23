@@ -1,4 +1,7 @@
 ---
+id: person-detection
+title: Person Detection
+sidebar_position: 2
 description: Deploy a real AI inference application Person Detection on NE503, mastering Python SDK calls, model and video stream discovery, permission configuration, and Web console verification.
 keywords: [NE503, Person Detection, application tutorial, AI inference, Python SDK, human detection, container application]
 tags: [application development, NE503, tutorial, AI inference, SDK]
@@ -6,17 +9,13 @@ tags: [application development, NE503, tutorial, AI inference, SDK]
 
 # Person Detection
 
-This tutorial builds on the [Hello World tutorial](./1-hello-world.md) and deploys a **real AI inference application** Person Detection. You will learn to: call the Python SDK to subscribe to video stream inference results, discover models and streams on the device, configure application permissions, and verify a complete application that publishes detection events and triggers the device light control.
+This tutorial deploys a **real AI inference application** Person Detection, demonstrating the complete workflow: subscribing to video stream inference results via the Python SDK, discovering models and streams on the device, configuring application permissions, and verifying a complete application that publishes detection events and triggers the device light control.
 
-:::info Prerequisites
-Please complete the [Hello World Application Tutorial](./1-hello-world.md) first to master the basic workflow of building images, two-step upload, asynchronous installation, and startup verification. This tutorial omits those repeated steps and focuses on the SDK and AI inference parts.
-:::
-
-## 1. What It Does
+## 1. Overview
 
 Person Detection subscribes to the camera video stream and runs AI detection model inference frame by frame. When a person appears in the frame:
 
-1. Counts the number of people and confidence scores;
+1. Counts the people and confidence scores;
 2. Publishes `app/person-detection/detection` and `alerts/detection` events to the event bus (with debounce cooldown);
 3. Triggers the device fill light (`device.set_white_light`).
 
@@ -39,27 +38,18 @@ person-detection/
 └── requirements.txt   # Python dependencies
 ```
 
-The following sections walk through the key parts of each file, and what you need to verify or change (stream name, model name, detection threshold).
+The following sections walk through the key parts of each file, and the fields to verify or adjust (stream name, model name, detection threshold).
 :::
 
 ## 2. Application Structure and SDK Usage
 
 ### 2.1 Application Source app.py
 
-Below is the complete source of Person Detection (the repo's `apps/person-detection/app.py`). It does five things: initialize the SDK clients → subscribe to the `sub` stream's inference results → filter persons by `DETECTION_THRESHOLD` → publish structured detection results to the event bus → trigger the fill light when a person is detected; it also listens for SIGTERM to shut down gracefully.
+Below is the full source of Person Detection (i.e. the repo's `apps/person-detection/app.py`). It does five things: initialize the SDK clients → subscribe to `sub` stream inference results → filter persons by `DETECTION_THRESHOLD` → publish structured detection results to the event bus → trigger the fill light when a person is detected; it also handles SIGTERM for graceful exit.
 
 ```python
 #!/usr/bin/env python3
-"""
-Person Detection Application for AIPC Platform
-
-Features:
-- Subscribe to video stream inference results
-- Detect persons using AI model
-- Publish detection events to event bus
-- Control device (light) on detection
-"""
-
+"""Person Detection Application for AIPC Platform"""
 import os
 import sys
 import time
@@ -76,10 +66,8 @@ from hailo_ipc_sdk import (
     FdMediaClient as MediaClient,
     Config,
     InferenceResult,
-    DetectedObject,
 )
 
-# Configure logging
 logging.basicConfig(
     level=getattr(logging, os.environ.get('LOG_LEVEL', 'INFO')),
     format='[%(asctime)s] [%(levelname)s] %(message)s',
@@ -112,275 +100,149 @@ class PersonDetectionApp:
         self.last_alert_time = 0
         self.person_count_history = []
 
-        # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
 
-        logger.info("=" * 60)
-        logger.info(f"  Person Detection Application v1.0.0")
-        logger.info(f"  App ID: {self.app_id}")
-        logger.info(f"  Platform: {os.uname().machine}")
-        logger.info(f"  Detection Threshold: {self.detection_threshold}")
-        logger.info("=" * 60)
-
     def _signal_handler(self, signum, frame):
-        """Handle shutdown signals gracefully"""
-        logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
 
     def initialize(self) -> bool:
-        """Initialize SDK clients"""
         try:
-            # Initialize Inference Client
-            logger.info("Initializing AI Inference client...")
             self.inference = InferenceClient()
-
-            # List available models
             models = self.inference.list_models()
             logger.info(f"Available models: {[m.model_id for m in models]}")
+            if not any(m.model_id == "hailo_yolov8n_384_640" for m in models):
+                logger.warning("Required model 'hailo_yolov8n_384_640' NOT found")
 
-            # Check if required model is available
-            required_model = "hailo_yolov8n_384_640"
-            model_available = any(m.model_id == required_model for m in models)
-            if model_available:
-                logger.info(f"[OK] Model '{required_model}' is available for inference")
-            else:
-                logger.warning(f"[WARN] Model '{required_model}' NOT found - inference may fail")
-
-            # Initialize Event Bus Client
-            logger.info("Initializing Event Bus client...")
             self.events = EventClient()
 
-            # Initialize Device Control Client (optional)
             try:
-                logger.info("Initializing Device Control client...")
                 self.device = DeviceClient()
             except Exception as e:
                 logger.warning(f"Device control not available: {e}")
                 self.device = None
 
-            # Initialize Media Client (for raw video stream access)
             try:
-                logger.info("Initializing Media client...")
                 self.media = MediaClient()
-
-                # List available video streams
                 available_streams = self.media.list_streams()
                 logger.info(f"Available video streams: {available_streams}")
-
-                # Check if required stream is available
-                # NOTE: must use a stream that publishes raw NV12 frames (sub or third).
-                # "main" only publishes encoded H264 for RTSP — subscribe() on it hangs.
-                required_stream = "sub"
-                if hasattr(self.media, "get_stream_info"):
-                    stream_info = self.media.get_stream_info(required_stream)
-                    if stream_info:
-                        logger.info(f"[OK] Video stream '{required_stream}' is available: "
-                                   f"{stream_info.width}x{stream_info.height} @ {stream_info.fps}fps, format={stream_info.format}")
-                else:
-                    shm_path = f"/run/aipc/shm/{required_stream}.raw"
-                    if os.path.exists(shm_path):
-                        logger.info(f"[OK] Video stream '{required_stream}' SHM file exists at {shm_path}")
-                    else:
-                        logger.warning(f"[WARN] Video stream '{required_stream}' SHM not found - inference may fall back to simulation")
             except Exception as e:
                 logger.warning(f"Media client not available: {e}")
                 self.media = None
 
-            logger.info("All clients initialized successfully")
             return True
-
         except Exception as e:
             logger.error(f"Failed to initialize clients: {e}")
-            if self.debug:
-                import traceback
-                traceback.print_exc()
             return False
 
     def run(self):
-        """Main application loop"""
         if not self.initialize():
-            logger.error("Initialization failed, exiting")
             return 1
 
-        logger.info("Starting person detection loop...")
-        logger.info(f"Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'")
-        logger.info("Waiting for inference results... (this may take a moment if stream is initializing)")
-
+        logger.info("Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'")
         first_frame_received = False
 
         try:
             # Subscribe to video stream inference results
-            # The platform will run inference on each frame and send results
             for frame_seq, result in self.inference.subscribe(
                 stream="sub",
                 model="hailo_yolov8n_384_640",
-                fps=10  # Process at 10 FPS
+                fps=10,
             ):
                 if not self.running:
                     break
-
-                # Log when first frame is received
                 if not first_frame_received:
                     first_frame_received = True
-                    logger.info(f"[OK] Received first inference result - stream and model are working!")
-                    logger.info(f"  Frame sequence: {frame_seq}, timestamp: {result.timestamp_ns}")
-                    # Check if running in simulation mode (no actual inference)
-                    if result.status_message == "simulation":
-                        logger.warning("  WARNING: Running in SIMULATION mode - no actual inference!")
-                        logger.warning("  This means FdReceiver cannot subscribe to video stream.")
-                        logger.warning("  Check: 1) camera-daemon is running, 2) /run/aipc/camera.sock exists")
-
+                    logger.info(f"Received first inference result - frame {frame_seq}")
                 self._process_frame(frame_seq, result)
-
         except KeyboardInterrupt:
-            logger.info("Interrupted by user")
-        except Exception as e:
-            logger.error(f"Error in main loop: {e}")
-            if self.debug:
-                import traceback
-                traceback.print_exc()
-            return 1
+            pass
         finally:
             if not first_frame_received:
-                logger.warning("No inference results received - check if video stream 'sub' is active and model 'hailo_yolov8n_384_640' is loaded")
+                logger.warning("No inference results - check stream 'sub' and model 'hailo_yolov8n_384_640'")
             self._cleanup()
-
         return 0
 
     def _process_frame(self, frame_seq: int, result: InferenceResult):
-        """Process a single frame's inference result"""
         self.frame_count += 1
-
-        # Count persons with confidence above threshold
         persons = [
             obj for obj in result.objects
             if obj.label == "person" and obj.score >= self.detection_threshold
         ]
-        person_count = len(persons)
-
-        # Track history for analytics
-        self.person_count_history.append(person_count)
-        if len(self.person_count_history) > 100:
-            self.person_count_history.pop(0)
-
-        # Log detection
-        if person_count > 0:
+        if persons:
             self.total_detections += 1
-            logger.info(f"[Frame {frame_seq}] Detected {person_count} person(s)")
+            logger.info(f"[Frame {frame_seq}] Detected {len(persons)} person(s)")
 
-            for i, obj in enumerate(persons):
-                bbox = obj.bbox
-                logger.debug(
-                    f"  Person {i+1}: confidence={obj.score:.2f}, "
-                    f"position=({bbox.x:.2f}, {bbox.y:.2f}), "
-                    f"size=({bbox.width:.2f}x{bbox.height:.2f})"
-                )
-
-        # Publish detection event
         self._publish_detection_event(frame_seq, result, persons)
 
         # Device control: turn on light when person detected
-        if person_count > 0 and self.device:
+        if persons and self.device:
             self._trigger_light()
 
-        # Print statistics every 100 frames
         if self.frame_count % 100 == 0:
             self._print_statistics()
 
     def _publish_detection_event(self, frame_seq: int, result: InferenceResult, persons: list):
-        """Publish detection event to event bus"""
-        try:
-            event_data = {
+        event_data = {
+            "app_id": self.app_id,
+            "frame_sequence": frame_seq,
+            "timestamp_ns": result.timestamp_ns,
+            "timestamp_iso": datetime.now().isoformat(),
+            "person_count": len(persons),
+            "total_frames_processed": self.frame_count,
+            "total_detections": self.total_detections,
+            "objects": [
+                {
+                    "label": obj.label,
+                    "confidence": round(obj.score, 3),
+                    "bbox": {
+                        "x": round(obj.bbox.x, 3),
+                        "y": round(obj.bbox.y, 3),
+                        "width": round(obj.bbox.width, 3),
+                        "height": round(obj.bbox.height, 3),
+                    },
+                }
+                for obj in persons
+            ],
+        }
+        self.events.publish(f"app/{self.app_id}/detection", event_data)
+
+        # Publish alert if cooldown expired
+        current_time = time.time()
+        if persons and (current_time - self.last_alert_time) >= self.alert_cooldown:
+            self.events.publish("alerts/detection", {
+                "type": "person_detected",
                 "app_id": self.app_id,
-                "frame_sequence": frame_seq,
-                "timestamp_ns": result.timestamp_ns,
-                "timestamp_iso": datetime.now().isoformat(),
                 "person_count": len(persons),
-                "total_frames_processed": self.frame_count,
-                "total_detections": self.total_detections,
-                "objects": [
-                    {
-                        "label": obj.label,
-                        "confidence": round(obj.score, 3),
-                        "bbox": {
-                            "x": round(obj.bbox.x, 3),
-                            "y": round(obj.bbox.y, 3),
-                            "width": round(obj.bbox.width, 3),
-                            "height": round(obj.bbox.height, 3)
-                        }
-                    }
-                    for obj in persons
-                ]
-            }
-
-            # Publish to app-specific topic
-            self.events.publish(f"app/{self.app_id}/detection", event_data)
-
-            # Publish alert if cooldown expired
-            current_time = time.time()
-            if len(persons) > 0 and (current_time - self.last_alert_time) >= self.alert_cooldown:
-                self.events.publish("alerts/detection", {
-                    "type": "person_detected",
-                    "app_id": self.app_id,
-                    "person_count": len(persons),
-                    "timestamp": datetime.now().isoformat()
-                })
-                self.last_alert_time = current_time
-                logger.debug("Alert event published")
-
-        except Exception as e:
-            logger.error(f"Failed to publish event: {e}")
+                "timestamp": datetime.now().isoformat(),
+            })
+            self.last_alert_time = current_time
 
     def _trigger_light(self):
-        """Trigger white light when person detected"""
         try:
-            # Set white light to 50% brightness
             self.device.set_white_light(50)
-            logger.debug("Light triggered")
         except Exception as e:
             logger.debug(f"Light control failed: {e}")
 
     def _print_statistics(self):
-        """Print processing statistics"""
-        avg_persons = sum(self.person_count_history) / len(self.person_count_history) if self.person_count_history else 0
-        logger.info(
-            f"Statistics: frames={self.frame_count}, "
-            f"detections={self.total_detections}, "
-            f"avg_persons={avg_persons:.2f}"
-        )
+        avg = sum(self.person_count_history) / len(self.person_count_history) if self.person_count_history else 0
+        logger.info(f"Statistics: frames={self.frame_count}, detections={self.total_detections}, avg_persons={avg:.2f}")
 
     def _cleanup(self):
-        """Cleanup resources before exit"""
-        logger.info("Cleaning up resources...")
-
-        logger.info(f"Total frames processed: {self.frame_count}")
-        logger.info(f"Total detections: {self.total_detections}")
-
-        # Close SDK clients
-        if self.inference:
-            self.inference.close()
-        if self.events:
-            self.events.close()
-        if self.device:
-            self.device.close()
-        if self.media:
-            self.media.close()
-
-        logger.info("Cleanup complete. Goodbye!")
+        for client in (self.inference, self.events, self.device, self.media):
+            if client:
+                client.close()
 
 
 def main():
-    """Main entry point"""
-    app = PersonDetectionApp()
-    sys.exit(app.run())
+    sys.exit(PersonDetectionApp().run())
 
 
 if __name__ == "__main__":
     main()
 ```
 
-Key logic reference (these are the spots to edit when changing the model/stream/threshold):
+Key logic reference (the points to adjust when changing the model, stream, or threshold):
 
 | Module | Location | Description |
 |:---|:---|:---|
@@ -389,12 +251,12 @@ Key logic reference (these are the spots to edit when changing the model/stream/
 | Subscribe to inference | `run` | `infer.subscribe(stream="sub", model="hailo_yolov8n_384_640", fps=10)` — **stream must be sub**; main only sends H264 and hangs forever |
 | Detection filter | `_process_frame` | Keeps only targets with `label == "person"` and `score >= threshold` |
 | Event publishing | `_publish_detection_event` | Publishes `app/person-detection/detection` every frame; `alerts/detection` at most once per cooldown window |
-| Light control | `_trigger_light` | `device.set_white_light(50)` (50% brightness) when a person is detected |
-| Graceful shutdown | `_signal_handler` / `_cleanup` | SIGTERM sets `running=False`; after the loop breaks, all clients are closed |
+| Light control | `_trigger_light` | `device.set_white_light(50)` when a person is detected (50% brightness) |
+| Graceful exit | `_signal_handler` / `_cleanup` | SIGTERM sets `running=False`; clients are closed after the loop exits |
 
-### 2.2 Permission Manifest app.yaml
+### 2.2 Permission manifest app.yaml
 
-The application must declare required permissions in `app.yaml`, which the platform uses for container isolation and sandboxing. Person Detection declares: video stream `sub.raw` (sub publishes raw NV12 frames for inference; main is only for RTSP pulling), model `hailo_yolov8n_384_640`, event publish/subscribe topics, and device light control.
+Apps must declare the permissions they need in `app.yaml`; the platform uses this for container isolation and sandboxing. Person Detection declares: the `sub.raw` video stream (`sub` publishes raw NV12 frames for inference; `main` is RTSP-only), the `hailo_yolov8n_384_640` model, event publish/subscribe topics, and device light control.
 
 ```yaml
 # AIPC Platform Application Manifest
@@ -417,10 +279,10 @@ spec:
 
   permissions:
     video:
-      - sub.raw                       # Stream publishing raw NV12 frames (main only sends H264, cannot subscribe for inference)
+      - sub.raw                       # stream publishing raw NV12 frames (main only sends H264, cannot subscribe for inference)
     inference:
       models:
-        - hailo_yolov8n_384_640        # Must match a model loaded on the device
+        - hailo_yolov8n_384_640        # must match a model loaded on the device
       max_qps: 30
       max_concurrent: 2
       allow_register_model: false
@@ -432,19 +294,19 @@ spec:
         - system/*
         - model/*/detections
     device:
-      light: true                     # Fill light control
+      light: true                     # fill-light linkage
       ir_cut: true
     network:
-      mode: isolated                  # Container network isolation (no outbound)
+      mode: isolated                  # container network isolation (no outbound)
 
-  # Environment variables: app.py reads them via os.environ
+  # Environment variables: read by app.py via os.environ
   env:
     - name: DETECTION_THRESHOLD
-      value: "0.3"                    # Person confidence floor; targets below this score are ignored
+      value: "0.3"                    # person confidence floor; targets below this score are ignored
     - name: ALERT_COOLDOWN_SECONDS
-      value: "5"                      # Minimum interval (seconds) between alerts/detection events
+      value: "5"                      # minimum interval (seconds) between alerts/detection events
     - name: LOG_LEVEL
-      value: "INFO"                   # Log level: DEBUG / INFO / WARNING / ERROR
+      value: "INFO"                   # log level: DEBUG / INFO / WARNING / ERROR
 
   volumes:
     - host: /opt/aipc/data/person-detection
@@ -465,31 +327,9 @@ spec:
     retries: 3
 ```
 
-Field reference:
+> The declarative permission model means: **inside the sandbox, the app can only access the resources listed here.** Any stream, model, event topic, or device control not declared will be rejected by the platform at call time. See the Application Manifest reference in the repo docs for the full field list.
 
-| Field | Description |
-|-------|-------------|
-| `spec.image` | Container image address; must match the image name produced by `build.sh` (e.g. `aipc/person-detection:1.0.0`). |
-| `spec.resources.cpu` | Container CPU quota; may be a percentage (`"50%"`) or a core count. |
-| `spec.resources.memory` | Container memory limit (`"256Mi"`); exceeding it triggers an OOM kill. |
-| `spec.permissions.video` | Allowlist of video streams the app may access; the stream name must match an actual device stream (e.g. `sub`). To subscribe to inference results you must use a stream that publishes raw NV12 frames (sub or third); main is only for RTSP pulling. |
-| `spec.permissions.inference.models` | Allowlist of AI models the app may call; the model name must match a model loaded on the device (i.e. the value from `list_models()`). |
-| `spec.permissions.inference.max_qps` | Per-model cap on inference requests per second. |
-| `spec.permissions.inference.max_concurrent` | Cap on the number of concurrent inference sessions the app may hold. |
-| `spec.permissions.events.publish` | Event topics the app may publish to the event bus; supports `*` wildcards. |
-| `spec.permissions.events.subscribe` | Event topics the app may subscribe to; supports `*` wildcards. |
-| `spec.permissions.device.light` | Whether the app may trigger the device fill light (`device.set_white_light`). |
-| `spec.permissions.device.ir_cut` | Whether the app may control the IR-CUT filter (day/night switching). |
-| `spec.permissions.network.mode` | Container network mode; `isolated` means no outbound network (default). |
-| `spec.env` | Environment variables injected into the container; app.py reads them via `os.environ`. `DETECTION_THRESHOLD` is the person confidence floor (raise = stricter, fewer false positives; lower = more sensitive, possibly more detections); `ALERT_COOLDOWN_SECONDS` is the alert debounce interval. |
-| `spec.volumes` | Host directories mounted into the container for persistent data/logs (host paths must match the actual device). |
-| `spec.autostart` | Whether the platform auto-starts this app on boot. |
-| `spec.restart_policy` | Crash restart policy (`on-failure` with `restart_max_retries`). |
-| `spec.healthcheck` | Container health check; failing `retries` times in a row marks it unhealthy and triggers a restart. |
-
-> The declarative permission model means: **inside the sandbox, the app can only access the resources listed here.** Any stream, model, event topic, or device control not declared will be rejected by the platform at call time. See [System Architecture](../../3-software-guide/0-system-architecture.md) for details.
-
-## 3. Building the Image
+## 3. Build the Image
 
 ### 3.1 Build Files
 
@@ -505,7 +345,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# SDK installed locally (copied in by build.sh before the build)
+# SDK local install (copied in by build.sh before build)
 COPY hailo_ipc_sdk/ /app/hailo_ipc_sdk/
 COPY setup.py README.md /app/
 RUN pip install --no-cache-dir -e .
@@ -530,65 +370,59 @@ USER appuser
 CMD ["python3", "/app/app.py"]
 ```
 
-**`requirements.txt`** — only numpy (the SDK already bundles protobuf/grpc, no need to redeclare):
+**`requirements.txt`** — only numpy (the SDK already bundles protobuf/grpc):
 
 ```text
 numpy>=1.21.0
 ```
 
-:::note Why does the Dockerfile `pip install` a local SDK?
-The device's container runtime has no outbound network, so the SDK must be carried into the image. `build.sh` copies `sdk/python/hailo_ipc_sdk/` into the app directory before building; the Dockerfile's `COPY hailo_ipc_sdk/` bakes it into the image, then `pip install -e .` installs it locally. See [SDK Workflow §2](./0-sdk-workflow.md#2-where-the-sdk-comes-from-and-how-to-embed-it) for the rationale.
+:::note Why does the Dockerfile install the SDK locally?
+The device's container runtime has no outbound network, so the SDK must be carried into the image. `build.sh` copies `sdk/python/hailo_ipc_sdk/` into the app directory before building; the Dockerfile's `COPY hailo_ipc_sdk/` bakes it into the image, then `pip install -e .` installs it locally.
 :::
 
 ### 3.2 Build and Package
 
-The repo's bundled `build.sh` is a one-shot script for the entire "build image → export → package" flow — no need to run multiple docker commands manually.
+The repo's bundled `build.sh` does "build image → export → package" in one shot — no need to run multiple docker commands manually.
 
 ```bash
 cd apps/person-detection
-# Must use arm64: the device is aarch64; an x86_64 image cannot be imported onto the device
+# arm64 is required: the device is aarch64; an x86_64 image cannot be imported
 bash build.sh arm64
 ```
 
 `build.sh` runs 5 steps internally:
 
 | Step | Action | Description |
-|:-----|:-------|:------------|
+|:-----|:-------|:-----|
 | 1 | Copy SDK | Copies `hailo_ipc_sdk/`, `setup.py`, `README.md` from `sdk/python/` into the app directory (the Dockerfile needs them) |
 | 2 | Build image | `docker buildx build --platform linux/arm64` produces `aipc/person-detection:1.0.0` |
-| 3 | Export image | `docker save` exports it to `image.tar` |
+| 3 | Export image | `docker save` exports it as `image.tar` |
 | 4 | Package | `zip` bundles `app.yaml` + `image.tar` into `person-detection.aipc` |
-| 5 | Cleanup | Deletes the SDK files copied in step 1 and the intermediate `image.tar`, **keeping only `person-detection.aipc`** |
+| 5 | Clean up | Deletes the SDK files from step 1 and the intermediate `image.tar`, **keeping only `person-detection.aipc`** |
 
 Build artifacts:
 
 | Artifact | Size | Description |
-|:---------|:-----|:------------|
-| Docker image `aipc/person-detection:1.0.0` | ~434 MB | `python:3.11-slim` + grpcio/numpy/protobuf; stays in local Docker |
-| `person-detection.aipc` | ~97 MB | The deliverable package (a zip of `app.yaml` + `image.tar`) |
+|:-----|:-----|:-----|
+| Docker image `aipc/person-detection:1.0.0` | ~434 MB | `python:3.11-slim` + grpcio/numpy/protobuf, stays in local Docker |
+| `person-detection.aipc` | ~97 MB | Final deliverable (zip of `app.yaml` + `image.tar`) |
 
 :::warning Unzip before deploying
-Step 5 of `build.sh` deletes `image.tar`, but deploying to the device requires the two separate files `app.yaml` and `image.tar`. Unzip the `.aipc` to recover them before deploying:
-
-```bash
-unzip -o person-detection.aipc   # recovers app.yaml + image.tar
-```
-
-See [§5 Deploying to the Device](#5-deploying-to-the-device).
+Step 5 of `build.sh` deletes `image.tar`, but deploying to the device needs `app.yaml` and `image.tar` as two separate files. Unzip the `.aipc` first to recover them: `unzip -o person-detection.aipc`.
 :::
 
-## 4. Discovering and Configuring Models and Video Streams
+## 4. Discover and Configure Models and Video Streams
 
-The model name in `subscribe(model=...)` (app.py) and the stream name in `permissions.video` (app.yaml) **must use the actual values on your device** — do not copy example code verbatim. Names differ across devices and firmware versions; a wrong name fails with `StatusCode.NOT_FOUND`.
+The model name in `subscribe(model=...)` (app.py) and the stream name in `permissions.video` (app.yaml) **must use the actual values on your device** — do not copy example values verbatim. Names differ across devices and firmware versions; a wrong name fails with `StatusCode.NOT_FOUND`.
 
 Three steps: query models → query streams → fill the correct values into your app.
 
 ### 4.1 Query models on the device
 
-Device model files live in `/opt/aipc/models/`. Before first use, scan and load them onto the NPU:
+Device model files live in `/opt/aipc/models/`; scan and load them to the NPU before first use:
 
 ```bash
-TOKEN="Bearer <token>"   # get it by calling /api/login with admin/password
+TOKEN="Bearer <token>"   # obtain via /api/login with admin/password
 
 # 1. Scan the model directory and register .hef files with the platform
 curl -X POST http://<device-ip>:8080/api/v1/ai/models/scan -H "Authorization: $TOKEN"
@@ -600,121 +434,120 @@ curl -X POST http://<device-ip>:8080/api/v1/ai/models/hailo_yolov8n_384_640/load
 curl http://<device-ip>:8080/api/v1/ai/models -H "Authorization: $TOKEN"
 ```
 
-NE503 ships with the detection model `hailo_yolov8n_384_640` (YOLOv8n, COCO 80 classes including person). Note the real `model_id` returned by `list` — you'll put it into app.py next.
+NE503 ships with the detection model `hailo_yolov8n_384_640` (YOLOv8n, COCO 80 classes, includes person). Note the real `model_id` returned by `list` for the next step.
 
 ### 4.2 Query video streams on the device
 
-Stream names are easiest to query via the SDK (there's no dedicated curl endpoint for streams). Call this during app.py initialization:
+The SDK is the most direct way to query stream names (curl has no dedicated stream-listing API). Call it during app.py initialization:
 
 ```python
 from hailo_ipc_sdk import FdMediaClient as MediaClient
 print(MediaClient().list_streams())   # → ['main', 'sub']
 ```
 
-NE503 usually has two streams with very different purposes — this is the key to the next step.
+NE503 usually has two streams with very different purposes — this difference is central to the configuration that follows.
 
-### 4.3 Key: inference must use the sub stream
+### 4.3 Key: inference must use the `sub` stream
 
-The two streams carry different frame formats, which determines whether they can be used for inference:
+The two streams carry different frame formats, which decides whether a stream can be used for inference:
 
 | Stream | Resolution | Frame format | Inference |
-|:-------|:-----------|:-------------|:----------|
-| `sub` | 720p | **raw NV12** | ✅ Usable for inference (the platform resizes to the model input and feeds the NPU) |
-| `main` | 4K | **encoded H264** | ❌ Only for RTSP playback |
+|:---|:-------|:-------|:-----|
+| `sub` | 720p | **raw NV12** | ✅ works (the platform scales to the model input and feeds the NPU) |
+| `main` | 4K | **encoded H264** | ❌ RTSP viewing only |
 
-:::note Match the stream resolution to the model input
-Keep the model input resolution as close as possible to the stream you subscribe to. When they differ, the platform still does a preprocessing resize, but that adds overhead and — at extreme aspect ratios — may affect accuracy. You can adjust the `sub` (and `third`) stream resolution in the Web Console to better match the model input (e.g. 640×384).
+:::note Match the model input resolution where possible
+The model input resolution should be close to the subscribed stream's resolution. The platform will still resize on a mismatch, but it adds overhead and may hurt accuracy at extreme ratios. You can adjust the `sub` (and `third`) stream resolution in the Web Console to match the model input (e.g. 640×384).
 :::
 
-`subscribe(stream="main")` gets no frames at all and **hangs indefinitely with no error and no timeout**. If your app is stuck at "Waiting for inference results", this is almost certainly the cause — change `main` to `sub`.
+`subscribe(stream="main")` gets no frames at all and **hangs indefinitely with no error and no timeout**. An app stuck at "Waiting for inference results" is usually this — switch `main` to `sub` to resolve it.
 
 Where to fill the values:
 
 | File | Field | Value |
-|:-----|:------|:------|
+|:-----|:-----|:---|
 | `app.py` | `subscribe(stream=...)` | `sub` |
 | `app.yaml` | `permissions.video` | `[sub.raw]` |
-| `app.py` | `subscribe(model=...)` | the `model_id` from §4.1 (e.g. `hailo_yolov8n_384_640`) |
+| `app.py` | `subscribe(model=...)` | the `model_id` found in §4.1 (e.g. `hailo_yolov8n_384_640`) |
 | `app.yaml` | `permissions.inference.models` | the same `model_id` |
 
-## 5. Deploying to the Device
+## 5. Deploy to the Device
 
-The `build.sh` output is `person-detection.aipc` (a zip of `app.yaml` + `image.tar`), and it deletes the intermediate `image.tar` at the end. Unzip it into two separate files before deploying:
+`build.sh` produces `person-detection.aipc` (a zip of `app.yaml` + `image.tar`) and deletes the intermediate `image.tar` at the end. Unzip it into two separate files before deploying:
 
 ```bash
 cd apps/person-detection
 unzip -o person-detection.aipc      # extracts app.yaml + image.tar into the current directory
 ```
 
-You now have `app.yaml` and `image.tar`. Pick any of the three deployment options (full steps in [Hello World §4](./1-hello-world.md#4-deploying-to-the-device)):
+Now you have `app.yaml` and `image.tar`. Pick any of the three deployment options:
 
-- **Web Console upload (recommended)**: open the Web Console in a browser → **App Management** → **Import** → choose **Upload Package** → upload `app.yaml` and `image.tar` separately → click **Install**. Graphical UI, no SSH needed.
-- **aipc-cli (alternative)**: after SSH'ing into the device and copying `app.yaml` and `image.tar` over, run `aipc-cli app install app.yaml image.tar`.
-- **HTTP two-step upload (alternative)**: from the dev machine, log in for a token → `upload-image` (`image.tar`) → `upload-manifest` (`app.yaml`) → `install-package` (JSON: `manifest_path` + `image_path` + `force`) → poll `install-progress/<task_id>` until `phase=complete`.
+- **Web Console upload (recommended)**: open the Web Console → **App Management** → **Import** → choose **Upload Package** → upload `app.yaml` and `image.tar` respectively → click **Install**. Fully graphical, no SSH.
+- **aipc-cli (alternative)**: if already SSH'd in, copy `app.yaml` and `image.tar` to the device, then run `aipc-cli app install app.yaml image.tar`.
+- **HTTP two-step upload (alternative)**: log in from the dev machine for a token → `upload-image` (`image.tar`) → `upload-manifest` (`app.yaml`) → `install-package` (JSON: `manifest_path` + `image_path` + `force`) → poll `install-progress/<task_id>` until `phase=complete`.
 
-## 6. Startup and Verification
+## 6. Start and Verify
 
-### 6.1 Start the Application
+### 6.1 Start the app
 
-After deployment the app is in the Stopped state — you need to start it once manually. Pick either of the two options below.
+After deployment the app is in Stopped state; start it once manually. Either option works.
 
-**Option 1: Start via the Web Console (recommended)**
+**Option 1: Web Console (recommended)**
 
-Go to **App Management**, find the Person Detection card (status shown as Stopped), and click the **Start** button on the card. Normally within a few seconds the status badge switches from Stopped to Running, and CPU and memory usage appear beneath the card.
+Go to **App Management**, find the Person Detection card (Stopped), and click **Start**. The status badge switches from Stopped to Running within a few seconds, and the card starts showing CPU and memory usage.
 
-**Option 2: Start via the HTTP API**
+**Option 2: HTTP API**
 
 ```bash
-curl -X POST http://<deviceIP>:8080/api/v1/apps/person-detection/start -H "Authorization: Bearer <token>"
+curl -X POST http://<device-ip>:8080/api/v1/apps/person-detection/start -H "Authorization: Bearer <token>"
 ```
 
 :::tip First start times out?
-The first time you start a newly deployed app, the platform needs to load the image into the container runtime, which may exceed the 10-second API timeout and return `code:6002 DeadlineExceeded`. This is **not an error** — just call start once more (or click Start again on the Web UI) and it will succeed.
+On first start of a newly deployed app, the platform loads the image into the container runtime, which may exceed the 10-second API timeout and return `code:6002 DeadlineExceeded`. This is **not an error** — call start once more (or click Start again in the Web UI) and it succeeds.
 :::
 
-### 6.2 Web Console Verification
+### 6.2 Verify in the Web Console
 
-Open the Web console → **Applications**. You should see Person Detection in the **Running** state, using approximately 33 MB of memory:
+Open the Web Console → **Applications**; Person Detection is **Running**, using about 33 MB of memory:
 
-![Application management page (Person Detection running)](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-01-apps-running.png)
+![App Management (Person Detection running)](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-01-apps-running.png)
 
-Click **Person Detection** to open the details page. Besides APP INFO (ID, version, uptime), the **Permissions & Resources** area shows the permissions injected by the platform according to `app.yaml` — video stream sub.raw (the raw NV12 stream for inference subscription), model hailo_yolov8n_384_640 (QPS 30), event publish/subscribe topics, and device light control. This confirms that the application **only has the permissions it declared** within the sandbox:
+Click **Person Detection** to open the detail page. The **Permissions & Resources** area shows the permissions the platform injected per `app.yaml` — the sub.raw video stream, the hailo_yolov8n_384_640 model (QPS 30), event publish/subscribe topics, and device light control. This confirms the app **only has the permissions it declared** inside the sandbox:
 
-![Person Detection details and permissions](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-02-app-detail.png)
+![Person Detection detail and permissions](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-02-app-detail.png)
 
-### 6.3 Viewing Runtime Logs and Detection Output
+### 6.3 View runtime logs and detection output
 
-After the app starts, there are three ways to view real-time inference results.
+After the app starts, there are three ways to watch real-time inference results.
 
-**Option 1: Web Console Logs Live Stream**
+**Option 1: Web Console Logs live stream**
 
-Find Person Detection in the **Applications** list and click the **Logs** button on the app to open the **Live Stream** panel. It scrolls the container stdout/stderr in real time, including per-frame detection logs and statistics printed every 100 frames:
+Find Person Detection in the **Applications** list, click its **Logs** button to open the **Live Stream** panel, which scrolls container stdout/stderr in real time — including per-frame detection logs and the per-100-frame statistics:
 
 ![Web Logs live detection output](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-04-web-logs-live.png)
 
-When a person is in frame, you will see `[Frame N] Detected M person(s)` lines refresh continuously, and the Statistics `detections` and `avg_persons` grow accordingly. This is the most intuitive way to confirm the app is actually running inference.
+When a person is in frame, `[Frame N] Detected M person(s)` lines refresh continuously, and the Statistics `detections` and `avg_persons` grow accordingly — the most intuitive evidence that the inference pipeline is actually running.
 
-**Option 2: HTTP API to Fetch Recent Logs**
+**Option 2: HTTP API to pull recent logs**
 
 ```bash
-curl "http://<deviceIP>:8080/api/v1/apps/person-detection/logs?max_lines=15" -H "Authorization: Bearer <token>"
+curl "http://<device-ip>:8080/api/v1/apps/person-detection/logs?max_lines=15" -H "Authorization: Bearer <token>"
 ```
 
 ```
 [INFO] Available models: ['hailo_yolov8n_384_640']
-[INFO] [OK] Model 'hailo_yolov8n_384_640' is available for inference
 [INFO] Available video streams: ['main', 'sub']
-[INFO] [OK] Received first inference result - stream and model are working!
-[INFO]   Frame sequence: 1, timestamp: 1781520081057461280
+[INFO] Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'
+[INFO] Received first inference result - frame 1
 [INFO] [Frame 142] Detected 1 person(s)
 [INFO] Statistics: frames=200, detections=198, avg_persons=1.00
 ```
 
-`detections` growing with frames and `avg_persons` near 1.0 means the inference pipeline is running for real.
+`detections` growing with frames and `avg_persons` near 1.0 means the inference pipeline is actually running.
 
-**Option 3: Subscribe to Structured Detection Results on the Event Bus**
+**Option 3: Subscribe to structured detection results on the event bus**
 
-The app packs each detection's confidence, bbox, and person count into a structured JSON published to the event bus. Subscribe via CLI on the device:
+The app packages each detection's confidence, bbox, and person count into a structured JSON published to the event bus. Subscribe via CLI on the device:
 
 ```bash
 aipc-cli event subscribe 'app/person-detection/*'
@@ -726,19 +559,19 @@ aipc-cli event subscribe 'app/person-detection/*'
  "total_detections":1118}
 ```
 
-Any of the three options scrolling normally confirms that all SDK clients initialized successfully, the model and sub stream are available, and the subscription is active and inferring continuously.
+If any of the three shows live output, the SDK clients initialized successfully, the model and `sub` stream are available, and inference is subscribed and running.
 
-:::warning Container logs not writing? Check the root partition
-If Web Logs reports `no log file found for container aipc-person-detection`, the device root partition is most likely full — the container log file cannot be written. After SSH-ing in, confirm with `df -h /`; as a temporary fix, clear oversized platform logs (e.g. `truncate -s 0 /opt/aipc/logs/event-bus.log /opt/aipc/logs/platform-api.log`), then reinstall the app once so the new container lands its log file properly. For long-term stability, consider moving instances_path to the /data partition.
+:::warning No container logs? Check the root partition
+If Web Logs reports `no log file found for container aipc-person-detection`, the device's root partition is likely full. SSH in and check with `df -h /`; as a quick fix, `truncate -s 0 /opt/aipc/logs/*.log` to clear oversized platform logs, then reinstall the app.
 :::
 
 ## 7. Summary
 
-You have completed the end-to-end deployment of a real AI inference application:
+This tutorial covered the end-to-end deployment of a real AI inference application:
 
-1. **SDK Calls** — `InferenceClient.subscribe` for streaming inference subscriptions, `EventClient.publish` for event publishing, `DeviceClient` for hardware interaction
-2. **Resource Discovery** — `list_models()` / `list_streams()` to find actual names, and fill them into `app.py` and `app.yaml`
-3. **Permission Declaration** — The `permissions` section in `app.yaml` determines sandbox capabilities; the platform strictly enforces isolation based on this
-4. **Deployment Verification** — Web console confirms Running status + permission injection + logs confirm the inference pipeline
+1. **SDK calls** — `InferenceClient.subscribe` for streaming inference, `EventClient.publish` for events, `DeviceClient` for hardware linkage
+2. **Resource discovery** — `list_models()` / `list_streams()` to find real names and fill them into `app.py` and `app.yaml`
+3. **Permission declaration** — `app.yaml`'s `permissions` defines the sandbox capabilities; the platform isolates strictly by it
+4. **Deploy and verify** — confirm Running + permission injection in the Web Console, and confirm the inference pipeline via logs
 
-Next steps: explore other examples under the `apps/` directory in the repo (people-counting, object-detection, parking-lot, etc.) to develop your own application; or read [Application Troubleshooting](./reference/troubleshooting.md) to resolve common deployment issues.
+Next steps: explore other examples under the repo's `apps/` directory (people-counting, object-detection, parking-lot, etc.) to develop your own applications.

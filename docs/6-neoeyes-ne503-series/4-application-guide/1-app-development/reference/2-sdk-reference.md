@@ -4,7 +4,7 @@ keywords: [NE503 SDK, Python SDK, hailo_ipc_sdk, InferenceClient, EventClient, D
 tags: [SDK参考, NE503, Python, API文档, 开发者]
 ---
 
-# SDK 参考
+# SDK Reference
 
 `hailo_ipc_sdk` 是 NE503 容器应用的 Python SDK，提供 8 个核心模块。安装方式参见[应用参考](./1-app-reference.md#3-dockerfile-模式)。
 

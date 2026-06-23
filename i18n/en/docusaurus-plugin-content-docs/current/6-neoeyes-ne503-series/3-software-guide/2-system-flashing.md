@@ -28,7 +28,7 @@ Choose a path based on the current state of the device:
 
 ### 1.1 Firmware Package
 
-Obtain the firmware package from [CamThink Technical Support](mailto:support@camthink.ai). After extraction, it contains the following files, grouped by purpose:
+Download the firmware package from the open-source repository [camthink-ai/meta-hailo-os](https://github.com/camthink-ai/meta-hailo-os). After extraction, it contains the following files, grouped by purpose:
 
 **Boot-chain components (used by [§2](#2-flash-boot-chain), 9 files)**
 
@@ -525,7 +525,7 @@ Common issues are listed in operational order (§2 boot chain → §3 system ima
 - **Resolution:**
   - Check the Ethernet cable and IP configuration ([§3.2](#32-configure-network));
   - Confirm the files in the TFTP directory are complete and not truncated;
-  - Re-obtain the firmware package from CamThink to overwrite any corrupted files.
+  - Re-download the firmware package from the open-source repository to overwrite any corrupted files.
 
 ### 7.4 Upgrade Interruption Recovery
 

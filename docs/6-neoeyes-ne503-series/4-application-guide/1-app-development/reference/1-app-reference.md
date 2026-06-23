@@ -4,7 +4,7 @@ keywords: [NE503, 应用开发, app.yaml, Dockerfile, 容器, 权限模型]
 tags: [应用开发, NE503, 参考, 容器]
 ---
 
-# 应用参考
+# App Reference
 
 本文档是 NE503 容器应用的完整配置参考，涵盖 `app.yaml` 全部字段定义、Dockerfile 编写模式、安全沙箱模型以及多容器架构。如需面向新手的分步教程，请参阅 [SDK 示例](./3-sdk-examples.md)。
 

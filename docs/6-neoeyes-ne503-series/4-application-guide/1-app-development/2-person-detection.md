@@ -9,13 +9,9 @@ tags: [应用开发, NE503, 教程, AI 推理, SDK]
 
 # Person Detection
 
-本教程在 [Hello World 教程](./1-hello-world.md) 的基础上更进一步，部署一个**真正的 AI 推理应用** Person Detection。你将学会：调用 Python SDK 订阅视频流推理结果、发现设备上的模型与流、配置应用权限、并验收一个会发布检测事件、联动设备灯控的完整应用。
+本教程部署一个**真实的 AI 推理应用** Person Detection，完整演示：通过 Python SDK 订阅视频流推理结果、发现设备上的模型与流、配置应用权限，并验收一个会发布检测事件、联动设备灯控的完整应用。
 
-:::info 前置要求
-请先完成 [Hello World 应用教程](./1-hello-world.md)，掌握构建镜像、两步上传、异步安装与启动验收的基本流程。本教程省略这些重复步骤，聚焦 SDK 与 AI 推理部分。
-:::
-
-## 1. 它做什么
+## 1. 功能概述
 
 Person Detection 订阅摄像头视频流，用 AI 检测模型逐帧推理，当画面中出现人时：
 
@@ -42,7 +38,7 @@ person-detection/
 └── requirements.txt   # Python 依赖
 ```
 
-后续步骤会逐个讲解这些文件的关键内容，以及你需要核对/修改的地方（视频流名、模型名、检测阈值）。
+后续步骤逐个讲解这些文件的关键内容，以及需核对/修改的字段（视频流名、模型名、检测阈值）。
 :::
 
 ## 2. 应用结构与 SDK 用法
@@ -53,16 +49,7 @@ person-detection/
 
 ```python
 #!/usr/bin/env python3
-"""
-Person Detection Application for AIPC Platform
-
-Features:
-- Subscribe to video stream inference results
-- Detect persons using AI model
-- Publish detection events to event bus
-- Control device (light) on detection
-"""
-
+"""Person Detection Application for AIPC Platform"""
 import os
 import sys
 import time
@@ -79,10 +66,8 @@ from hailo_ipc_sdk import (
     FdMediaClient as MediaClient,
     Config,
     InferenceResult,
-    DetectedObject,
 )
 
-# Configure logging
 logging.basicConfig(
     level=getattr(logging, os.environ.get('LOG_LEVEL', 'INFO')),
     format='[%(asctime)s] [%(levelname)s] %(message)s',
@@ -115,275 +100,149 @@ class PersonDetectionApp:
         self.last_alert_time = 0
         self.person_count_history = []
 
-        # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
 
-        logger.info("=" * 60)
-        logger.info(f"  Person Detection Application v1.0.0")
-        logger.info(f"  App ID: {self.app_id}")
-        logger.info(f"  Platform: {os.uname().machine}")
-        logger.info(f"  Detection Threshold: {self.detection_threshold}")
-        logger.info("=" * 60)
-
     def _signal_handler(self, signum, frame):
-        """Handle shutdown signals gracefully"""
-        logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
 
     def initialize(self) -> bool:
-        """Initialize SDK clients"""
         try:
-            # Initialize Inference Client
-            logger.info("Initializing AI Inference client...")
             self.inference = InferenceClient()
-
-            # List available models
             models = self.inference.list_models()
             logger.info(f"Available models: {[m.model_id for m in models]}")
+            if not any(m.model_id == "hailo_yolov8n_384_640" for m in models):
+                logger.warning("Required model 'hailo_yolov8n_384_640' NOT found")
 
-            # Check if required model is available
-            required_model = "hailo_yolov8n_384_640"
-            model_available = any(m.model_id == required_model for m in models)
-            if model_available:
-                logger.info(f"[OK] Model '{required_model}' is available for inference")
-            else:
-                logger.warning(f"[WARN] Model '{required_model}' NOT found - inference may fail")
-
-            # Initialize Event Bus Client
-            logger.info("Initializing Event Bus client...")
             self.events = EventClient()
 
-            # Initialize Device Control Client (optional)
             try:
-                logger.info("Initializing Device Control client...")
                 self.device = DeviceClient()
             except Exception as e:
                 logger.warning(f"Device control not available: {e}")
                 self.device = None
 
-            # Initialize Media Client (for raw video stream access)
             try:
-                logger.info("Initializing Media client...")
                 self.media = MediaClient()
-
-                # List available video streams
                 available_streams = self.media.list_streams()
                 logger.info(f"Available video streams: {available_streams}")
-
-                # Check if required stream is available
-                # NOTE: must use a stream that publishes raw NV12 frames (sub or third).
-                # "main" only publishes encoded H264 for RTSP — subscribe() on it hangs.
-                required_stream = "sub"
-                if hasattr(self.media, "get_stream_info"):
-                    stream_info = self.media.get_stream_info(required_stream)
-                    if stream_info:
-                        logger.info(f"[OK] Video stream '{required_stream}' is available: "
-                                   f"{stream_info.width}x{stream_info.height} @ {stream_info.fps}fps, format={stream_info.format}")
-                else:
-                    shm_path = f"/run/aipc/shm/{required_stream}.raw"
-                    if os.path.exists(shm_path):
-                        logger.info(f"[OK] Video stream '{required_stream}' SHM file exists at {shm_path}")
-                    else:
-                        logger.warning(f"[WARN] Video stream '{required_stream}' SHM not found - inference may fall back to simulation")
             except Exception as e:
                 logger.warning(f"Media client not available: {e}")
                 self.media = None
 
-            logger.info("All clients initialized successfully")
             return True
-
         except Exception as e:
             logger.error(f"Failed to initialize clients: {e}")
-            if self.debug:
-                import traceback
-                traceback.print_exc()
             return False
 
     def run(self):
-        """Main application loop"""
         if not self.initialize():
-            logger.error("Initialization failed, exiting")
             return 1
 
-        logger.info("Starting person detection loop...")
-        logger.info(f"Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'")
-        logger.info("Waiting for inference results... (this may take a moment if stream is initializing)")
-
+        logger.info("Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'")
         first_frame_received = False
 
         try:
             # Subscribe to video stream inference results
-            # The platform will run inference on each frame and send results
             for frame_seq, result in self.inference.subscribe(
                 stream="sub",
                 model="hailo_yolov8n_384_640",
-                fps=10  # Process at 10 FPS
+                fps=10,
             ):
                 if not self.running:
                     break
-
-                # Log when first frame is received
                 if not first_frame_received:
                     first_frame_received = True
-                    logger.info(f"[OK] Received first inference result - stream and model are working!")
-                    logger.info(f"  Frame sequence: {frame_seq}, timestamp: {result.timestamp_ns}")
-                    # Check if running in simulation mode (no actual inference)
-                    if result.status_message == "simulation":
-                        logger.warning("  WARNING: Running in SIMULATION mode - no actual inference!")
-                        logger.warning("  This means FdReceiver cannot subscribe to video stream.")
-                        logger.warning("  Check: 1) camera-daemon is running, 2) /run/aipc/camera.sock exists")
-
+                    logger.info(f"Received first inference result - frame {frame_seq}")
                 self._process_frame(frame_seq, result)
-
         except KeyboardInterrupt:
-            logger.info("Interrupted by user")
-        except Exception as e:
-            logger.error(f"Error in main loop: {e}")
-            if self.debug:
-                import traceback
-                traceback.print_exc()
-            return 1
+            pass
         finally:
             if not first_frame_received:
-                logger.warning("No inference results received - check if video stream 'sub' is active and model 'hailo_yolov8n_384_640' is loaded")
+                logger.warning("No inference results - check stream 'sub' and model 'hailo_yolov8n_384_640'")
             self._cleanup()
-
         return 0
 
     def _process_frame(self, frame_seq: int, result: InferenceResult):
-        """Process a single frame's inference result"""
         self.frame_count += 1
-
-        # Count persons with confidence above threshold
         persons = [
             obj for obj in result.objects
             if obj.label == "person" and obj.score >= self.detection_threshold
         ]
-        person_count = len(persons)
-
-        # Track history for analytics
-        self.person_count_history.append(person_count)
-        if len(self.person_count_history) > 100:
-            self.person_count_history.pop(0)
-
-        # Log detection
-        if person_count > 0:
+        if persons:
             self.total_detections += 1
-            logger.info(f"[Frame {frame_seq}] Detected {person_count} person(s)")
+            logger.info(f"[Frame {frame_seq}] Detected {len(persons)} person(s)")
 
-            for i, obj in enumerate(persons):
-                bbox = obj.bbox
-                logger.debug(
-                    f"  Person {i+1}: confidence={obj.score:.2f}, "
-                    f"position=({bbox.x:.2f}, {bbox.y:.2f}), "
-                    f"size=({bbox.width:.2f}x{bbox.height:.2f})"
-                )
-
-        # Publish detection event
         self._publish_detection_event(frame_seq, result, persons)
 
         # Device control: turn on light when person detected
-        if person_count > 0 and self.device:
+        if persons and self.device:
             self._trigger_light()
 
-        # Print statistics every 100 frames
         if self.frame_count % 100 == 0:
             self._print_statistics()
 
     def _publish_detection_event(self, frame_seq: int, result: InferenceResult, persons: list):
-        """Publish detection event to event bus"""
-        try:
-            event_data = {
+        event_data = {
+            "app_id": self.app_id,
+            "frame_sequence": frame_seq,
+            "timestamp_ns": result.timestamp_ns,
+            "timestamp_iso": datetime.now().isoformat(),
+            "person_count": len(persons),
+            "total_frames_processed": self.frame_count,
+            "total_detections": self.total_detections,
+            "objects": [
+                {
+                    "label": obj.label,
+                    "confidence": round(obj.score, 3),
+                    "bbox": {
+                        "x": round(obj.bbox.x, 3),
+                        "y": round(obj.bbox.y, 3),
+                        "width": round(obj.bbox.width, 3),
+                        "height": round(obj.bbox.height, 3),
+                    },
+                }
+                for obj in persons
+            ],
+        }
+        self.events.publish(f"app/{self.app_id}/detection", event_data)
+
+        # Publish alert if cooldown expired
+        current_time = time.time()
+        if persons and (current_time - self.last_alert_time) >= self.alert_cooldown:
+            self.events.publish("alerts/detection", {
+                "type": "person_detected",
                 "app_id": self.app_id,
-                "frame_sequence": frame_seq,
-                "timestamp_ns": result.timestamp_ns,
-                "timestamp_iso": datetime.now().isoformat(),
                 "person_count": len(persons),
-                "total_frames_processed": self.frame_count,
-                "total_detections": self.total_detections,
-                "objects": [
-                    {
-                        "label": obj.label,
-                        "confidence": round(obj.score, 3),
-                        "bbox": {
-                            "x": round(obj.bbox.x, 3),
-                            "y": round(obj.bbox.y, 3),
-                            "width": round(obj.bbox.width, 3),
-                            "height": round(obj.bbox.height, 3)
-                        }
-                    }
-                    for obj in persons
-                ]
-            }
-
-            # Publish to app-specific topic
-            self.events.publish(f"app/{self.app_id}/detection", event_data)
-
-            # Publish alert if cooldown expired
-            current_time = time.time()
-            if len(persons) > 0 and (current_time - self.last_alert_time) >= self.alert_cooldown:
-                self.events.publish("alerts/detection", {
-                    "type": "person_detected",
-                    "app_id": self.app_id,
-                    "person_count": len(persons),
-                    "timestamp": datetime.now().isoformat()
-                })
-                self.last_alert_time = current_time
-                logger.debug("Alert event published")
-
-        except Exception as e:
-            logger.error(f"Failed to publish event: {e}")
+                "timestamp": datetime.now().isoformat(),
+            })
+            self.last_alert_time = current_time
 
     def _trigger_light(self):
-        """Trigger white light when person detected"""
         try:
-            # Set white light to 50% brightness
             self.device.set_white_light(50)
-            logger.debug("Light triggered")
         except Exception as e:
             logger.debug(f"Light control failed: {e}")
 
     def _print_statistics(self):
-        """Print processing statistics"""
-        avg_persons = sum(self.person_count_history) / len(self.person_count_history) if self.person_count_history else 0
-        logger.info(
-            f"Statistics: frames={self.frame_count}, "
-            f"detections={self.total_detections}, "
-            f"avg_persons={avg_persons:.2f}"
-        )
+        avg = sum(self.person_count_history) / len(self.person_count_history) if self.person_count_history else 0
+        logger.info(f"Statistics: frames={self.frame_count}, detections={self.total_detections}, avg_persons={avg:.2f}")
 
     def _cleanup(self):
-        """Cleanup resources before exit"""
-        logger.info("Cleaning up resources...")
-
-        logger.info(f"Total frames processed: {self.frame_count}")
-        logger.info(f"Total detections: {self.total_detections}")
-
-        # Close SDK clients
-        if self.inference:
-            self.inference.close()
-        if self.events:
-            self.events.close()
-        if self.device:
-            self.device.close()
-        if self.media:
-            self.media.close()
-
-        logger.info("Cleanup complete. Goodbye!")
+        for client in (self.inference, self.events, self.device, self.media):
+            if client:
+                client.close()
 
 
 def main():
-    """Main entry point"""
-    app = PersonDetectionApp()
-    sys.exit(app.run())
+    sys.exit(PersonDetectionApp().run())
 
 
 if __name__ == "__main__":
     main()
 ```
 
-关键逻辑对照（改模型/流/阈值时认准这几处）：
+关键逻辑对照（调整模型/流/阈值时的定位点）：
 
 | 模块 | 位置 | 说明 |
 |:---|:---|:---|
@@ -468,29 +327,7 @@ spec:
     retries: 3
 ```
 
-各字段含义：
-
-| 字段 | 说明 |
-|------|------|
-| `spec.image` | 容器镜像地址，必须与 `build.sh` 构建出的镜像名一致（如 `aipc/person-detection:1.0.0`）。 |
-| `spec.resources.cpu` | 容器 CPU 配额，可填百分比（`"50%"`）或核数。 |
-| `spec.resources.memory` | 容器内存上限（`"256Mi"`），超出会被 OOM 终止。 |
-| `spec.permissions.video` | 应用可访问的视频流白名单，流名须与设备实际流名（如 `sub`）一致。订阅推理结果必须用发布原始 NV12 帧的流（sub 或 third），main 只用于 RTSP 拉流。 |
-| `spec.permissions.inference.models` | 应用可调用的 AI 模型白名单，模型名须与设备已加载模型（即 `list_models()` 查询值）一致。 |
-| `spec.permissions.inference.max_qps` | 单模型推理请求的每秒次数上限。 |
-| `spec.permissions.inference.max_concurrent` | 应用可同时持有的并发推理会话数上限。 |
-| `spec.permissions.events.publish` | 允许向事件总线发布的事件主题，支持 `*` 通配符。 |
-| `spec.permissions.events.subscribe` | 允许订阅的事件主题，支持 `*` 通配符。 |
-| `spec.permissions.device.light` | 是否允许联动设备补光灯（`device.set_white_light`）。 |
-| `spec.permissions.device.ir_cut` | 是否允许控制 IR-CUT 滤光片（日夜切换）。 |
-| `spec.permissions.network.mode` | 容器网络模式，`isolated` 表示无外网（默认）。 |
-| `spec.env` | 注入容器的环境变量；app.py 通过 `os.environ` 读取。`DETECTION_THRESHOLD` 是 person 置信度门槛（调高=更严格、误检少；调低=更灵敏、可能多检），`ALERT_COOLDOWN_SECONDS` 是告警事件防抖间隔。 |
-| `spec.volumes` | 主机目录挂载到容器，用于持久化数据/日志（host 路径须与设备实际一致）。 |
-| `spec.autostart` | 是否在平台启动时自动拉起该应用。 |
-| `spec.restart_policy` | 崩溃重启策略（`on-failure` 配合 `restart_max_retries`）。 |
-| `spec.healthcheck` | 容器健康检查，连续失败 `retries` 次会被判定为不健康并重启。 |
-
-> 声明式权限模型意味着：**应用在沙箱里只能访问这里列出的资源**。任何未声明的流、模型、事件主题或设备控制，调用时都会被平台拒绝。详见 [System Architecture](../../3-software-guide/0-system-architecture.md)。
+> 声明式权限模型意味着：**应用在沙箱里只能访问这里列出的资源**。任何未声明的流、模型、事件主题或设备控制，调用时都会被平台拒绝。完整字段参考见仓库 `docs` 下的 Application Manifest 说明。
 
 ## 3. 构建镜像
 
@@ -539,8 +376,8 @@ CMD ["python3", "/app/app.py"]
 numpy>=1.21.0
 ```
 
-:::note 为什么 Dockerfile 里 `pip install` 的是本地 SDK？
-设备容器运行时没有外网，SDK 必须随镜像带入。`build.sh` 会在构建前把 `sdk/python/hailo_ipc_sdk/` 复制进应用目录，Dockerfile 的 `COPY hailo_ipc_sdk/` 把它打进镜像，再 `pip install -e .` 本地安装。原理见 [SDK 工作流 §2](./0-sdk-workflow.md#2-sdk-从哪来怎么嵌进容器)。
+:::note Dockerfile 为何本地安装 SDK？
+设备容器运行时无外网，SDK 必须随镜像带入。`build.sh` 会在构建前把 `sdk/python/hailo_ipc_sdk/` 复制进应用目录，Dockerfile 的 `COPY hailo_ipc_sdk/` 将其打进镜像，再 `pip install -e .` 本地安装。
 :::
 
 ### 3.2 构建与打包
@@ -571,18 +408,12 @@ bash build.sh arm64
 | `person-detection.aipc` | ~97 MB | 最终交付包（`app.yaml` + `image.tar` 的 zip） |
 
 :::warning 部署前需解压
-`build.sh` 步骤 5 会删掉 `image.tar`，而部署到设备需要 `app.yaml` 和 `image.tar` 两个独立文件。部署前先解压 `.aipc` 拿回这两个文件：
-
-```bash
-unzip -o person-detection.aipc   # 重新得到 app.yaml + image.tar
-```
-
-详见 [§5 部署到设备](#5-部署到设备)。
+`build.sh` 步骤 5 会删掉 `image.tar`，而部署到设备需要 `app.yaml` 和 `image.tar` 两个独立文件。部署前先解压 `.aipc` 拿回这两个文件：`unzip -o person-detection.aipc`。
 :::
 
 ## 4. 发现并配置模型与视频流
 
-app.py 里 `subscribe(model=...)` 的模型名、app.yaml 里 `permissions.video` 的流名，**必须用设备上的真实值**，不能照抄示例代码——不同设备、不同固件版本的名字可能不同，填错会直接报 `StatusCode.NOT_FOUND`。
+app.py 里 `subscribe(model=...)` 的模型名、app.yaml 里 `permissions.video` 的流名，**必须使用设备上的真实值**，不得直接沿用示例值——不同设备、不同固件版本的名字可能不同，填错会直接报 `StatusCode.NOT_FOUND`。
 
 下面分三步走：查模型 → 查流 → 把正确值填进应用。
 
@@ -614,7 +445,7 @@ from hailo_ipc_sdk import FdMediaClient as MediaClient
 print(MediaClient().list_streams())   # → ['main', 'sub']
 ```
 
-NE503 通常有两个流，用途完全不同——这正是下一步要讲的关键。
+NE503 通常有两个流，用途完全不同——此差异是后续配置的关键。
 
 ### 4.3 关键：推理必须用 sub 流
 
@@ -629,7 +460,7 @@ NE503 通常有两个流，用途完全不同——这正是下一步要讲的�
 模型输入分辨率应与所订阅流的分辨率尽量一致；不一致时平台仍会做预处理 resize，但这会增加开销，比例悬殊时还可能影响精度。可在 Web 控制台调整 `sub`（及 `third`）流的分辨率，使其贴近模型输入（如 640×384）。
 :::
 
-`subscribe(stream="main")` 拿不到任何帧，调用会**一直挂住、无报错、无超时**。app 卡在 "Waiting for inference results" 基本都是这个原因——把 `main` 改成 `sub` 即可。
+`subscribe(stream="main")` 拿不到任何帧，调用会**一直挂住、无报错、无超时**。app 卡在 "Waiting for inference results" 通常源于此原因——将 `main` 改为 `sub` 即可解决。
 
 最终填写位置：
 
@@ -649,7 +480,7 @@ cd apps/person-detection
 unzip -o person-detection.aipc      # 在当前目录解压出 app.yaml + image.tar
 ```
 
-解压后手上有 `app.yaml` 和 `image.tar` 两个文件。三种部署方式任选其一（完整步骤见 [Hello World §4](./1-hello-world.md#4-部署到设备)）：
+解压后手上有 `app.yaml` 和 `image.tar`。三种部署方式任选其一：
 
 - **Web 控制台上传（推荐）**：浏览器打开 Web 控制台 → **App Management** → **Import** → 选择 **Upload Package** → 分别上传 `app.yaml` 和 `image.tar` → 点击 **Install**。全程图形界面，无需 SSH。
 - **aipc-cli（备选）**：已 SSH 登录设备时，把 `app.yaml` 和 `image.tar` 拷到设备后，执行 `aipc-cli app install app.yaml image.tar`。
@@ -677,11 +508,11 @@ curl -X POST http://<设备IP>:8080/api/v1/apps/person-detection/start -H "Autho
 
 ### 6.2 Web 控制台验收
 
-打开 Web 控制台 → **Applications**，可以看到 Person Detection 处于 **Running** 状态，占用约 33 MB 内存：
+打开 Web 控制台 → **Applications**，Person Detection 处于 **Running** 状态，占用约 33 MB 内存：
 
 ![应用管理页（Person Detection 运行中）](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-01-apps-running.png)
 
-点击 **Person Detection** 打开详情。除了 APP INFO（ID、版本、运行时长）外，**Permissions & Resources** 区域能看到平台已按 `app.yaml` 注入的权限——视频流 sub.raw（用于推理订阅的原始 NV12 流）、模型 hailo_yolov8n_384_640（QPS 30）、事件发布/订阅主题、设备灯控。这证明应用在沙箱里**只拥有它声明的权限**：
+点击 **Person Detection** 打开详情。**Permissions & Resources** 区域能看到平台已按 `app.yaml` 注入的权限——视频流 sub.raw、模型 hailo_yolov8n_384_640（QPS 30）、事件发布/订阅主题、设备灯控。这证明应用在沙箱里**只拥有它声明的权限**：
 
 ![Person Detection 详情与权限](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-02-app-detail.png)
 
@@ -691,11 +522,11 @@ curl -X POST http://<设备IP>:8080/api/v1/apps/person-detection/start -H "Autho
 
 **方式一：Web 控制台 Logs 实时流**
 
-在 **Applications** 列表里找到 Person Detection，点击该应用的 **Logs** 按钮，打开 **Live Stream** 面板。这里以实时滚动的方式显示容器 stdout/stderr，包括每一帧的检测日志和每 100 帧一次的统计：
+在 **Applications** 列表里找到 Person Detection，点击该应用的 **Logs** 按钮，打开 **Live Stream** 面板，实时滚动显示容器 stdout/stderr，包括每一帧的检测日志和每 100 帧一次的统计：
 
 ![Web Logs 实时检测输出](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/application-guide/app-development/person-detection/pd-04-web-logs-live.png)
 
-当画面里有人时，你会看到 `[Frame N] Detected M person(s)` 行持续刷新，Statistics 的 `detections` 与 `avg_persons` 也会随之增长。这是判断应用是否真的在跑推理最直观的方式。
+当画面中存在人员时，`[Frame N] Detected M person(s)` 行持续刷新，Statistics 的 `detections` 与 `avg_persons` 随之增长——这是验证推理链路实际运行最直观的依据。
 
 **方式二：HTTP API 拉取最近日志**
 
@@ -705,10 +536,9 @@ curl "http://<设备IP>:8080/api/v1/apps/person-detection/logs?max_lines=15" -H 
 
 ```
 [INFO] Available models: ['hailo_yolov8n_384_640']
-[INFO] [OK] Model 'hailo_yolov8n_384_640' is available for inference
 [INFO] Available video streams: ['main', 'sub']
-[INFO] [OK] Received first inference result - stream and model are working!
-[INFO]   Frame sequence: 1, timestamp: 1781520081057461280
+[INFO] Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'
+[INFO] Received first inference result - frame 1
 [INFO] [Frame 142] Detected 1 person(s)
 [INFO] Statistics: frames=200, detections=198, avg_persons=1.00
 ```
@@ -732,16 +562,16 @@ aipc-cli event subscribe 'app/person-detection/*'
 以上三种方式任一正常滚动，都说明 SDK 各客户端初始化成功、模型与 sub 流都可用、订阅成功并持续推理。
 
 :::warning 容器日志写不出来？检查 root 分区
-若 Web Logs 报 `no log file found for container aipc-person-detection`，多半是设备 root 分区满了——容器日志文件无法写入。SSH 登录后用 `df -h /` 确认；临时处理可清理积累过大的平台日志（如 `truncate -s 0 /opt/aipc/logs/event-bus.log /opt/aipc/logs/platform-api.log`），再重装一次该应用让新容器正常落地日志文件。长期稳定建议把 instances_path 迁到 /data 分区。
+若 Web Logs 报 `no log file found for container aipc-person-detection`，多半是设备 root 分区满了。SSH 登录后用 `df -h /` 确认；临时处理可 `truncate -s 0 /opt/aipc/logs/*.log` 清理积累过大的平台日志后重装该应用。
 :::
 
 ## 7. 小结
 
-你已完成一个真实 AI 推理应用的端到端部署：
+本教程完成了一个真实 AI 推理应用的端到端部署：
 
 1. **SDK 调用** —— `InferenceClient.subscribe` 订阅流式推理、`EventClient.publish` 发事件、`DeviceClient` 联动硬件
 2. **资源发现** —— `list_models()` / `list_streams()` 查真实名字，填进 `app.py` 与 `app.yaml`
 3. **权限声明** —— `app.yaml` 的 `permissions` 决定沙箱能力，平台严格按此隔离
 4. **部署验收** —— Web 控制台确认 Running + 权限注入 + 日志确认推理链路
 
-接下来你可以：参考仓库 `apps/` 下的其它示例（people-counting、object-detection、parking-lot 等）开发自己的应用；或阅读 [应用故障排查](./reference/troubleshooting.md) 解决部署中的常见问题。
+后续可参考仓库 `apps/` 下的其它示例（people-counting、object-detection、parking-lot 等）开发自有应用。

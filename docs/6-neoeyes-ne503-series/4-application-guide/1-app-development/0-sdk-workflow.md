@@ -1,18 +1,18 @@
 ---
 id: sdk-workflow
-title: SDK 工作流
+title: SDK Workflow
 sidebar_position: 0
 description: NE503 Python SDK（hailo_ipc_sdk）的工作流总览——它是什么、源码在哪、如何嵌入容器、以及客户端调用范式。读完即具备跑通具体应用案例的 SDK 基础。
 keywords: [NE503, Python SDK, hailo_ipc_sdk, SDK 嵌入, 容器应用, InferenceClient]
 tags: [应用开发, NE503, SDK, 入门]
 ---
 
-# SDK 工作流
+# SDK Workflow
 
 本篇只讲一件事：**NE503 Python SDK（`hailo_ipc_sdk`）怎么用起来**——它是什么、源码在哪、怎么嵌进你的容器镜像、以及客户端的调用范式。掌握这些后，再看 [Hello World](./1-hello-world.md) 跑部署闭环、看 [Person Detection](./2-person-detection.md) 跑真实 AI 应用，就只需关注各自业务细节，不用再回头查 SDK 怎么接。
 
 :::info 阅读顺序
-**SDK 工作流（本篇）→ [Hello World](./1-hello-world.md)（部署闭环，不用 SDK）→ [Person Detection](./2-person-detection.md)（真实 AI 应用，用 SDK）**
+**SDK Workflow（本篇）→ [Hello World](./1-hello-world.md)（部署闭环，不用 SDK）→ [Person Detection](./2-person-detection.md)（真实 AI 应用，用 SDK）**
 :::
 
 ## 1. SDK 是什么

@@ -4,7 +4,7 @@ keywords: [NE503, SDK 示例, Python, AI 推理, 事件处理, 容器应用]
 tags: [应用开发, NE503, SDK, 示例]
 ---
 
-# SDK 示例
+# SDK Examples
 
 本文通过 4 个由浅入深的完整 mini-app，演示 `hailo_ipc_sdk` 的典型用法。SDK API 详情请参阅 [SDK 参考](./2-sdk-reference.md)，项目结构与构建部署流程请参阅 [应用参考](./1-app-reference.md)。
 

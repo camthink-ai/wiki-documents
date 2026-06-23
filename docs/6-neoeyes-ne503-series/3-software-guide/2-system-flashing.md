@@ -28,7 +28,7 @@ NE503 整机软件分为两层：
 
 ### 1.1 固件包
 
-从 [CamThink 技术支持](mailto:support@camthink.ai) 获取固件包，解压后包含以下文件。按用途分为两组：
+从开源仓库 [camthink-ai/meta-hailo-os](https://github.com/camthink-ai/meta-hailo-os) 下载固件包，解压后包含以下文件。按用途分为两组：
 
 **引导链组件（[§2](#2-烧录引导链) 使用，共 9 个）**
 
@@ -524,7 +524,7 @@ systemctl status ai-runtime camera-daemon app-manager event-bus device-control p
 - **解决：**
   - 检查网线与 IP 配置（[§3.2](#32-配置网络)）；
   - 确认 TFTP 目录文件完整且未被截断；
-  - 重新从 CamThink 获取固件包，覆盖可能损坏的文件。
+  - 重新从开源仓库下载固件包，覆盖可能损坏的文件。
 
 ### 7.4 升级中断恢复
 
