@@ -184,10 +184,11 @@ curl -X POST http://<device-ip>:8080/api/v1/apps/upload-image \
 curl -X POST http://<device-ip>:8080/api/v1/apps/upload-manifest \
   -H "Authorization: Bearer <token>" -F "file=@app.yaml"
 
-# Trigger the async install (JSON body with the two paths above), then poll the task_id until phase=complete
+# Trigger the async install (JSON body with the two paths above), then poll the returned task_id until phase=complete
 curl -X POST http://<device-ip>:8080/api/v1/apps/install-package \
   -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
   -d '{"manifest_path":"<manifest path>","image_path":"<image path>","force":true}'
+# → {"data":{"task_id":"0f26285a"}}
 curl http://<device-ip>:8080/api/v1/apps/install-progress/<task_id> \
   -H "Authorization: Bearer <token>"
 ```

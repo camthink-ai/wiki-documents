@@ -184,10 +184,11 @@ curl -X POST http://<设备IP>:8080/api/v1/apps/upload-image \
 curl -X POST http://<设备IP>:8080/api/v1/apps/upload-manifest \
   -H "Authorization: Bearer <token>" -F "file=@app.yaml"
 
-# 触发异步安装（JSON body 传入上面两个 path），再用 task_id 轮询到 phase=complete
+# 触发异步安装（JSON body 传入上面两个 path），再用返回的 task_id 轮询到 phase=complete
 curl -X POST http://<设备IP>:8080/api/v1/apps/install-package \
   -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
   -d '{"manifest_path":"<manifest path>","image_path":"<image path>","force":true}'
+# → {"data":{"task_id":"0f26285a"}}
 curl http://<设备IP>:8080/api/v1/apps/install-progress/<task_id> \
   -H "Authorization: Bearer <token>"
 ```

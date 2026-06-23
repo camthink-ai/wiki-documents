@@ -137,6 +137,7 @@ class PersonDetectionApp:
 
     def run(self):
         if not self.initialize():
+            self._cleanup()
             return 1
 
         logger.info("Subscribing to stream 'sub' with model 'hailo_yolov8n_384_640'")
