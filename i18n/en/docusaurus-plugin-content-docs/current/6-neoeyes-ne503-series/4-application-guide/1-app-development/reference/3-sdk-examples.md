@@ -17,7 +17,7 @@ print(InferenceClient().list_models())   # e.g. ['hailo_yolov8n_384_640']
 print(FdMediaClient().list_streams())    # e.g. ['main', 'sub']
 ```
 
-Key conventions — inference must use the `sub` stream; model names and `permissions` must match the device and mirror each other across `app.py`/`app.yaml`. See [Person Detection tutorial §4](../2-person-detection.md#4-discovering-and-configuring-models-and-video-streams).
+Key conventions — inference must use the `sub` stream; model names and `permissions` must match the device and mirror each other across `app.py`/`app.yaml`. See [Person Detection tutorial §4](../2-person-detection.md#4-discover-and-configure-models-and-video-streams).
 :::
 
 ## 1. Real-time Object Detection Counter
@@ -472,7 +472,7 @@ Filenames include the label, frame sequence, and timestamp for later troubleshoo
 
 ### 5.1 General Deployment Process
 
-All mini-apps share the same build and deploy workflow as the tutorials: use the repo's bundled `build.sh` to do it in one step (copy SDK → ARM64 buildx → save → package into a `.aipc`), then deploy to the device via the Web console, aipc-cli, or HTTP. For the full steps, see [Hello World §3 Building the Image](../1-hello-world.md#3-building-the-image) and [§4 Deploying to the Device](../1-hello-world.md#4-deploying-to-the-device); for build/deploy errors, see [Troubleshooting](./troubleshooting.md).
+All mini-apps share the same build and deploy workflow as the tutorials: use the repo's bundled `build.sh` to do it in one step (copy SDK → ARM64 buildx → save → package into a `.aipc`), then deploy to the device via the Web console, aipc-cli, or HTTP. For the full steps, see [Hello World §3 Building the Image](../1-hello-world.md#3-build-the-image) and [§4 Deploying to the Device](../1-hello-world.md#4-deploy-to-the-device); for build/deploy errors, see [Troubleshooting](./troubleshooting.md).
 
 ### 5.2 Logs, Common Issues & Debugging
 
