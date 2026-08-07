@@ -235,3 +235,42 @@
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+/* ============================================================ */
+/* Navbar — replace 🏠/🛍️ emoji glyphs with stroke SVG icons so   */
+/* Home / Store match GitHub's clean text+icon look.             */
+/* ============================================================ */
+.navbar__item.home-button,
+.navbar__item.store-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* hide the emoji, inject an SVG icon */
+.navbar__item.home-button,
+.navbar__item.store-button {
+  position: relative;
+}
+.navbar__item.home-button { padding-left: 26px; }
+.navbar__item.store-button { padding-left: 26px; }
+.navbar__item.home-button::before,
+.navbar__item.store-button::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: .9;
+}
+.navbar__item.home-button::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpolyline points='9 22 9 12 15 12 15 22'/%3E%3C/svg%3E");
+}
+.navbar__item.store-button::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E");
+}

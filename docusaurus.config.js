@@ -140,13 +140,13 @@ const config = {
           {
             href: 'https://www.camthink.ai/',
             position: 'right',
-            label: '🏠 Home',
+            label: 'Home',
             className: 'home-button'
           },
           {
             href: 'https://www.camthink.ai/store/',
             position: 'right',
-            label: '🛍️ Store',
+            label: 'Store',
             className: 'store-button'
           },
           { href: 'https://github.com/camthink-ai', position: 'right', label: 'GitHub' },
