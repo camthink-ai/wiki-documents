@@ -147,7 +147,7 @@ The key specifications of the complete NE301 unit are listed below.
 
 ### Low-Power Design
 
-NeoEyes NE301 uses a dual-MCU architecture for fine-grained energy management: the STM32N6 handles AI inference and image processing, while the STM32U073Kx power controller monitors sensors during deep sleep and wakes the system on demand — balancing ultra-low standby with fast response.
+NeoEyes NE301 uses the STM32N6 for AI inference and image processing. V1.1–V1.3 add an STM32U073Kx power controller that monitors sensors during deep sleep and wakes the system on demand; V1.0 uses the initial power architecture, so its interfaces and control paths must be checked by hardware revision.
 
 <div align="center" style={{ marginBottom: "1.5rem" }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/U0.png" alt="Dual-MCU architecture" width="60%" />
@@ -155,7 +155,7 @@ NeoEyes NE301 uses a dual-MCU architecture for fine-grained energy management: t
 
 | Metric | Value |
 | :--- | :--- |
-| **Deep-sleep current** | 6.1 μA (managed by U0) |
+| **Deep-sleep current** | 6.1 μA (managed by U0 on V1.1–V1.3) |
 | **Active current** | 170–180 mA (Wi‑Fi mode) |
 | **Wake-up latency** | Milliseconds (deep sleep to active) |
 | **Battery life** | 4× AA batteries, ~13 years at 1 capture/day |
@@ -208,7 +208,7 @@ The main board provides a rich set of interfaces for external expansion and debu
 - **Storage**: Micro TF card slot for local images or data.
 - **Debug**: USB Type‑C and UART for serial debugging.
 - **Lighting**: Built-in fill light and status LED.
-- **Alarm / PIR**: 2-pin Alarm input + 4-pin PIR sensor connector.
+- **Alarm / PIR**: 2-pin Alarm input; the dedicated 4-pin PIR connector is available on V1.3 only. Check the hardware revision for ISP/PIR wiring on other boards.
 
 ### Interchangeable Camera Modules
 

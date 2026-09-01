@@ -14,10 +14,10 @@ tags: [NE300-MB01, Hardware, Connection Guide, Pinout, STM32N6]
 - Snapshot button
 - UART debug header (STM32N6)
 - ST-Link header (STM32N6)
-- ST-Link header (STM32U0)
+- ST-Link header (STM32U0, V1.1–V1.3)
 - ST BOOT mode selector
 - Alarm input terminal
-- USB camera / PIR connector
+- V1.0–V1.2: shared J10 ISP/PIR connector; V1.3: separate J10 ISP connector and J5 PIR connector
 - Dual CV light-board headers
 - OS04C10 camera connector
 - Battery isolation slide switch
@@ -29,16 +29,19 @@ tags: [NE300-MB01, Hardware, Connection Guide, Pinout, STM32N6]
 
 ## Interface Details
 
+> **Hardware revision applicability:** Only wiring differences confirmed from the V1.0–V1.3 schematics are marked below. Do not reuse the V1.1–V1.3 Wi-Fi, J12 SPI, or U0 entries on V1.0 boards. For assembly-dependent options not listed in a table, verify the board silkscreen, PCBA/BOM, and the schematic for the exact revision.
+
 #### Peripheral Power Control — STM32N657L0H3
 
-Enable the following rails before using their peripherals: raise `CAM_PWR` for the camera & fill light, `TF_PWR_ON` for the TF card, `BAT_DEF_ON` for battery sensing, and `PWR_USB_3.3V` for USB data.
+Enable the following rails before using their peripherals: raise `CAM_PWR` for the camera & fill light, `TF_PWR_ON` for the TF card, `BAT_DET_ON` for battery sensing, and `PWR_USB_3.3V` for USB data.
 
-| Pin | Signal | MCU Pin | Type | Default State | Alt |
-| --- | --- | --- | --- | --- | --- |
-| T2 | CAM_PWR | PF9 | I/O | Pulldown 100 KΩ | — |
-| W12 | TF_PWR_ON | PA1 | I/O | Pulldown 100 KΩ | — |
-| T8 | BAT_DEF_ON | PA11 | I/O | Pulldown 100 KΩ | — |
-| W11 | PWR_USB_3.3V | PG13 | I/O | — | — |
+| Pin | Signal | MCU Pin | Type | Default State | Alt | Applicable hardware |
+| --- | --- | --- | --- | --- | --- | --- |
+| T2 | CAM_PWR | PF9 | I/O | Pulldown 100 KΩ | — | V1.0–V1.3 |
+| W12 | TF_PWR_ON | PA1 | I/O | Pulldown 100 KΩ | — | V1.0–V1.3 |
+| U17 | BAT_DET_ON | PA2 | I/O | — | — | V1.0 |
+| T8 | BAT_DET_ON | PA11 | I/O | Pulldown 100 KΩ | — | V1.1–V1.3 |
+| W11 | PWR_USB_3.3V | PG13 | I/O | — | — | V1.0–V1.3 |
 
 #### RS485 Control — STM32N657L0H3
 
@@ -107,6 +110,23 @@ Raise `TF_PWR_ON` before accessing the TF card.
 
 #### Wi-Fi Chip Interface — STM32N657L0H3
 
+V1.0 uses SPI2 for Wi-Fi. From V1.1 onward, the Wi-Fi and J12 SPI controllers were exchanged, so Wi-Fi uses SPI4. Do not mix these two mappings.
+
+| Pin | Signal | MCU Pin | Type | Applicable hardware |
+| --- | --- | --- | --- | --- |
+| P4 | SPI2_SCK | PF2 | I/O | V1.0 |
+| A7 | SPI2_NSS | PC1 | I/O | V1.0 |
+| D13 | SPI2_MOSI | PD2 | I/O | V1.0 |
+| F11 | SPI2_MISO | PD6 | I/O | V1.0 |
+| A13 | WIFI_SPI2_IRQ | PE7 | I/O | V1.0 |
+| A15 | WIFI_SleepMode_STA | PD5 | I/O | V1.0 |
+| A11 | WIFI_ULP_WAKEUP | PD12 | I/O | V1.0 |
+| A17 | WIFI_RESET_N | PD11 | I/O | V1.0 |
+| A14 | WIFI_POC_IN | PB15 | I/O | V1.0 |
+| C17 | PWR_WIFI | PB13 | I/O | V1.0 |
+
+The following table applies to V1.1–V1.3:
+
 | Pin | Signal | MCU Pin | Type | Default | Alt |
 | --- | --- | --- | --- | --- | --- |
 | D10 | SPI4_SCK | PE12 | I/O | Pull-up 10 KΩ | — |
@@ -169,12 +189,15 @@ Raise `TF_PWR_ON` before accessing the TF card.
 
 #### UART Debug Header (J26) — STM32N657L0H3
 
-| Pin | Signal | MCU Pin | Type | Default |
-| --- | --- | --- | --- | --- |
-| 1 | 3V3 | — | Supply | — |
-| 2 | USART2_RX | PA2 | I/O | Pull-up 10 KΩ |
-| 3 | USART2_TX | PF6 | I/O | Pull-up 10 KΩ |
-| 4 | GND | — | Supply | — |
+| Pin | Signal | MCU Pin | Type | Default | Applicable hardware |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 3V3 | — | Supply | — | V1.0–V1.2 |
+| 1 | VCC_IN-compatible output | — | Supply | Schematic R181 is NC | V1.3 |
+| 2 | USART2_RX | PA2 | I/O | Pull-up 10 KΩ | V1.0–V1.3 |
+| 3 | USART2_TX | PF6 | I/O | Pull-up 10 KΩ | V1.0–V1.3 |
+| 4 | GND | — | Supply | — | V1.0–V1.3 |
+
+> V1.3 adds only VCC_IN output compatibility; R181 is marked NC in the schematic. Confirm the actual PCBA assembly before using this pin as a supply. It is not a default output on every V1.3 unit.
 
 #### ST-Link Header — STM32N657L0H3
 
@@ -214,7 +237,7 @@ Expansion modules mount on J11/J15. J12, J15, and J11 pinouts are listed below.
 
 #### 16-pin Expansion Header (J12)
 
-Provides UART, I2C, SPI, RS485, etc., for sensor modules such as PIR or OLED.
+Provides UART, I2C, SPI, RS485, etc., for sensor modules such as PIR or OLED. V1.0 uses SPI4 on this connector; from V1.1 onward it uses SPI2.
 
 | Pin | Signal | MCU Pin | Type | Default | Alt |
 | --- | --- | --- | --- | --- | --- |
@@ -234,6 +257,15 @@ Provides UART, I2C, SPI, RS485, etc., for sensor modules such as PIR or OLED.
 | 14 | LPUART1_TX | PA9 | I/O | — | — |
 | 15 | I2C2_SDA | PD15 | I/O | Pull-up 4.7 KΩ | — |
 | 16 | LPUART1_RX | PA10 | I/O | — | — |
+
+The following J12 SPI pins are replaced on V1.0. Other connector functions are unchanged from the table above.
+
+| Pin | V1.0 signal | MCU Pin | V1.1–V1.3 counterpart |
+| --- | --- | --- | --- |
+| 7 | SPI4_MISO | PB6 | SPI2_MISO / PD6 |
+| 9 | SPI4_SCK | PE12 | SPI2_SCK / PF2 |
+| 11 | SPI4_MOSI | PB7 | SPI2_MOSI / PD2 |
+| 12 | SPI4_NSS | PE11 | SPI2_NSS / PB12 |
 
 `VCC_3V3` Control (STM32N657L0H3): Set `PWR_VCC_EXT` high to enable the 3.3 V rail.
 
@@ -285,6 +317,8 @@ Provides UART, I2C, SPI, RS485, etc., for sensor modules such as PIR or OLED.
 | 15 | Halow SPI6_SCK | PA5 | I/O | Pull-up 4.7 KΩ | — |
 | 16 | Halow_RST | PB0 | I/O | — | — |
 
+> The following STM32U073KBU6 entries apply only to V1.1–V1.3. V1.0 has no U0 controller and must not reuse its power, button, reset, or PIR control pins.
+
 3.3 V Output Control — STM32U073KBU6: Raise `U0_PWR_3V3` to enable.
 
 | Pin | Signal | MCU Pin | Type | Default |
@@ -304,25 +338,29 @@ Provides UART, I2C, SPI, RS485, etc., for sensor modules such as PIR or OLED.
 | 29 | U0_LPUART2_TX | PB6 | I/O |
 | 30 | U0_LPUART2_RX | PB7 | I/O |
 
-#### Control & Trigger Pins — STM32U073KBU6
+#### Control & Trigger Pins — STM32U073KBU6 (V1.1–V1.3)
 
-| Pin | Signal | MCU Pin | Type | Default |
-| --- | --- | --- | --- | --- |
-| 8 | CAT1_MAIN_IR | PA2 | I/O | — |
-| 10 | U0_PWR_WIFI | PA4 | I/O | Pulldown 100 KΩ |
-| 11 | U0_PWR_3V3 | PA5 | I/O | Pulldown 100 KΩ |
-| 12 | U0_PWR_AON | PA6 | I/O | Pulldown 100 KΩ |
-| 13 | U0_PWR_N6 | PA7 | I/O | Pulldown 100 KΩ |
-| 14 | CAT1_PWR_ON (Halow Wi-Fi) | PB0 | I/O | — |
-| 15 | U0_RST_N6 | PB1 | I/O | Pull-up 47 KΩ |
-| 18 | TEST_USB_IN | PA8 | I/O | — |
-| 21 | WIFI_SPI4_IRQ | PA1 / PA9 | I/O | — |
+| Pin | Signal | MCU Pin | Type | Default | Applicable hardware |
+| --- | --- | --- | --- | --- | --- |
+| 8 | CAT1_MAIN_IR | PA2 | I/O | — | V1.1–V1.3 |
+| 10 | U0_PWR_WIFI | PA4 | I/O | Pulldown 100 KΩ | V1.1–V1.3 |
+| 11 | U0_PWR_3V3 | PA5 | I/O | Pulldown 100 KΩ | V1.1–V1.3 |
+| 12 | U0_PWR_AON | PA6 | I/O | Pulldown 100 KΩ | V1.1–V1.3 |
+| 13 | U0_PWR_N6 | PA7 | I/O | Pulldown 100 KΩ | V1.1–V1.3 |
+| 14 | CAT1_PWR_ON (Halow Wi-Fi) | PB0 | I/O | — | V1.1–V1.3 |
+| 15 | U0_RST_N6 | PB1 | I/O | Pull-up 47 KΩ | V1.2–V1.3 |
+| 18 | TEST_USB_IN | PA8 | I/O | — | V1.1–V1.3 |
+| 21 | WIFI_SPI4_IRQ | PA1 / PA9 | I/O | — | V1.1–V1.3 |
 
-#### PIR Sensor Header — STM32U073KBU6
+#### PIR and ISP Interfaces (Revision-dependent)
 
-| Pin | Signal | Description | Type |
+| Hardware revision | Interface state | Confirmed signals | Wiring requirement |
 | --- | --- | --- | --- |
-| 1 | VDD | Supply | Supply |
-| 2 | GND | Ground | Supply |
-| 3 | Serial_IN | PA3 | I/O |
-| 4 | INT/Dout | PA1 | I/O |
+| V1.0–V1.2 | J10 is a shared ISP/PIR connector, not a dedicated 4-pin PIR header. | PIR control and supply selection vary by revision. | Do not use the V1.3 J5 pin information. |
+| V1.3 | J10 is retained independently for ISP; J5 is the dedicated PIR connector. | J5 pin 3: PIR Serial (U0 PA3 or N6 selectable); pin 4: PIR trigger (U0 PA1 or PD8 selectable). | Power and signal selection depend on resistor assembly. Confirm the actual PCBA, BOM, and silkscreen before wiring; do not assume a fixed VDD/GND/PA3/PA1 order. |
+
+#### IR-CUT Driver Header (V1.3 only)
+
+| Connector | Signals | Applicable hardware | Notes |
+| --- | --- | --- | --- |
+| J17 | IR_CUTP / IR_CUTN | V1.3 | IR-CUT driver outputs added in the schematic; this header is absent on V1.0–V1.2. |
