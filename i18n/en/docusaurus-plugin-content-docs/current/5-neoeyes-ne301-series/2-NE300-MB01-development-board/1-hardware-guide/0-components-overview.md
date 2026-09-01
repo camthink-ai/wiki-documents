@@ -11,7 +11,7 @@ The NE300-MB01 development board is a low-power wireless camera platform capable
 
 ## Main Board Overview
 
-The main board integrates the STM32N657L0H3 MCU with 64 MB of external PSRAM and 128 MB of external Flash. An STM32U073KBU6 handles power management and ultra-low-power sleep control. Connectivity is provided by the SiWN917M100LGTBA Wi-Fi 6/BLE 5.4 combo chip. Optional Cat-1 cellular modules and GPIO expansions allow for further customization. The default kit ships with an OS04C10 camera module, while USB camera modules are also available. Highlights:
+The main board integrates the STM32N657L0H3 MCU with 64 MB of external PSRAM and 128 MB of external Flash. V1.1–V1.3 use an STM32U073KBU6 for power management and ultra-low-power sleep control; V1.0 has the initial power architecture and does not include this U0 controller. Connectivity is provided by the SiWN917M100LGTBA Wi-Fi 6/BLE 5.4 combo chip. Optional Cat-1 cellular modules and GPIO expansions allow for further customization. The default kit ships with an OS04C10 camera module, while USB camera modules are also available. Highlights:
 
 * **Application MCU** – STM32N657L0H3 with an Arm® Cortex®-M55 core up to 800 MHz and ST Neural-ART Accelerator (up to 1 GHz, 600 GOPS, 288 MAC/cycle)
 * **External PSRAM** – APS512XX-OBR-BG, 64 MB, up to 250 MHz, 16-bit bus
@@ -22,7 +22,7 @@ The main board integrates the STM32N657L0H3 MCU with 64 MB of external PSRAM and
 * **Indicators** – Blue status LED plus a 0.5 W white fill light
 * **Debug interfaces** – ST-Link, USB, and UART headers
 * **Power kill switch** – Slide switch to fully disconnect the battery input
-* **External sensor ports** – Alarm IO, PIR input, and other sensor headers
+* **External sensor ports** – Alarm IO and other sensor inputs; the dedicated PIR connector is available on V1.3 only and other revisions require checking the interface table
 * **Expandable IO** – SPI + I2C + UART + SAI (I2S compatible) + general-purpose GPIO
 * **Modem options** – Cat-1 cellular module socket
 

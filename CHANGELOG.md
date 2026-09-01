@@ -10,6 +10,7 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 ### Changed
 - **NeoEyes NE101 Hardware Connection**: Consolidated version-specific wiring guidance into the affected interface tables. The power-control, PIR, and V2.0 RTC tables now identify their applicable board revisions and GPIO assignments, including the V2.0 TF-card/module-power sharing constraint and RTC I2C sharing with the camera (full bilingual support).
+- **NeoEyes NE301 Hardware Documentation**: Added revision-aware wiring for V1.0–V1.3 across the product overview, component overview, and hardware connection guide. The update distinguishes Wi-Fi/J12 SPI mappings, battery and Wi-Fi power-control GPIOs, U0 availability, UART VCC_IN compatibility, PIR/ISP wiring, and the V1.3 IR-CUT header (full bilingual support).
 
 ## [2026-08-26]
 
