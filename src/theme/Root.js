@@ -10,6 +10,12 @@ const TRACKER_CONFIG = {
   auto_track: {
     page_view: true,
     element_click: true,
+    scroll: true,
+  },
+  cross_project: {
+    enabled: true,
+    scope_key: 'camthink',
+    cookie_domain: '.camthink.ai',
   },
 };
 const isProd = process.env.NODE_ENV === 'production';
