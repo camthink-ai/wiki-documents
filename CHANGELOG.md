@@ -6,6 +6,11 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-09-01]
+
+### Changed
+- **NeoEyes NE101 Hardware Connection**: Consolidated version-specific wiring guidance into the affected interface tables. The power-control, PIR, and V2.0 RTC tables now identify their applicable board revisions and GPIO assignments, including the V2.0 TF-card/module-power sharing constraint and RTC I2C sharing with the camera (full bilingual support).
+
 ## [2026-08-26]
 
 ### Added

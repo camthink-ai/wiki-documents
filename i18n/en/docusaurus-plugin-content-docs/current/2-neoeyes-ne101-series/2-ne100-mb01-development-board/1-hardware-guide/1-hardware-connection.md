@@ -1,4 +1,12 @@
+---
+description: NE100-MB01 hardware connection reference, including revision-aware power-control GPIOs, PIR wiring, connector definitions, and multiplexing limits.
+keywords: [NE100-MB01, hardware connection, GPIO, pin definition, PIR, UART, I2C, SPI, hardware revision]
+tags: [hardware guide, NE100-MB01, pin definition, revision compatibility]
+---
+
 # Hardware Connection
+
+> Identify the hardware revision from the PCBA marking before wiring. Pins with an applicability field in the tables below can be used only on the stated revisions.
 
 ## **Main Board Interfaces Overview**
 
@@ -39,13 +47,14 @@
 
 ### Peripherals power Ctrl
 
-Before using the camera, ISP, battery level detection, flash, or light sensor, the CAM_PWR pin must be set high to enable their operation. Similarly, the TF_PWR pin must be set high before using the TF card.
+Before using the camera, ISP, fill light, light sensor, or battery-level detection, set the relevant power-control GPIO high for the installed board revision. Enable TF-card power before using the card. On V2.0, TF-card power shares GPIO48 with Cat-1/HaLow module power enable, so it cannot be handled using only the legacy TF-card logic.
 
-
-| PIN# | Pin Name | Functions | Pin Type | Pull Up/Down | Alternate Function |
-| ---- | -------- | --------- | -------- | ------------ | ------------------ |
-| 16   | CAM_PWR  | GPIO3     | O        | PD 10K       |                    |
-| 35   | TF_PWR   | GPIO42    | O        | PD 100K      |                    |
+| Purpose | GPIO | Applicable hardware revision | Wiring or software-control note |
+| --- | --- | --- | --- |
+| Camera, fill-light, and battery-detection power control | CAM_PWR / GPIO3 | V1.0, V1.1, V1.2 | V2.0 does not use this GPIO for power control. |
+| Camera, fill-light, and battery-detection power control | CAM_PWR / GPIO42 | V2.0 | Replaces the V1.x GPIO3 control. |
+| TF-card power control | TF_PWR / GPIO42 | V1.0, V1.1, V1.2 | V2.0 does not use this GPIO for TF-card power control. |
+| TF-card power control | TF_PWR_ON / GPIO48 | V2.0 | Shared with Cat-1/HaLow module-power enable; evaluate module-power state when enabling the TF card. |
 
 
 ### USB Camera Connector
@@ -58,18 +67,29 @@ Before using the camera, ISP, battery level detection, flash, or light sensor, t
 
 ### PIR GPIOs Defined
 
+The PIR connector is supported only on V1.1, V1.2, and V2.0. V1.0 does not include this connector. J21 follows the schematic net names:
+| PIN# | Pin Name | Functions | Pin Type | Pull Up/Down | Alternate Function | Applicable hardware revision |
+| ---- | -------- | --------- | -------- | ------------ | ------------------ | ---------------------------- |
+| 1 | 3V3_PIR | PIR 3.3 V supply | S | | — | V1.1, V1.2, V2.0 |
+| 2 | GND | Ground | S | | — | V1.1, V1.2, V2.0 |
+| 3 | SDIO_IRQ(INT) | Interrupt / multiplexed signal | I/O | | GPIO41; conflicts with TF/HaLow use | V1.1, V1.2, V2.0 |
+| 4 | ALA_IN | Alarm input | I | | GPIO2 | V1.1, V1.2, V2.0 |
 
-| PIN# | Pin Name  | Functions    | Pin Type | Pull Up/Down | Alternate Function |
-| ---- | --------- | ------------ | -------- | ------------ | ------------------ |
-| 1    | VDD       | Power supply | S        |              |                    |
-| 2    | GND       | GND          | S        |              |                    |
-| 3    | Serial_IN | Config Port  | I/O/T    |              | GPIO41             |
-| 4    | INT/Dout  | AlarmIN      | I/O/T    |              | GPIO2              |
+### RTC (V2.0 only)
+
+V1.0, V1.1, and V1.2 do not have an on-board RTC. On V2.0, the RTC shares the I2C bus with the camera. Software accessing both must use the same bus configuration.
+
+| RTC signal | GPIO | Applicable hardware revision | Notes |
+| --- | --- | --- | --- |
+| RTC interrupt | GPIO3 | V2.0 | On V2.0, GPIO3 no longer controls power for the camera, fill light, or battery detection. |
+| I2C_SDA | GPIO4 | V2.0 | Shared with the FPC camera module I2C_SDA. |
+| I2C_SCL | GPIO5 | V2.0 | Shared with the FPC camera module I2C_SCL. |
 
 
 ### 16Pin GPIOs Expansion
-
 The 16 pins expansion header provide communication interface like uart, I2C,  SPI and GPIOs. Developer can use these interfaces to expand sensor modules like PIR sensor, OLED module as their needed.
+
+> This table defines physical pins and signal nets only. Availability depends on the hardware revision and active TF, Cat-1, HaLow, and USB configuration; do not treat a multiplexed GPIO in this table as available on every revision.
 
 
 | PIN# | Pin Name | Functions   | Pin Type | Pull Up/Down | Alternate Function |
@@ -125,7 +145,7 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 24   | Null      |              |          |              |               |
 
 
-> Note: 1. Set the CAM_PWR pin high before use.
+> Note: Before use, set the camera power-control GPIO high for the installed revision; see [Peripherals power Ctrl](#peripherals-power-ctrl).
 
 ### Flash and Light Sensor IOs
 
@@ -136,7 +156,7 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 39   | LIGHT_RESISTOR | ADC       | A        |              | GPIO1         |
 
 
-> Note: 1. Set the CAM_PWR pin high before use; 2. A light intensity of 0% to 100% corresponds to an output voltage of 0 to 2.5V.
+> Note: 1. Before use, set the camera/fill-light power-control GPIO high for the installed revision; see [Peripherals power Ctrl](#peripherals-power-ctrl); 2. A light intensity of 0% to 100% corresponds to an output voltage of 0 to 2.5V.
 
 ### TF Card IOs
 
@@ -149,7 +169,7 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 34   | CD       | SDIO_IRQ  | I        | PU 1M        | GPIO41        |
 
 
-> Note: 1. Set the TF_PWR pin high before use; 2. Please use MMC 1-bit mode protocol driver; 3. Cannot be used simultaneously with WiFi-Halow and 4G Cat1 modules due to pin conflicts.
+> Note: 1. Before use, set the TF-card power-control GPIO high for the installed revision; see [Peripherals power Ctrl](#peripherals-power-ctrl); 2. Use an MMC 1-bit mode protocol driver; 3. GPIO38–GPIO41 and GPIO45 cannot be used concurrently with conflicting WiFi-Halow or 4G Cat-1 configurations.
 
 ### Other IOs
 
@@ -160,7 +180,7 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 22   | BAT_DET  | ADC       | A        |              | GPIO14        |
 
 
-> Note: 1. Before starting battery level detection, the CAM_PWR pin must be set high; 2. The battery level from 0% to 100% corresponds to a voltage range of 1.8 to 3V.
+> Note: 1. Before starting battery-level detection, set the relevant power-control GPIO high for the installed revision; see [Peripherals power Ctrl](#peripherals-power-ctrl); 2. The battery level from 0% to 100% corresponds to a voltage range of 1.8 to 3V.
 
 ### Communication Module Pins Header defined
 
@@ -192,26 +212,19 @@ Detailed information please reference the comparison table.
 | 16   | WIFI_RST   | Reset#low    | I/O/T    |              | GPIO46                 |
 
 
-### IO Conflict table
+### GPIO conflicts
+Do not attach another peripheral to a GPIO already used by the active communication module, TF card, USB, or PIR configuration. The matrix below lists occupied schematic nets for each configuration. An em dash means only that the configuration assigns no role to that GPIO; it does not mean the GPIO is safe to use for another purpose.
 
-  If you use the Cat-1 or WiFi-Halow Module,the IOs occupancy by the module should not be used or connected anything on **16 Pins Expansion header**. 
-
-
-| PIN# | Pin Name | Functions   | Cat-1 Module | WiFi-Halow Module |
-| ---- | -------- | ----------- | ------------ | ----------------- |
-| 1    | TXD0     | Uart0 TX    |              |                   |
-| 2    | GND      | GND         |              |                   |
-| 3    | RXD0     | Uart0 RX    |              |                   |
-| 4    | GND      | GND         |              |                   |
-| 5    | GPIO     | GPIO41      |              | IRQ               |
-| 6    | 3V3      | 3V3 Output  |              |                   |
-| 7    | SPI_MISO | SPI_MISO    | UART_TXD     | SPI_MISO          |
-| 8    | 3V3      | 3V3 Output  |              |                   |
-| 9    | SPI_CLK  | SPI_CLK     | UART_RXD     | SPI_CLK           |
-| 10   | Alarm_IN | Alarm Input |              |                   |
-| 11   | SPI_MOSI | SPI_MOSI    |              | SPI_MOSI          |
-| 12   | SPI_CS   | SPI_CS      |              | SPI_CS            |
-| 13   | GPIO     | GPIO19      |              | WIFI_WAKE         |
-| 14   | GPIO     | GPIO48      | CAT1_PWR_H   | WIFI_PWR_H        |
-| 15   | GPIO     | GPIO20      |              | WIFI_RST          |
-| 16   | GPIO     | GPIO46      |              | `WIFI_BUSY`       |
+| ESP32-S3 GPIO | WiFi only | WiFi + Cat-1 + UART | WiFi + Cat-1 + USB | HaLow WiFi |
+| --- | --- | --- | --- | --- |
+| GPIO19 | — | — | USB_D- | WIFI_WAKE |
+| GPIO20 | — | — | USB_D+ | WIFI_RST |
+| GPIO46 | — | Cat-1 TX | USB_VBUS | WIFI_BUSY |
+| GPIO48 | — | CAT1_PWR_H | CAT1_PWR_H | WIFI_PWR_H |
+| GPIO41 | TFCARD_DET | — | — | SDIO_IRQ(INT) |
+| GPIO40 | SDIO_DA0 / TF | — | — | SDIO_DA0 / MISO |
+| GPIO39 | SDIO_CLK / TF | — | — | SDIO_CLK / CLK |
+| GPIO38 | SDIO_CMD / TF | — | — | SDIO_CMD / MOSI |
+| GPIO45 | — | Cat-1 RX | — | SDIO_DA3 / CS |
+| GPIO2 | Alarm input in all configurations | Alarm input in all configurations | Alarm input in all configurations | Alarm input in all configurations |
+| TXD0 / RXD0 | System-programming UART in all configurations | System-programming UART in all configurations | System-programming UART in all configurations | System-programming UART in all configurations |
