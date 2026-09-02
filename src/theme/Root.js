@@ -1,7 +1,14 @@
 import React from 'react';
 import { useLocation } from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { hasConsent } from '../analytics/consent';
 import { track, flushQueue } from '../analytics/track';
+import {
+  getAskAiLanguage,
+  getAskAiPageContext,
+  installAskAiWidget,
+  updateAskAiPageContext,
+} from './ask-ai-widget.cjs';
 
 const TRACKER_SCRIPT_URL = 'https://analytics.camthink.ai/sdk/tracker.umd.js';
 const TRACKER_CONFIG = {
@@ -21,6 +28,8 @@ const TRACKER_CONFIG = {
 const isProd = process.env.NODE_ENV === 'production';
 
 const KNOWN_LOCALES = ['zh-Hans', 'en'];
+const ASK_AI_API_URL = 'https://wiki-data.camthink.ai';
+const ASK_AI_SITE_ID = 'camthink-wiki';
 
 // CamthinkTracker SDK 动态注入（consent-gated，仅 production）。
 // SDK 的 page_view 只在 init() 触发一次，不 hook history ——
@@ -51,6 +60,27 @@ if (isProd && typeof window !== 'undefined') {
 
 export default function Root({ children }) {
   const location = useLocation();
+  const { i18n, siteConfig } = useDocusaurusContext();
+  const askAiWidgetEnabled = siteConfig.customFields?.askAiWidgetEnabled === true;
+  const askAiLanguage = getAskAiLanguage(i18n.currentLocale);
+
+  // Ask AI 仅在正式 Wiki 注入。先写入配置再追加脚本，确保 Widget 首次读取到
+  // 正确的站点身份、页面语言和当前文档上下文。
+  React.useEffect(() => {
+    if (!askAiWidgetEnabled || typeof window === 'undefined') return;
+    installAskAiWidget(window, document, true, {
+      apiUrl: ASK_AI_API_URL,
+      siteId: ASK_AI_SITE_ID,
+      ...(askAiLanguage ? { language: askAiLanguage } : {}),
+      pageContext: getAskAiPageContext(location.pathname),
+    });
+  }, [askAiWidgetEnabled, askAiLanguage]);
+
+  // Widget 在每次提问时读取 pageContext；因此站内导航只更新上下文，不重复加载脚本。
+  React.useEffect(() => {
+    if (!askAiWidgetEnabled || typeof window === 'undefined') return;
+    updateAskAiPageContext(window, getAskAiPageContext(location.pathname));
+  }, [askAiWidgetEnabled, location]);
 
   // --- B3：核心事件埋点（external_link_click / code_copy / search）---
   React.useEffect(() => {
