@@ -75,6 +75,9 @@ const config = {
   /* GitHub / Cloudflare 共用（由上方动态注入） */
   url: SITE_URL,
   baseUrl: BASE_URL,
+  customFields: {
+    askAiWidgetEnabled: SITE_URL === 'https://wiki.camthink.ai',
+  },
 
 
   /* GitHub Pages 部署 (org/user & repo) — 不在 GitHub 可忽略 */
