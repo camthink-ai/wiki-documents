@@ -70,6 +70,19 @@ Common options:
 
 After signing in again, open `Settings → Device Info` and confirm that `Firmware Version` has changed.
 
+A firmware upgrade also updates the MCU. To query the MCU version, run:
+
+```bash
+aipc-cli device status
+```
+
+Confirm `Version` in the `MCU` section of the output:
+
+```text
+MCU:
+  Version:      0.1.8.0
+```
+
 Verify the version through SSH:
 
 ```bash

@@ -1,12 +1,12 @@
 ---
-description: NE503 系统首次烧录、引导链恢复、MCU 固件烧录和部署验证操作指南。
+description: NE503 系统首次烧录、引导链恢复、MCU 故障恢复和部署验证操作指南。
 keywords: [NE503, 系统烧录, MCU, ST-LINK, eMMC, TFTP, U-Boot]
 tags: [软件指南, NE503, 系统部署]
 ---
 
 # System Flashing
 
-NE503 系统首次烧录、引导链恢复、MCU 固件烧录和部署验证。
+NE503 系统首次烧录、引导链恢复、MCU 故障恢复和部署验证。
 
 ## 1. 准备固件和主机
 
@@ -202,16 +202,9 @@ cat /etc/os-release
 
 **成功：**密码已修改，`cat /etc/os-release` 输出 OS 信息。
 
-首次部署完成本节后，按第 5 节的设备状态选择 MCU 烧录方式。
+首次部署完成后，如 MCU 未烧录或设备无法正常运行，使用 ST-LINK 恢复 MCU。
 
-## 5. 烧录 MCU 固件
-
-按设备状态选择：
-
-- MCU 未烧录、设备无法正常运行或 OTA 不可用：使用 ST-LINK 烧录 HEX；
-- 系统已正常启动：使用 OTA 更新 `.bin`。
-
-### 5.1 使用 ST-LINK 烧录 HEX 文件
+## 5. 使用 ST-LINK 恢复 MCU
 
 准备 ST-LINK、[STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html) 和设备电源。将 ST-LINK 接到接口板的 ST-LINK/SWD 接口：`PA13` 接 `SWDIO`，`PA14` 接 `SWDCLK/BOOT0`。设备保持正常启动模式。
 
@@ -239,33 +232,3 @@ STM32_Programmer_CLI -c port=swd -e all -w ./ne503_Main_v0.1.7_20260723.hex -v -
 `-e all` 会擦除 MCU 全片内容。确认目标设备和固件文件后再执行。
 
 **成功：**下载、校验完成，命令退出码为 `0`。完成后断开 ST-LINK 并重启设备。
-
-### 5.2 通过 OTA 更新已运行设备
-
-仅对系统正常启动的设备使用 OTA 包。使用与 NeoRuntime Release 匹配的 `ne503_ota_package_v<X.Y.Z>.bin`；`.hex` 文件不能上传到 OTA 目录。
-
-1. 下载 [OTA 包 `ne503_ota_package_v0.1.7.bin`](https://resources.camthink.ai/tools/ne503_ota_package_v0.1.7.bin) 到 Ubuntu 主机；
-2. 设置设备地址并上传：
-
-```bash
-DEVICE_IP="<device-ip>"
-OTA_PACKAGE="ne503_ota_package_v0.1.7.bin"
-
-ssh root@"$DEVICE_IP" "mkdir -p /data/aipc/firmware/mcu"
-scp "$OTA_PACKAGE" root@"$DEVICE_IP":/data/aipc/firmware/mcu/
-ssh root@"$DEVICE_IP" "test -s /data/aipc/firmware/mcu/$OTA_PACKAGE && ls -lh /data/aipc/firmware/mcu/$OTA_PACKAGE"
-```
-
-看到远程文件信息后，保持供电并重启：
-
-```bash
-ssh root@"$DEVICE_IP" reboot
-```
-
-SSH 连接断开属于正常现象。设备重新上线后验证：
-
-```bash
-ssh root@"$DEVICE_IP" 'journalctl -b -u aipc-mcu-prep.service --no-pager | grep -F "rtc=ok ota=done rc=0"'
-```
-
-**成功：**日志包含 `rtc=ok ota=done rc=0`。

@@ -70,6 +70,19 @@ cd aipc-hailo15-<version>
 
 网页重新登录后，在 `Settings → Device Info` 确认 `Firmware Version` 已更新。
 
+升级 firmware 时会自动升级 MCU。如需查询 MCU 版本，执行：
+
+```bash
+aipc-cli device status
+```
+
+在输出的 `MCU` 部分确认 `Version`：
+
+```text
+MCU:
+  Version:      0.1.8.0
+```
+
 SSH 验证版本：
 
 ```bash

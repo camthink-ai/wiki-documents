@@ -1,12 +1,12 @@
 ---
-description: Guide to NE503 system flashing, boot-chain recovery, MCU firmware programming, and deployment verification.
+description: Guide to NE503 system flashing, boot-chain recovery, MCU recovery, and deployment verification.
 keywords: [NE503, system flashing, MCU, ST-LINK, eMMC, TFTP, U-Boot]
 tags: [software guide, NE503, system deployment]
 ---
 
 # System Flashing
 
-NE503 initial system flashing, boot-chain recovery, MCU firmware programming, and deployment verification.
+NE503 initial system flashing, boot-chain recovery, MCU recovery, and deployment verification.
 
 ## 1. Prepare Firmware and Host
 
@@ -202,16 +202,9 @@ The system image does not include the NE503 app. Do not use `/data/aipc/VERSION`
 
 **Success:** the password is changed and `cat /etc/os-release` returns OS information.
 
-After a first-time deployment, choose the MCU programming method in Section 5 based on the device state.
+After a first-time deployment, use ST-LINK to recover the MCU only when it is not programmed or the device cannot run normally.
 
-## 5. Flash the MCU Firmware
-
-Choose based on the device state:
-
-- MCU is not programmed, the device cannot run normally, or OTA is unavailable: flash the HEX with ST-LINK;
-- The system boots normally: update the MCU with OTA and the `.bin` package.
-
-### 5.1 Flash the HEX File with ST-LINK
+## 5. Recover the MCU with ST-LINK
 
 Prepare ST-LINK, [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html), and device power. Connect ST-LINK to the interface board's ST-LINK/SWD port: connect `PA13` to `SWDIO` and `PA14` to `SWDCLK/BOOT0`. Keep the device in normal boot mode.
 
@@ -239,33 +232,3 @@ STM32_Programmer_CLI -c port=swd -e all -w ./ne503_Main_v0.1.7_20260723.hex -v -
 `-e all` erases the entire MCU. Confirm the target device and firmware file before running it.
 
 **Success:** download and verification complete with exit code `0`. Disconnect ST-LINK and reboot the device.
-
-### 5.2 Update a Running Device over OTA
-
-Use OTA only when the system boots normally. Use the `ne503_ota_package_v<X.Y.Z>.bin` package matching the NeoRuntime Release; do not upload a `.hex` file to the OTA directory.
-
-1. Download the [OTA package `ne503_ota_package_v0.1.7.bin`](https://resources.camthink.ai/tools/ne503_ota_package_v0.1.7.bin) to the Ubuntu host;
-2. Set the device address and upload the package:
-
-```bash
-DEVICE_IP="<device-ip>"
-OTA_PACKAGE="ne503_ota_package_v0.1.7.bin"
-
-ssh root@"$DEVICE_IP" "mkdir -p /data/aipc/firmware/mcu"
-scp "$OTA_PACKAGE" root@"$DEVICE_IP":/data/aipc/firmware/mcu/
-ssh root@"$DEVICE_IP" "test -s /data/aipc/firmware/mcu/$OTA_PACKAGE && ls -lh /data/aipc/firmware/mcu/$OTA_PACKAGE"
-```
-
-After the remote file information is displayed, keep power connected and reboot:
-
-```bash
-ssh root@"$DEVICE_IP" reboot
-```
-
-The SSH connection will close normally. After the device is back online, verify:
-
-```bash
-ssh root@"$DEVICE_IP" 'journalctl -b -u aipc-mcu-prep.service --no-pager | grep -F "rtc=ok ota=done rc=0"'
-```
-
-**Success:** the log contains `rtc=ok ota=done rc=0`.
