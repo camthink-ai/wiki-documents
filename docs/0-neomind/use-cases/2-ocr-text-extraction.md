@@ -1,4 +1,5 @@
 ---
+sidebar_label: \"OCR Solution\"
 description: 基于 NeoMind 平台的 OCR 通用文字识别方案，通过 OCR 扩展实现图像文字提取，支持仪表板展示、历史记录查看和 AI Chat 自然语言查询，适用于 NE101/NE301 智能相机。
 keywords: [NeoMind, OCR, 文字识别, NE101, NE301, OCR 扩展, 仪表板, AI Chat]
 tags: [NeoMind, OCR, 文字识别, 扩展]
@@ -10,7 +11,7 @@ tags: [NeoMind, OCR, 文字识别, 扩展]
 
 ## 1. 方案概述
 
-NeoMind 的 **OCR 扩展** 可对设备采集的图像进行通用文字识别，提取图片中的文字内容并在仪表板中展示。识别结果还可通过 **AI Chat** 以自然语言方式查询。
+NeoMind 的 **OCR 扩展（`ocr-device-inference`）** 可对设备采集的图像进行通用文字识别，提取图片中的文字内容并在仪表板中展示。识别结果还可通过 **AI Chat** 以自然语言方式查询。
 
 **典型应用场景**：
 
@@ -41,7 +42,7 @@ NE101/NE301 图像采集 → NeoMind 平台 → OCR 扩展识别 → 仪表板�
 | 物料 | 型号/规格 | 数量 | 用途 | 必需 |
 |------|----------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 
 ---
 
@@ -57,7 +58,7 @@ NE101/NE301 图像采集 → NeoMind 平台 → OCR 扩展识别 → 仪表板�
 
 1. 在 NeoMind 中进入 **设备管理** 页面
 2. 点击 **添加设备**，选择对应的设备类型（NE101 或 NE301）
-3. 填写设备 ID 和 MQTT 主题
+3. 确认设备信息（设备 ID 与 Topic 由平台自动生成，也可自定义）
 4. 保存并等待设备上线
 
 ![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/device-0.png)
@@ -68,7 +69,7 @@ NE101/NE301 图像采集 → NeoMind 平台 → OCR 扩展识别 → 仪表板�
 
 ## 4. 安装 OCR 扩展
 
-**步骤 1**：进入 **Extensions（扩展）** 管理页面，找到 **OCR** 扩展
+**步骤 1**：进入 **Extensions（扩展）** 管理页面，找到 **ocr-device-inference**（OCR Device Inference）扩展
 ![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-2.png)
 
 **步骤 2**：点击安装
@@ -76,6 +77,8 @@ NE101/NE301 图像采集 → NeoMind 平台 → OCR 扩展识别 → 仪表板�
 
 **步骤 3**：安装完成后，启用扩展
 ![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-1.png)
+
+> 此外，扩展市场还提供两个更新的 OCR 扩展：**`paddle-ocr-v6`**（PP-OCRv6 本地 ONNX 推理，多档模型）与 **`paddle-ocr-vl`**（高精度多语言识别、表格与关键信息抽取）。复杂版面/表格场景建议改用后者，见 [NE101 摄像头 OCR 应用案例](./4-camera-ocr.md) 与 [PaddleOCR-VL 用例](./5-paddle-ocr-vl.md)。
 
 ---
 
@@ -87,7 +90,7 @@ NE101/NE301 图像采集 → NeoMind 平台 → OCR 扩展识别 → 仪表板�
 
 ### 5.2 添加 OCR 面板并绑定设备
 
-在仪表板中点击 **添加面板**，选择 **OCR** 扩展类型，并绑定目标设备：
+在仪表板编辑模式点击 **Add Component**，在 **Extensions** 页签选择 **OCR** 组件（由 `ocr-device-inference` 扩展提供），并绑定目标设备：
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-1.png" style={{width: '50%'}} />
@@ -139,4 +142,4 @@ Hello, what's the OCR result of my device ne301-new? Reply in English.
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

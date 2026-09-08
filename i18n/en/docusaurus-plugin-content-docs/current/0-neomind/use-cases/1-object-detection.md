@@ -1,4 +1,5 @@
 ---
+sidebar_label: \"Object Detection\"
 description: A complete solution for person and object detection with notification push using the NeoMind platform, offering two implementation paths — YOLO Inference extension (edge inference) and AI Agent (LLM-powered analysis) — supporting NE101/NE301 smart cameras.
 keywords: [NeoMind, YOLO, AI Agent, person detection, object detection, notification push, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, person detection, YOLO, AI Agent, notification push]
@@ -47,7 +48,7 @@ For detailed performance comparison and selection guidance, see [Section 8](#8-c
 | Item | Specification | Qty | Purpose | Required |
 |------|----------|------|------|------|
 | **Smart Camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind Platform** | v0.8.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind Platform** | v0.9.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **LLM Runtime** | Ollama / OpenAI / Anthropic etc. | 1 | AI Agent backend | Approach B |
 | **Solar Power Kit** | 10W panel + 7AH rechargeable battery | 1 | Outdoor long-term deployment | Optional |
 

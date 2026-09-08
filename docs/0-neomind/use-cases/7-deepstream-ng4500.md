@@ -45,7 +45,7 @@ flowchart LR
 
 | 物料 | 规格 | 用途 | 必需 |
 |------|------|------|------|
-| **NeoMind 平台** | v0.8.0+ | 运行在 Mac/PC，托管扩展 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 运行在 Mac/PC，托管扩展 | ✅ |
 | **deepstream 扩展** | v2.8.0+ | 远程桥接 + 事件路由 | ✅ |
 | **NG4500** | Jetson Orin NX/Nano/AGX，JetPack 6.x，DeepStream 7.1 | 跑 DeepStream sidecar | ✅ |
 | **RTSP 相机** | 2–32 路 720p/1080p | 视频源 | ✅ |

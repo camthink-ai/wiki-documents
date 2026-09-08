@@ -1,4 +1,5 @@
 ---
+sidebar_label: \"Face Recognition\"
 description: A face recognition solution based on the NeoMind platform, using the Face Recognition extension to detect faces and identify individuals, with real-time dashboard display, history review, and AI Chat natural language queries for NE101/NE301 smart cameras.
 keywords: [NeoMind, face recognition, face detection, Face Recognition, NE101, NE301, identity recognition, dashboard, AI Chat]
 tags: [NeoMind, face recognition, extension, identity recognition]
@@ -34,7 +35,7 @@ NE101/NE301 Image Capture → NeoMind Platform → Face Recognition Extension (D
 | Item | Model/Spec | Qty | Purpose | Required |
 |------|-----------|-----|---------|----------|
 | **Smart Camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind Platform** | v0.8.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind Platform** | v0.9.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **Local LLM** | Ollama | 1 | AI Chat backend | Optional |
 
 ---

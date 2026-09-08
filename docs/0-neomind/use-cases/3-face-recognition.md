@@ -1,4 +1,5 @@
 ---
+sidebar_label: \"Face Recognition\"
 description: 基于 NeoMind 平台的人脸识别方案，通过 Face Recognition 扩展实现人脸检测与身份识别，支持仪表板实时展示、历史记录查看和 AI Chat 自然语言查询，适用于 NE101/NE301 智能相机。
 keywords: [NeoMind, 人脸识别, 人脸检测, Face Recognition, NE101, NE301, 身份识别, 仪表板, AI Chat]
 tags: [NeoMind, 人脸识别, 扩展, 身份识别]
@@ -34,7 +35,7 @@ NE101/NE301 图像采集 → NeoMind 平台 → Face Recognition 扩展（检测
 | 物料 | 型号/规格 | 数量 | 用途 | 必需 |
 |------|----------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **本地 LLM** | Ollama | 1 | AI Chat 后端 | 可选 |
 
 ---

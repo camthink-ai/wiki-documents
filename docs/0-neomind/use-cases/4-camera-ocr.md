@@ -20,8 +20,8 @@ NeoMind 的 **NE101 摄像头组件（`ne101_camera`）** 不只是画面展示�
 | AI 能力 | 选用扩展 | 典型场景 |
 |------|------|------|
 | **OCR 文字识别** | paddle-ocr-v6 / paddle-ocr-vl | 仪表读数（水表、电表、燃气表）、商品与价签标签、数显仪表、铭牌序列号、文档表单 |
-| **目标检测** | yolo-device-inference / image-analyzer-v2 | 人流计数、车辆检测、区域入侵告警 |
-| **开放词表定位** | locate-anything-v2 | 用自然语言「找 / 数」任意物体、缺陷定位、零样本计数 |
+| **目标检测** | yolo-device-inference / image-analyzer | 人流计数、车辆检测、区域入侵告警 |
+| **开放词表定位** | locate-anything | 用自然语言「找 / 数」任意物体、缺陷定位、零样本计数 |
 
 > 除结构化流水线外，还可用 **AI Agent + 视觉大模型** 对画面做开放式场景理解（描述、推理、告警），见第 7 节。
 
@@ -47,7 +47,7 @@ flowchart LR
 | 物料 | 型号/规格 | 数量 | 用途 | 必需 |
 |------|----------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | ✅ |
 | **paddle-ocr-v6 扩展** | v2.7.8+ | 1 | 本地 OCR 推理引擎 | ✅ |
 | **ne101_camera 组件** | v2.14.10+ | 1 | 摄像头面板 + AI 处理流水线 | ✅（随组件市场提供）|
 | **本地 LLM** | Ollama 等 | 1 | AI Chat 后端 | 可选 |
@@ -152,8 +152,8 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 | AI 能力 | 选用扩展 | 模板 | 关键参数 |
 |---|---|---|---|
 | OCR 文字识别 | paddle-ocr-v6 / paddle-ocr-vl | `text_detection` | — |
-| 目标检测 | yolo-device-inference / image-analyzer-v2 / locate-anything-v2 | `object_detection` | `processingCategories`（如 `person,car`）|
-| 开放词表定位 | locate-anything-v2 | `grounding` | `processingPhrase`（自然语言描述）|
+| 目标检测 | yolo-device-inference / image-analyzer / locate-anything | `object_detection` | `processingCategories`（如 `person,car`）|
+| 开放词表定位 | locate-anything | `grounding` | `processingPhrase`（自然语言描述）|
 
 ### 6.1 OCR 文字识别
 
@@ -167,7 +167,7 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ### 6.2 目标检测
 
-选 `yolo-device-inference`（或 `image-analyzer-v2`），模板自动切换为 `object_detection`，在 `processingCategories` 填关注的类别（如 `person,car`）。抓拍后画面叠加检测框并标注类别，结果写入虚拟指标，可供计数、统计与告警。
+选 `yolo-device-inference`（或 `image-analyzer`），模板自动切换为 `object_detection`，在 `processingCategories` 填关注的类别（如 `person,car`）。抓拍后画面叠加检测框并标注类别，结果写入虚拟指标，可供计数、统计与告警。
 
 - **人流计数 / 车辆检测**：`processingCategories = person` 或 `car`，配合 ROI `count` 统计区域内目标数量。
 - **区域入侵告警**：ROI 圈定禁入区，`processingRoiAction = filter`，区域内出现目标即触发，结合 [自动化规则](../user-guide/7-automation-rules.md) 推送告警。
@@ -175,12 +175,12 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ### 6.3 开放词表定位
 
-选 `locate-anything-v2`，模板切换为 `grounding`，在 `processingPhrase` 用自然语言描述要找的物体。模型按描述零样本定位，画面叠加定位框并计数，适合固定检测器不认识的类别或临时需求。
+选 `locate-anything`，模板切换为 `grounding`，在 `processingPhrase` 用自然语言描述要找的物体。模型按描述零样本定位，画面叠加定位框并计数，适合固定检测器不认识的类别或临时需求。
 
 - **自然语言计数**：`processingPhrase = 穿红马甲的人`、`货架上的红色商品`、`地上的垃圾`，返回所有匹配位置与数量。
 - **缺陷 / 异物定位**：描述异常特征（如 `划痕`、`遗留工具`）辅助定位，再配合 ROI 或人工复核。
 
-> [`locate-anything-v2`](./6-locate-anything-v2.md) 还支持 `text_detection`（文字定位）、`point`（指点定位）等模板，可按需切换。
+> [`locate-anything`](./6-locate-anything-v2.md) 还支持 `text_detection`（文字定位）、`point`（指点定位）等模板，可按需切换。
 
 ---
 

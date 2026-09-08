@@ -45,7 +45,7 @@ flowchart LR
 
 | Item | Spec | Purpose | Required |
 |------|------|------|------|
-| **NeoMind platform** | v0.8.0+ | Runs on Mac/PC, hosts the extension | ✅ |
+| **NeoMind platform** | v0.9.0+ | Runs on Mac/PC, hosts the extension | ✅ |
 | **deepstream extension** | v2.8.0+ | Remote bridge + event routing | ✅ |
 | **NG4500** | Jetson Orin NX/Nano/AGX, JetPack 6.x, DeepStream 7.1 | Runs the DeepStream sidecar | ✅ |
 | **RTSP cameras** | 2–32 × 720p/1080p | Video sources | ✅ |

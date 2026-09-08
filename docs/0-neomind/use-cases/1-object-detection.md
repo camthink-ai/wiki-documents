@@ -1,4 +1,5 @@
 ---
+sidebar_label: \"Object Detection\"
 description: 基于 NeoMind 平台实现人物与目标识别及通知推送的完整方案，提供 YOLO Inference 扩展（边缘推理）和 AI Agent（LLM 智能分析）两种实现路径，支持 NE101/NE301 智能相机。
 keywords: [NeoMind, YOLO, AI Agent, 人物识别, 目标检测, 通知推送, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, 人物识别, YOLO, AI Agent, 通知推送]
@@ -47,7 +48,7 @@ NeoMind 提供两种途径实现目标检测与通知推送，可根据场景需
 | 物料 | 型号/规格 | 数量 | 用途 | 必需 |
 |------|----------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **LLM 推理环境** | Ollama / OpenAI / Anthropic 等 | 1 | AI Agent 后端 | 方案 B |
 | **太阳能供电套件** | 10W 光伏板 + 7AH 可充电电池 | 1 | 户外长期部署 | 可选 |
 

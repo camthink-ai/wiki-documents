@@ -13,7 +13,7 @@ sidebar_label: "LocateAnything Grounding"
 
 ## 1. 方案概述
 
-locate-anything-v2 是一个 **HTTP 桥接扩展**：扩展是轻量客户端，LocateAnything-3B 模型跑在独立的 Python 推理服务上（推荐 NVIDIA GPU）。扩展负责结果后处理（NMS、面积过滤）。
+locate-anything 是一个 **HTTP 桥接扩展**：扩展是轻量客户端，LocateAnything-3B 模型跑在独立的 Python 推理服务上（推荐 NVIDIA GPU）。扩展负责结果后处理（NMS、面积过滤）。
 
 「开放词表」是它的核心：不像 YOLO 只认预训练的 80 类，你可以用任意自然语言描述要找的东西，模型零样本定位。
 
@@ -31,7 +31,7 @@ locate-anything-v2 是一个 **HTTP 桥接扩展**：扩展是轻量客户端，
 
 ```mermaid
 flowchart LR
-    IMG["图像 + 文本描述"] --> EXT["locate-anything-v2 扩展<br/>HTTP 客户端 + NMS/面积过滤"]
+    IMG["图像 + 文本描述"] --> EXT["locate-anything 扩展<br/>HTTP 客户端 + NMS/面积过滤"]
     EXT -->|"HTTP"| SVC["LocateAnything-3B 服务<br/>NVIDIA GPU"]
     SVC -->|"boxes / points"| OUT["叠加框 / 计数 / 虚拟指标"]
 ```
@@ -42,8 +42,8 @@ flowchart LR
 
 | 物料 | 规格 | 用途 | 必需 |
 |------|------|------|------|
-| **NeoMind 平台** | v0.8.0+ | 扩展宿主 | ✅ |
-| **locate-anything-v2 扩展** | v2.7.7+ | HTTP 桥接 + 后处理 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 扩展宿主 | ✅ |
+| **locate-anything 扩展** | v2.7.7+ | HTTP 桥接 + 后处理 | ✅ |
 | **GPU 推理服务器** | NVIDIA GPU | 运行 LocateAnything Python 服务 | ✅ |
 | **本地 LLM** | Ollama 等 | AI Chat 后端 | 可选 |
 
@@ -140,13 +140,13 @@ curl http://127.0.0.1:9380/health
 
 回到 NeoMind 扩展详情页执行 **`check_status`**，确认模型已加载。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/01-status.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/01-status.png)
 
 ---
 
 ## 4. 安装与配置扩展
 
-进入 **Extensions** 页面，从扩展市场安装 **locate-anything-v2**；在 **Configuration** 里把 `service_url` 指向推理服务（如 `http://<GPU服务器IP>:9380`）。
+进入 **Extensions** 页面，从扩展市场安装 **locate-anything**；在 **Configuration** 里把 `service_url` 指向推理服务（如 `http://<GPU服务器IP>:9380`）。
 
 | 配置项 | 默认 | 说明 |
 |--------|------|------|
@@ -159,7 +159,7 @@ curl http://127.0.0.1:9380/health
 
 > NMS 与面积过滤作用于 `detect` / `ground` / `ground_gui`；`detect_text` 与 `point` 原样返回。三者也可在单次命令里用 args 覆盖。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/02-install-config.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/02-install-config.png)
 
 ---
 
@@ -176,13 +176,13 @@ curl http://127.0.0.1:9380/health
 
 > 底层调用的就是扩展命令，卡片只封装了图片上传、参数填写与结果可视化。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/03-add-card.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/03-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/04-card-upload.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/04-card-upload.png)
 
 ### 5.2 接入 NE101 摄像头组件
 
-在 [NE101 摄像头组件](./4-camera-ocr.md) 里把 `processingExtensionId` 选为 **`locate-anything-v2`**：
+在 [NE101 摄像头组件](./4-camera-ocr.md) 里把 `processingExtensionId` 选为 **`locate-anything`**：
 
 - 模板 `object_detection` → `detect` 命令（按 `processingCategories` 检测）。
 - 模板 `grounding` → `ground` 命令（用 `processingPhrase` 自然语言定位）。
@@ -207,13 +207,13 @@ curl http://127.0.0.1:9380/health
 
 返回所有匹配位置与数量，可配合 [自动化规则](../user-guide/7-automation-rules.md) 触发告警。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/05-result-1.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/05-result-1.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/06-result-2.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/06-result-2.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/07-result-3.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/07-result-3.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/08-result-4.png)
+![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/08-result-4.png)
 
 ### 6.2 缺陷 / 异物定位
 
@@ -228,7 +228,7 @@ curl http://127.0.0.1:9380/health
 
 ## 7. 选型：locate-anything vs yolo-device-inference
 
-| 维度 | yolo-device-inference | locate-anything-v2 |
+| 维度 | yolo-device-inference | locate-anything |
 |------|----------------------|--------------------|
 | 类别 | 固定（COCO 80 类 / 自定义模型）| 开放词表（自然语言，零样本）|
 | 延迟 | 毫秒级 | 秒级（VLM）|
