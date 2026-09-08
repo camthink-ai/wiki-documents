@@ -341,7 +341,7 @@ Extensions run in separate processes — if the YOLO extension crashes because a
 
 ### Capability
 
-A permission an extension must declare at startup. Any capability not declared is denied. This enforces the **principle of least privilege**. 20 built-in capabilities (including the chat streaming family) cover device read/write, device control, storage queries, event subscriptions, triggers, etc. — full list in the [Extension SDK](../../developer-guide/3-extension-sdk.md):
+A permission an extension must declare at startup. Any capability not declared is denied. This enforces the **principle of least privilege**. 20 built-in capabilities (including the chat streaming family) cover device read/write, device control, storage queries, event subscriptions, triggers, etc. — full list in the [Extension SDK](../developer-guide/3-extension-sdk.md):
 
 | Category | Capability | Description |
 |----------|-----------|-------------|
