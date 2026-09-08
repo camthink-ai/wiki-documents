@@ -30,7 +30,7 @@ Derived metrics from transforms can be used just like regular device metrics in 
 
 Switch to the **Transforms** tab in the Automation page:
 
-<img src="/img/neomind/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all transforms in a table, each row containing:
 
@@ -51,7 +51,7 @@ The **Import / Export** button in the top right lets you bulk import/export tran
 
 In the Transforms tab, click the **Create** button to open the full-screen builder:
 
-<img src="/img/neomind/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The builder uses a **split-pane** layout:
 
@@ -81,7 +81,7 @@ Scope determines which devices' data the transform processes:
 
 ### Step 4: Write the Transform Code
 
-<img src="/img/neomind/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Write the transform function in JavaScript in the code editor. The **`input`** variable holds the input value — single-key metric objects (e.g. `{"temperature": 25}`) are auto-unwrapped to the scalar so it can be used directly; access the full input object via `input_raw`. `return` an object as output:
 
@@ -269,7 +269,7 @@ Export file format: `neomind-transforms-YYYY-MM-DD.json`.
 
 ## Mobile
 
-<img src="/img/neomind/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column layout supporting list viewing and status toggling. Edit transforms on desktop (the code editor needs screen space).
 

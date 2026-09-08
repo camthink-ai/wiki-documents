@@ -23,14 +23,14 @@ sidebar_label: "Use Dashboards"
 1. 点击左侧导航栏的 **Dashboards（仪表板）** 图标进入仪表板列表
 2. 点击列表中的 **+（New Dashboard）** 按钮
 
-<img src="/img/neomind/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 3. 输入**名称**（必填）与**描述**（可选），点击创建
 4. 新仪表板自动进入编辑模式，此时画布为空
 
 > 仪表板列表页会展示所有已创建的仪表板，点击名称即可进入查看：
 
-<img src="/img/neomind/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 查看模式 vs 编辑模式
 
@@ -41,11 +41,11 @@ sidebar_label: "Use Dashboards"
 | **查看模式**（默认） | 锁定布局，仅展示实时数据。普通用户和分享链接访客看到的就是这个模式 | 齿轮图标（Settings2） |
 | **编辑模式** | 可拖拽组件位置与大小、添加/删除组件、修改配置。网格支持磁吸对齐 | ✓ 图标（Check） |
 
-<img src="/img/neomind/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > 空仪表板在查看模式下会提示「Click Edit Layout to add components」。点击齿轮图标进入编辑模式后，会出现 **Add Component** 按钮。
 
-<img src="/img/neomind/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 添加组件
 
@@ -62,7 +62,7 @@ sidebar_label: "Use Dashboards"
 
 内置组件按类别分组：
 
-<img src="/img/neomind/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### 指标与指示器（Indicators & Metrics）
 
@@ -183,7 +183,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ## 移动端适配
 
-<img src="/img/neomind/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 - **响应式断点**：< 768px 自动切单列堆叠布局
 - **编辑模式**：移动端默认禁用拖拽编辑（屏幕过小），建议在桌面端编辑
@@ -202,7 +202,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 在组件库面板切换到 **Marketplace** 标签页，可以浏览社区组件市场：
 
-<img src="/img/neomind/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每个组件卡片显示：
 
@@ -224,7 +224,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 1. 切换到 **Custom** 标签页，点击 **Import Component** 按钮
 
-<img src="/img/neomind/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 2. 点击上传区域选择 `.zip` 文件（或拖拽文件到上传区）；桌面/服务器部署也可以改用**服务器路径导入**（展开高级选项，直接填写组件包在服务器上的路径）
 3. ZIP 包内必须包含 `manifest.json`（组件元数据）和 `bundle.js`（组件代码）

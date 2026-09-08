@@ -17,11 +17,11 @@ NeoMind 三个核心界面——管理你的设备、可视化你的数据、用
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="/img/neomind/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="/img/neomind/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="/img/neomind/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 

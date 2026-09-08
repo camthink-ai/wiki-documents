@@ -30,7 +30,7 @@ sidebar_position: 7.5
 
 在自动化页面切换到 **Transforms** 页签：
 
-<img src="/img/neomind/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有转换，每行包含：
 
@@ -51,7 +51,7 @@ sidebar_position: 7.5
 
 在 Transforms 页签点击 **Create** 按钮，打开全屏构建器：
 
-<img src="/img/neomind/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 构建器采用**左右分栏**布局：
 
@@ -81,7 +81,7 @@ sidebar_position: 7.5
 
 ### 步骤 4：编写转换代码
 
-<img src="/img/neomind/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 代码编辑器中使用 JavaScript 编写转换函数。**`input` 变量代表输入值**——单键指标对象（如 `{"temperature": 25}`）会自动解包为标量，可直接参与运算；完整输入对象用 `input_raw` 访问。`return` 一个对象作为输出：
 
@@ -269,7 +269,7 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 
 ## 移动端
 
-<img src="/img/neomind/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为单列布局，支持查看列表、切换状态。编辑转换请在桌面端操作（代码编辑器需要大屏空间）。
 

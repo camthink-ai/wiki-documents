@@ -25,7 +25,7 @@ AI Agent is NeoMind's **autonomous execution mode** — you set goals and trigge
 
 Click **Agents** (bot icon) in the left nav to open the Agent management page:
 
-<img src="/img/neomind/agents-list.png" alt="AI Agent list — card grid showing all agents with status, schedule type, last execution time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/agents-list.png" alt="AI Agent list — card grid showing all agents with status, schedule type, last execution time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all agents in a **card grid**, each card showing:
 
@@ -44,7 +44,7 @@ The page has three tabs at the top: **Agents** (agent list), **Memory** (system 
 
 Click the **Create AI Agent** button in the top right to open the full-screen editor:
 
-<img src="/img/neomind/agent-editor.png" alt="AI Agent editor — left side has basic info and prompt, right side has execution mode and schedule config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor.png" alt="AI Agent editor — left side has basic info and prompt, right side has execution mode and schedule config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The editor is split into left and right columns. Here's what each field means:
 
@@ -71,7 +71,7 @@ Example prompt:
 
 ### 3. Schedule Type (Right)
 
-<img src="/img/neomind/agent-editor-schedule.png" alt="Agent editor — schedule configuration area with cron, interval, event options" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor-schedule.png" alt="Agent editor — schedule configuration area with cron, interval, event options" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Agents trigger automatically based on their schedule:
 
@@ -97,7 +97,7 @@ Click **Save** at the bottom to save the Agent.
 
 Click any Agent card to open the detail panel:
 
-<img src="/img/neomind/agent-detail.png" alt="Agent detail panel — overview, execution history, memory system, user messages" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/agent-detail.png" alt="Agent detail panel — overview, execution history, memory system, user messages" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The detail panel contains multiple sections:
 
@@ -247,7 +247,7 @@ If concurrency is full, the scheduler skips the current execution (retries on ne
 
 ## Mobile
 
-<img src="/img/neomind/agents-mobile.png" alt="Agent management on mobile — card list adapts to single column" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/agents-mobile.png" alt="Agent management on mobile — card list adapts to single column" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column card list, supporting status viewing, manual execution, and pause/activate toggling.
 

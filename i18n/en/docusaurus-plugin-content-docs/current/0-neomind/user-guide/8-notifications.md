@@ -34,7 +34,7 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 
 Open the **Messages** page — the default view is the notification center:
 
-<img src="/img/neomind/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each message contains:
 
@@ -55,7 +55,7 @@ Each message contains:
 
 Switch to the **Channels** tab to see all channels:
 
-<img src="/img/neomind/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The top shows summary cards (Total channels / Enabled / Channel type count). Below is the channel list. Each channel card shows:
 
@@ -68,7 +68,7 @@ The top shows summary cards (Total channels / Enabled / Channel type count). Bel
 
 Click **Create** to open the full-screen channel editor:
 
-<img src="/img/neomind/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The editor uses a **split-pane** layout:
 - **Left sidebar**: Lists the 7 external channel types; click to switch
@@ -111,7 +111,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Email Channel
 
-<img src="/img/neomind/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | Example |
 |------|-------------|---------|
@@ -125,7 +125,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Telegram Channel
 
-<img src="/img/neomind/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | How to Get |
 |------|-------------|------------|

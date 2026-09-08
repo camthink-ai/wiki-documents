@@ -21,7 +21,7 @@ sidebar_position: 7.75
 
 进入左侧导航的 **Data Explorer**（数据库图标），切换到 **Push** 页签：
 
-<img src="/img/neomind/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有推送目标，每行包含：
 
@@ -39,7 +39,7 @@ sidebar_position: 7.75
 
 点击 **Create** 按钮，打开全屏配置对话框：
 
-<img src="/img/neomind/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. 基本信息
 
@@ -75,7 +75,7 @@ sidebar_position: 7.75
 
 ### 4. 数据源过滤
 
-<img src="/img/neomind/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 选择哪些数据源的数据需要推送：
 
@@ -88,7 +88,7 @@ sidebar_position: 7.75
 
 ### 5. 重试与批量
 
-<img src="/img/neomind/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **重试策略（Retry Config）**：
 

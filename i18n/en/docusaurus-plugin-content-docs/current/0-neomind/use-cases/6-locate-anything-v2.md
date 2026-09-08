@@ -140,7 +140,7 @@ curl http://127.0.0.1:9380/health
 
 Back on the NeoMind extension detail page, run **`check_status`** to confirm the model is loaded.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/01-status.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/01-status.png)
 
 ---
 
@@ -159,7 +159,7 @@ Go to the **Extensions** page, install **locate-anything** from the marketplace,
 
 > NMS and area filtering apply to `detect` / `ground` / `ground_gui`; `detect_text` and `point` are returned as-is. All three can be overridden per command via args.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/02-install-config.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/02-install-config.png)
 
 ---
 
@@ -176,9 +176,9 @@ The extension ships a frontend component, **LocateCard** — add it to the Dashb
 
 > Under the hood it calls the same extension commands; the card just wraps image upload, parameters, and result visualization.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/03-add-card.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/03-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/04-card-upload.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/04-card-upload.png)
 
 ### 5.2 Integrate with the NE101 camera component
 
@@ -207,13 +207,13 @@ Use `ground` + `phrase` to find / count anything, no training needed:
 
 Returns all matching locations and a count; pair with [Automation Rules](../user-guide/7-automation-rules.md) to trigger alerts.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/05-result-1.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/05-result-1.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/06-result-2.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/06-result-2.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/07-result-3.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/07-result-3.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/08-result-4.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/08-result-4.png)
 
 ### 6.2 Defect / foreign-object localization
 

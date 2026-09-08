@@ -34,7 +34,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 进入 **Messages** 页面，默认显示消息中心：
 
-<img src="/img/neomind/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每条消息包含：
 
@@ -55,7 +55,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 切换到 **Channels** 页签查看所有渠道：
 
-<img src="/img/neomind/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面顶部显示统计卡片（总渠道数 / 启用数 / 渠道类型数），下方是渠道列表。每个渠道卡片显示：
 
@@ -68,7 +68,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 点击 **Create** 按钮打开全屏渠道编辑器：
 
-<img src="/img/neomind/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 编辑器采用**左右分栏**布局：
 - **左侧边栏**：列出 7 种外部渠道类型，点击切换
@@ -111,7 +111,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### Email 渠道
 
-<img src="/img/neomind/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
@@ -125,7 +125,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### Telegram 渠道
 
-<img src="/img/neomind/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 获取方式 |
 |------|------|---------|

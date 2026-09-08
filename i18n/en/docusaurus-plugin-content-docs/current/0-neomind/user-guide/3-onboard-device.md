@@ -63,7 +63,7 @@ mosquitto_pub -h 192.168.1.100 -p 1883 -t "test/my-sensor" -m '{"temperature": 2
 
 After sending, open the Web UI → **Devices → Pending Devices** tab:
 
-<img src="/img/neomind/devices-pending.png" alt="Pending Devices tab — newly discovered draft device" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices tab — newly discovered draft device" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 If you see a new draft device, MQTT is working.
 
@@ -197,11 +197,11 @@ When a device sends data for the first time, it enters "Pending" status. This is
 
 **How to approve**: Web UI → **Devices → Pending Devices** tab
 
-<img src="/img/neomind/devices-pending.png" alt="Pending Devices tab — draft device awaiting approval" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices tab — draft device awaiting approval" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. Click **Actions → Process** at the end of the draft row — the approval dialog opens:
 
-<img src="/img/neomind/device-approve-dialog.png" alt="Approval dialog — device info, detected metrics, original data, registration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-approve-dialog.png" alt="Approval dialog — device info, detected metrics, original data, registration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The approval dialog puts the **registration form first**; the review material is collapsed below by default:
 
@@ -260,7 +260,7 @@ neomind device drafts approve <DRAFT_ID> --name "Living Room Sensor" --type temp
 
 After approval, the device appears in the Device List tab:
 
-<img src="/img/neomind/devices-list.png" alt="Device List tab — onboarded devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-list.png" alt="Device List tab — onboarded devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 :::tip Manual approval too tedious?
 Enable auto-approve — devices are accepted automatically after sending data (good for testing):
@@ -282,7 +282,7 @@ neomind device get <DEVICE_ID>
 
 You can also click a device in Web UI → **Devices → Device List** to see real-time data charts:
 
-<img src="/img/neomind/device-detail-telemetry.png" alt="Device detail page — real-time telemetry charts" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-detail-telemetry.png" alt="Device detail page — real-time telemetry charts" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ---
 
@@ -306,7 +306,7 @@ Best for: You already know the device details and want to skip auto-discovery, o
 
 2. **Click Manual Add** — the registration form appears on the right:
 
-<img src="/img/neomind/device-manual-add-mqtt.png" alt="Manual Add dialog — MQTT mode: device type, ID, name, connection settings" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-mqtt.png" alt="Manual Add dialog — MQTT mode: device type, ID, name, connection settings" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### Field Reference
 
@@ -370,7 +370,7 @@ Webhook is one-way — devices can only send data to NeoMind, **not receive comm
 
 1. **Create a Webhook device**: In the Manual Add dialog, select **Webhook** in the Connection Settings:
 
-<img src="/img/neomind/device-manual-add-webhook.png" alt="Manual Add dialog — Webhook mode: Webhook URL and Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-webhook.png" alt="Manual Add dialog — Webhook mode: Webhook URL and Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    The system auto-generates a dedicated **Webhook URL** for this device (format: `http://<SERVER_IP>:9375/api/devices/<DEVICE_ID>/webhook`).
 
@@ -538,7 +538,7 @@ When you send a command via `neomind device control`, each command tracks its ow
 
 NeoMind ships with built-in types for CamThink hardware. Go to Web UI → **Settings → Device Types** to view and manage all types:
 
-<img src="/img/neomind/device-types.png" alt="Device Types management page — built-in and custom types" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="Device Types management page — built-in and custom types" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Model | Name | Features |
 |-------|------|----------|

@@ -18,7 +18,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 
 点击左侧导航的 **AI Chat**（对话图标）进入会话界面：
 
-<img src="/img/neomind/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 界面分为三个区域：
 
@@ -129,7 +129,7 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 
 ## 移动端
 
-<img src="/img/neomind/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为全屏对话模式，会话列表通过左上角菜单展开。
 

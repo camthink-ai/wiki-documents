@@ -20,7 +20,7 @@ sidebar_label: "Automation Rules"
 
 点击左侧导航的 **Automation**（分支图标）进入自动化页面，默认显示 **Rules** 页签：
 
-<img src="/img/neomind/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有规则，每行包含：
 
@@ -61,7 +61,7 @@ sidebar_label: "Automation Rules"
 
 在 Rules 页签点击 **Create** 按钮，打开全屏规则构建器：
 
-<img src="/img/neomind/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 构建器顶部填写：
 
@@ -85,7 +85,7 @@ sidebar_label: "Automation Rules"
 
 ### 步骤 3：配置条件
 
-<img src="/img/neomind/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件决定规则何时触发。支持三种类型：
 
@@ -127,7 +127,7 @@ sidebar_label: "Automation Rules"
 
 ### 步骤 4：配置动作
 
-<img src="/img/neomind/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件满足后执行的操作。一条规则可以有多个动作，按顺序执行。
 

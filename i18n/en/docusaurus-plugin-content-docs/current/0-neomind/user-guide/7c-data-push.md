@@ -21,7 +21,7 @@ Data Push automatically sends NeoMind device telemetry **to external systems** �
 
 Open **Data Explorer** (database icon) in the left nav and switch to the **Push** tab:
 
-<img src="/img/neomind/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page lists all push targets in a table, each row containing:
 
@@ -39,7 +39,7 @@ The page lists all push targets in a table, each row containing:
 
 Click **Create** to open the full-screen configuration dialog:
 
-<img src="/img/neomind/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. Basic Info
 
@@ -75,7 +75,7 @@ Click **Create** to open the full-screen configuration dialog:
 
 ### 4. Data Source Filter
 
-<img src="/img/neomind/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Choose which data sources to push:
 
@@ -88,7 +88,7 @@ The source panel is grouped by type (Device / Extension / Transform / System) wi
 
 ### 5. Retry & Batch
 
-<img src="/img/neomind/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **Retry Config**:
 

@@ -20,7 +20,7 @@ The rule engine lets NeoMind respond automatically **without human intervention*
 
 Click **Automation** (branch icon) in the left nav to open the automation page. The default tab is **Rules**:
 
-<img src="/img/neomind/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all rules in a table, each row containing:
 
@@ -61,7 +61,7 @@ A rule has four parts — **name**, **trigger**, **condition**, and **actions** 
 
 In the Rules tab, click the **Create** button to open the full-screen rule builder:
 
-<img src="/img/neomind/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Fill in the top of the builder:
 
@@ -85,7 +85,7 @@ The `data_change` trigger automatically extracts referenced data sources from th
 
 ### Step 3: Configure the Condition
 
-<img src="/img/neomind/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Conditions determine when a rule fires. Three types are supported:
 
@@ -127,7 +127,7 @@ Conditions determine when a rule fires. Three types are supported:
 
 ### Step 4: Configure Actions
 
-<img src="/img/neomind/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Actions execute when the condition is met. A rule can have multiple actions, executed in order.
 

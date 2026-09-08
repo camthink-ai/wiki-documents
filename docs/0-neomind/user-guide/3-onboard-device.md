@@ -63,7 +63,7 @@ mosquitto_pub -h 192.168.1.100 -p 1883 -t "test/my-sensor" -m '{"temperature": 2
 
 发送后，打开 Web UI → **Devices → Pending Devices** 标签页：
 
-<img src="/img/neomind/devices-pending.png" alt="Pending Devices 标签页 — 新发现的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices 标签页 — 新发现的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 如果看到了新草稿设备，说明 MQTT 已经通了。
 
@@ -198,11 +198,11 @@ void loop() {
 
 **操作路径**：Web UI → **Devices → Pending Devices** 标签页
 
-<img src="/img/neomind/devices-pending.png" alt="Pending Devices 标签页 — 等待审批的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices 标签页 — 等待审批的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. 看到新设备后，点击行尾的 **Actions → Process**（操作 → 处理），弹出审批对话框：
 
-<img src="/img/neomind/device-approve-dialog.png" alt="审批对话框 — 设备信息、检测指标、原始数据、注册表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-approve-dialog.png" alt="审批对话框 — 设备信息、检测指标、原始数据、注册表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 审批对话框中**注册表单置顶**，供审阅的参考信息默认折叠在后：
 
@@ -261,7 +261,7 @@ neomind device drafts approve <DRAFT_ID> --name "客厅温湿度传感器" --typ
 
 审批后，设备会出现在 Device List 标签页中：
 
-<img src="/img/neomind/devices-list.png" alt="Device List 标签页 — 已接入的设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-list.png" alt="Device List 标签页 — 已接入的设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 :::tip 觉得手动审批太麻烦？
 开启自动审批，设备发数据后自动通过（适合测试环境）：
@@ -283,7 +283,7 @@ neomind device get <DEVICE_ID>
 
 也可以在 Web UI → **Devices → Device List** 中点击设备查看实时数据曲线：
 
-<img src="/img/neomind/device-detail-telemetry.png" alt="设备详情页 — 实时遥测数据曲线" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-detail-telemetry.png" alt="设备详情页 — 实时遥测数据曲线" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ---
 
@@ -307,7 +307,7 @@ neomind device get <DEVICE_ID>
 
 2. **点击 Manual Add**，右侧出现注册表单：
 
-<img src="/img/neomind/device-manual-add-mqtt.png" alt="Manual Add 对话框 — MQTT 模式：设备类型、ID、名称、连接设置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-mqtt.png" alt="Manual Add 对话框 — MQTT 模式：设备类型、ID、名称、连接设置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### 字段说明
 
@@ -371,7 +371,7 @@ Webhook 是单向的——设备只能向 NeoMind 发数据，**不能接收指�
 
 1. **创建 Webhook 设备**：在 Manual Add 对话框的连接设置中选择 **Webhook**：
 
-<img src="/img/neomind/device-manual-add-webhook.png" alt="Manual Add 对话框 — Webhook 模式：Webhook URL 和 Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-webhook.png" alt="Manual Add 对话框 — Webhook 模式：Webhook URL 和 Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    系统会自动生成该设备专属的 **Webhook URL**（格式：`http://<服务器IP>:9375/api/devices/<设备ID>/webhook`）。
 
@@ -539,7 +539,7 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 
 NeoMind 内置 CamThink 硬件类型。在 Web UI → **Settings → Device Types** 可查看和管理所有类型：
 
-<img src="/img/neomind/device-types.png" alt="设备类型管理页 — 内置与自定义类型" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="设备类型管理页 — 内置与自定义类型" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 型号 | 名称 | 特点 |
 |------|------|------|

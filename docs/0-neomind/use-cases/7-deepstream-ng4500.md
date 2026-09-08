@@ -293,11 +293,11 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 安装与配置过程（打开扩展市场 → 安装扩展 → 切远程模式）：
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/01-open-market.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/deepstream-ng4500/01-open-market.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/02-install.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/deepstream-ng4500/02-install.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/03-config.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/deepstream-ng4500/03-config.png)
 
 ---
 
@@ -317,9 +317,9 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 添加 DeepStream 面板与视频流：
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/04-add-card.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/deepstream-ng4500/04-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/05-add-stream.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/deepstream-ng4500/05-add-stream.png)
 
 ---
 

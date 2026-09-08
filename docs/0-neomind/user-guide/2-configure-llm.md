@@ -74,7 +74,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 打开 **Settings（设置） → LLM Backends（LLM 后端）**：
 
-<img src="/img/neomind/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 点击 **Add Backend（添加后端）** 进入配置表单。
 

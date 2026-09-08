@@ -140,7 +140,7 @@ curl http://127.0.0.1:9380/health
 
 回到 NeoMind 扩展详情页执行 **`check_status`**，确认模型已加载。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/01-status.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/01-status.png)
 
 ---
 
@@ -159,7 +159,7 @@ curl http://127.0.0.1:9380/health
 
 > NMS 与面积过滤作用于 `detect` / `ground` / `ground_gui`；`detect_text` 与 `point` 原样返回。三者也可在单次命令里用 args 覆盖。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/02-install-config.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/02-install-config.png)
 
 ---
 
@@ -176,9 +176,9 @@ curl http://127.0.0.1:9380/health
 
 > 底层调用的就是扩展命令，卡片只封装了图片上传、参数填写与结果可视化。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/03-add-card.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/03-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/04-card-upload.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/04-card-upload.png)
 
 ### 5.2 接入 NE101 摄像头组件
 
@@ -207,13 +207,13 @@ curl http://127.0.0.1:9380/health
 
 返回所有匹配位置与数量，可配合 [自动化规则](../user-guide/7-automation-rules.md) 触发告警。
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/05-result-1.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/05-result-1.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/06-result-2.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/06-result-2.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/07-result-3.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/07-result-3.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/08-result-4.png)
+![](https://resources.camthink.ai/wikihttps://resources.camthink.ai/NeoMind/v0923/use-cases/locate-anything/08-result-4.png)
 
 ### 6.2 缺陷 / 异物定位
 

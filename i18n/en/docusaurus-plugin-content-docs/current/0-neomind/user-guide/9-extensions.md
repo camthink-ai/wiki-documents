@@ -63,7 +63,7 @@ For end-to-end examples, see [Use Cases](../use-cases/1-object-detection.md).
 
 Navigate to the **Extensions** tab in the left sidebar to see all installed extensions:
 
-<img src="/img/neomind/extensions-list.png" alt="Extension management list page" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-list.png" alt="Extension management list page" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The toolbar at the top provides three actions:
 
@@ -83,7 +83,7 @@ NeoMind supports four installation methods, ordered by recommendation:
 
 Click the **Globe icon** in the toolbar to open the marketplace dialog. NeoMind fetches the list of available extensions from the official repository:
 
-<img src="/img/neomind/extensions-marketplace.png" alt="Extension marketplace dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png" alt="Extension marketplace dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 In the marketplace dialog:
 
@@ -97,7 +97,7 @@ Marketplace installation automatically selects the extension package matching th
 
 If you already have a `.nep` package (self-developed or downloaded from [Releases](https://github.com/camthink-ai/NeoMind-Extensions/releases)), use upload installation:
 
-<img src="/img/neomind/extensions-upload.png" alt="Upload installation dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-upload.png" alt="Upload installation dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. Click the **Upload button** in the toolbar
 2. In the dialog, drag in or select a `.nep` file
@@ -141,7 +141,7 @@ The LLM guides you to upload a `.nep` package or provide a download URL, and aut
 
 ### 1. Overview
 
-<img src="/img/neomind/extensions-details-overview.png" alt="Extension details - Overview section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-overview.png" alt="Extension details - Overview section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The Overview section displays basic information about the extension:
 
@@ -156,7 +156,7 @@ The Overview section displays basic information about the extension:
 
 Some extensions require configuration parameters to run (e.g., a weather extension needs an API key). Switch to the **Configuration** tab to configure:
 
-<img src="/img/neomind/extensions-details-config.png" alt="Extension details - Configuration section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-config.png" alt="Extension details - Configuration section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Configuration parameters are automatically rendered as appropriate input controls based on their type:
 
@@ -178,7 +178,7 @@ Configuration changes trigger an extension process restart — **in-flight comma
 
 Commands are callable operations exposed by the extension. Switch to the **Commands** tab to see all commands:
 
-<img src="/img/neomind/extensions-details-commands.png" alt="Extension details - Commands section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-commands.png" alt="Extension details - Commands section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each command card displays:
 
@@ -195,7 +195,7 @@ Commands can be executed manually for testing, and also invoked by AI Agents / R
 
 Metrics are the time-series data produced by the extension. Switch to the **Metrics** tab to view historical data:
 
-<img src="/img/neomind/extensions-details-metrics.png" alt="Extension details - Metrics section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-metrics.png" alt="Extension details - Metrics section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The Metrics section provides:
 
@@ -210,7 +210,7 @@ Metric data source format: `extension:<extension_id>:<metric_name>`. This can be
 
 The Logs section shows the extension process's standard output and error output in real time:
 
-<img src="/img/neomind/extensions-details-logs.png" alt="Extension details - Logs section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-logs.png" alt="Extension details - Logs section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Features:
 

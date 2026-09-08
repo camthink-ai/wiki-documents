@@ -18,7 +18,7 @@ AI Chat is NeoMind's conversational interface — tell it what you want in natur
 
 Click **AI Chat** (chat icon) in the left nav to open the conversation view:
 
-<img src="/img/neomind/ai-chat-empty.png" alt="AI Chat main interface — session list, welcome page, suggested questions, input box" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-empty.png" alt="AI Chat main interface — session list, welcome page, suggested questions, input box" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The interface has three areas:
 
@@ -129,7 +129,7 @@ For detailed agent configuration, see [AI Agent](./6-ai-agent.md). For automatio
 
 ## Mobile
 
-<img src="/img/neomind/ai-chat-mobile.png" alt="AI Chat on mobile — full-screen conversation" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat on mobile — full-screen conversation" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a full-screen conversation mode. The session list is accessed via the menu in the top-left corner.
 

@@ -74,7 +74,7 @@ ollama pull qwen3.5:4b-vl   # or llava / minicpm-v etc.
 
 Navigate to **Settings → LLM Backends**:
 
-<img src="/img/neomind/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Click **Add Backend** to open the configuration form.
 
