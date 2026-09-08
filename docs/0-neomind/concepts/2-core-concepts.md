@@ -7,6 +7,8 @@ sidebar_label: "Core Concepts"
 
 # 核心概念
 
+> **5 分钟版**：设备通过 MQTT / Webhook 把数据接入 → 写入嵌入式存储（Telemetry）→ 数据转换生成派生指标 → 仪表板可视化、规则告警、AI Agent 分析，通知触达人员。扩展以独立进程提供额外能力（视觉 / 语音 / 协议桥接）。下面逐层展开。
+
 本文用面向用户的视角解释 NeoMind 的系统全貌。如果你要写代码，请看 [开发者架构文档](../developer-guide/2-architecture.md)。
 
 > 术语定义见 [术语表](./1-glossary.md)。
@@ -250,7 +252,7 @@ YOLO 扩展因模型加载失败 panic？主服务和其他扩展完全不受影
 
 **2. 能力声明（Capability）** — 启动时声明，未声明即拒绝
 
-扩展在元数据中声明需要的 Capability，运行时由主进程逐项校验。20 种内置能力（含 chat 流式系列）涵盖设备读写、存储查询、事件发布、Agent/规则触发等：
+扩展在元数据中声明需要的 Capability，运行时由主进程逐项校验。内置共 **20 种**：下表 14 种基础能力，外加 6 个 chat 流式系列（`chat_stream` / `chat_stream_cancel` / `chat_stream_cancel_turn` / `chat_session_open` / `chat_session_send` / `chat_session_close`）。完整说明以 [Extension SDK](../developer-guide/3-extension-sdk.md) 为准：
 
 | 类别 | Capability | 说明 |
 |------|-----------|------|

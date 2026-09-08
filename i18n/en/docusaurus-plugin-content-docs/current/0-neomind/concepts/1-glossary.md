@@ -27,22 +27,31 @@ mindmap
     Device
       Device
       Device Type
+      Auto-Discovery
       Draft
       Metric
       Command
     AI
       LLM Backend
+      GGUF
       AI Chat
+      IM Bridge
       Agent
       Tool
       Memory
+      MemorySnapshot
+      Journal
+      Knowledge Files
+      Think-Act-Observe
       Skill
       Multimodal
+      VLM
     Data Pipeline
       Transform
       DataSourceId
     Automation
       Rule
+      Rule Engine
       Cooldown
       Message Channel
       Data Push
@@ -52,8 +61,12 @@ mindmap
       FFI
       .nep
       neomind_export!
+      Process Isolation
+      Lazy Load
     Infrastructure
+      EventBus
       MQTT Broker
+      mTLS
       Telemetry
       redb
       Webhook
@@ -111,6 +124,18 @@ Device Type is the **contract** between hardware and the platform. It serves thr
 3. **Drives downstream configuration** — dashboard widgets, automation rules, and data push configs all reference metrics by name. Those names originate from the Device Type definition.
    :::
 
+### Auto-Discovery
+
+NeoMind's mechanism for identifying unknown devices: when an **unregistered** device publishes data over MQTT (the convention topic) or Webhook, NeoMind parses its type and metrics automatically and places it in the **Pending Devices** list in the Web UI — it never comes online directly.
+
+**Example**: A brand-new sensor publishes `temperature` for the first time; open **Devices → Pending Devices** and its draft card is already there. Approve it and it becomes an official device.
+
+:::tip Relationship to Draft
+Auto-discovery is the "process", [Draft](#draft) is the "result" — a discovered unknown device first becomes a draft and waits for admin approval. In test environments you can skip manual approval with `neomind device drafts config --auto-approve true`.
+:::
+
+> See [Onboard a Device](../user-guide/3-onboard-device.md).
+
 ### Draft
 
 When NeoMind auto-discovers an unknown device via MQTT or Webhook, it does not immediately create a device. Instead it produces a "draft". Only after an admin approves the draft does it become an official device.
@@ -118,6 +143,10 @@ When NeoMind auto-discovers an unknown device via MQTT or Webhook, it does not i
 :::warning Why not auto-join?
 This is a safety mechanism — it prevents unauthorized devices from joining your system automatically. Auto-discovered devices only enter the draft queue; they officially come online only after you confirm them.
 :::
+
+**Example**: After a sensor's first report, a draft card appears under Web UI → **Devices → Pending Devices**; run `neomind device drafts approve <DRAFT_ID> --name "Living Room Sensor" --type temp_sensor` to make it official.
+
+> See [Onboard a Device](../user-guide/3-onboard-device.md).
 
 ### Metric
 
@@ -178,6 +207,14 @@ The large language model instance NeoMind connects to. Multiple backends are sup
 
 > See [Configure LLM Backend](../user-guide/2-configure-llm.md).
 
+### GGUF
+
+The single-file model format used by llama.cpp (`.gguf`) — weights, tokenizer, context, and quantization info packed into one file, ready for local inference. NeoMind's built-in model wizard offers an "Import local model" card: drag in a `.gguf` file (streamed upload, no memory footprint) or enter a server path; the platform parses name / context / quantization automatically and stores the file with SHA-256 verification. Imported models participate in switching on equal terms with curated models (context limit 128K).
+
+**Example**: Drag a `model-q4_k_m.gguf` downloaded from Hugging Face into the wizard, and moments later it shows up in the LLM Backend model list — data never leaves the machine.
+
+> See [Configure LLM Backend](../user-guide/2-configure-llm.md).
+
 ### Agent
 
 NeoMind's core intelligent unit. An agent receives natural-language input (or runs on a schedule), uses an LLM to understand intent, invokes tools (CLI commands, device controls, extension commands) to take action, and learns from the results.
@@ -192,6 +229,22 @@ An agent does more than chat — it **takes action**. When you ask "notify me wh
 
 The **interactive mode** of the agent — the user types a message in the chat, and the AI calls tools in real time and streams the response. Supports image uploads for multimodal analysis. Uses conversation history + MemorySnapshot for context.
 
+**Example**: Type "count the people in this workshop photo" in the chat — the agent calls a vision tool on the spot and streams back the answer.
+
+> See [AI Chat](../user-guide/5-ai-chat.md). To talk to the same agent from Telegram / Feishu, see [IM Bridge](#im-bridge).
+
+### IM Bridge
+
+Chat with the same agent **two-way** from **Telegram / Feishu** (0.9.14+) — send messages, upload images, and receive streaming replies just like the web AI Chat, instead of only receiving alerts.
+
+:::info IM Bridge ≠ notification channels
+Telegram / Feishu in [Message Channels](#message-channel) are **one-way alert pushes**; IM Bridge is a **two-way conversation**. The two are independent and can be used together.
+:::
+
+**Example**: While on a business trip, send "check the warehouse temperature and humidity" to your agent in Telegram — it queries via tools and replies right in the chat.
+
+> See [AI Chat](../user-guide/5-ai-chat.md).
+
 ### Memory
 
 Experience accumulated across executions/sessions, split into two systems by mode:
@@ -203,6 +256,20 @@ Experience accumulated across executions/sessions, split into two systems by mod
 
 **Journal** is a summary of each agent execution (what was done, success/failure, lessons learned). **Knowledge Files** are long-term knowledge (device identity, mission, resources, patrol patterns).
 
+### MemorySnapshot / Journal / Knowledge Files
+
+The concrete storage behind the two memory systems of [Memory](#memory):
+
+| Structure | Mode | What it is |
+|-----------|------|------------|
+| **MemorySnapshot** | AI Chat | Conversation memory snapshot, persisted to `user.md` (user preferences) and `knowledge.md` (key facts), restored when a new session starts |
+| **Journal** | AI Agent | Execution log: one entry appended per execution (trigger, data summary, LLM conclusion, action, success/failure); the next execution reads the recent N entries to learn from history |
+| **Knowledge Files** | AI Agent | Long-term knowledge files (Markdown): `identity.md` (identity & duties), `mission.md` (goals & constraints), `resources.md` (bound resources), `schedule.md` (execution plan) — auto-initialized on first execution, editable in the Agent detail → Memory panel |
+
+**Example**: After an agent sends the same alert to one device twice, the Journal holds the failed records — on the next execution it skips already-sent alerts and adjusts the threshold. That is the "read Journal → change behavior" loop.
+
+> See [AI Agent](../user-guide/6-ai-agent.md).
+
 ### Think-Act-Observe
 
 The agent's core execution pattern: the LLM analyzes the current state (**Think**) → calls a tool (**Act**) → reads the result (**Observe**) → loops until the task is done or the round limit is reached (default 30 rounds, global timeout 5 minutes).
@@ -211,9 +278,21 @@ The agent's core execution pattern: the LLM analyzes the current state (**Think*
 
 Knowledge files that provide scenario-specific guidance to agents (YAML metadata + Markdown body, stored in `data/skills/`). A Skill defines operational steps, common errors, and best practices for a specific scenario. Agents automatically match relevant Skills by description (built-in skills are read-only; user skills can be added, modified, and removed).
 
+**Example**: When an agent takes on a camera-patrol task, it auto-matches the camera-patrol Skill by description and follows the documented steps to call commands, avoiding common errors already recorded there. You can also pin a specific skill in the agent editor.
+
+> See [AI Agent](../user-guide/6-ai-agent.md).
+
 ### Multimodal
 
 An LLM's ability to process image input. Depends on the model — after pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava`) in Ollama or using a cloud vision model (`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`), AI Chat supports image uploads for visual analysis.
+
+### VLM (Vision-Language Model)
+
+A multimodal model that understands both images/video and text, producing natural-language descriptions of a scene instead of only structured coordinates. Two places in NeoMind use one: the dashboard's **VLM Vision widget** (image + AI annotations), and the `video-vlm` (real-time video stream semantic understanding, on-board LFM2.5-VL) and `vision-hub` (unified vision pipeline: detection / OCR / face / localization / VLM) extensions.
+
+**Example**: Point the `video-vlm` extension at an RTSP camera and the VLM emits semantic events like "a worker is entering a hazardous area", which can directly trigger rules and notifications.
+
+> See [Use Dashboard](../user-guide/4-use-dashboard.md) and [Extension Management](../user-guide/9-extensions.md).
 
 ### Tool
 
@@ -279,7 +358,7 @@ NeoMind's built-in automation evaluation engine. Evaluates bound rule conditions
 
 ### Message Channel
 
-The delivery channel used when a rule triggers a notification. There are 9 channels in total — 2 built-in + 7 external:
+The delivery channel used when a rule triggers a notification. There are 9 channels in total — **2 built-in + 7 external**. The two built-ins are **Console** (prints to the server log, for debugging) and **Memory** (writes into the AI agent's long-term memory so agents learn from alerts); they need no configuration and cannot be disabled. The 7 external channels are created by you. All messages also accumulate in the in-app message center (the Messages page).
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule triggers</span>
@@ -291,7 +370,8 @@ The delivery channel used when a rule triggers a notification. There are 9 chann
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>DingTalk</span>
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>Slack</span>
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>Feishu</span>
-  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>In-app</span>
+  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Console (built-in)</span>
+  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Memory (built-in)</span>
 </div>
 
 > See [Notifications](../user-guide/8-notifications.md).
@@ -304,6 +384,10 @@ Actively pushing telemetry data to an external system (Webhook or MQTT), as oppo
 - **Data Push** — pushes raw data unconditionally ("push temperature to an external system every 10 seconds")
 - **Rule** — triggers an action on a condition ("send a notification when temperature exceeds 30")
   :::
+
+**Example**: Push `device:sensor-01:temperature` to your ops platform's HTTP endpoint every 10 seconds, for an external ticketing system to consume.
+
+> See [Data Push](../user-guide/7c-data-push.md).
 
 ---
 
@@ -392,6 +476,21 @@ A YOLOv8n model is about 12 MB and takes 1–2 seconds to load. If the extension
 
 ## Infrastructure Related
 
+### EventBus
+
+NeoMind's publish/subscribe (pub/sub) backbone, implemented as `neomind-core::event_bus`. Devices, the rule engine, data transforms, dashboards, and notifications never call each other directly — all cross-module communication goes through events; multiple subscribers fire in parallel, and processing within one subscriber is serialized.
+
+| Event source | Event | Subscribers |
+|--------------|-------|-------------|
+| Device MQTT data | `DeviceDataReceived` | Rule engine, data push, dashboard WS |
+| Rule triggered | `RuleTriggered` | Notifications, Agent |
+| Agent finished | `AgentExecutionCompleted` | Memory system, notifications |
+| Extension metric | `ExtensionMetric` | Storage, dashboard |
+
+**Example**: A single MQTT report lights up the dashboard curve, hits the high-temperature rule, and drives data push at the same time — three kinds of subscribers unaware of each other, all fanned out by the event bus.
+
+> See the "EventBus" section in [Product Architecture](../developer-guide/2-architecture.md).
+
 ### MQTT Broker
 
 The message broker built into NeoMind (port `1883`). Devices connect, report telemetry, and receive commands over MQTT.
@@ -400,9 +499,21 @@ The message broker built into NeoMind (port `1883`). Devices connect, report tel
 No external broker (such as Mosquitto) needs to be installed — NeoMind ships with a full MQTT implementation. It's ready the moment you start; devices connect directly to `localhost:1883`.
 :::
 
+### mTLS (mutual TLS)
+
+A transport-layer security option for MQTT: device and server verify each other's X.509 certificates (CA certificate + client certificate), encrypting traffic against eavesdropping and blocking spoofed devices. NeoMind's built-in broker supports mTLS and CA certificates (TLS connections typically use port `8883`).
+
+**Example**: Production-line devices are flashed with a client certificate before they can connect to the broker — a spoofed device without one is rejected during the TLS handshake and never even reaches the Pending approval step.
+
+> See [Onboard a Device](../user-guide/3-onboard-device.md).
+
 ### Telemetry
 
 NeoMind's time-series database, built on redb and stored in `data/telemetry.redb`. All metric values are written here, and the dashboard and rule engine read from it.
+
+**Example**: A sensor reports `temperature` every 10 seconds; once the data lands in telemetry.redb, dashboard curves, rule conditions, and agent queries all read the same copy.
+
+> See [Onboard a Device](../user-guide/3-onboard-device.md).
 
 ### redb
 
@@ -426,9 +537,17 @@ sequenceDiagram
     Note over N: Trigger dashboard update + rule check
 ```
 
+**Example**: A small microcontroller without an MQTT client can report with a single `POST` of JSON to the device webhook URL.
+
+> See the [REST API Reference](../developer-guide/4-rest-api.md).
+
 ### SSE (Server-Sent Events)
 
 An HTTP long-connection unidirectional push protocol. NeoMind uses SSE to push real-time device data updates to the Web UI — data is pushed to open dashboards immediately after being written to Telemetry, without frontend polling. AI Chat streaming responses also use SSE.
+
+**Example**: While a dashboard page is open, new telemetry refreshes the curve within milliseconds; AI Chat answers appear word by word — both paths run on SSE.
+
+> See the [REST API Reference](../developer-guide/4-rest-api.md).
 
 ---
 
@@ -459,7 +578,7 @@ The above are the common built-in types. For the complete list of widget types, 
 
 ## Concept Relationship Map
 
-How do these concepts work together? The diagram below shows the full data flow from device to visualization:
+How do these concepts work together? The diagram below shows the full data flow from device to visualization (after data is written, raw metrics can first be processed by Transform into derived metrics before downstream consumption):
 
 <div style={{overflowX: 'auto', margin: '16px 0'}}>
   <table style={{borderCollapse: 'separate', borderSpacing: '4px', width: '100%', fontSize: '0.9em'}}>
@@ -468,6 +587,7 @@ How do these concepts work together? The diagram below shows the full data flow 
         <th style={{background: '#f8cecc', color: '#6b1a1a', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #b85450'}}>Data Sources</th>
         <th style={{background: '#ffe6cc', color: '#6b3d00', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #d79b00'}}>Ingestion</th>
         <th style={{background: '#d5e8d4', color: '#1f4d1f', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '2.5px solid #82b366', fontSize: '1.05em'}}>Telemetry Store</th>
+        <th style={{background: '#fff2cc', color: '#5c4400', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #d6b656'}}>Processing</th>
         <th style={{background: '#dae8fc', color: '#1a3d6b', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #6c8ebf'}}>Consumers</th>
         <th style={{background: '#dae8fc', color: '#1a3d6b', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #6c8ebf'}}>Outputs</th>
       </tr>
@@ -485,6 +605,9 @@ How do these concepts work together? The diagram below shows the full data flow 
           <strong>redb</strong><br/><code style={{fontSize: '0.85em'}}>data/telemetry.redb</code><br/><br/><span style={{fontSize: '0.8em', fontWeight: 'normal', color: '#666'}}>Written once<br/>consumed by many</span>
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
+          <strong>Transform</strong><br/><span style={{fontSize: '0.85em', color: '#666'}}>JavaScript pipeline<br/>raw → derived metrics<br/><code>transform:*</code></span>
+        </td>
+        <td style={{textAlign: 'center', padding: '10px 8px'}}>
           <strong>Dashboard</strong> / Widget<br/><br/>Rule Engine<br/><br/>Agent (LLM)
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
@@ -496,9 +619,9 @@ How do these concepts work together? The diagram below shows the full data flow 
 </div>
 
 <div style={{display: 'flex', justifyContent: 'center', gap: '4px', alignItems: 'center', fontSize: '1.5em', color: '#999', margin: '4px 0 16px'}}>
-  <span>→</span><span>→</span><span>→</span><span>→</span><span>→</span>
+  <span>→</span><span>→</span><span>→</span><span>→</span><span>→</span><span>→</span>
 </div>
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-09*

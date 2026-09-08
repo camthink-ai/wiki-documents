@@ -7,6 +7,8 @@ sidebar_label: "Core Concepts"
 
 # Core Concepts
 
+> **5-minute version**: devices connect via MQTT / Webhook → data lands in embedded storage (Telemetry) → transforms create derived metrics → dashboards visualize, rules alert, AI agents analyze, and notifications reach people. Extensions run as isolated processes adding vision / voice / protocol-bridge capabilities. Details below.
+
 This page explains the NeoMind system from a user's perspective. If you're writing code, see the [Developer Architecture doc](../developer-guide/2-architecture.md).
 
 > For term definitions, see the [Glossary](./1-glossary.md).
@@ -156,10 +158,11 @@ curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=tempe
 
 | Parameter | Description |
 |-----------|-------------|
-| `source` | DataSourceId (`{type}:{id}:{field}`) |
+| `source` | Data source (`{type}:{id}`, e.g. `device:demo-sensor`) |
+| `metric` | Metric name (required together with `source`) |
 | `start` / `end` | Time range (Unix seconds) |
-| `interval` | Aggregation time bucket (e.g. `5m` / `1h` / `1d`) |
-| `function` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
+| `aggregate` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
+| `bucketed` | Return aggregation results in time buckets |
 | `limit` | Max data points returned, paginated |
 
 ### Data Retention & Cleanup
@@ -248,7 +251,7 @@ YOLO extension panics due to a model loading failure? The main service and other
 
 **2. Capability Declaration** — declared at startup, denied if undeclared
 
-Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. 20 built-in capabilities (including the chat streaming family) cover device read/write, storage queries, event pub/sub, agent/rule triggers, and more:
+Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. There are **20 built-ins**: the 14 base capabilities in the table below plus a 6-member chat-streaming family (`chat_stream`, `chat_stream_cancel`, `chat_stream_cancel_turn`, `chat_session_open`, `chat_session_send`, `chat_session_close`). The authoritative list lives in the [Extension SDK](../developer-guide/3-extension-sdk.md): event pub/sub, agent/rule triggers, and more:
 
 | Category | Capability | Description |
 |----------|-----------|-------------|
