@@ -146,6 +146,39 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 - **工具反馈**：LLM 调用工具失败时会返回错误与建议，按提示修正即可
 - **推荐问题**：新会话页面显示的推荐问题可以直接点击使用，也适合用来探索 AI 能力
 
+## 从 Telegram / 飞书对话（IM 桥接）
+
+除了网页端，还可以把 NeoMind 接入 **Telegram** 或**飞书**，在熟悉的 IM 里直接和 AI 对话——查询设备、执行控制都和网页端一致。
+
+**第一步：创建机器人凭据**
+
+- **Telegram**：在 Telegram 中找 [@BotFather](https://t.me/BotFather) → `/newbot` → 获取 Bot Token（形如 `123456789:AAxxx…`）
+- **飞书**：在[飞书开放平台](https://open.feishu.cn/)创建企业自建应用，获取 `App ID` 与 `App Secret`，并开启「接收消息」能力
+
+**第二步：在 NeoMind 中添加桥接**
+
+进入 **设置 → IM Channels**，选择平台并填写凭据：
+
+| 平台 | 必填字段 |
+|------|---------|
+| Telegram | Bot Token（可选自定义 API Base，用于代理/私有网关） |
+| 飞书 | App ID + App Secret（国际版 Lark 需切换 domain 为 `open.larksuite.com`） |
+
+保存后桥接自动启动并监听消息。
+
+**第三步：邀请配对**
+
+IM 桥接采用**邀请制**——在 Telegram/飞书里对你的机器人发送 `/start <配对令牌>`（令牌来自 IM Channels 管理界面），该聊天即被加入白名单并绑定会话。此后在这个聊天里说的每一句话，都由 NeoMind 直接回答。
+
+**管理**
+
+- 白名单查看 / 移除聊天：IM Channels 的桥接详情
+- 重置某个聊天的会话上下文：会话重置按钮（或 `POST /api/im-bridges/:id/sessions/:chat_id/reset`）
+
+:::note 与通知渠道的区别
+[通知渠道](./8-notifications.md)里的 Telegram / 飞书是**单向告警推送**（规则触发时通知你）；IM 桥接是**双向对话**（你发指令，AI 执行并回复）。两者相互独立、可同时使用。
+:::
+
 ## 下一步
 
 - [AI Agent](./6-ai-agent.md) — 从交互对话升级为自主巡检

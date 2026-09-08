@@ -9,6 +9,10 @@ sidebar_label: "Extension Management"
 
 Extensions are NeoMind's **pluggable capability modules** — vision AI, OCR, weather forecasts, custom data sources, and more are all integrated as extensions. Extensions run in **separate processes** and communicate via FFI, so a crash in any single extension does not affect the main service, achieving true fault isolation.
 
+:::tip Just want to install?
+Jump straight to [Installing Extensions](#installing-extensions) — one click from the marketplace. The full catalog table follows below.
+:::
+
 ## What Are Extensions?
 
 Extensions provide three types of capabilities to NeoMind:

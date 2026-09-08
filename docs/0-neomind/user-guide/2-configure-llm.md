@@ -9,7 +9,6 @@ sidebar_label: "Configure LLM Backend"
 
 NeoMind 的 AI Agent 与 AI Chat 依赖 LLM 后端理解自然语言并执行指令。本文介绍如何通过 **Web UI** 或 **CLI** 配置本地或云端 LLM。
 
----
 
 ## 后端总览
 
@@ -32,7 +31,6 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 > **推荐**：本地用 Ollama + `qwen3.5:4b`（4B 参数，平衡速度与效果，8GB 内存可流畅运行）。需要更强能力或多模态时再接入云端。
 
----
 
 ## 内置本地模型（零配置）
 
@@ -42,12 +40,6 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 - **按硬件自动推荐** — 下载页会标注每个模型的显存/内存需求（如 Ling-3.0-tiny 4.8GB Q4_K_M、128K 上下文、最低 6GB RAM）
 - **导入自己的 GGUF** — 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径；平台自动解析名称/上下文/量化信息并以 SHA-256 校验落盘，导入模型与精选模型同等参与切换（上下文上限 128K）
 - **开箱即用** — 首次下载完成后自动注册为本地后端并按模型自带的最优采样参数（temperature / top-p / top-k）运行
-
-## 思考力度（Thinking Effort）
-
-对支持推理的模型，可在后端能力面板统一控制思考力度：**none / low / medium / high**（部分后端支持更细档位）。NeoMind 把这一控制抽象为单一开关并自动映射到各后端的原生参数——Ollama 的 `think` 级别、OpenAI / 自定义 / GLM / Google 的 `reasoning_effort`、DeepSeek / Anthropic 的 `thinking`、Qwen 的 `enable_thinking`；不支持推理的后端会显示为只读徽标。
-
----
 
 ## 方式一：Web UI 配置（推荐）
 
@@ -125,7 +117,6 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 > - 云端后端：API Key 是否有效、网络是否通
 > - 更多见 [故障排查](./10-troubleshooting.md)
 
----
 
 ## 方式二：CLI 配置
 
@@ -215,6 +206,13 @@ neomind llm delete local
 
 </details>
 
+
+## 思考力度（Thinking Effort）
+
+对支持推理的模型，可在后端能力面板统一控制思考力度：**none / low / medium / high**（部分后端支持更细档位）。NeoMind 把这一控制抽象为单一开关并自动映射到各后端的原生参数——Ollama 的 `think` 级别、OpenAI / 自定义 / GLM / Google 的 `reasoning_effort`、DeepSeek / Anthropic 的 `thinking`、Qwen 的 `enable_thinking`；不支持推理的后端会显示为只读徽标。
+
+---
+
 ---
 
 ## Ollama API 端点说明
@@ -235,7 +233,6 @@ curl http://localhost:11434/api/chat -d '{
 }'
 ```
 
----
 
 ## 多模态（视觉）能力
 
@@ -246,7 +243,6 @@ NeoMind 支持图像输入与视觉分析。视觉能力的启用取决于模型
 
 NeoMind 会自动探测模型的多模态能力（通过 LiteLLM 注册表 + `/api/show` 运行时探测 + 名称启发式匹配）。如果自动探测不准，可在后端详情页手动覆盖 **Multimodal** 开关。
 
----
 
 ## 设置默认后端
 
@@ -269,7 +265,6 @@ neomind llm activate local
 ```
 :::
 
----
 
 ## 下一步
 

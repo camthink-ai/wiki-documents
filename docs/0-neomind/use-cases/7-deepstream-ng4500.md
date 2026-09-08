@@ -335,6 +335,8 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 ## 8. 典型场景
 
+### 场景一：园区周界入侵检测
+
 - **人流 / 车流统计**：多路出入口相机，实时计数与时段分布。
 - **越线计数**：在闸机 / 门口画越线，双向计数（进 / 出）。
 - **区域入侵告警**：ROI 圈定禁入区，目标进入即事件 → 自动化推送。
@@ -342,7 +344,22 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 ---
 
-## 9. 附录
+## 9. 故障排查
+
+### 故障排查速查
+
+部署与运行中最常踩的坑（均来自实战）：
+
+| 现象 | 原因 | 解决 |
+|------|------|------|
+| `nvinfer` 启动即 OOM | Orin 上运行时现编 INT8 引擎，tactic 选择阶段内存爆 | 用 `trtexec` **事先**编好 FP16 引擎，运行时只反序列化 |
+| sidecar 配置不生效 | `models_dir` 以 `/` 结尾，破坏 `os.path.dirname()` 解析 | 去掉尾斜杠 |
+| RTSP 拉流 UDP 花屏/无流 | 网络不允许 UDP | 强制 RTSP over TCP（`rtsp_transport: tcp`） |
+| sidecar 起不来 | iptable_raw 模块缺失 | 加载模块或按发行版说明启用 |
+| 扩展连不上 sidecar | WS 地址/端口不对 | 用 `hello` 握手报文确认 `rtsp_port`/`snapshot_port` |
+
+
+## 10. 附录
 
 ### 相关文档
 

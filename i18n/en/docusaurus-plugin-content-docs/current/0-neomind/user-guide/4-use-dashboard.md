@@ -56,7 +56,7 @@ In edit mode, click **Add Component** to open the component library panel. The p
 | Tab | Contents |
 |-----|----------|
 | **Components** | Platform built-in widgets, grouped by category (see below) |
-| **Extensions** | Dashboard widgets bundled by installed extensions (e.g. video stream player, detection view) |
+| **Extensions** | Dashboard widgets bundled by installed extensions (e.g. video stream player, detection view) — full catalog in [Extension Management](./9-extensions.md) |
 | **Marketplace** | Install online from the [community widget repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components) |
 | **Custom** | Import your own ZIP widget packages or server-path widgets |
 
@@ -184,7 +184,11 @@ You can generate **public links** to share dashboards with unauthenticated users
 5. Recipients can view without an account (read-only)
 
 :::warning Share links expose a read-only view only
-Share links only expose a read-only view of that specific dashboard. They do not expose API keys, device controls, or other dashboards. Links automatically expire after the set duration.
+Share links only expose a read-only view of that specific dashboard. They do not expose API keys, other dashboards, or configuration editing. Links automatically expire after the set duration.
+
+:::note Interactive shares
+The share dialog supports an **interactive mode** — visitors may also press device-control buttons you expose (e.g. issue commands), but still cannot edit the dashboard layout.
+:::
 :::
 
 ## Mobile Experience

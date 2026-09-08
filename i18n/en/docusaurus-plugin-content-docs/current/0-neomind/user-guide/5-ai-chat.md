@@ -146,6 +146,39 @@ On mobile, the interface switches to a full-screen conversation mode. The sessio
 - **Tool feedback**: when an LLM tool call fails, it returns an error with a suggestion — follow the hint.
 - **Suggested questions**: the questions shown on the new session page are clickable and a great way to explore AI capabilities.
 
+## Chat from Telegram / Feishu (IM Bridges)
+
+Beyond the web UI, NeoMind can join **Telegram** or **Feishu** so you can talk to the AI right inside your IM — device queries and control work exactly like the web app.
+
+**Step 1: create bot credentials**
+
+- **Telegram**: find [@BotFather](https://t.me/BotFather) → `/newbot` → copy the Bot Token (looks like `123456789:AAxxx…`)
+- **Feishu**: create a custom app on the [Feishu Open Platform](https://open.feishu.cn/), grab the `App ID` and `App Secret`, and enable the "receive messages" capability
+
+**Step 2: add the bridge in NeoMind**
+
+Go to **Settings → IM Channels**, pick the platform, and fill in the credentials:
+
+| Platform | Required fields |
+|------|---------|
+| Telegram | Bot Token (optional custom API Base for proxy / private gateway) |
+| Feishu | App ID + App Secret (for international Lark switch the domain to `open.larksuite.com`) |
+
+The bridge starts automatically and listens for messages once saved.
+
+**Step 3: pair via invite**
+
+IM bridges are **invite-only** — send `/start <pairing token>` to your bot from Telegram/Feishu (the token comes from the IM Channels management screen). The chat is added to the allowlist and bound to a session; from then on everything you say there is answered by NeoMind.
+
+**Management**
+
+- View / remove allowed chats: bridge details in IM Channels
+- Reset a chat's session context: the session reset button (or `POST /api/im-bridges/:id/sessions/:chat_id/reset`)
+
+:::note Not the same as notification channels
+The Telegram / Feishu entries in [Notification Channels](./8-notifications.md) are **one-way alert delivery** (rule triggers notify you); an IM bridge is **two-way conversation** (you send commands, the AI executes and replies). They are independent and can be used together.
+:::
+
 ## Next Steps
 
 - [AI Agent](./6-ai-agent.md) — Upgrade from interactive chat to autonomous patrols

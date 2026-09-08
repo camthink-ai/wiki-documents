@@ -230,6 +230,14 @@ After creation you land in the main UI, then walk through the **four-step setup 
 
 Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashboards](./4-use-dashboard.md), or create automation rules.
 
+## Users & Roles
+
+- The **first admin** comes from the first-start wizard and has full permissions
+- **Self-registration is closed by default** (by design): new accounts are created manually by an admin under **Settings → Users**; open self-registration in settings if needed (`PUT /api/settings/registration`)
+- **Roles**: admin (full access) / user (daily operations) / viewer (read-only)
+- **Offline recovery**: if an admin account's role is wrong, run `neomind user set-role <name> admin` on the server (no API required)
+- Changing a password or deleting a user **immediately revokes** all of that user's sessions
+
 ## Verify the Install
 
 ```bash

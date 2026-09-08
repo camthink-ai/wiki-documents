@@ -9,7 +9,6 @@ sidebar_label: "Configure LLM Backend"
 
 NeoMind's AI Agent and AI Chat rely on an LLM backend to understand natural language and execute instructions. This guide covers configuring local or cloud LLMs via **Web UI** or **CLI**.
 
----
 
 ## Backend Overview
 
@@ -32,7 +31,6 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 
 > **Recommended**: Ollama + `qwen3.5:4b` (4B params, balances speed and quality, runs smoothly on 8GB RAM). Add cloud backends when you need more power or multimodal.
 
----
 
 ## Built-in Local Models (Zero Config)
 
@@ -42,12 +40,6 @@ Since 0.9.16, the Docker image ships with the llama.cpp runtime plus officially 
 - **Hardware-based recommendations** — The download page lists each model's VRAM/RAM requirements (e.g. Ling-3.0-tiny: 4.8GB Q4_K_M, 128K context, minimum 6GB RAM)
 - **Import your own GGUF** — The built-in model wizard offers an "Import Local Model" card: drop in a `.gguf` file (streamed upload, no extra memory usage) or enter a server path; the platform auto-parses the name/context/quantization info, verifies and stores it with SHA-256, and imported models participate in backend switching just like curated ones (context capped at 128K)
 - **Works out of the box** — Once the first download completes, the model is automatically registered as a local backend and runs with the model's own optimal sampling parameters (temperature / top-p / top-k)
-
-## Thinking Effort
-
-For models that support reasoning, you can control thinking effort uniformly in the backend capability panel: **none / low / medium / high** (some backends offer finer tiers such as xhigh / max). NeoMind abstracts this control into a single switch and maps it automatically to each backend's native parameter — Ollama's `think` level, OpenAI / Custom / GLM / Google's `reasoning_effort`, DeepSeek / Anthropic's `thinking`, and Qwen's `enable_thinking`; backends that don't support reasoning show a read-only badge.
-
----
 
 ## Option 1: Web UI Setup (Recommended)
 
@@ -125,7 +117,6 @@ Then open **AI Chat** and send a greeting to verify:
 > - Cloud backend: Is the API Key valid? Is the network reachable?
 > - More in [Troubleshooting](./10-troubleshooting.md)
 
----
 
 ## Option 2: CLI Setup
 
@@ -215,7 +206,6 @@ neomind llm delete local
 
 </details>
 
----
 
 ## Ollama API Endpoint
 
@@ -235,7 +225,6 @@ curl http://localhost:11434/api/chat -d '{
 }'
 ```
 
----
 
 ## Multimodal (Vision) Capability
 
@@ -246,7 +235,6 @@ NeoMind supports image input and visual analysis. Vision capability depends on t
 
 NeoMind auto-detects multimodal capability (via LiteLLM registry + `/api/show` runtime probe + name heuristic matching). If auto-detection is inaccurate, manually toggle **Multimodal** in the backend detail page.
 
----
 
 ## Setting the Default Backend
 
@@ -269,7 +257,6 @@ neomind llm activate local
 ```
 :::
 
----
 
 ## Next Steps
 

@@ -549,6 +549,8 @@ Full definitions at [NeoMind-DeviceTypes](https://github.com/camthink-ai/NeoMind
 
 ## Concept Reference
 
+> Full term definitions live in the [Glossary](../concepts/1-glossary.md).
+
 | Term | Plain English |
 |------|--------------|
 | **MQTT** | IoT communication protocol — like "group chat for devices" |

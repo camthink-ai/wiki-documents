@@ -550,6 +550,8 @@ NeoMind 内置 CamThink 硬件类型。在 Web UI → **Settings → Device Type
 
 ## 概念速查
 
+> 完整术语定义见 [术语表](../concepts/1-glossary.md)。
+
 | 术语 | 通俗解释 |
 |------|---------|
 | **MQTT** | 物联网通信协议，类似"设备群聊" |

@@ -56,7 +56,7 @@ sidebar_label: "Use Dashboards"
 | 页签 | 内容 |
 |------|------|
 | **Components（组件）** | 平台内置组件，按类别分组（见下） |
-| **Extensions（扩展）** | 已安装扩展附带的仪表板组件（如视频流播放、检测画面） |
+| **Extensions（扩展）** | 已安装扩展附带的仪表板组件（如视频流播放、检测画面），完整扩展目录见 [扩展管理](./9-extensions.md) |
 | **Marketplace（市场）** | 从[社区组件仓库](https://github.com/camthink-ai/NeoMind-Dashboard-Components)在线安装 |
 | **Custom（自定义）** | 导入你自己开发的 ZIP 组件包或服务器路径组件 |
 
@@ -183,6 +183,10 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 4. 复制生成的链接（形如 `https://your-host/share/<token>`）
 5. 访问者无需账号即可查看（只读）
 
+:::note 交互式分享
+分享对话框可勾选**交互模式**——访问者除了看，还能操作你暴露的设备控制按钮（如下达指令），但始终无法编辑仪表板配置。
+:::
+
 :::warning 分享链接仅暴露只读视图
 分享链接只暴露该仪表板的只读视图，不暴露 API Key、设备控制权或其他仪表板。过期后链接自动失效。
 :::
@@ -238,7 +242,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 > ZIP 包结构详见 [开发指南 — Dashboard 组件开发](../developer-guide/8-dashboard-component-dev.md)。
 
-也可以用 CLI 安装：
+> CLI 命令沿用历史命名 `widget`（与界面里的「组件」是同一事物）。也可以用 CLI 安装：
 
 ```bash
 # 列出市场可用组件
