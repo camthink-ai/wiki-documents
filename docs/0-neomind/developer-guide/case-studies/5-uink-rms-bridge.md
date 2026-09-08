@@ -7,6 +7,12 @@ sidebar_label: "uink-rms-bridge"
 
 # uink-rms-bridge：生产验证的厂商专有桥接
 
+:::note
+本案例源码剖析完成于市场 **v2.7.6** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge)为准。
+:::
+
+> **阅读提示**：全篇约 810 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。
+
 ## 案例背景
 
 **uink-rms-bridge** 是 NeoMind 生态中**生产验证的厂商专有协议桥接**案例。Uink-RMS 是一个面向 e-paper（电子纸 / 电子墨水屏）显示设备的云管理平台：设备通过 LPWAN / 蜂窝网络连入厂商云，云端提供 REST API 供第三方集成。uink-rms-bridge 让 NeoMind 能够完成三件事：
@@ -797,10 +803,15 @@ uink-rms-bridge 是 NeoMind 生态中**唯一一个前后端一体的厂商专�
 
 它的工程教训在于：2250 行单文件是可读性的边界，未来如果新增更多 RMS endpoint（如告警 / 日志），应该考虑拆分。
 
+### 相关文档
+
+- Capability 全表、跨平台构建矩阵与 .nep 包结构标准见 [附录：工程标准](./appendix-standards.md)
+- SDK 能力系统详见 [Extension SDK](../3-extension-sdk.md)
+
 ### 源码仓库
 
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge) —— `src/lib.rs`（本文所有源码深链指向此文件）
 
 ---
 
-*最后更新: 2026-06-23*
+*源仓库版本: v2.7.6 | SDK: 0.6 | 最后 audit: 2026-06-23*

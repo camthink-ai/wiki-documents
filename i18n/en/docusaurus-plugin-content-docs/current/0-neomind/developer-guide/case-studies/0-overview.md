@@ -13,22 +13,22 @@ This series is distinct from the [Extension API reference](../7-extension-develo
 
 | # | Case | Type | Difficulty | Size | Key Value |
 |---|------|------|-----------|------|-----------|
-| 1 | weather-forecast | Data extension | Beginner | ~700 LOC | First-extension template (HTTP fetch + periodic metrics + React frontend) |
-| 2 | yolo-device-inference | AI inference | Intermediate | ~1950 LOC | Lazy model loading / cross-session reuse / device camera integration |
-| 3 | yolo-video | Streaming extension | Intermediate | ~3900 LOC | stream session + video-frame processing + VLM dashboard interop |
-| 4 | onvif-bridge | Protocol bridge | Intermediate | ~2700 LOC | IP camera / standard protocol integration (parallels NeoEyes) |
-| 5 | uink-rms-bridge | Protocol bridge | Intermediate | ~2250 LOC | Production-verified bridging |
-| 6 | metric_card | Dashboard component | Beginner | ~400 LOC | Component template (value card + threshold / trend / unit) |
-| 7 | ne101_camera | Extension + component interop | Flagship | ~2500-3500 LOC (8 sub-pages) | End-to-end deep tutorial |
+| 1 | [weather-forecast](./1-weather-forecast.md) | Data extension | Beginner | ~700 LOC | First-extension template (HTTP fetch + periodic metrics + React frontend) |
+| 2 | [yolo-device-inference](./2-yolo-device-inference.md) | AI inference | Intermediate | ~1950 LOC | Lazy model loading / cross-session reuse / device camera integration |
+| 3 | [yolo-video](./3-yolo-video-v2.md) | Streaming extension | Intermediate | ~3900 LOC | stream session + video-frame processing + VLM dashboard interop |
+| 4 | [onvif-bridge](./4-onvif-bridge.md) | Protocol bridge | Intermediate | ~2700 LOC | IP camera / standard protocol integration (parallels NeoEyes) |
+| 5 | [uink-rms-bridge](./5-uink-rms-bridge.md) | Protocol bridge | Intermediate | ~2250 LOC | Production-verified bridging |
+| 6 | [metric_card](./6-metric-card-component.md) | Dashboard component | Beginner | ~400 LOC | Component template (value card + threshold / trend / unit) |
+| 7 | [ne101_camera](./7-ne101-camera-component/index.md) | Extension + component interop | Flagship | ~2500-3500 LOC (8 sub-pages) | End-to-end deep tutorial |
 
 ## Reading Paths
 
 Pick the shortest path for your role and goal:
 
-- **Path 1 (Newcomer)**: 1 → 6 → 7 — Build intuition with the simplest extension and component, then tackle the end-to-end flagship case.
-- **Path 2 (AI Engineer)**: 2 → 3 → 7 — From single-frame inference to video-stream processing, then full product integration.
-- **Path 3 (Industrial Integrator)**: 4 → 5 → 7 — Two protocol-bridge cases as foundation, then a camera-grade product integration.
-- **Path 4 (Component Developer)**: 6 → 7 → any extension case — Master the component paradigm first, then learn how to interop with extensions.
+- **Path 1 (Newcomer)**: [1](./1-weather-forecast.md) → [6](./6-metric-card-component.md) → [7](./7-ne101-camera-component/index.md) — Build intuition with the simplest extension and component, then tackle the end-to-end flagship case.
+- **Path 2 (AI Engineer)**: [2](./2-yolo-device-inference.md) → [3](./3-yolo-video-v2.md) → [7](./7-ne101-camera-component/index.md) — From single-frame inference to video-stream processing, then full product integration.
+- **Path 3 (Industrial Integrator)**: [4](./4-onvif-bridge.md) → [5](./5-uink-rms-bridge.md) → [7](./7-ne101-camera-component/index.md) — Two protocol-bridge cases as foundation, then a camera-grade product integration.
+- **Path 4 (Component Developer)**: [6](./6-metric-card-component.md) → [7](./7-ne101-camera-component/index.md) → any extension case — Master the component paradigm first, then learn how to interop with extensions.
 
 ## Version Alignment Table
 

@@ -7,9 +7,11 @@ sidebar_label: "yolo-video"
 
 # yolo-video：流式扩展
 
-> :::note
-> 本案例源码剖析完成于市场 **v2.7.6** 时点（该扩展当时名为 `yolo-video-v2`，现已更名为 `yolo-video`，文中仓库路径已同步更新）。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video)为准。
-> :::
+:::note
+本案例源码剖析完成于市场 **v2.7.6** 时点（该扩展当时名为 `yolo-video-v2`，现已更名为 `yolo-video`，文中仓库路径已同步更新）。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video)为准。
+:::
+
+> **阅读提示**：全篇约 950 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。
 
 ## 案例背景
 
@@ -936,10 +938,17 @@ yolo-video 是 NeoMind 生态中工程复杂度最高的扩展，它完整展示
 **知道哪里会出错，比知道怎么做更深刻。** 备份文件提交和 ONNX Runtime 内存泄漏 workaround 看似是「坏味道」，但它们记录了真实工程环境中的约束和妥协，对后续项目的规避和借鉴意义不亚于正面案例。
 :::
 
+### 相关文档
+
+- Capability 全表、跨平台构建矩阵与 .nep 包结构标准见 [附录：工程标准](./appendix-standards.md)
+- SDK 能力系统详见 [Extension SDK](../3-extension-sdk.md)
+- 扩展开发的端到端实战流程见 [扩展开发实战](../7-extension-development.md)
+- 本案例 Push 帧格式的 REST 视角见 [REST API — 实时 API](../4-rest-api.md#实时-api)
+
 ### 源码仓库
 
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video) —— 本文所有源码深链指向此目录
 
 ---
 
-*最后更新: 2026-09-08*
+*源仓库版本: v2.7.6 | SDK: 0.6 | 最后 audit: 2026-09-08*

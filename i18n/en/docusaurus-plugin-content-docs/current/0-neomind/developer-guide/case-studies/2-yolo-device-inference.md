@@ -7,6 +7,12 @@ sidebar_label: "yolo-device-inference"
 
 # yolo-device-inference: AI Inference Extension
 
+:::note
+This source-code audit was completed at market version **v2.7.6**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference).
+:::
+
+> **Reading tip**: This article is about 540 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standard Compliance → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
+
 ## Case Background
 
 **yolo-device-inference** is the first "AI inference extension" in the NeoMind ecosystem. It deploys an Ultralytics YOLOv8 object detection model to edge nodes, automatically consumes bound device image metric streams (snapshot / image / frame), writes detection boxes, classes, and confidence back to the device as virtual metrics.
@@ -537,4 +543,4 @@ The CI pipeline must build natively on each target platform (no cross-compile), 
 - [Extension Development API](../7-extension-development.md) — full reference for `Extension` trait, `ExtensionMetadata`, `CapabilityContext`
 - [Source Repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference) — `extensions/yolo-device-inference/src/lib.rs` (all deep links in this document point to this file)
 
-*Last updated: 2026-06-24*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-06-24*

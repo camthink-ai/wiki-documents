@@ -7,6 +7,12 @@ sidebar_label: "onvif-bridge"
 
 # onvif-bridge：标准协议桥接
 
+:::note
+本案例源码剖析完成于市场 **v2.7.6** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/onvif-bridge)为准。
+:::
+
+> **阅读提示**：全篇约 970 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。
+
 ## 案例背景
 
 **onvif-bridge** 是 NeoMind 生态中的**标准协议桥接**案例。ONVIF（Open Network Video Interface Forum）是网络视频设备的开放标准，定义了设备发现（WS-Discovery）、媒体流协商（RTSP URL 获取）、PTZ 控制、事件订阅等接口规范。覆盖 Profile S（流媒体）、Profile T（高级流媒体）、Profile G（视频存储）等多个 profile。
@@ -957,10 +963,15 @@ onvif-bridge 在约 2700 行 Rust 代码中实现了完整的 ONVIF Profile S �
 
 推荐阅读顺序：[总览](./0-overview.md) → [案例 2 yolo-device-inference](./2-yolo-device-inference.md) → [案例 3 yolo-video](./3-yolo-video-v2.md) → **本文（4 onvif-bridge）** → [案例 5 uink-rms-bridge](./5-uink-rms-bridge.md)。
 
+### 相关文档
+
+- Capability 全表、跨平台构建矩阵与 .nep 包结构标准见 [附录：工程标准](./appendix-standards.md)
+- SDK 能力系统详见 [Extension SDK](../3-extension-sdk.md)
+
 ### 源码仓库
 
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/onvif-bridge) —— `src/lib.rs`、`discovery.rs`、`ptz.rs`、`soap_client.rs`（本文所有源码深链指向此目录）
 
 ---
 
-*最后更新: 2026-06-23*
+*源仓库版本: v2.7.6 | SDK: 0.6 | 最后 audit: 2026-06-23*

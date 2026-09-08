@@ -7,9 +7,11 @@ sidebar_label: "yolo-video"
 
 # yolo-video: Streaming Extension
 
-> :::note
-> This source-code audit was completed at market version **v2.7.6** (the extension was named `yolo-video-v2` at the time and has since been renamed to `yolo-video`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video).
-> :::
+:::note
+This source-code audit was completed at market version **v2.7.6** (the extension was named `yolo-video-v2` at the time and has since been renamed to `yolo-video`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video).
+:::
+
+> **Reading tip**: This article is about 870 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
 
 ## Case Background
 
@@ -863,10 +865,17 @@ yolo-video is the most engineering-complex extension in the NeoMind ecosystem. I
 **Knowing where things go wrong is often deeper than knowing how to do them right.** Committed backup files and ONNX Runtime memory-leak workarounds may look like "code smells", but they document the constraints and compromises of real engineering environments. Their avoidance and reference value for future projects is no less than that of positive examples.
 :::
 
+### Related Documentation
+
+- For the full capability table, cross-platform build matrix, and .nep package structure standards, see [Appendix: Engineering Standards](./appendix-standards.md)
+- For the SDK capability system, see [Extension SDK](../3-extension-sdk.md)
+- For the end-to-end extension development workflow, see [Extension Development](../7-extension-development.md)
+- For a REST perspective on this case's Push frame format, see [REST API — Realtime API](../4-rest-api.md#realtime-api)
+
 ### Source Repository
 
 - [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video) — All source deep-links in this article point to this directory
 
 ---
 
-*Last updated: 2026-09-08*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-09-08*

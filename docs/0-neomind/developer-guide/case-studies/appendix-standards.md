@@ -1,7 +1,7 @@
 ---
 description: 共享工程标准 — metadata/capability/版本/构建/测试/发布/安全的集中参考，被所有案例引用
 keywords: [NeoMind, 工程标准, metadata, capability, 构建]
-tags: [NeoMind, 开发者指南, 标准]
+tags: [NeoMind, 开发指南, 标准]
 sidebar_label: Engineering Standards
 ---
 

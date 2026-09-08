@@ -7,9 +7,11 @@ sidebar_label: "weather-forecast"
 
 # weather-forecast: Starter Data Extension
 
-> :::note
-> This source-code audit was completed at market version **v2.7.6** (the extension was named `weather-forecast-v2` at the time and has since been renamed to `weather-forecast`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast).
-> :::
+:::note
+This source-code audit was completed at market version **v2.7.6** (the extension was named `weather-forecast-v2` at the time and has since been renamed to `weather-forecast`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast).
+:::
+
+> **Reading tip**: This article is about 540 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standards in Practice → Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
 
 ## Case Background
 

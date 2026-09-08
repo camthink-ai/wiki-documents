@@ -7,6 +7,12 @@ sidebar_label: "yolo-device-inference"
 
 # yolo-device-inference：AI 推理扩展
 
+:::note
+本案例源码剖析完成于市场 **v2.7.6** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference)为准。
+:::
+
+> **阅读提示**：全篇约 540 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。
+
 ## 案例背景
 
 **yolo-device-inference** 是 NeoMind 生态中第一个「AI 推理扩展」——它把 Ultralytics YOLOv8 目标检测模型部署到边缘节点，自动消费绑定设备的图像指标流（snapshot / image / frame），将检测框、类别、置信度作为虚拟指标写回设备，并可选地产出带标注的 JPEG 缩略图供仪表板展示。
@@ -537,4 +543,4 @@ CI 流水线必须在每个目标平台上原生构建（不能用 cross-compile
 - [扩展开发 API](../7-extension-development.md)——`Extension` trait、`ExtensionMetadata`、`CapabilityContext` 的完整参考
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference)——`extensions/yolo-device-inference/src/lib.rs`（本文所有深链指向此文件）
 
-*最后更新: 2026-06-24*
+*源仓库版本: v2.7.6 | SDK: 0.6 | 最后 audit: 2026-06-24*

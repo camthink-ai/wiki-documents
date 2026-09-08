@@ -7,6 +7,12 @@ sidebar_label: "metric card"
 
 # metric card: Introductory Dashboard Component
 
+:::note
+This source-code audit was completed at component version **v1.7.0**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card).
+:::
+
+> **Reading tip**: This article is about 590 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standards in Practice → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
+
 ## Case Background
 
 **metric_card** is the simplest "meaningful component" in the NeoMind dashboard component marketplace. It renders one or more numeric values (temperature, battery level, inference latency, detected object count) as a frosted-glass card with labels, units, and decimal precision. The entire component is 352 lines of hand-written IIFE JavaScript with zero build step — the shortest path for a newcomer to understand "what makes up a NeoMind component."
@@ -586,4 +592,4 @@ metric_card's git history records the evolution of `extractValue` from "numbers 
 
 ---
 
-*Last updated: 2026-06-22 · Source version: metric_card v1.7.0*
+*Source repo version: metric_card v1.7.0 | Last audit: 2026-06-22*

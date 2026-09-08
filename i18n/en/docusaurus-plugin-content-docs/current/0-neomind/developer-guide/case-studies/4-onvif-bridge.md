@@ -7,6 +7,12 @@ sidebar_label: "onvif-bridge"
 
 # onvif-bridge: Standard Protocol Bridge
 
+:::note
+This source-code audit was completed at market version **v2.7.6**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/onvif-bridge).
+:::
+
+> **Reading tip**: This article is about 940 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
+
 ## Case Background
 
 **onvif-bridge** is the **standard protocol bridge** case study in the NeoMind ecosystem. ONVIF (Open Network Video Interface Forum) is an open standard for network video devices, defining specifications for device discovery (WS-Discovery), media stream negotiation (RTSP URL retrieval), PTZ control, and event subscription. It covers multiple profiles including Profile S (streaming), Profile T (advanced streaming), and Profile G (video storage).
@@ -935,10 +941,15 @@ From a source code governance perspective, onvif-bridge's `src/` directory (5 fi
 
 Recommended reading order: [Overview](./0-overview.md) → [Case 2 yolo-device-inference](./2-yolo-device-inference.md) → [Case 3 yolo-video](./3-yolo-video-v2.md) → **this article (4 onvif-bridge)** → [Case 5 uink-rms-bridge](./5-uink-rms-bridge.md).
 
+### Related Documentation
+
+- For the full capability table, cross-platform build matrix, and .nep package structure standards, see [Appendix: Engineering Standards](./appendix-standards.md)
+- For the SDK capability system, see [Extension SDK](../3-extension-sdk.md)
+
 ### Source Repository
 
 - [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/onvif-bridge) — `src/lib.rs`, `discovery.rs`, `ptz.rs`, `soap_client.rs` (all source deep-links in this article point to this directory)
 
 ---
 
-*Last updated: 2026-06-23*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-06-23*

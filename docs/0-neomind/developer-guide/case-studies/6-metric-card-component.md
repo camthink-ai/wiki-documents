@@ -7,6 +7,12 @@ sidebar_label: "metric card"
 
 # metric card：入门仪表板组件
 
+:::note
+本案例源码剖析完成于**组件版本 v1.7.0** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card)为准。
+:::
+
+> **阅读提示**：全篇约 590 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。
+
 ## 案例背景
 
 **metric_card** 是 NeoMind 仪表板组件市场中最简单的「有意义的组件」——它把一个或多个数值（温度、电池电量、推理延迟、检测到的目标数）渲染成一张毛玻璃卡片，带标签、单位、小数位精度。整个组件 352 行手写 IIFE JavaScript，不依赖任何构建步骤，是新手理解「一个 NeoMind 组件由哪些部分组成」的最短路径。
@@ -586,4 +592,4 @@ metric_card 的 git 历史记录了 `extractValue` 函数从「只处理数字�
 
 ---
 
-*最后更新: 2026-06-22 · 源码版本: metric_card v1.7.0*
+*源仓库版本: metric_card v1.7.0 | 最后 audit: 2026-06-22*

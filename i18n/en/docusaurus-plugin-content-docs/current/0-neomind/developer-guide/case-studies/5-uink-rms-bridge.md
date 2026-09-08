@@ -7,6 +7,12 @@ sidebar_label: "uink-rms-bridge"
 
 # uink-rms-bridge: Production-Verified Vendor Bridge
 
+:::note
+This source-code audit was completed at market version **v2.7.6**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge).
+:::
+
+> **Reading tip**: This article is about 760 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
+
 ## Case Background
 
 **uink-rms-bridge** is the **production-verified vendor-proprietary protocol bridge** case in the NeoMind ecosystem. Uink-RMS is a cloud management platform for e-paper (electronic paper / e-ink) display devices: devices connect to the vendor cloud over LPWAN / cellular networks, and the cloud exposes a REST API for third-party integration. uink-rms-bridge enables NeoMind to do three things:
@@ -746,10 +752,15 @@ uink-rms-bridge is the **only full-stack vendor-proprietary bridge extension** i
 
 Its engineering lesson: 2250 lines in a single file is the boundary of readability, and if more RMS endpoints are added in the future (like alerts / logs), splitting should be considered.
 
+### Related Documentation
+
+- For the full capability table, cross-platform build matrix, and .nep package structure standards, see [Appendix: Engineering Standards](./appendix-standards.md)
+- For the SDK capability system, see [Extension SDK](../3-extension-sdk.md)
+
 ### Source Repository
 
 - [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge) — `src/lib.rs` (all source deep-links in this article point to this file)
 
 ---
 
-*Last updated: 2026-06-23*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-06-23*
