@@ -17,7 +17,7 @@ flowchart LR
     BRIDGE -.->|"downlink / call_service"| SRC
 ```
 
----
+sidebar_label: "LoRaWAN + Home Assistant"
 
 ## 2. Bill of Materials (BOM)
 

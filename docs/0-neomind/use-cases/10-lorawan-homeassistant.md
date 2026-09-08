@@ -17,7 +17,7 @@ flowchart LR
     BRIDGE -.->|"下行 / call_service"| SRC
 ```
 
----
+sidebar_label: "LoRaWAN + Home Assistant"
 
 ## 2. 物料清单（BOM）
 
