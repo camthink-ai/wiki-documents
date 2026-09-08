@@ -15,7 +15,7 @@ sidebar_label: "uink-rms-bridge"
 2. Periodically pull device telemetry (battery percentage, signal strength in dBm, temperature, refresh count)
 3. Convert user-edited Markdown / plain text / images to JPEG and push them to the e-paper screen for display refresh
 
-The current version is `2.7.6`, with the core implementation concentrated in a single [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) file totaling 2250 lines, plus the [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) React + TypeScript frontend component (entrypoint `uink-rms-bridge-components.umd.cjs`).
+The audit version is `2.7.6`, with the core implementation concentrated in a single [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) file totaling 2250 lines, plus the [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) React + TypeScript frontend component (entrypoint `uink-rms-bridge-components.umd.cjs`).
 
 **Contrast with [Case 4 onvif-bridge](./4-onvif-bridge.md) (the core narrative axis of this case)**: onvif-bridge is a **standard protocol bridge** (ONVIF is an open specification, universal for any Profile S camera), while uink-rms-bridge is a **vendor-proprietary protocol bridge** (the Uink-RMS cloud API is a closed private interface, only usable with Uink's own devices).
 

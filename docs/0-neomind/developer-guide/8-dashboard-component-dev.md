@@ -157,6 +157,8 @@ neomind widget get temperature-gauge   # 查看完整 manifest
 | `size_constraints` | object | 是 | 网格尺寸限制 |
 | `has_data_source` | boolean | 是 | 是否接受数据源绑定 |
 | `max_data_sources` | number | 否 | 最大数据源数（0 = 无，省略 = 不限） |
+| `has_device_binding` | boolean | 否 | 是否支持**设备绑定**——置 true 时组件会收到 `deviceContext` prop（设备在线状态、最新指标等），并与设备详情联动 |
+| `device_type_filter` | string[] | 否 | 与 `has_device_binding` 搭配：限定可绑定的设备类型（如 `["ne101_camera"]`） |
 | `has_display_config` | boolean | 否 | 是否有显示配置 |
 | `has_actions` | boolean | 否 | 是否发送命令（如 toggle 开关） |
 | `config_schema` | object | 否 | `display` 和 `config` 字段的 JSON Schema |
@@ -303,7 +305,7 @@ neomind widget install ../my-widget.zip
 
 ### 方式 2：Web UI
 
-在 NeoMind 的 **Extensions** 页点击 **Install Widget**，上传 ZIP 文件。
+在仪表板编辑模式打开 **Add Component → Custom** 页签，点击 **Import Component** 上传 ZIP 文件（见[仪表板使用指南](../user-guide/4-use-dashboard.md)）。
 
 ### 方式 3：卸载
 
@@ -445,4 +447,4 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

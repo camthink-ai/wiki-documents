@@ -46,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 启动后浏览器访问 `http://localhost:9375`。
 
-<img src="https://resources.camthink.ai/NeoMind/step1-login-v2.png" alt="NeoMind 登录页" style={{width: '100%'}} />
+<img src="/img/neomind/step1-login-v2.png" alt="NeoMind 登录页" style={{width: '100%'}} />
 
 > ✓ **检查点**：看到登录 / 注册页面 = 服务已运行。注册一个账号并登录。
 
@@ -63,15 +63,22 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 ## Step 2：配置 LLM 后端（1 分钟）
 
-首次登录进入配置向导。NeoMind 需要一个 LLM 后端作为"大脑"，三种方案任选其一：
+首次登录进入配置向导。NeoMind 需要一个 LLM 后端作为"大脑"，几种方案任选其一：
 
 | 方案 | 适合 | 延迟 | 隐私 | 需要 |
 |------|------|------|------|------|
-| **Ollama（本地）** | 推荐入门、离线场景 | 低 | 全程不出局域网 | 8GB+ 内存 |
+| **内置模型（向导内一键下载）** | 最快上手 | 低 | 全程本机 | 无需 API Key |
+| **Ollama（本地）** | 已有 Ollama、离线场景 | 低 | 全程不出局域网 | 8GB+ 内存 |
 | **云端 API** | 想用最强模型 | 中 | 数据上云 | API Key |
 | **稍后配置** | 先看界面 | — | — | — |
 
-### 方案 A：Ollama 本地部署（推荐）
+内置模型与 Ollama 都属于本地推理，全程数据不出本机；也支持导入自己的 GGUF 模型。详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
+
+### 方案 A：内置模型一键下载（推荐）
+
+在向导的 **LLM 后端** 步骤选择内置模型卡片，点击 **Download** 下载即可（按硬件自动推荐，无需安装 Ollama 或 Docker）。下载完成后向导显示 **"LLM 后端已连接"**。
+
+### 方案 B：Ollama 本地部署（已有 Ollama 时）
 
 ```bash
 # 1. 安装 Ollama（如果还没装）：https://ollama.com
@@ -85,7 +92,7 @@ ollama pull qwen3.5:4b
 2. 地址填 `http://localhost:11434`（默认）
 3. 模型选 `qwen3.5:4b`
 
-<img src="https://resources.camthink.ai/NeoMind/step2-llm-config.png" alt="LLM 配置向导" style={{width: '100%'}} />
+<img src="/img/neomind/step2-llm-config.png" alt="LLM 配置向导" style={{width: '100%'}} />
 
 ### 方案 B：云端 API
 
@@ -136,7 +143,7 @@ neomind llm test local && neomind llm activate local
 创建后会得到一个专属的 Webhook URL（形如 `/api/devices/<DEVICE_ID>/webhook`）。
 
 <div style={{display: 'flex', gap: '8px'}}>
-  <img src="https://resources.camthink.ai/NeoMind/step3-add-device.png" alt="添加设备" style={{width: '50%'}} />
+  <img src="/img/neomind/step3-add-device.png" alt="添加设备" style={{width: '50%'}} />
   <img src="https://resources.camthink.ai/NeoMind/step3-webhook-url.png" alt="获取 Webhook URL" style={{width: '50%'}} />
 </div>
 
@@ -152,7 +159,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 返回 `{"success": true}` 即成功。打开设备详情页，可以看到最新遥测值。
 
-<img src="https://resources.camthink.ai/NeoMind/step3-device-detail.png" alt="设备详情页显示遥测数据" style={{width: '100%'}} />
+<img src="/img/neomind/step3-device-detail.png" alt="设备详情页显示遥测数据" style={{width: '100%'}} />
 
 > ✓ **检查点**：设备详情页显示 `temperature: 25.6` 和 `humidity: 60` = 数据已入库。
 
@@ -179,14 +186,14 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 2. 数据源填 `device:demo-sensor:temperature`
 3. 保存
 
-<img src="https://resources.camthink.ai/NeoMind/step4-dashboard.png" alt="仪表板数值卡" style={{width: '100%'}} />
+<img src="/img/neomind/step4-dashboard.png" alt="仪表板数值卡" style={{width: '100%'}} />
 
 :::info DataSourceId 格式
 
 数据源引用格式统一为 `{type}:{id}:{field}`：
 
 - `device:demo-sensor:temperature` — 设备遥测
-- `extension:weather:temp` — 扩展指标
+- `extension:weather-forecast:temperature` — 扩展指标
 - `agent:guard:status` — Agent 状态
 
 仪表板、规则、数据推送都用这个格式。详见 [术语表](../concepts/1-glossary.md)。
@@ -216,7 +223,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 AI Agent 会自动查询设备列表和最新遥测值，用自然语言回答。
 
-<img src="https://resources.camthink.ai/NeoMind/step5-ai-chat.png" alt="AI Chat 对话" style={{width: '100%'}} />
+<img src="/img/neomind/step5-ai-chat.png" alt="AI Chat 对话" style={{width: '100%'}} />
 
 再试一个更有挑战性的——让 AI 帮你创建自动化：
 
@@ -275,4 +282,4 @@ flowchart LR
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

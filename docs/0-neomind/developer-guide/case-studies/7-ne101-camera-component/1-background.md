@@ -85,7 +85,7 @@ graph TB
     end
 
     subgraph extension["extension 扩展驱动型"]
-        EXT["locate-anything-v2 等<br/>(被 ne101_camera 通过<br/>processingExtensionId 消费)"]
+        EXT["locate-anything 等<br/>(被 ne101_camera 通过<br/>processingExtensionId 消费)"]
     end
 
     subgraph bridge["bridge 协议桥接型"]
@@ -160,7 +160,7 @@ ne101_camera 组件正是为了消除这三个痛点而生：它把上述四步�
 
 ### 决策 1：组件不自己跑 AI，通过 `processingExtensionId` 外包给扩展
 
-**选择**：组件只负责「图像展示 + 命令触发 + ROI 配置」，AI 推理通过 `processingExtensionId` 字段委托给用户选择的扩展（`locate-anything-v2` 兼容系）。
+**选择**：组件只负责「图像展示 + 命令触发 + ROI 配置」，AI 推理通过 `processingExtensionId` 字段委托给用户选择的扩展（`locate-anything` 兼容系）。
 
 **被否决的备选**：组件内置 AI 推理逻辑（直接调 YOLO 模型）。否决理由有三：
 
@@ -168,7 +168,7 @@ ne101_camera 组件正是为了消除这三个痛点而生：它把上述四步�
 2. AI 模型迭代很快，把模型版本绑死在组件版本里会导致升级困难
 3. 不同用户要的 AI 能力不同（有人要目标检测，有人要 OCR，有人要图像描述），内置一种能力就剥夺了用户的选择权。
 
-**代价**：组件必须依赖外部扩展才能真正发挥价值——如果用户没安装任何 `locate-anything-v2` 兼容扩展，`processingExtensionId` 下拉框是空的，组件就退化成一个「纯图像展示 + 命令触发」的面板。这个代价被认为可接受，因为 NeoMind 生态默认推荐安装至少一个 AI 扩展。
+**代价**：组件必须依赖外部扩展才能真正发挥价值——如果用户没安装任何 `locate-anything` 兼容扩展，`processingExtensionId` 下拉框是空的，组件就退化成一个「纯图像展示 + 命令触发」的面板。这个代价被认为可接受，因为 NeoMind 生态默认推荐安装至少一个 AI 扩展。
 
 ### 决策 2：用 `has_device_binding` + `device_type_filter`，不用 `has_data_source`
 
@@ -227,7 +227,7 @@ sequenceDiagram
     participant DEV as NE101 设备
     participant MQTT as MQTT Broker
     participant NM as NeoMind 主控
-    participant EXT as AI 扩展<br/>(locate-anything-v2)
+    participant EXT as AI 扩展<br/>(locate-anything)
     participant UI as ne101_camera 组件
 
     DEV->>MQTT: 发布 telemetry<br/>(image_url + battery + signal + temp)
@@ -285,7 +285,7 @@ sequenceDiagram
 | Commit | 类型 | 一句话说明 | 涉及章节 |
 |--------|------|------------|----------|
 | `c276c23` | feat | per-class detection colors via golden-angle HSV rotation（按类别上色，黄金角 HSV 轮转） | 5 前端消费 |
-| `8656148` | feat | pass NMS IoU threshold 0.5 to locate-anything-v2（把 NMS 阈值透传给扩展） | 3 扩展侧 |
+| `8656148` | feat | pass NMS IoU threshold 0.5 to locate-anything（把 NMS 阈值透传给扩展） | 3 扩展侧 |
 | `636a8ae` | feat | make ROI overlap threshold configurable（`processingRoiOverlap` 字段化） | 7 ROI 叠加 |
 | `2109c45` | feat | overlap-based ROI detection instead of center point（IoU 判定取代中心点） | 7 ROI 叠加 |
 | `b746c02` | feat | render OCR detection boxes as polygons with rect fallback（OCR 多边形框） | 5 前端消费 |

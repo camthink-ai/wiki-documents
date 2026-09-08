@@ -34,7 +34,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 进入 **Messages** 页面，默认显示消息中心：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每条消息包含：
 
@@ -55,7 +55,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 切换到 **Channels** 页签查看所有渠道：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面顶部显示统计卡片（总渠道数 / 启用数 / 渠道类型数），下方是渠道列表。每个渠道卡片显示：
 
@@ -68,7 +68,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 点击 **Create** 按钮打开全屏渠道编辑器：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 编辑器采用**左右分栏**布局：
 - **左侧边栏**：列出 7 种外部渠道类型，点击切换
@@ -111,7 +111,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### Email 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
@@ -125,7 +125,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### Telegram 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 获取方式 |
 |------|------|---------|
@@ -241,25 +241,20 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 ```json
 {
   "name": "AlertHighTemp",
+  "trigger": { "trigger_type": "data_change" },
   "condition": {
-    "type": "comparison",
+    "condition_type": "comparison",
     "source": "device:sensor-01:temperature",
-    "operator": ">",
-    "value": 30
+    "operator": "greater_than",
+    "threshold": 30
   },
   "actions": [
     {
       "type": "notify",
-      "config": {
-        "title": "高温告警",
-        "message": "sensor-01 温度 {{value}}°C 已超过阈值 30°C",
-        "severity": "critical",
-        "category": "alert"
-      }
+      "message": "sensor-01 温度 {value}°C 已超过阈值 30°C",
+      "severity": "critical"
     }
-  ],
-  "trigger": "state_change",
-  "cooldown": 60
+  ]
 }
 ```
 
@@ -310,59 +305,41 @@ active → acknowledged → resolved → archived
 NeoMind CLI 提供 `message` 子命令管理消息和渠道：
 
 ```bash
-# 列出最近 20 条消息
+# 列出最近 20 条消息（--severity / --status 过滤）
 neomind message list --limit 20
 
-# 创建一条消息（用于测试渠道）
-neomind message create --json '{
-  "title": "测试告警",
-  "content": "手动创建的测试消息",
-  "severity": "warning",
-  "category": "alert",
-  "source_type": "system"
-}'
+# 查看消息详情
+neomind message get <message_id>
+
+# 发送一条系统消息（用于测试投递链路）
+neomind message send --title "测试告警" --body "手动创建的测试消息" --severity warning
+
+# 确认（标记已读）/ 删除消息
+neomind message read <message_id>
+neomind message delete <message_id>
 
 # 列出所有渠道
-neomind message channels
+neomind message channel-list
 
-# 创建渠道
-neomind message channel create --json '{
-  "name": "ops-feishu",
-  "channel_type": "feishu",
-  "config": {
-    "hook_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "secret": "secxxxxxxxx"
-  },
-  "enabled": true
-}'
+# 查看渠道类型及各类型的配置字段
+neomind message channel-types
+neomind message channel-type-schema feishu
 
-# 启用 / 禁用渠道
-neomind message channel enable ops-feishu
-neomind message channel disable ops-feishu
+# 创建渠道（--config 传完整 JSON，或用可重复的 --param k=v）
+neomind message channel-create --name ops-feishu --type feishu \
+  --config '{"hook_id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","secret":"secxxxxxxxx"}'
+
+# 更新渠道（修改配置 / 启用禁用等）
+neomind message channel-update ops-feishu --config '{"enabled":false}'
 
 # 测试渠道（发送测试消息）
-neomind message channel test ops-feishu
-
-# 配置渠道过滤器
-neomind message channel filter ops-feishu --json '{
-  "source_types": ["rule", "device"],
-  "categories": ["alert"],
-  "min_severity": "critical"
-}'
-
-# 管理邮件收件人
-neomind message channel recipients ops-email --add "ops@example.com,oncall@example.com"
-neomind message channel recipients ops-email --list
-neomind message channel recipients ops-email --remove "ops@example.com"
-
-# 确认 / 解决 / 归档消息
-neomind message acknowledge <message_id>
-neomind message resolve <message_id>
-neomind message archive <message_id>
+neomind message channel-test ops-feishu
 
 # 删除渠道
-neomind message channel delete ops-feishu
+neomind message channel-delete ops-feishu
 ```
+
+> 消息模板支持 `{value}`、`{source_id}` 插值；渠道过滤（按来源 / 类别 / 最低级别）在 Web UI 的渠道编辑面板中配置。
 
 ## REST API
 
@@ -520,4 +497,4 @@ NeoMind 记录每条消息在每个渠道的投递状态：
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

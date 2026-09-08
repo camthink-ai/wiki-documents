@@ -163,17 +163,22 @@ Artifact path:
 
 ## Step 5: Install into NeoMind
 
-Copy the artifact into NeoMind's extension directory (default `~/.neomind/extensions/<id>/`, or `/var/lib/neomind/extensions/<id>/` for server deployments):
+Package the artifact into a `.nep` and install it with the extension CLI:
 
 ```bash
-mkdir -p ~/.neomind/extensions/counter
-cp target/release/libneomind_extension_counter.* ~/.neomind/extensions/counter/
+# Package (produces dist/counter-<version>.nep)
+neomind extension build --release
+neomind extension validate dist/counter-1.0.0.nep
 
-# Trigger scan
-curl -X POST http://localhost:9375/api/extensions/discover
+# Install (or click Upload Extension on the Web UI Extensions page to upload the .nep)
+neomind extension install dist/counter-1.0.0.nep
 ```
 
-Or even simpler — in the Web UI **Extensions** page click **Install from file** and upload the `.dylib` / `.so` / `.dll`.
+Alternatively, drop the `.nep` into the server data directory's `extensions/` folder and trigger a scan:
+
+```bash
+curl -X POST http://localhost:9375/api/extensions/sync
+```
 
 ## Step 6: Verify
 
@@ -182,9 +187,9 @@ Or even simpler — in the Web UI **Extensions** page click **Install from file*
 curl http://localhost:9375/api/extensions
 
 # Call the command
-curl -X POST http://localhost:9375/api/extensions/counter/commands/increment \
+curl -X POST http://localhost:9375/api/extensions/counter/command \
   -H 'Content-Type: application/json' \
-  -d '{"amount": 5}'
+  -d '{"command":"increment","args":{"amount": 5}}'
 # → {"success": true, "data": {"counter": 5}}
 ```
 
@@ -205,8 +210,8 @@ cross build --release --target x86_64-pc-windows-msvc
 cross build --release --target aarch64-apple-darwin
 
 # Package into .nep (a zip archive)
-mkdir -p nep/{linux-x64,linux-arm64,windows-x64,darwin-arm64}
-cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux-x64/
+mkdir -p nep/{linux_x86_64,linux_aarch64,windows_x86_64,darwin_aarch64}
+cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux_x86_64/
 # ... other platforms
 cat > nep/metadata.json <<EOF
 { "id": "counter", "version": "1.0.0", "platforms": { ... } }
@@ -261,7 +266,7 @@ impl Extension for WeatherExtension {
 
     fn metrics(&self) -> &[MetricDescriptor] {
         // temperature, humidity, pressure
-        // DataSourceId: extension:weather:temperature etc.
+        // DataSourceId: extension:weather-forecast:temperature etc.
     }
 
     async fn configure(&mut self, config: &Value) -> Result<()> {
@@ -392,7 +397,7 @@ fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
             // Initialize when a device comes online...
         }
         "rule.triggered" => {
-            // Rule-triggered联动 logic...
+            // Rule-triggered integration logic...
         }
         _ => {}
     }
@@ -429,34 +434,37 @@ A complete `.nep` package is a ZIP archive containing multi-platform binaries + 
 
 ```
 my-extension-1.0.0.nep (ZIP)
-├── metadata.json               ← extension metadata + platform mapping
-├── darwin-arm64/
-│   └── libneomind_extension_my_extension.dylib
-├── darwin-x86_64/
-│   └── libneomind_extension_my_extension.dylib
-├── linux-x86_64/
-│   └── libneomind_extension_my_extension.so
-├── linux-arm64/
-│   └── libneomind_extension_my_extension.so
-├── windows-x86_64/
-│   └── neomind_extension_my_extension.dll
+├── manifest.json               ← extension metadata + binaries platform mapping
+├── binaries/
+│   ├── darwin_aarch64/
+│   │   └── extension.dylib
+│   ├── linux_x86_64/
+│   │   └── extension.so
+│   ├── linux_aarch64/
+│   │   └── extension.so
+│   └── windows_x86_64/
+│       └── extension.dll
+├── frontend/                   ← (optional) dashboard component bundle (ships with a frontend.json when bundled)
 └── models/                     ← (optional) ML model files
     └── yolov8n.onnx
 ```
 
-**metadata.json** example:
+**manifest.json** example (excerpt, matching real packages):
 
 ```json
 {
+  "format": "neomind-extension-package",
+  "format_version": "2.0",
+  "abi_version": 3,
   "id": "my-extension",
   "name": "My Extension",
   "version": "1.0.0",
   "sdk_version": "0.6.3",
-  "abi_version": 3,
-  "platforms": {
-    "darwin-arm64": "darwin-arm64/libneomind_extension_my_extension.dylib",
-    "linux-x86_64": "linux-x86_64/libneomind_extension_my_extension.so",
-    "windows-x86_64": "windows-x86_64/neomind_extension_my_extension.dll"
+  "type": "native",
+  "binaries": {
+    "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
+    "linux_x86_64": "binaries/linux_x86_64/extension.so",
+    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
   }
 }
 ```
@@ -467,9 +475,9 @@ The runner automatically selects the binary matching the current platform on loa
 
 The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repo has complete working examples for every pattern:
 
-- `weather-forecast-v2` — a simple network extension (no ML model)
-- `image-analyzer-v2` — ML-model lazy-load pattern (YOLOv11)
-- `yolo-video-v2` — streaming video processing
+- `weather-forecast` — a simple network extension (no ML model)
+- `image-analyzer` — ML-model lazy-load pattern (YOLOv11)
+- `yolo-video` — streaming video processing
 - `yolo-device-inference` — integration with NE301/NE101 cameras
 - `home-assistant-bridge` — third-party system integration
 
@@ -498,12 +506,12 @@ Reading one of these is more illuminating than any doc.
 This page is the API reference. To see **how these APIs are used in real engineering, and why designs were chosen**, read:
 
 - [Case Studies Overview](./case-studies/0-overview.md)
-- [#1 weather-forecast-v2](./case-studies/1-weather-forecast.md) — Starter data extension
+- [#1 weather-forecast](./case-studies/1-weather-forecast.md) — Starter data extension
 - [#2 yolo-device-inference](./case-studies/2-yolo-device-inference.md) — AI inference extension
-- [#3 yolo-video-v2](./case-studies/3-yolo-video-v2.md) — Streaming extension
+- [#3 yolo-video](./case-studies/3-yolo-video-v2.md) — Streaming extension
 - [#4 onvif-bridge](./case-studies/4-onvif-bridge.md) — Standard protocol bridge
 - [#5 uink-rms-bridge](./case-studies/5-uink-rms-bridge.md) — Production-verified bridge
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

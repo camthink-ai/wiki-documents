@@ -20,7 +20,7 @@ sidebar_label: "Automation Rules"
 
 点击左侧导航的 **Automation**（分支图标）进入自动化页面，默认显示 **Rules** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有规则，每行包含：
 
@@ -61,7 +61,7 @@ sidebar_label: "Automation Rules"
 
 在 Rules 页签点击 **Create** 按钮，打开全屏规则构建器：
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 构建器顶部填写：
 
@@ -85,7 +85,7 @@ sidebar_label: "Automation Rules"
 
 ### 步骤 3：配置条件
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件决定规则何时触发。支持三种类型：
 
@@ -127,7 +127,7 @@ sidebar_label: "Automation Rules"
 
 ### 步骤 4：配置动作
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件满足后执行的操作。一条规则可以有多个动作，按顺序执行。
 
@@ -191,11 +191,15 @@ sidebar_label: "Automation Rules"
 
 ## 创建方式
 
+### 方式一：Web UI
+
+见上文「通过 Web UI 创建规则」一节——Rules 页签 → **Create** 打开全屏规则构建器，四个步骤依次填写即可。
+
 ### 方式二：CLI
 
 ```bash
 # 创建规则（JSON 格式）
-neomind rule create --json '{"name":"高温告警","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"温度过高"}]}'
+neomind rule create --body '{"name":"高温告警","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"温度过高"}]}'
 
 # 列出所有规则
 neomind rule list
@@ -204,8 +208,8 @@ neomind rule list
 neomind rule enable <rule_id>
 neomind rule disable <rule_id>
 
-# 立即执行规则（手动触发）
-neomind rule test <rule_id> --execute
+# 模拟评估规则（只评估条件是否满足，不触发动作）
+neomind rule test <rule_id> --input '{"temperature": 35}'
 
 # 删除规则
 neomind rule delete <rule_id>
@@ -341,4 +345,4 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

@@ -20,7 +20,7 @@ The rule engine lets NeoMind respond automatically **without human intervention*
 
 Click **Automation** (branch icon) in the left nav to open the automation page. The default tab is **Rules**:
 
-<img src="https://resources.camthink.ai/NeoMind/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all rules in a table, each row containing:
 
@@ -61,7 +61,7 @@ A rule has four parts — **name**, **trigger**, **condition**, and **actions** 
 
 In the Rules tab, click the **Create** button to open the full-screen rule builder:
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Fill in the top of the builder:
 
@@ -85,7 +85,7 @@ The `data_change` trigger automatically extracts referenced data sources from th
 
 ### Step 3: Configure the Condition
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Conditions determine when a rule fires. Three types are supported:
 
@@ -127,7 +127,7 @@ Conditions determine when a rule fires. Three types are supported:
 
 ### Step 4: Configure Actions
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Actions execute when the condition is met. A rule can have multiple actions, executed in order.
 
@@ -191,11 +191,15 @@ Click **Save** to save the rule.
 
 ## Other Creation Methods
 
+### Option 1: Web UI
+
+See the [Creating a Rule via Web UI](#creating-a-rule-via-web-ui) section above — Rules tab → **Create** opens the full-screen rule builder, then fill in the four steps in order.
+
 ### CLI
 
 ```bash
 # Create a rule (JSON format)
-neomind rule create --json '{"name":"High Temp","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"Too hot"}]}'
+neomind rule create --body '{"name":"High Temp","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"Too hot"}]}'
 
 # List all rules
 neomind rule list
@@ -204,8 +208,8 @@ neomind rule list
 neomind rule enable <rule_id>
 neomind rule disable <rule_id>
 
-# Execute rule immediately (manual trigger)
-neomind rule test <rule_id> --execute
+# Dry-run rule evaluation (only evaluates whether the condition is met, without triggering actions)
+neomind rule test <rule_id> --input '{"temperature": 35}'
 
 # Delete rule
 neomind rule delete <rule_id>
@@ -341,4 +345,4 @@ Click the **actions menu** on any rule row to view execution history:
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

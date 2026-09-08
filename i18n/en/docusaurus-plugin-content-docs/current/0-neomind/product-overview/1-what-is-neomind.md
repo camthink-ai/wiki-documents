@@ -16,11 +16,11 @@ Three core surfaces of NeoMind — manage your devices, visualize your data, and
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="https://resources.camthink.ai/NeoMind/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 
@@ -101,8 +101,8 @@ flowchart TB
 ### AI Intelligence
 - **Natural Language Chat** — Conversational interface to query and control all connected devices
 - **Autonomous Agents** — Scheduled or event-driven AI agents that monitor, analyze, and act on device data independently
-- **10+ LLM Backends** — Ollama, OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
-- **Memory System** — Multi-tier memory (Profile / Knowledge / Tasks / Evolution) with automatic extraction and compression
+- **10+ LLM Backends** — Ollama, llama.cpp (with the platform's built-in local models, one-click download and ready to use), OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
+- **Memory System** — Cross-session memory (user profile / knowledge base + execution journals), auto-extracted and persisted after each conversation
 - **Skill System** — YAML + Markdown skill files that guide agent behavior for specific scenarios
 - **Multimodal** — Image upload and visual analysis support
 
@@ -128,7 +128,8 @@ flowchart TB
 - **Custom Components** — Build and publish your own dashboard widgets
 
 ### Notification & Data Push
-- **7 Notification Channels** — Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu
+- **9 Notification Channels** — 7 external channels (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu) + 2 built-in
+- **IM Bridges** — Chat with AI agents directly in Telegram / Feishu (independent from the notification channels)
 - **Data Push** — Forward telemetry data to external systems via Webhook or MQTT
 - **Delivery Tracking** — Exponential backoff retry, delivery history, and log management
 - **Message Deduplication** — Prevent notification storms from high-frequency triggers
@@ -177,4 +178,4 @@ NeoMind is a modular ecosystem with specialized repositories for each concern:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

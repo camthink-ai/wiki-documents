@@ -50,7 +50,7 @@ ls data/api_keys.redb
 | 远程连接另一台 Server | 从那台 Server 的启动输出取 Key |
 | auto-auth 之前能用，突然 401 | **重启 Server**：CLI 直接操作 `api_keys.redb` 可能导致 redb 锁冲突 |
 
-> ⚠ **关键**：
+:::warning 关键
 > - `NEOMIND_API_KEY` 一旦设置（即使是占位符），auto-auth 就被完全跳过。先 `unset` 再试。
 > - 不要在 Server 运行时执行 `neomind api-key create`——会与 Server 的 redb 锁冲突。如需重建 Key，先停 Server，再创建，再启动。
 
@@ -89,6 +89,8 @@ sudo chmod -R u+rwX /var/lib/neomind
 ```
 
 ## LLM / Ollama
+
+> 相关页面：[配置 LLM 后端](./2-configure-llm.md)（后端类型、内置模型、思考力度）。
 
 ### AI Chat 不响应 / 一直转圈
 
@@ -141,9 +143,11 @@ curl http://localhost:11434/api/chat -d '{
 
 **原因**：用纯文本云端模型（如 DeepSeek-V3、Qwen 文本版）发图。NeoMind 会按能力开关决定是否发图，但若自动探测误判，仍可能出错。
 
-**修复**：在后端详情页**关闭** Multimodal 开关，或换用支持视觉的云端模型（`gpt-4o` / `claude-3-5-sonnet` / `qwen-vl` / `glm-4v`）。
+**修复**：在后端详情页**关闭** Multimodal 开关，或换用支持视觉的云端模型（`gpt-4o` / `claude-sonnet-4-6` / `qwen-vl` / `glm-4v`）。
 
 ## 设备 / MQTT
+
+> 相关页面：[设备接入](./3-onboard-device.md)（接入方式、审批流程、外部 Broker）。
 
 ### 设备发送了数据，但 NeoMind 里看不到
 
@@ -198,6 +202,8 @@ neomind system info
 
 ## 扩展
 
+> 相关页面：[扩展管理](./9-extensions.md)（安装方式、状态生命周期、扩展级故障排查表）。
+
 ### 扩展安装后状态显示 `Crashed` / 循环重启
 
 **说明**：NeoMind 有**崩溃循环保护**——扩展连续崩溃会被自动禁用，避免拖垮服务端。
@@ -206,7 +212,7 @@ neomind system info
 
 ```bash
 # 看扩展日志
-ls data/logs/                # 扩展日志在 这里
+ls data/logs/                # 服务端日志；扩展实时日志在「扩展详情页 → Logs」标签查看
 neomind extension list       # 看扩展状态
 neomind extension info <ID>   # 看具体扩展的最近错误
 ```
@@ -223,6 +229,8 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 - 扩展进程在跑但没发布数据 → 查扩展日志
 
 ## 仪表板 / 前端
+
+> 相关页面：[使用仪表板](./4-use-dashboard.md)（组件库、分享、移动端）。
 
 ### 仪表板组件一直转圈、不显示数据
 
@@ -256,8 +264,14 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 如何备份？
 
+**内置备份（0.9.21+，推荐）**——平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
+
+- **设置 → 偏好设置** 中配置备份计划（开关 / 间隔 6 小时 ~ 7 天 / 保留份数），也可点击「立即备份」
+- API：`POST /api/settings/backup`（立即备份）、`GET /api/settings/backups`（列出）
+- 恢复为手动操作：停服 → 用备份目录覆盖数据文件 → 启动
+
 ```bash
-# 简单粗暴：停服 + 复制目录
+# 无内置备份的老版本：停服 + 复制目录
 sudo systemctl stop neomind
 sudo tar czf neomind-backup-$(date +%F).tar.gz /var/lib/neomind
 sudo systemctl start neomind
@@ -292,4 +306,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

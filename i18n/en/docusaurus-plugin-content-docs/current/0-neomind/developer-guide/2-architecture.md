@@ -55,7 +55,7 @@ NeoMind is a Rust workspace. Each crate has a single, clear responsibility:
 | **neomind-agent** | AI agent: LLM backends, tool calling, memory system, skill system, scheduler |
 | **neomind-devices** | Device management: MQTT / webhook adapters, registration, command queue, draft approval |
 | **neomind-storage** | redb embedded storage: schema and access layer for all `*.redb` tables |
-| **neomind-messages** | Message notification: 7 channels (webhook/email/telegram/wecom/dingtalk/slack/feishu) + in-app |
+| **neomind-messages** | Message notification: 9 channels (7 external webhook/email/telegram/wecom/dingtalk/slack/feishu + 2 built-in) |
 | **neomind-rules** | JSON rule engine: parse, execute, event trigger |
 | **neomind-extension-sdk** | Extension SDK: `neomind_export!` macro, capability, ML model lifecycle (public API surface) |
 | **neomind-extension-runner** | Extension process host: isolated sandbox, FFI bridge, crash-loop protection |
@@ -187,4 +187,4 @@ All storage access goes through `neomind-storage`'s repository pattern — no ot
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

@@ -402,7 +402,7 @@ This function is only 5 lines, returning an empty `<div>`. The reason is in the 
 
 **AdvancedPanel: the heavy-logic Advanced tab**. See source start: [`bundle.js` L1363-L1448](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L1363-L1448).
 
-`AdvancedPanel` is the second-longest function in the entire bundle (523 lines, behind only the main component's 861), carrying all of ne101_camera's "configuration complexity": AI processing master switch (`SwitchControl`), extension selector (`ExtDropdown`), template/mode picker, category filter input (`imeInput`), phrase input, class color filter, ROI toggle + polygon editor (drag-and-drop points on a Canvas), ROI overlap threshold slider (commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)), NMS IoU threshold passthrough to `locate-anything-v2` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
+`AdvancedPanel` is the second-longest function in the entire bundle (523 lines, behind only the main component's 861), carrying all of ne101_camera's "configuration complexity": AI processing master switch (`SwitchControl`), extension selector (`ExtDropdown`), template/mode picker, category filter input (`imeInput`), phrase input, class color filter, ROI toggle + polygon editor (drag-and-drop points on a Canvas), ROI overlap threshold slider (commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)), NMS IoU threshold passthrough to `locate-anything` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
 
 ```js
 // bundle.js L1363-L1448 (AdvancedPanel region start: ROI_ACTIONS + ExtDropdown)
@@ -571,7 +571,7 @@ This engineering philosophy of "returning to browser primitives" is the fundamen
 | [`44f1fa5`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/44f1fa5) | fix | input fields frozen — use local state instead of shared composingRef | 6.5 |
 | [`b060a25`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b060a25) | fix | React error #310 — use defaultValue instead of hooks in imeInput | 6.5 |
 | [`a8c1212`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/a8c1212) | revert | remove auto hash bump, preserve user transform edits | 6.3 (template engine evolution) |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 6.6 (AdvancedPanel slider) |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 6.6 (AdvancedPanel slider) |
 | [`c276c23`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/c276c23) | feat | per-class detection colors via golden-angle HSV rotation | 6.3 (Helper layer classColor) |
 
 ### Cross-references

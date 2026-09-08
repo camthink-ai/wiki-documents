@@ -1,5 +1,5 @@
 ---
-description: "Engineering case studies — 7 selected real-world cases from 17 extensions + 6 components, with full engineering analysis"
+description: "Engineering case studies — 7 selected real-world cases from 27 extensions + 6 components, with full engineering analysis"
 keywords: [NeoMind, extension development, engineering case studies, best practices]
 tags: [NeoMind, Developer Guide, Case Studies]
 sidebar_label: Overview
@@ -13,9 +13,9 @@ This series is distinct from the [Extension API reference](../7-extension-develo
 
 | # | Case | Type | Difficulty | Size | Key Value |
 |---|------|------|-----------|------|-----------|
-| 1 | weather-forecast-v2 | Data extension | Beginner | ~700 LOC | First-extension template (HTTP fetch + periodic metrics + React frontend) |
+| 1 | weather-forecast | Data extension | Beginner | ~700 LOC | First-extension template (HTTP fetch + periodic metrics + React frontend) |
 | 2 | yolo-device-inference | AI inference | Intermediate | ~1950 LOC | Lazy model loading / cross-session reuse / device camera integration |
-| 3 | yolo-video-v2 | Streaming extension | Intermediate | ~3900 LOC | stream session + video-frame processing + VLM dashboard interop |
+| 3 | yolo-video | Streaming extension | Intermediate | ~3900 LOC | stream session + video-frame processing + VLM dashboard interop |
 | 4 | onvif-bridge | Protocol bridge | Intermediate | ~2700 LOC | IP camera / standard protocol integration (parallels NeoEyes) |
 | 5 | uink-rms-bridge | Protocol bridge | Intermediate | ~2250 LOC | Production-verified bridging |
 | 6 | metric_card | Dashboard component | Beginner | ~400 LOC | Component template (value card + threshold / trend / unit) |
@@ -38,7 +38,7 @@ Case code is aligned with the source repository's release; the audit locks to a 
 |------|---------------------|-------------|------------|
 | 1 weather-forecast | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 2 yolo-device-inference | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 3 yolo-video-v2 | v2.7.6 | SDK 0.6 | 2026-06-22 |
+| 3 yolo-video | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 4 onvif-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 5 uink-rms-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |
@@ -66,4 +66,4 @@ A case audit is triggered when the source repository cuts a release (manual, not
 
 ---
 
-*Last updated: 2026-06-22*
+*Last updated: 2026-09-08*

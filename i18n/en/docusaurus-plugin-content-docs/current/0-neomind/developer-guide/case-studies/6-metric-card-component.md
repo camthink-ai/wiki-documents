@@ -578,7 +578,7 @@ metric_card's git history records the evolution of `extractValue` from "numbers 
 
 - [Engineering Standards Appendix](./appendix-standards.md) — Central reference for manifest schema, size constraints, and STYLE_GUIDE rules.
 - [Case Study Overview](./0-overview.md) — Version alignment table and reading paths for all 7 cases.
-- [1 weather-forecast-v2](./1-weather-forecast.md) — Paired extension case. weather-forecast produces metrics; metric_card consumes them; together they form a complete "extension → component" data pipeline.
+- [1 weather-forecast](./1-weather-forecast.md) — Paired extension case. weather-forecast produces metrics; metric_card consumes them; together they form a complete "extension → component" data pipeline.
 - [7 ne101_camera](./7-ne101-camera-component/index.md) — Flagship component case (next difficulty level). Builds on metric_card's foundation with device binding, image canvas, and AI processing pipeline.
 - [Component API Reference](../8-dashboard-component-dev.md) — API docs for dashboard component schema, data source binding, and render pipeline.
 - [Source Repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card) — `bundle.js` + `manifest.json`.

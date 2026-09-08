@@ -134,6 +134,8 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 | `set_output_sender()` | push mode starts | save the output channel for later push |
 | `start_push()` / `stop_push()` | push starts/stops | start/stop the background push task |
 
+> **Push frame format (0.9.23+)**: Push extension output reaches the frontend via the `/api/extensions/:id/stream` WS endpoint. Once the client passes `{"binary": true}` in the `init` config and the server confirms it via `session_created.binary`, binary payloads from `send_push_output` (JPEG/PCM etc.) travel directly as WS Binary frames (`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`) without base64; when not negotiated it automatically falls back to the legacy Text + base64 — extension code needs no changes at all, as negotiation is handled entirely by the host and the frontend.
+
 ## Metadata / Metric / Command
 
 **ExtensionMetadata** full struct (returned by `metadata()`):
@@ -223,6 +225,8 @@ Extensions call platform capabilities via `CapabilityContext`. Below is the comp
 | `device_metrics_read` | Read device metrics |
 | `device_metrics_write` | Write device metrics (virtual devices) |
 | `device_control` | Send commands to devices |
+| `device_template_register` | Register device-type templates (used by bridge extensions, e.g. lorawan-bridge / modbus-bridge / onvif-bridge) |
+| `device_register` / `device_unregister` | Register / unregister device instances (bridge extensions attach external devices to the NeoMind device model) |
 | `storage_query` | Query the time-series database |
 | `event_publish` | Publish events |
 | `event_subscribe` | Subscribe to events |
@@ -334,4 +338,4 @@ curl -X POST http://localhost:9375/api/extensions/discover
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

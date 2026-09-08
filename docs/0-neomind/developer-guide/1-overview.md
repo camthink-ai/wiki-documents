@@ -10,7 +10,7 @@ sidebar_label: "Developer Guide Overview"
 NeoMind 是一个模块化生态，按**开发目标**分成四个独立仓库。本文帮你判断该从哪个仓库切入，并给出每个维度的深入入口。
 
 :::tip 推荐用 AI 辅助开发
-NeoMind 的代码库为 AI 编程工具（如 **Claude Code**）做了专门优化——项目自带 `CLAUDE.md` 上下文、33 节前端设计规范、16 个参考扩展实现。**无论你要写扩展、做组件还是贡献主项目，都建议先用 AI 辅助开发。** 详见 [AI 辅助开发指南](./5-ai-assisted-development.md)。
+NeoMind 的代码库为 AI 编程工具（如 **Claude Code**）做了专门优化——项目自带 `CLAUDE.md` 上下文、33 节前端设计规范、27 个参考扩展实现。**无论你要写扩展、做组件还是贡献主项目，都建议先用 AI 辅助开发。** 详见 [AI 辅助开发指南](./5-ai-assisted-development.md)。
 :::
 
 ## 先问自己：你要做什么？
@@ -144,4 +144,4 @@ cd web && npm run tauri:dev
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

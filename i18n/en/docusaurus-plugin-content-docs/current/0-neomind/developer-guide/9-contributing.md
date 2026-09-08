@@ -29,7 +29,7 @@ npm run dev                         # Frontend (port 5173)
 
 **Toolchain requirements**:
 - Rust 1.92.0+ (edition 2021)
-- Node.js 18+
+- Node.js 20+
 - System dependency: protobuf compiler (`protoc`)
 
 ## Code Standards
@@ -83,7 +83,7 @@ The project follows [Conventional Commits](https://www.conventionalcommits.org/)
 | `chore` | Misc (deps, refactoring) | `chore: bump neomind-extension-sdk to 0.6.3` |
 | `docs` | Documentation | `docs: enrich extension management user guide` |
 | `refactor` | Refactoring (no behavior change) | `refactor(web): unify data source config factories` |
-| `release` | Release | `release: bump version to 0.8.13` |
+| `release` | Release | `release: bump version to 0.9.23` |
 
 Common scopes: `web` (frontend), `devices`, `agent`, `extension`, `rules`, `api`, `cli`, `messages`, `storage`.
 
@@ -155,4 +155,4 @@ Each repo has its own README and contribution guide.
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

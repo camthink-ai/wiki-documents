@@ -17,12 +17,13 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 
 | Category | Backend | Default Model | Notes |
 |----------|---------|---------------|-------|
-| **Local** (recommended) | Ollama | `qwen3.5:4b` | Default backend, fully offline |
-| Local | llama.cpp | Loaded at startup | Self-hosted llama-server |
+| **Local (zero config)** | Built-in llama.cpp | Curated platform models (Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5, etc.) | Runtime bundled in the Docker image, one-click download in the wizard, see [section below](#built-in-local-models-zero-config) |
+| **Local** | Ollama | `qwen3.5:4b` | Fully offline |
+| Local | llama.cpp (self-hosted) | Loaded at startup | Run llama-server yourself |
 | **Cloud** | OpenAI | `gpt-4o-mini` | API Key required |
-| Cloud | Anthropic | `claude-3-5-sonnet` | API Key required |
-| Cloud | Google | `gemini-1.5-flash` | API Key required |
-| Cloud | xAI | `grok-beta` | API Key required |
+| Cloud | Anthropic | `claude-sonnet-4-6` | API Key required |
+| Cloud | Google | `gemini-2.0-flash` | API Key required |
+| Cloud | xAI | grok series | API Key required |
 | Cloud | Qwen (Alibaba) | `qwen-max-latest` | DashScope Key required |
 | Cloud | DeepSeek | `deepseek-v3` | API Key required |
 | Cloud | GLM (Zhipu) | `glm-4-plus` | API Key required |
@@ -30,6 +31,21 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 | Cloud | Custom | Any | OpenAI-compatible endpoint |
 
 > **Recommended**: Ollama + `qwen3.5:4b` (4B params, balances speed and quality, runs smoothly on 8GB RAM). Add cloud backends when you need more power or multimodal.
+
+---
+
+## Built-in Local Models (Zero Config)
+
+Since 0.9.16, the Docker image ships with the llama.cpp runtime plus officially curated models. In the **LLM Backend** step of the first-run wizard (or via the built-in model card under **Settings → LLM Backends**), you can download and use them directly:
+
+- **One-click download** — The model list comes from a remote model catalog (`models/catalog.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes), so new models keep arriving without upgrading the platform); when offline, it automatically falls back to the built-in curated list
+- **Hardware-based recommendations** — The download page lists each model's VRAM/RAM requirements (e.g. Ling-3.0-tiny: 4.8GB Q4_K_M, 128K context, minimum 6GB RAM)
+- **Import your own GGUF** — The built-in model wizard offers an "Import Local Model" card: drop in a `.gguf` file (streamed upload, no extra memory usage) or enter a server path; the platform auto-parses the name/context/quantization info, verifies and stores it with SHA-256, and imported models participate in backend switching just like curated ones (context capped at 128K)
+- **Works out of the box** — Once the first download completes, the model is automatically registered as a local backend and runs with the model's own optimal sampling parameters (temperature / top-p / top-k)
+
+## Thinking Effort
+
+For models that support reasoning, you can control thinking effort uniformly in the backend capability panel: **none / low / medium / high** (some backends offer finer tiers such as xhigh / max). NeoMind abstracts this control into a single switch and maps it automatically to each backend's native parameter — Ollama's `think` level, OpenAI / Custom / GLM / Google's `reasoning_effort`, DeepSeek / Anthropic's `thinking`, and Qwen's `enable_thinking`; backends that don't support reasoning show a read-only badge.
 
 ---
 
@@ -58,7 +74,7 @@ ollama pull qwen3.5:4b-vl   # or llava / minicpm-v etc.
 
 Navigate to **Settings → LLM Backends**:
 
-<img src="https://resources.camthink.ai/NeoMind/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Click **Add Backend** to open the configuration form.
 
@@ -226,7 +242,7 @@ curl http://localhost:11434/api/chat -d '{
 NeoMind supports image input and visual analysis. Vision capability depends on the model:
 
 - **Ollama**: After pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava` / `minicpm-v`), you can upload images in [AI Chat](./5-ai-chat.md).
-- **Cloud**: `gpt-4o` / `gpt-4o-mini` / `claude-3-5-sonnet` / `gemini-1.5-flash` / `qwen-vl` / `glm-4v` natively support vision.
+- **Cloud**: `gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-6` / `gemini-2.0-flash` / `qwen-vl` / `glm-4v` natively support vision.
 
 NeoMind auto-detects multimodal capability (via LiteLLM registry + `/api/show` runtime probe + name heuristic matching). If auto-detection is inaccurate, manually toggle **Multimodal** in the backend detail page.
 
@@ -263,4 +279,4 @@ neomind llm activate local
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

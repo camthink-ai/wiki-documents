@@ -146,7 +146,7 @@ NeoMind 中引用任意数据点的统一格式：`{type}:{id}:{field}`
 | type | 含义 | 示例 |
 |------|------|------|
 | `device` | 设备遥测 | `device:sensor-01:temperature` |
-| `extension` | 扩展指标 | `extension:weather:temp` |
+| `extension` | 扩展指标 | `extension:weather-forecast:temperature` |
 | `agent` | Agent 状态 | `agent:guard:status` |
 
 :::tip 这是你最常碰到的格式
@@ -210,11 +210,11 @@ Agent 的核心执行模式：LLM 分析当前状态（**思考**）→ 调用�
 
 ### Skill（技能）
 
-为 Agent 提供场景化指导的 Markdown 文件（存储在 `data/skills/`）。Skill 定义了特定场景下的操作步骤、常见错误和最佳实践，LLM 在执行时自动参考相关 Skill。
+为 Agent 提供场景化指导的知识文件（YAML 元数据 + Markdown 正文，存储在 `data/skills/`）。Skill 定义了特定场景下的操作步骤、常见错误和最佳实践，Agent 按描述自动匹配相关 Skill（内置技能只读，用户技能可增删改）。
 
 ### Multimodal（多模态）
 
-LLM 处理图像输入的能力。取决于模型——Ollama 拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`）或使用云端视觉模型（`gpt-4o` / `claude-3-5-sonnet` / `gemini-1.5-flash`）后，AI Chat 支持上传图片进行视觉分析。
+LLM 处理图像输入的能力。取决于模型——Ollama 拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`）或使用云端视觉模型（`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`）后，AI Chat 支持上传图片进行视觉分析。
 
 ### Tool（工具）
 
@@ -280,7 +280,7 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 
 ### Message Channel（消息渠道）
 
-规则触发通知时的投递通道。支持 7 种外部渠道 + 应用内消息：
+规则触发通知时的投递通道。共 9 个渠道——2 个内置 + 7 个外部：
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule 触发</span>
@@ -342,7 +342,7 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 
 ### Capability（能力）
 
-扩展启动时必须声明的能力权限。未声明的能力调用会被拒绝。体现**最小权限原则**。14 个内置能力覆盖设备读写、设备控制、存储查询、事件订阅、触发器等：
+扩展启动时必须声明的能力权限。未声明的能力调用会被拒绝。体现**最小权限原则**。20 种内置能力（含 chat 流式系列）覆盖设备读写、设备控制、存储查询、事件订阅、触发器等，完整清单见 [扩展 SDK](../developer-guide/3-extension-sdk.md)：
 
 | 类别 | Capability | 含义 |
 |------|-----------|------|
@@ -452,7 +452,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 | **VLM 视觉** | 图像 + AI 标注 | 目标检测结果 |
 | **流播放器** | 实时视频流 | 摄像头画面 |
 
-也支持扩展提供的自定义组件。
+以上为常用内置类型，完整组件类型清单见[仪表板使用指南](../user-guide/4-use-dashboard.md)；也支持扩展提供的自定义组件与社区组件市场。
 
 > 详见 [使用仪表板](../user-guide/4-use-dashboard.md)。
 
@@ -489,7 +489,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
           <strong>Dashboard</strong> / Widget<br/><br/>规则引擎<br/><br/>Agent (LLM)
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
-          实时界面<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket 推送)</span><br/><br/>通知<br/><span style={{fontSize: '0.85em', color: '#666'}}>(7 种渠道)</span><br/><br/>AI 回答<br/><span style={{fontSize: '0.85em', color: '#666'}}>(自然语言)</span>
+          实时界面<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket 推送)</span><br/><br/>通知<br/><span style={{fontSize: '0.85em', color: '#666'}}>(9 种渠道)</span><br/><br/>AI 回答<br/><span style={{fontSize: '0.85em', color: '#666'}}>(自然语言)</span>
         </td>
       </tr>
     </tbody>
@@ -502,4 +502,4 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

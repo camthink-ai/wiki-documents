@@ -41,14 +41,14 @@ xattr -cr /Applications/NeoMind.app
 
 ### First-Launch Wizard
 
-On first launch, NeoMind runs a **setup wizard** — just two steps:
+On first launch, NeoMind runs a **setup wizard** with four steps (skippable at any point — you can finish the setup later in Settings):
 
-1. **Create an admin account** — set username and password; timezone is auto-detected
-2. **Done** — you're in the main UI, with a quick-start guide (Chat, configure LLM, explore features)
+1. **Welcome** — platform introduction and documentation links
+2. **LLM Backend** — configure the AI model: **one-click download of built-in models** (no API key needed), connect a custom backend (OpenAI/Ollama, etc.), or quick setup via the CLI
+3. **Devices** — connect/approve devices
+4. **Done** — enter the main UI
 
-> LLM backend configuration is **deferred** — when you first use AI Chat or create an Agent, the system guides you to the Settings page. See [Configure LLM Backend](./2-configure-llm.md).
-
-You'll land in the main UI when the wizard completes.
+> Skipping LLM configuration is fine — the first time you use AI Chat or create an Agent, the system guides you through it again. For details on built-in local models, see [Configure LLM Backend](./2-configure-llm.md).
 
 ## Server One-Line Install (Linux / macOS)
 
@@ -71,7 +71,7 @@ After install, open `http://your-server:9375` in a browser and complete the firs
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VERSION` | latest | Specific version, e.g. `0.8.0` |
+| `VERSION` | latest | Specific version, e.g. `0.9.23` |
 | `INSTALL_DIR` | `/usr/local/bin` | Binary install directory |
 | `DATA_DIR` | `/var/lib/neomind` | Data directory (redb files, logs) |
 | `WEB_DIR` | `/var/www/neomind` | Frontend static files |
@@ -84,7 +84,7 @@ Examples:
 
 ```bash
 # Pin a version
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.8.0 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
 
 # Custom directories
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -95,22 +95,46 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
   | USE_NGINX=true sh
 ```
 
+### Upgrade
+
+- **In-browser upgrade (recommended)**: `Settings → About` automatically checks for new versions (every 24 hours; an update icon appears in the top-right corner when an update is available). Click to upgrade online — the system automatically downloads, verifies, backs up, and restarts, with no SSH needed at any point (this relies on helper systemd units deployed by install.sh; older installs can get them by rerunning the install script once).
+- **Rerun the install script**: `VERSION=0.9.23 sh install.sh` reinstalls a pinned version.
+- **Docker**: `docker compose pull && docker compose up -d`.
+
+For automatic data-directory backups, see [Troubleshooting](./10-troubleshooting.md).
+
 ## Docker
 
+The official multi-arch build image (amd64 + arm64, rebuilt on every release) is published on Docker Hub — **no repo clone, no Rust toolchain needed**:
+
 ```bash
-git clone https://github.com/camthink-ai/NeoMind.git
-cd NeoMind
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+Or use Docker Compose (pulls `camthink/neomind:latest` automatically):
+
+```bash
+mkdir neomind && cd neomind
+curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-compose.yml
 docker compose up -d
 ```
 
-Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume.
+Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume. The image ships with the llama.cpp runtime and curated models — download a local LLM with one click in the setup wizard.
+
+| Image | Purpose |
+|------|------|
+| `camthink/neomind:latest` | Follows the latest release |
+| `camthink/neomind:<version>` | Pin a version, e.g. `camthink/neomind:0.9.22` |
 
 | Port | Purpose |
 |------|---------|
 | `9375` | HTTP API + Web UI + WebSocket |
 | `1883` | MQTT broker (device connections) |
 
-Customize ports and other parameters via `.env` (copy from `.env.example`):
+Customize ports and other parameters via `.env` ([`.env.example`](https://github.com/camthink-ai/NeoMind/blob/main/.env.example)):
 
 ```bash
 cp .env.example .env
@@ -125,7 +149,7 @@ Visit `http://host:9375` after deploy.
 For environments where the one-line script can't run (air-gapped servers, custom directory layouts):
 
 ```bash
-VERSION=0.8.0  # Replace with your target version
+VERSION=0.9.23  # Replace with your target version
 
 # Pick your platform (amd64 or arm64)
 ARCH=amd64  # Linux x86_64; use arm64 for ARM devices
@@ -199,7 +223,7 @@ Regardless of install path, first visit to the Web UI requires just one step:
 
 1. **Create an admin account** — the first registered user becomes admin; timezone is auto-detected
 
-You're then in the main UI. LLM backend configuration and device onboarding are deferred — set them up whenever you need:
+After creation you land in the main UI, then walk through the **four-step setup wizard** described earlier (Welcome → LLM Backend → Device Connection → Done; every step can be skipped). Anything you skip can be configured later at any time:
 
 - **[Configure LLM Backend](./2-configure-llm.md)** — required before using AI Chat
 - **[Onboard a Device](./3-onboard-device.md)** — connect cameras or sensors via the onboarding wizard
@@ -316,4 +340,4 @@ NeoMind is running? Here's the recommended order:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

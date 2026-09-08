@@ -29,7 +29,7 @@ npm run dev                         # 前端（端口 5173）
 
 **工具链要求**：
 - Rust 1.92.0+（edition 2021）
-- Node.js 18+
+- Node.js 20+
 - 系统依赖：protobuf 编译器（`protoc`）
 
 ## 代码规范
@@ -83,7 +83,7 @@ npm run test           # Vitest 单元测试
 | `chore` | 杂项（依赖升级、重构） | `chore: bump neomind-extension-sdk to 0.6.3` |
 | `docs` | 文档 | `docs: enrich extension management user guide` |
 | `refactor` | 重构（不改行为） | `refactor(web): unify data source config factories` |
-| `release` | 发布 | `release: bump version to 0.8.13` |
+| `release` | 发布 | `release: bump version to 0.9.23` |
 
 常用 scope：`web`（前端）、`devices`、`agent`、`extension`、`rules`、`api`、`cli`、`messages`、`storage`。
 

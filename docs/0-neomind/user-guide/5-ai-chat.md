@@ -18,7 +18,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 
 点击左侧导航的 **AI Chat**（对话图标）进入会话界面：
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 界面分为三个区域：
 
@@ -123,12 +123,13 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 
 - **多会话**：每个会话独立上下文，互不干扰。左侧会话列表可切换 / 重命名 / 删除
 - **跨会话记忆**：NeoMind 会从对话中抽取关键事实（你的偏好、设备别名等）写入用户记忆，跨会话生效
+- **IM 桥接（0.9.14+）**：除网页端外，还可以在 **Telegram / 飞书** 里直接和同一个 Agent 对话（在系统内配置 IM Bridge 后）；这与[通知渠道](./8-notifications.md)中的 Telegram/飞书是两个独立功能——通知是单向告警推送，IM 桥接是双向对话
 - **历史回溯**：会话内容持久化在 `sessions.redb`，重启服务不丢失
 - **自动标题**：新会话的第一条消息会自动成为会话标题，方便在列表中识别
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为全屏对话模式，会话列表通过左上角菜单展开。
 
@@ -148,4 +149,4 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

@@ -1,5 +1,5 @@
 ---
-description: 工程实践案例集 — 从 17 个扩展 + 6 个组件中精选 7 个真实案例，做完整工程剖析
+description: 工程实践案例集 — 从 27 个扩展 + 6 个组件中精选 7 个真实案例，做完整工程剖析
 keywords: [NeoMind, 扩展开发, 工程案例, 最佳实践]
 tags: [NeoMind, 开发者指南, 案例集]
 sidebar_label: Overview
@@ -13,9 +13,9 @@ sidebar_label: Overview
 
 | # | 案例 | 类型 | 难度 | 体量 | 价值点 |
 |---|------|------|------|------|--------|
-| 1 | weather-forecast-v2 | 数据型扩展 | 入门 | ~700 行 | 第一个扩展范本（HTTP 拉取 + 周期指标 + React 前端） |
+| 1 | weather-forecast | 数据型扩展 | 入门 | ~700 行 | 第一个扩展范本（HTTP 拉取 + 周期指标 + React 前端） |
 | 2 | yolo-device-inference | AI 推理 | 进阶 | ~1950 行 | 模型懒加载 / 跨 session 复用 / 设备相机集成 |
-| 3 | yolo-video-v2 | 流式扩展 | 进阶 | ~3900 行 | stream session + 视频帧处理 + VLM 仪表板联动 |
+| 3 | yolo-video | 流式扩展 | 进阶 | ~3900 行 | stream session + 视频帧处理 + VLM 仪表板联动 |
 | 4 | onvif-bridge | 协议桥接 | 进阶 | ~2700 行 | IP 摄像头 / 标准协议接入（呼应 NeoEyes） |
 | 5 | uink-rms-bridge | 协议桥接 | 进阶 | ~2250 行 | 真实生产验证的桥接 |
 | 6 | metric_card | 仪表板组件 | 入门 | ~400 行 | 组件范本（数值卡 + 阈值/趋势/单位） |
@@ -38,7 +38,7 @@ sidebar_label: Overview
 |------|-----------|----------|------------|
 | 1 weather-forecast | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 2 yolo-device-inference | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 3 yolo-video-v2 | v2.7.6 | SDK 0.6 | 2026-06-22 |
+| 3 yolo-video | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 4 onvif-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 5 uink-rms-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |

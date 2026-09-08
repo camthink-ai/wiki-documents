@@ -17,12 +17,13 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 | 类别 | 后端 | 默认模型 | 备注 |
 |------|------|---------|------|
-| **本地**（推荐入门） | Ollama | `qwen3.5:4b` | 默认后端，完全离线 |
-| 本地 | llama.cpp | 启动时加载 | 自托管 llama-server |
+| **本地（零配置）** | 内置 llama.cpp | 平台精选（Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5 等） | Docker 镜像自带运行时，向导内一键下载，见[下节](#内置本地模型零配置) |
+| **本地** | Ollama | `qwen3.5:4b` | 完全离线 |
+| 本地 | llama.cpp（自托管） | 启动时加载 | 自行运行 llama-server |
 | **云端** | OpenAI | `gpt-4o-mini` | 需 API Key |
-| 云端 | Anthropic | `claude-3-5-sonnet` | 需 API Key |
-| 云端 | Google | `gemini-1.5-flash` | 需 API Key |
-| 云端 | xAI | `grok-beta` | 需 API Key |
+| 云端 | Anthropic | `claude-sonnet-4-6` | 需 API Key |
+| 云端 | Google | `gemini-2.0-flash` | 需 API Key |
+| 云端 | xAI | grok 系列 | 需 API Key |
 | 云端 | Qwen（阿里） | `qwen-max-latest` | 需 DashScope Key |
 | 云端 | DeepSeek | `deepseek-v3` | 需 API Key |
 | 云端 | GLM（智谱） | `glm-4-plus` | 需 API Key |
@@ -30,6 +31,21 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | 云端 | Custom | 任意 | OpenAI 兼容端点 |
 
 > **推荐**：本地用 Ollama + `qwen3.5:4b`（4B 参数，平衡速度与效果，8GB 内存可流畅运行）。需要更强能力或多模态时再接入云端。
+
+---
+
+## 内置本地模型（零配置）
+
+从 0.9.16 起，Docker 镜像内置 llama.cpp 运行时并预置官方精选模型；首次启动向导的 **LLM 后端** 步骤（或 **设置 → LLM 后端** 的内置模型卡片）可以直接下载使用：
+
+- **一键下载** — 模型列表来自远程模型目录（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台）；离线时自动回退到内置精选列表
+- **按硬件自动推荐** — 下载页会标注每个模型的显存/内存需求（如 Ling-3.0-tiny 4.8GB Q4_K_M、128K 上下文、最低 6GB RAM）
+- **导入自己的 GGUF** — 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径；平台自动解析名称/上下文/量化信息并以 SHA-256 校验落盘，导入模型与精选模型同等参与切换（上下文上限 128K）
+- **开箱即用** — 首次下载完成后自动注册为本地后端并按模型自带的最优采样参数（temperature / top-p / top-k）运行
+
+## 思考力度（Thinking Effort）
+
+对支持推理的模型，可在后端能力面板统一控制思考力度：**none / low / medium / high**（部分后端支持更细档位）。NeoMind 把这一控制抽象为单一开关并自动映射到各后端的原生参数——Ollama 的 `think` 级别、OpenAI / 自定义 / GLM / Google 的 `reasoning_effort`、DeepSeek / Anthropic 的 `thinking`、Qwen 的 `enable_thinking`；不支持推理的后端会显示为只读徽标。
 
 ---
 
@@ -58,7 +74,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 打开 **Settings（设置） → LLM Backends（LLM 后端）**：
 
-<img src="https://resources.camthink.ai/NeoMind/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 点击 **Add Backend（添加后端）** 进入配置表单。
 
@@ -226,7 +242,7 @@ curl http://localhost:11434/api/chat -d '{
 NeoMind 支持图像输入与视觉分析。视觉能力的启用取决于模型：
 
 - **Ollama**：拉取视觉模型（如 `qwen3.5:4b-vl` / `llava` / `minicpm-v`）后，在 [AI Chat](./5-ai-chat.md) 中可直接上传图片提问。
-- **云端**：`gpt-4o` / `gpt-4o-mini` / `claude-3-5-sonnet` / `gemini-1.5-flash` / `qwen-vl` / `glm-4v` 等天然支持视觉。
+- **云端**：`gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-6` / `gemini-2.0-flash` / `qwen-vl` / `glm-4v` 等天然支持视觉。
 
 NeoMind 会自动探测模型的多模态能力（通过 LiteLLM 注册表 + `/api/show` 运行时探测 + 名称启发式匹配）。如果自动探测不准，可在后端详情页手动覆盖 **Multimodal** 开关。
 
@@ -263,4 +279,4 @@ neomind llm activate local
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

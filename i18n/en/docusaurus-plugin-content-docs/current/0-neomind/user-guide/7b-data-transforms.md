@@ -8,7 +8,7 @@ sidebar_position: 7.5
 
 # Data Transforms
 
-Data Transforms let NeoMind process telemetry data **in real time, after arrival and before storage** — using a JavaScript function to convert raw metrics into derived metrics. For example:
+Data Transforms let NeoMind automatically process telemetry data **after device data is written to Telemetry** (triggered by the write event, millisecond-scale) — using a JavaScript function to convert raw metrics into derived metrics. For example:
 
 - Celsius → Fahrenheit
 - Raw voltage + current → computed power
@@ -30,7 +30,7 @@ Derived metrics from transforms can be used just like regular device metrics in 
 
 Switch to the **Transforms** tab in the Automation page:
 
-<img src="https://resources.camthink.ai/NeoMind/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all transforms in a table, each row containing:
 
@@ -51,7 +51,7 @@ The **Import / Export** button in the top right lets you bulk import/export tran
 
 In the Transforms tab, click the **Create** button to open the full-screen builder:
 
-<img src="https://resources.camthink.ai/NeoMind/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The builder uses a **split-pane** layout:
 
@@ -81,14 +81,14 @@ Scope determines which devices' data the transform processes:
 
 ### Step 4: Write the Transform Code
 
-<img src="https://resources.camthink.ai/NeoMind/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-Write the transform function in JavaScript in the code editor. The `value` variable represents the input raw data value, and `return` an object as output:
+Write the transform function in JavaScript in the code editor. The **`input`** variable holds the input value — single-key metric objects (e.g. `{"temperature": 25}`) are auto-unwrapped to the scalar so it can be used directly; access the full input object via `input_raw`. `return` an object as output:
 
 ```javascript
 // Celsius to Fahrenheit
 return {
-  temp_f: value * 9/5 + 32
+  temp_f: input * 9/5 + 32
 }
 ```
 
@@ -116,7 +116,7 @@ After testing, click **Save** to save the transform.
 
 ```mermaid
 flowchart LR
-    A[Device publishes data] --> B{Matches scope?}
+    A[Device data written to Telemetry] --> B{Matches scope?}
     B -- Yes --> C[Execute JS transform code]
     B -- No --> A
     C --> D[Output derived metrics]
@@ -135,7 +135,7 @@ Derived metrics use DataSourceId format `transform:<output_prefix>:<field>`, e.g
 
 ```javascript
 return {
-  temp_f: value * 9 / 5 + 32
+  temp_f: input * 9 / 5 + 32
 }
 ```
 
@@ -164,7 +164,7 @@ return {
 
 ```javascript
 // Call YOLO extension for object detection
-const result = extensions_invoke('yolo-detector', 'detect', {
+const result = extensions_invoke('yolo-video', 'detect', {
   data: input
 })
 
@@ -192,28 +192,27 @@ return {
 ## CLI Management
 
 ```bash
-# Create a transform
-neomind automation create --json '{
-  "name": "Fahrenheit Converter",
-  "type": "transform",
-  "enabled": true,
-  "definition": {
-    "scope": "global",
-    "js_code": "return { temp_f: value * 9/5 + 32 }",
-    "output_prefix": "converted",
-    "complexity": 2
-  }
-}'
+# Create a transform (Celsius → Fahrenheit; access the input value via `input` in JS)
+neomind transform create \
+  --name "Fahrenheit Converter" \
+  --scope global \
+  --code 'return { temp_f: input * 9/5 + 32 }' \
+  --output-prefix converted \
+  --enable
 
-# List all transforms
-neomind automation list
+# List all transforms / view details
+neomind transform list
+neomind transform get <id>
+
+# View recent executions (first stop when "the code ran but produced no output")
+neomind transform executions <id> --limit 20
 
 # Enable / disable
-neomind automation status <id> --enabled true
-neomind automation status <id> --enabled false
+neomind transform enable <id>
+neomind transform disable <id>
 
 # Delete
-neomind automation delete <id>
+neomind transform delete <id>
 ```
 
 ## REST API
@@ -229,7 +228,7 @@ curl -X POST http://localhost:9375/api/automations \
     "enabled": true,
     "definition": {
       "scope": "global",
-      "js_code": "return { temp_f: value * 9/5 + 32 }",
+      "js_code": "return { temp_f: input * 9/5 + 32 }",
       "output_prefix": "converted",
       "complexity": 2
     }
@@ -270,10 +269,10 @@ Export file format: `neomind-transforms-YYYY-MM-DD.json`.
 
 ## Mobile
 
-<img src="https://resources.camthink.ai/NeoMind/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column layout supporting list viewing and status toggling. Edit transforms on desktop (the code editor needs screen space).
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

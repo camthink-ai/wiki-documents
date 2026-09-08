@@ -1,23 +1,27 @@
 ---
-description: Build your first NeoMind data-type extension — full engineering walkthrough of weather-forecast-v2 (HTTP polling + periodic metrics + React frontend)
+description: Build your first NeoMind data-type extension — full engineering walkthrough of weather-forecast (HTTP polling + periodic metrics + React frontend)
 keywords: [NeoMind, weather-forecast, extension development, case study]
 tags: [NeoMind, case study, data extension]
-sidebar_label: "weather-forecast-v2"
+sidebar_label: "weather-forecast"
 ---
 
-# weather-forecast-v2: Starter Data Extension
+# weather-forecast: Starter Data Extension
+
+> :::note
+> This source-code audit was completed at market version **v2.7.6** (the extension was named `weather-forecast-v2` at the time and has since been renamed to `weather-forecast`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast).
+> :::
 
 ## Case Background
 
-**weather-forecast-v2** is the simplest "data-type extension" in the NeoMind ecosystem. It periodically fetches weather data from the [Open-Meteo API](https://open-meteo.com/), writes temperature, humidity, wind speed, and other metrics into the NeoMind metric system.
+**weather-forecast** is the simplest "data-type extension" in the NeoMind ecosystem. It periodically fetches weather data from the [Open-Meteo API](https://open-meteo.com/), writes temperature, humidity, wind speed, and other metrics into the NeoMind metric system.
 
 It also provides a React card component for dashboard display. The entire extension is about 700 lines of Rust + 560 lines of TypeScript, with no AI inference, stream processing, or protocol bridging — making it the shortest path for newcomers to understand "what makes up an extension."
 
-**What problem does it solve?** The NeoMind dashboard needs to display real-time environmental data (temperature, humidity, wind speed), but this data comes from an external HTTP API rather than a local device. weather-forecast-v2 acts as a "data proxy" — pulling external API data into the NeoMind metric system so that dashboard components can consume weather data just like any local device metric.
+**What problem does it solve?** The NeoMind dashboard needs to display real-time environmental data (temperature, humidity, wind speed), but this data comes from an external HTTP API rather than a local device. weather-forecast acts as a "data proxy" — pulling external API data into the NeoMind metric system so that dashboard components can consume weather data just like any local device metric.
 
 **Target reader**: Developers who have just finished the [Extension API Reference](../7-extension-development.md) and want to build their first extension. No advanced Rust knowledge required, but you should understand traits, async/await, and the module system.
 
-**Position in the ecosystem**: weather-forecast-v2 is the reference template for "data-type extensions" — it has no hardware dependencies, no AI models, no industrial protocol stacks. Later cases build on this foundation: 2 (yolo-device-inference) adds model loading, 4 (onvif-bridge) adds protocol stack complexity. Master this case's 8 sections and you have the skeleton for all data-type extensions.
+**Position in the ecosystem**: weather-forecast is the reference template for "data-type extensions" — it has no hardware dependencies, no AI models, no industrial protocol stacks. Later cases build on this foundation: 2 (yolo-device-inference) adds model loading, 4 (onvif-bridge) adds protocol stack complexity. Master this case's 8 sections and you have the skeleton for all data-type extensions.
 
 **What you'll learn**:
 
@@ -30,7 +34,7 @@ It also provides a React card component for dashboard display. The entire extens
 
 ## Architecture Overview
 
-weather-forecast-v2 consists of three parts: a Rust extension core (data fetching + metric production), a React frontend component (card UI), and the NeoMind runtime (loading + scheduling). The diagram below shows the data flow and process boundaries.
+weather-forecast consists of three parts: a Rust extension core (data fetching + metric production), a React frontend component (card UI), and the NeoMind runtime (loading + scheduling). The diagram below shows the data flow and process boundaries.
 
 ```mermaid
 graph TB
@@ -52,7 +56,7 @@ graph TB
 
     subgraph "Dashboard (Browser)"
         RC[WeatherCard<br/>React Component]
-        UMD[weather-forecast-v2-components.umd.cjs]
+        UMD[weather-forecast-components.umd.cjs]
     end
 
     RT -->|"periodic produce_metrics() call"| EXT
@@ -82,7 +86,7 @@ graph TB
 ### Directory Structure
 
 ```
-extensions/weather-forecast-v2/
+extensions/weather-forecast/
 ├── Cargo.toml          # dependency declarations + crate metadata
 ├── metadata.json       # extension manifest (auto-generated from Cargo.toml by build script)
 ├── src/
@@ -96,11 +100,11 @@ extensions/weather-forecast-v2/
     └── extension_test.rs
 ```
 
-The single-file Rust design is intentional — weather-forecast-v2's logic complexity doesn't justify splitting into modules. Later cases (e.g., yolo-device-inference) split out `onnx_utils.rs` / `camera.rs` submodules.
+The single-file Rust design is intentional — weather-forecast's logic complexity doesn't justify splitting into modules. Later cases (e.g., yolo-device-inference) split out `onnx_utils.rs` / `camera.rs` submodules.
 
 ### ExtensionMetadata Builder Chain
 
-View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L219-L273) L219-273
+View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L219-L273) L219-273
 
 ```rust
 fn metadata(&self) -> &ExtensionMetadata {
@@ -108,7 +112,7 @@ fn metadata(&self) -> &ExtensionMetadata {
     static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
     META.get_or_init(|| {
         ExtensionMetadata::new(
-            "weather-forecast-v2",      // why kebab-case: matches directory name and metadata.json id
+            "weather-forecast",      // why kebab-case: matches directory name and metadata.json id
             "Weather Forecast V2",
             "2.0.0"
         )
@@ -135,7 +139,7 @@ fn metadata(&self) -> &ExtensionMetadata {
     static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
     META.get_or_init(|| {
         ExtensionMetadata::new(
-            "weather-forecast-v2",
+            "weather-forecast",
             "Weather Forecast V2",
             "2.0.0"
         )
@@ -163,13 +167,13 @@ fn metadata(&self) -> &ExtensionMetadata {
                 name: "refreshInterval".to_string(),
 ```
 
-[Source: lib.rs L219-L273](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L219-L273)
+[Source: lib.rs L219-L273](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L219-L273)
 
 **Why `OnceLock` instead of `lazy_static!`?** `OnceLock` was added to the Rust standard library in 1.70 and requires no extra dependencies. The metadata is constructed on the first call to `metadata()` and all subsequent calls return the same reference — this matters at the FFI boundary because the host process queries metadata frequently.
 
 ### Metric Production: AtomicI64 + Fixed-Point Decimals
 
-View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L80-L92) L80-92 (field definitions), [L119-129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L119-L129) (storage), [L466-522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L466-L522) (production)
+View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L80-L92) L80-92 (field definitions), [L119-129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L119-L129) (storage), [L466-522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L466-L522) (production)
 
 ```rust
 pub struct WeatherExtension {
@@ -223,7 +227,7 @@ pub struct WeatherExtension {
 }
 ```
 
-[Source: lib.rs L80-L92](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L80-L92)
+[Source: lib.rs L80-L92](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L80-L92)
 
 ```rust
 // lib.rs L119-L129
@@ -240,7 +244,7 @@ fn store_weather_metrics(&self, weather: &WeatherResult) {
 }
 ```
 
-[Source: lib.rs L119-L129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L119-L129)
+[Source: lib.rs L119-L129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L119-L129)
 
 ```rust
 // lib.rs L466-L522 (trimmed)
@@ -280,13 +284,13 @@ fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> {
                 name: "wind_direction_deg".to_string(),
 ```
 
-[Source: lib.rs L466-L522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L466-L522)
+[Source: lib.rs L466-L522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L466-L522)
 
 **Why not `Mutex<WeatherResult>`?** Because `produce_metrics()` is a synchronous method called periodically at high frequency by the runtime. Using `Mutex` would require acquiring a lock on every read, causing lock contention in high-concurrency metric collection scenarios. `AtomicI64`'s `load` is a lock-free operation with minimal overhead.
 
 ### HTTP Client: ureq (Sync)
 
-View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L132-L167) L132-167
+View full implementation: [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L132-L167) L132-167
 
 ```rust
 fn geocode_sync(&self, city: &str) -> std::result::Result<GeoLocation, String> {
@@ -335,7 +339,7 @@ fn geocode_sync(&self, city: &str) -> std::result::Result<GeoLocation, String> {
         .call()
 ```
 
-[Source: lib.rs L132-L167](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L132-L167)
+[Source: lib.rs L132-L167](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L132-L167)
 
 `Cargo.toml` line 21 has an explicit comment: `# Use sync HTTP client to avoid Tokio runtime issues in dynamic libraries`. This is the most critical design decision in this case — see 4.1.
 
@@ -362,20 +366,20 @@ sequenceDiagram
 
 ### Frontend Entrypoint: Vite UMD Bundle
 
-View full implementation: [`frontend/src/index.tsx`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/frontend/src/index.tsx#L425-L565) L425-565
+View full implementation: [`frontend/src/index.tsx`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/frontend/src/index.tsx#L425-L565) L425-565
 
-The `WeatherCard` component is exposed via `forwardRef` and Vite builds it into a UMD bundle (`weather-forecast-v2-components.umd.cjs`). The `metadata.json` `frontend` field declares the entrypoint:
+The `WeatherCard` component is exposed via `forwardRef` and Vite builds it into a UMD bundle (`weather-forecast-components.umd.cjs`). The `metadata.json` `frontend` field declares the entrypoint:
 
 ```json
 {
   "frontend": {
     "components": ["WeatherCard"],
-    "entrypoint": "weather-forecast-v2-components.umd.cjs"
+    "entrypoint": "weather-forecast-components.umd.cjs"
   }
 }
 ```
 
-The frontend calls backend commands via `fetch('/api/extensions/weather-forecast-v2/command')` with 3 retries and initialization error detection — this ensures the UI doesn't hard-fail when extension loading is delayed.
+The frontend calls backend commands via `fetch('/api/extensions/weather-forecast/command')` with 3 retries and initialization error detection — this ensures the UI doesn't hard-fail when extension loading is delayed.
 
 ---
 
@@ -387,7 +391,7 @@ The frontend calls backend commands via `fetch('/api/extensions/weather-forecast
 
 **Alternatives rejected**:
 - **A. `reqwest` async client** → Rejected because: `reqwest` depends on the Tokio runtime, and NeoMind extensions are loaded dynamically as `.dylib`/`.so`/`.dll` by the host process. Starting a Tokio runtime inside a dynamic library conflicts with the host process's own runtime (the host may already have its own runtime), causing panics or undefined behavior. `Cargo.toml` line 21 documents this explicitly.
-- **B. Raw `hyper` + manual thread pool** → Rejected because: Too low-level — HTTP/JSON parsing, connection pooling, and timeout management all need to be hand-written. The maintenance cost far exceeds the benefit. weather-forecast-v2's HTTP volume is minimal (one geocoding + one weather fetch per command), so async concurrency is unnecessary.
+- **B. Raw `hyper` + manual thread pool** → Rejected because: Too low-level — HTTP/JSON parsing, connection pooling, and timeout management all need to be hand-written. The maintenance cost far exceeds the benefit. weather-forecast's HTTP volume is minimal (one geocoding + one weather fetch per command), so async concurrency is unnecessary.
 
 **Trade-off cost**: Synchronous calls block the calling thread. `execute_command` is an async method, but the internal `get_weather_sync` is synchronous and blocking — during the call, the task cannot yield control. **This is acceptable** because weather API responses typically complete in &lt;2s, and NeoMind's default command timeout is 30s.
 
@@ -404,14 +408,14 @@ Even if multi-city parallel fetches were supported in the future, only a handful
 - **B. `Arc<AtomicPtr<str>>`** → Rejected because: Strings are not fixed-size types and cannot be swapped directly with atomic operations. This would require `Box::leak` or similar tricks, introducing unsafe code in violation of [Appendix](./appendix-standards.md#unsafe-rust)'s "avoid unsafe" principle.
 - **C. Immutable design (create new `String` each time)** → Rejected because: Would require wrapping the entire `WeatherExtension` in `Arc<Mutex<>>` or `Arc<RwLock<>>`, changing all method signatures — too invasive.
 
-**Trade-off cost**: `RwLock` is slightly slower than `Mutex` on Linux (kernel-level overhead), but under weather-forecast-v2's load (one write every 5 minutes), the difference is negligible. The read/write ratio is roughly N:1 — every `produce_metrics()` call indirectly reads city-derived data (every 30s), while only user-issued `get_weather` commands perform writes. Under default config this is a 30:1 ratio, exactly the regime where `RwLock` beats `Mutex`. If a future "hot city-swap" feature (e.g., auto-switching based on geolocation) introduces high-frequency writes, reconsider switching to a lock-free structure like `ArcSwap<String>`.
+**Trade-off cost**: `RwLock` is slightly slower than `Mutex` on Linux (kernel-level overhead), but under weather-forecast's load (one write every 5 minutes), the difference is negligible. The read/write ratio is roughly N:1 — every `produce_metrics()` call indirectly reads city-derived data (every 30s), while only user-issued `get_weather` commands perform writes. Under default config this is a 30:1 ratio, exactly the regime where `RwLock` beats `Mutex`. If a future "hot city-swap" feature (e.g., auto-switching based on geolocation) introduces high-frequency writes, reconsider switching to a lock-free structure like `ArcSwap<String>`.
 
 ### Metric Naming: `<quantity>_<unit>` Suffix Convention
 
 **Decision**: All metric names include a unit suffix, e.g., `temperature_c`, `wind_speed_kmph`, `pressure_hpa`.
 
 **Alternatives rejected**:
-- **A. No unit: `temperature`, `wind_speed`, `pressure`** → Rejected because: The NeoMind metric system is globally shared, and multiple extensions may produce same-named metrics. If weather-forecast-v2 outputs `temperature` and another extension (e.g., a temperature/humidity sensor) also outputs `temperature`, queries will conflict. The unit suffix makes metric names self-disambiguating.
+- **A. No unit: `temperature`, `wind_speed`, `pressure`** → Rejected because: The NeoMind metric system is globally shared, and multiple extensions may produce same-named metrics. If weather-forecast outputs `temperature` and another extension (e.g., a temperature/humidity sensor) also outputs `temperature`, queries will conflict. The unit suffix makes metric names self-disambiguating.
 - **B. Extension prefix: `weather_temperature`** → Rejected because: The NeoMind metric system already has a `device_id` dimension for namespace isolation — repeating the extension name in metric names is redundant. The unit suffix is more informative: users see `temperature_c` and immediately know the unit is Celsius.
 - **C. Dot-separated: `temperature.celsius`** → Rejected because: Prometheus-style dots conflict with NeoMind's metric query syntax (where `device.metrics.temperature.celsius` would be parsed as nested field paths). Underscores are safer.
 
@@ -437,11 +441,11 @@ Even if multi-city parallel fetches were supported in the future, only a handful
 
 ### metadata.json Field Mapping
 
-Cross-referencing [Appendix](./appendix-standards.md#metadatajson--manifestjson-schema), field-by-field inspection of weather-forecast-v2's `metadata.json`:
+Cross-referencing [Appendix](./appendix-standards.md#metadatajson--manifestjson-schema), field-by-field inspection of weather-forecast's `metadata.json`:
 
 | Field | Value | Appendix Section | Notes |
 |-------|-------|-----------------|-------|
-| `id` | `"weather-forecast-v2"` | [Basic Info](./appendix-standards.md#basic-information) | kebab-case, matches directory name |
+| `id` | `"weather-forecast"` | [Basic Info](./appendix-standards.md#basic-information) | kebab-case, matches directory name |
 | `name` | `"weather forecast"` | [Basic Info](./appendix-standards.md#basic-information) | lowercase display name |
 | `version` | `"2.7.6"` | [Basic Info](./appendix-standards.md#basic-information) | auto-read from Cargo.toml |
 | `type` | `"native"` | [Type & Categorization](./appendix-standards.md#type--categorization) | Rust cdylib |
@@ -450,9 +454,9 @@ Cross-referencing [Appendix](./appendix-standards.md#metadatajson--manifestjson-
 
 ### Capability Declaration & Reverse Example
 
-weather-forecast-v2's `src/lib.rs` does **not** explicitly call `CapabilityContext::invoke_capability()` — it only returns metric values via `produce_metrics()`, which the runtime writes to the metric store automatically. But if it needed to **directly write device metrics** (e.g., write temperature to a virtual device), it would need to declare the `device_metrics_write` capability.
+weather-forecast's `src/lib.rs` does **not** explicitly call `CapabilityContext::invoke_capability()` — it only returns metric values via `produce_metrics()`, which the runtime writes to the metric store automatically. But if it needed to **directly write device metrics** (e.g., write temperature to a virtual device), it would need to declare the `device_metrics_write` capability.
 
-**Reverse example**: If weather-forecast-v2 wanted to write virtual device metrics but forgot to declare `device_metrics_write` in metadata:
+**Reverse example**: If weather-forecast wanted to write virtual device metrics but forgot to declare `device_metrics_write` in metadata:
 
 ```rust
 // WRONG: calling capability without declaring it
@@ -465,11 +469,11 @@ ctx.invoke_capability("device_metrics_write", &json!({
 // See Appendix 7.2 Capability Explicit Declaration
 ```
 
-The correct approach is to declare required capabilities in `metadata.json` (weather-forecast-v2 doesn't need any, so this field is absent).
+The correct approach is to declare required capabilities in `metadata.json` (weather-forecast doesn't need any, so this field is absent).
 
 ### Version Triplet Consistency
 
-Verify weather-forecast-v2's version is consistent across all locations:
+Verify weather-forecast's version is consistent across all locations:
 
 | Location | Value | Consistent? |
 |----------|-------|-------------|
@@ -485,15 +489,15 @@ The `metadata.json` `builds` field lists 5 targets covering the complete matrix 
 
 ```json
 "builds": {
-    "darwin-aarch64":  { "...weather-forecast-v2-2.7.6-darwin_aarch64.nep" },
-    "darwin-x86_64":   { "...weather-forecast-v2-2.7.6-darwin_x86_64.nep" },
-    "linux-x86_64":    { "...weather-forecast-v2-2.7.6-linux_amd64.nep" },
-    "linux-aarch64":   { "...weather-forecast-v2-2.7.6-linux_arm64.nep" },
-    "windows-x86_64":  { "...weather-forecast-v2-2.7.6-windows_amd64.nep" }
+    "darwin-aarch64":  { "...weather-forecast-2.7.6-darwin_aarch64.nep" },
+    "darwin-x86_64":   { "...weather-forecast-2.7.6-darwin_x86_64.nep" },
+    "linux-x86_64":    { "...weather-forecast-2.7.6-linux_amd64.nep" },
+    "linux-aarch64":   { "...weather-forecast-2.7.6-linux_arm64.nep" },
+    "windows-x86_64":  { "...weather-forecast-2.7.6-windows_amd64.nep" }
 }
 ```
 
-weather-forecast-v2 is pure Rust + HTTP with no C dependencies, so all 5 targets can be built directly with `cargo build`. Compared to yolo-device-inference (which needs ONNX Runtime C library), cross-compilation difficulty is much lower.
+weather-forecast is pure Rust + HTTP with no C dependencies, so all 5 targets can be built directly with `cargo build`. Compared to yolo-device-inference (which needs ONNX Runtime C library), cross-compilation difficulty is much lower.
 
 ---
 
@@ -503,7 +507,7 @@ weather-forecast-v2 is pure Rust + HTTP with no C dependencies, so all 5 targets
 
 **Source commit**: [`f1ea628`](https://github.com/camthink-ai/NeoMind-Extensions/commit/f1ea628) — `refactor: use crates.io SDK for ABI isolation`
 
-**Symptom**: Early versions of weather-forecast-v2 used `semver::Version::parse("2.0.0").unwrap()` to parse version strings. When the SDK internally changed its type from `semver::Version` to `String`, all extensions' `.unwrap()` calls panicked on non-semver-formatted version strings.
+**Symptom**: Early versions of weather-forecast used `semver::Version::parse("2.0.0").unwrap()` to parse version strings. When the SDK internally changed its type from `semver::Version` to `String`, all extensions' `.unwrap()` calls panicked on non-semver-formatted version strings.
 
 **Root cause**: Extensions depended directly on the SDK's git repository (`neomind-extension-sdk = { git = "..." }`), so any SDK update required all extensions to recompile in sync. SDK internal type changes (like `Version` → `String`) were inevitable, but git dependencies have no version isolation — one change breaks everything.
 
@@ -514,7 +518,7 @@ weather-forecast-v2 is pure Rust + HTTP with no C dependencies, so all 5 targets
 ### Best Practices Checklist
 
 1. **Always wrap mutable config in `RwLock`, not `Mutex`**
-   weather-forecast-v2 uses `RwLock<String>` for `default_city` rather than `Mutex<String>`. Reason: both `produce_metrics()` and `execute_command("refresh")` read the city name, while `configure()` only writes on config changes. `RwLock` allows concurrent reads; `Mutex` serializes all access.
+   weather-forecast uses `RwLock<String>` for `default_city` rather than `Mutex<String>`. Reason: both `produce_metrics()` and `execute_command("refresh")` read the city name, while `configure()` only writes on config changes. `RwLock` allows concurrent reads; `Mutex` serializes all access.
 
 2. **Fixed-point decimal storage (×100 + AtomicI64) beats `Mutex<f64>`**
    `AtomicI64` doesn't support `f64`, but temperature needs two decimal places of precision (25.55°C). Multiply by 100 and store as integer (2555); divide by 100 on read to restore. This is 10× faster than `Mutex<f64>` and requires no lock. The trade-off is precision limited to two decimal places — sufficient for weather data.
@@ -533,7 +537,7 @@ weather-forecast-v2 is pure Rust + HTTP with no C dependencies, so all 5 targets
 - [Overview: All Case Studies](./0-overview.md) — Index of 7 case studies and 4 reading paths
 - [6 metric_card Component Case](./6-metric-card-component.md) — Next starter case: dashboard component template
 - [Extension Development API](../7-extension-development.md) — API docs for `Extension` trait, macros, and capabilities
-- [Source Code](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast-v2) — Full source on GitHub
+- [Source Code](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast) — Full source on GitHub
 
 ---
 

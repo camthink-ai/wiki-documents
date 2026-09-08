@@ -140,7 +140,7 @@ curl http://localhost:11434/api/chat -d '{
 
 **Cause**: sending an image to a text-only cloud model (DeepSeek-V3, Qwen text tiers). NeoMind gates image sending on the capability toggle, but auto-detect mistakes can still cause this.
 
-**Fix**: turn **off** the Multimodal toggle on that backend, or switch to a vision-capable cloud model (`gpt-4o` / `claude-3-5-sonnet` / `qwen-vl` / `glm-4v`).
+**Fix**: turn **off** the Multimodal toggle on that backend, or switch to a vision-capable cloud model (`gpt-4o` / `claude-sonnet-4-6` / `qwen-vl` / `glm-4v`).
 
 ## Devices / MQTT
 
@@ -205,7 +205,7 @@ Pass the credentials into device code: `client.connect(client_id, username, pass
 
 ```bash
 # Find extension logs
-ls data/logs/
+ls data/logs/                # server logs; live extension logs are in the extension detail page → Logs tab
 neomind extension list       # status overview
 neomind extension info <ID>   # recent error for a specific extension
 ```
@@ -255,8 +255,14 @@ Yes. Stop the service, copy the entire data dir to the new host at the same path
 
 ### Backup
 
+**Built-in backup (0.9.21+, recommended)** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
+
+- Configure the backup schedule under **Settings → Preferences** (on/off, 6h–7d interval, retention count); you can also click "Back up now"
+- API: `POST /api/settings/backup` (back up now), `GET /api/settings/backups` (list)
+- Restore is a manual operation: stop the server → copy the backup files over the data files → start
+
 ```bash
-# Simple: stop + tar
+# Older versions without built-in backup: stop + copy the directory
 sudo systemctl stop neomind
 sudo tar czf neomind-backup-$(date +%F).tar.gz /var/lib/neomind
 sudo systemctl start neomind
@@ -291,4 +297,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

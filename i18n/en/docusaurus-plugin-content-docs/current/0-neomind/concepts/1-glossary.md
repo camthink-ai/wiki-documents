@@ -145,7 +145,7 @@ The unified format NeoMind uses to reference any data point: `{type}:{id}:{field
 | type | Meaning | Example |
 |------|---------|---------|
 | `device` | Device telemetry | `device:sensor-01:temperature` |
-| `extension` | Extension metric | `extension:weather:temp` |
+| `extension` | Extension metric | `extension:weather-forecast:temperature` |
 | `agent` | Agent status | `agent:guard:status` |
 
 :::tip This is the format you'll see most often
@@ -209,11 +209,11 @@ The agent's core execution pattern: the LLM analyzes the current state (**Think*
 
 ### Skill
 
-A Markdown file (stored in `data/skills/`) that provides scenario-specific guidance to agents. A Skill defines operational steps, common errors, and best practices for a specific scenario. The LLM automatically references relevant Skills during execution.
+Knowledge files that provide scenario-specific guidance to agents (YAML metadata + Markdown body, stored in `data/skills/`). A Skill defines operational steps, common errors, and best practices for a specific scenario. Agents automatically match relevant Skills by description (built-in skills are read-only; user skills can be added, modified, and removed).
 
 ### Multimodal
 
-An LLM's ability to process image input. Depends on the model — after pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava`) in Ollama or using a cloud vision model (`gpt-4o` / `claude-3-5-sonnet` / `gemini-1.5-flash`), AI Chat supports image uploads for visual analysis.
+An LLM's ability to process image input. Depends on the model — after pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava`) in Ollama or using a cloud vision model (`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`), AI Chat supports image uploads for visual analysis.
 
 ### Tool
 
@@ -279,7 +279,7 @@ NeoMind's built-in automation evaluation engine. Evaluates bound rule conditions
 
 ### Message Channel
 
-The delivery channel used when a rule triggers a notification. Supports 7 external channels plus in-app messages:
+The delivery channel used when a rule triggers a notification. There are 9 channels in total — 2 built-in + 7 external:
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule triggers</span>
@@ -341,7 +341,7 @@ Extensions run in separate processes — if the YOLO extension crashes because a
 
 ### Capability
 
-A permission an extension must declare at startup. Any capability not declared is denied. This enforces the **principle of least privilege**. 14 built-in capabilities cover device read/write, device control, storage queries, event pub/sub, and triggers:
+A permission an extension must declare at startup. Any capability not declared is denied. This enforces the **principle of least privilege**. 20 built-in capabilities (including the chat streaming family) cover device read/write, device control, storage queries, event subscriptions, triggers, etc. — full list in the [Extension SDK](../../developer-guide/3-extension-sdk.md):
 
 | Category | Capability | Description |
 |----------|-----------|-------------|
@@ -451,7 +451,7 @@ A single visualization element on a dashboard. Built-in types:
 | **VLM Vision** | Image + AI annotations | Object detection results |
 | **Stream Player** | Live video feed | Camera feed |
 
-Custom widgets provided by extensions are also supported.
+The above are the common built-in types. For the complete list of widget types, see the [Dashboard guide](../user-guide/4-use-dashboard.md). Custom components provided by extensions and the community component marketplace are also supported.
 
 > See [Use Dashboard](../user-guide/4-use-dashboard.md).
 
@@ -488,7 +488,7 @@ How do these concepts work together? The diagram below shows the full data flow 
           <strong>Dashboard</strong> / Widget<br/><br/>Rule Engine<br/><br/>Agent (LLM)
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
-          Real-time UI<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket push)</span><br/><br/>Notifications<br/><span style={{fontSize: '0.85em', color: '#666'}}>(7 channels)</span><br/><br/>AI Responses<br/><span style={{fontSize: '0.85em', color: '#666'}}>(natural language)</span>
+          Real-time UI<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket push)</span><br/><br/>Notifications<br/><span style={{fontSize: '0.85em', color: '#666'}}>(9 channels)</span><br/><br/>AI Responses<br/><span style={{fontSize: '0.85em', color: '#666'}}>(natural language)</span>
         </td>
       </tr>
     </tbody>
@@ -501,4 +501,4 @@ How do these concepts work together? The diagram below shows the full data flow 
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

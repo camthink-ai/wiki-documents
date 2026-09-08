@@ -56,7 +56,7 @@ NeoMind 是一个 Rust workspace。每个 crate 有清晰单一的责任：
 | **neomind-agent** | AI Agent：LLM 后端、工具调用、记忆系统、技能系统、调度器 |
 | **neomind-devices** | 设备管理：MQTT / Webhook 适配器、设备注册、命令队列、草稿审批 |
 | **neomind-storage** | redb 嵌入式存储：所有 `*.redb` 表的 schema 与访问层 |
-| **neomind-messages** | 消息通知：7 个渠道（webhook/email/telegram/wecom/dingtalk/slack/feishu）+ 应用内 |
+| **neomind-messages** | 消息通知：9 个渠道（7 个外部 webhook/email/telegram/wecom/dingtalk/slack/feishu + 2 个内置） |
 | **neomind-rules** | JSON 规则引擎：解析、执行、事件触发 |
 | **neomind-extension-sdk** | 扩展 SDK：`neomind_export!` 宏、capability、ML 模型生命周期（公开 API） |
 | **neomind-extension-runner** | 扩展进程宿主：隔离沙箱、FFI 桥、崩溃循环保护 |

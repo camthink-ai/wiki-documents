@@ -17,11 +17,11 @@ NeoMind 三个核心界面——管理你的设备、可视化你的数据、用
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="https://resources.camthink.ai/NeoMind/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 
@@ -102,8 +102,8 @@ flowchart TB
 ### AI 智能化
 - **自然语言对话** — 会话式接口，查询并控制所有已连接设备
 - **自主智能体** — 按计划或事件触发的 AI Agent，独立监控、分析并执行设备数据
-- **10+ LLM 后端** — Ollama、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
-- **记忆系统** — 多层记忆（个人档案 / 知识 / 任务 / 演化），自动抽取与压缩
+- **10+ LLM 后端** — Ollama、llama.cpp（含平台内置本地模型，一键下载即用）、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
+- **记忆系统** — 跨会话记忆（用户档案 / 知识库 + 执行日志），对话结束后自动抽取持久化
 - **技能系统** — YAML + Markdown 技能文件，针对特定场景引导 Agent 行为
 - **多模态** — 支持图像上传与视觉分析
 
@@ -129,7 +129,8 @@ flowchart TB
 - **自定义组件** — 构建并发布你自己的仪表板组件
 
 ### 通知与数据推送
-- **7 个通知渠道** — Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书
+- **9 个通知渠道** — 7 个外部渠道（Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书）+ 2 个内置
+- **IM 桥接** — 在 Telegram / 飞书里直接与 AI Agent 对话（与通知渠道相互独立）
 - **数据推送** — 通过 Webhook 或 MQTT 将遥测数据转发到外部系统
 - **投递跟踪** — 指数退避重试、投递历史、日志管理
 - **消息去重** — 防止高频触发引发的通知风暴
@@ -178,4 +179,4 @@ NeoMind 是一个模块化生态系统，每个关注点由专门仓库承载：
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

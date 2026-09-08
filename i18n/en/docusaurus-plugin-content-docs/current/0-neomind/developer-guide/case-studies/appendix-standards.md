@@ -24,13 +24,13 @@ The two schemas overlap heavily, but **extensions uniquely have `builds` / `fron
 
 | Field | Type | Required | Description | Example |
 |-------|------|----------|-------------|---------|
-| `id` | string | yes | Unique artifact identifier, globally unique. **Extensions use kebab-case** (hyphens, e.g. `weather-forecast-v2`); **components use snake_case** (underscores, e.g. `ne101_camera`) | `weather-forecast-v2` / `ne101_camera` |
+| `id` | string | yes | Unique artifact identifier, globally unique. **Extensions use kebab-case** (hyphens, e.g. `weather-forecast`); **components use snake_case** (underscores, e.g. `ne101_camera`) | `weather-forecast` / `ne101_camera` |
 | `name` | string \| object | yes | Display name. Components support `{ "en": "...", "zh": "..." }` i18n object | `"weather forecast"` / `{ "en": "NE101 Camera Panel", "zh": "NE101 感知摄像头面板" }` |
 | `version` | string (semver) | yes | Three-segment semantic version. Extensions read automatically from `Cargo.toml`; components hand-written | `"2.7.6"` / `"2.14.9"` |
 | `description` | string \| object | yes | One-line description; components support i18n | `"Real-time weather forecast..."` |
 | `author` | string | yes | Author or team name | `"NeoMind Team"` / `"CamThink Team"` |
 | `license` | string | ext required | SPDX license identifier | `"Apache-2.0"` / `"MIT"` |
-| `homepage` | string (URL) | no | Source code or documentation URL | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast-v2"` |
+| `homepage` | string (URL) | no | Source code or documentation URL | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast"` |
 | `icon` | string | no (common in components) | Icon identifier, maps to NeoMind icon library | `"Camera"` |
 
 ### Type & Categorization
@@ -48,11 +48,11 @@ The `builds` field is **extension-only** and lists download URLs for 5 cross-pla
 ```json
 {
   "builds": {
-    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-v2-2.7.6-darwin_aarch64.nep" },
-    "darwin-x86_64":  { "url": ".../weather-forecast-v2-2.7.6-darwin_x86_64.nep" },
-    "linux-x86_64":   { "url": ".../weather-forecast-v2-2.7.6-linux_amd64.nep" },
-    "linux-aarch64":  { "url": ".../weather-forecast-v2-2.7.6-linux_arm64.nep" },
-    "windows-x86_64": { "url": ".../weather-forecast-v2-2.7.6-windows_amd64.nep" }
+    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-2.7.6-darwin_aarch64.nep" },
+    "darwin-x86_64":  { "url": ".../weather-forecast-2.7.6-darwin_x86_64.nep" },
+    "linux-x86_64":   { "url": ".../weather-forecast-2.7.6-linux_amd64.nep" },
+    "linux-aarch64":  { "url": ".../weather-forecast-2.7.6-linux_arm64.nep" },
+    "windows-x86_64": { "url": ".../weather-forecast-2.7.6-windows_amd64.nep" }
   }
 }
 ```
@@ -66,7 +66,7 @@ Extensions with React frontend must declare the `frontend` object:
 | Field | Type | Required | Description | Example |
 |-------|------|----------|-------------|---------|
 | `frontend.components` | string[] | yes | Component name array, **plain strings** not objects | `["WeatherCard"]` |
-| `frontend.entrypoint` | string | yes | UMD entry filename, must match `frontend.json`'s `entrypoint` | `"weather-forecast-v2-components.umd.cjs"` |
+| `frontend.entrypoint` | string | yes | UMD entry filename, must match `frontend.json`'s `entrypoint` | `"weather-forecast-components.umd.cjs"` |
 
 > Common mistake: writing `components` as an object array `[{ "name": "WeatherCard", ... }]`. The marketplace parser will reject it.
 
@@ -112,7 +112,7 @@ The table below lists all variants of SDK `ExtensionCapability` (source: `neomin
 | Capability Identifier | Meaning | Typical Extensions |
 |-----------------------|---------|---------------------|
 | `device_metrics_read` | Read device metrics | Dashboard-type extensions |
-| `device_metrics_write` | Write device metrics (including virtual metrics) | weather-forecast-v2, all bridge extensions |
+| `device_metrics_write` | Write device metrics (including virtual metrics) | weather-forecast, all bridge extensions |
 | `device_control` | Send commands to devices | homeassistant-bridge, modbus-bridge |
 | `storage_query` | Query time-series storage | Data analysis extensions |
 | `event_publish` | Publish events | Automation trigger extensions |
@@ -169,7 +169,7 @@ The NeoMind-Extensions repository has **three tiers of version numbers** that **
 
 **Only updating `VERSION` and `index.json`, but forgetting to update each extension's `Cargo.toml`.** Consequences:
 
-- Package filename uses old version: `weather-forecast-v2-2.6.0-darwin_aarch64.nep`
+- Package filename uses old version: `weather-forecast-2.6.0-darwin_aarch64.nep`
 - GitHub Release title says v2.7.0, but the packages inside are 2.6.0
 - `index.json` `builds` URLs point to `2.7.0` asset names, but actual filenames are `2.6.0` → 404
 - User experience confusion, marketplace install failure
@@ -205,7 +205,7 @@ NeoMind extensions support **5** targets (not 6 — there is no `windows-aarch64
 ./build.sh --release 2.7.0
 
 # Build a single extension only
-./build.sh --single weather-forecast-v2 --release 2.7.0
+./build.sh --single weather-forecast --release 2.7.0
 ```
 
 `build.sh` internally uses [cross](https://github.com/cross-rs/cross) (Docker-based) or the local toolchain for cross-compilation. Developers who have the corresponding Rust target toolchains installed locally can skip Docker and compile directly.
@@ -213,13 +213,13 @@ NeoMind extensions support **5** targets (not 6 — there is no `windows-aarch64
 ### .nep Package Structure
 
 ```
-weather-forecast-v2-2.7.6-darwin_aarch64.nep   (ZIP format)
+weather-forecast-2.7.6-darwin_aarch64.nep   (ZIP format)
 ├── manifest.json           # Install manifest (converted from metadata.json)
 ├── binaries/
 │   └── darwin_aarch64/
 │       └── libneomind_extension_weather_forecast_v2.dylib
 ├── frontend/
-│   └── weather-forecast-v2-components.umd.cjs
+│   └── weather-forecast-components.umd.cjs
 └── models/                 # Optional: ONNX models
     └── model.onnx
 ```
@@ -232,8 +232,8 @@ The NeoMind ecosystem has explicit testing requirements — **extensions that fa
 
 | Test Type | Location | Requirement | Reference |
 |-----------|----------|-------------|-----------|
-| Unit tests | `src/lib.rs` inside `#[cfg(test)] mod tests` | At least cover happy path of core commands | `weather-forecast-v2/src/lib.rs` |
-| Integration tests | `tests/` directory | At least 1 integration test file | `weather-forecast-v2/tests/` |
+| Unit tests | `src/lib.rs` inside `#[cfg(test)] mod tests` | At least cover happy path of core commands | `weather-forecast/src/lib.rs` |
+| Integration tests | `tests/` directory | At least 1 integration test file | `weather-forecast/tests/` |
 
 Minimal example:
 

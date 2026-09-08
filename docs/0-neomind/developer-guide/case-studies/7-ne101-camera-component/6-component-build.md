@@ -404,7 +404,7 @@ function ConfigPanel(props) {
 
 **AdvancedPanel：重逻辑的 Advanced tab**。查看源码起始：[`bundle.js` L1363-L1448](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L1363-L1448)。`AdvancedPanel` 是整个 bundle 第二长的函数（523 行，仅次于主组件的 861 行），承载了 ne101_camera 的所有「配置复杂度」。
 
-这些复杂度包括：AI 处理总开关（`SwitchControl`）、扩展选择（`ExtDropdown`）、模板/模式选择、类别过滤输入（`imeInput`）、短语输入、类别颜色过滤、ROI 开关 + 多边形编辑器（Canvas 画布上的拖拽点）、ROI 重叠阈值滑块（commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)）、NMS IoU 阈值透传给 `locate-anything-v2`（commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)）。
+这些复杂度包括：AI 处理总开关（`SwitchControl`）、扩展选择（`ExtDropdown`）、模板/模式选择、类别过滤输入（`imeInput`）、短语输入、类别颜色过滤、ROI 开关 + 多边形编辑器（Canvas 画布上的拖拽点）、ROI 重叠阈值滑块（commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)）、NMS IoU 阈值透传给 `locate-anything`（commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)）。
 
 ```js
 // bundle.js L1363-L1448（AdvancedPanel 区域起始：ROI_ACTIONS + ExtDropdown）
@@ -573,7 +573,7 @@ Source: [`bundle.js` L1371-L1446](https://github.com/camthink-ai/NeoMind-Dashboa
 | [`44f1fa5`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/44f1fa5) | fix | input fields frozen — use local state instead of shared composingRef | 6.5 |
 | [`b060a25`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b060a25) | fix | React error #310 — use defaultValue instead of hooks in imeInput | 6.5 |
 | [`a8c1212`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/a8c1212) | revert | remove auto hash bump, preserve user transform edits | 6.3（template 引擎层演进） |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 6.6（AdvancedPanel 滑块） |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 6.6（AdvancedPanel 滑块） |
 | [`c276c23`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/c276c23) | feat | per-class detection colors via golden-angle HSV rotation | 6.3（Helper 层 classColor） |
 
 ### 后续章节桥接

@@ -24,13 +24,13 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 
 | 字段 | 类型 | 必填 | 说明 | 示例 |
 |------|------|------|------|------|
-| `id` | string | 是 | 工件唯一标识，全生态唯一。**扩展用 kebab-case**（中划线，如 `weather-forecast-v2`），**组件用 snake_case**（下划线，如 `ne101_camera`） | `weather-forecast-v2` / `ne101_camera` |
+| `id` | string | 是 | 工件唯一标识，全生态唯一。**扩展用 kebab-case**（中划线，如 `weather-forecast`），**组件用 snake_case**（下划线，如 `ne101_camera`） | `weather-forecast` / `ne101_camera` |
 | `name` | string \| object | 是 | 展示名。组件支持 `{ "en": "...", "zh": "..." }` 多语言对象 | `"weather forecast"` / `{ "en": "NE101 Camera Panel", "zh": "NE101 感知摄像头面板" }` |
 | `version` | string (semver) | 是 | 三段语义化版本。扩展从 `Cargo.toml` 自动读取；组件手写 | `"2.7.6"` / `"2.14.9"` |
 | `description` | string \| object | 是 | 一句话描述，组件支持多语言 | `"Real-time weather forecast..."` |
 | `author` | string | 是 | 作者或团队名 | `"NeoMind Team"` / `"CamThink Team"` |
 | `license` | string | 扩展必填 | SPDX 许可证标识 | `"Apache-2.0"` / `"MIT"` |
-| `homepage` | string (URL) | 否 | 源码或文档地址 | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast-v2"` |
+| `homepage` | string (URL) | 否 | 源码或文档地址 | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast"` |
 | `icon` | string | 否（组件常用） | 图标标识，对应 NeoMind 图标库 | `"Camera"` |
 
 ### 类型与分类
@@ -48,11 +48,11 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 ```json
 {
   "builds": {
-    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-v2-2.7.6-darwin_aarch64.nep" },
-    "darwin-x86_64":  { "url": ".../weather-forecast-v2-2.7.6-darwin_x86_64.nep" },
-    "linux-x86_64":   { "url": ".../weather-forecast-v2-2.7.6-linux_amd64.nep" },
-    "linux-aarch64":  { "url": ".../weather-forecast-v2-2.7.6-linux_arm64.nep" },
-    "windows-x86_64": { "url": ".../weather-forecast-v2-2.7.6-windows_amd64.nep" }
+    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-2.7.6-darwin_aarch64.nep" },
+    "darwin-x86_64":  { "url": ".../weather-forecast-2.7.6-darwin_x86_64.nep" },
+    "linux-x86_64":   { "url": ".../weather-forecast-2.7.6-linux_amd64.nep" },
+    "linux-aarch64":  { "url": ".../weather-forecast-2.7.6-linux_arm64.nep" },
+    "windows-x86_64": { "url": ".../weather-forecast-2.7.6-windows_amd64.nep" }
   }
 }
 ```
@@ -66,7 +66,7 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 | 字段 | 类型 | 必填 | 说明 | 示例 |
 |------|------|------|------|------|
 | `frontend.components` | string[] | 是 | 组件名数组，**纯字符串**不是对象 | `["WeatherCard"]` |
-| `frontend.entrypoint` | string | 是 | UMD 入口文件名，必须与 `frontend.json` 的 `entrypoint` 一致 | `"weather-forecast-v2-components.umd.cjs"` |
+| `frontend.entrypoint` | string | 是 | UMD 入口文件名，必须与 `frontend.json` 的 `entrypoint` 一致 | `"weather-forecast-components.umd.cjs"` |
 
 > 常见错误：把 `components` 写成对象数组 `[{ "name": "WeatherCard", ... }]`。市场解析器会拒绝。
 
@@ -112,7 +112,7 @@ NeoMind 通过**显式 capability 申请**实现扩展对平台能力的细粒�
 | Capability 标识 | 含义 | 典型使用扩展 |
 |-----------------|------|--------------|
 | `device_metrics_read` | 读取设备指标 | 仪表板类扩展 |
-| `device_metrics_write` | 写入设备指标（含虚拟指标） | weather-forecast-v2、所有 bridge 扩展 |
+| `device_metrics_write` | 写入设备指标（含虚拟指标） | weather-forecast、所有 bridge 扩展 |
 | `device_control` | 向设备下发命令 | homeassistant-bridge、modbus-bridge |
 | `storage_query` | 查询时序存储 | 数据分析类扩展 |
 | `event_publish` | 发布事件 | 自动化触发类扩展 |
@@ -169,7 +169,7 @@ NeoMind-Extensions 仓库有**三个层级的版本号**，发布时**必须全�
 
 **只更新了 `VERSION` 和 `index.json`，但忘了更新各扩展的 `Cargo.toml`**。后果：
 
-- 包文件名是旧版本：`weather-forecast-v2-2.6.0-darwin_aarch64.nep`
+- 包文件名是旧版本：`weather-forecast-2.6.0-darwin_aarch64.nep`
 - GitHub Release 标题是 v2.7.0，但里面的包都是 2.6.0
 - `index.json` 的 `builds` URL 指向 `2.7.0` 的资产名，但实际文件名是 `2.6.0` → 404
 - 用户体验混乱，市场无法安装
@@ -205,7 +205,7 @@ NeoMind 扩展支持 **5 个** target（不是 6 个，没有 `windows-aarch64`�
 ./build.sh --release 2.7.0
 
 # 只构建单个扩展
-./build.sh --single weather-forecast-v2 --release 2.7.0
+./build.sh --single weather-forecast --release 2.7.0
 ```
 
 `build.sh` 内部使用 [cross](https://github.com/cross-rs/cross)（基于 Docker）或本地工具链交叉编译。开发者本地如已安装对应 target 的 Rust 工具链，可跳过 Docker 直接编译。
@@ -213,13 +213,13 @@ NeoMind 扩展支持 **5 个** target（不是 6 个，没有 `windows-aarch64`�
 ### .nep 包结构
 
 ```
-weather-forecast-v2-2.7.6-darwin_aarch64.nep   (ZIP 格式)
+weather-forecast-2.7.6-darwin_aarch64.nep   (ZIP 格式)
 ├── manifest.json           # 安装清单（从 metadata.json 转换）
 ├── binaries/
 │   └── darwin_aarch64/
 │       └── libneomind_extension_weather_forecast_v2.dylib
 ├── frontend/
-│   └── weather-forecast-v2-components.umd.cjs
+│   └── weather-forecast-components.umd.cjs
 └── models/                 # 可选：ONNX 模型
     └── model.onnx
 ```
@@ -232,8 +232,8 @@ NeoMind 生态对测试有明确要求，**不达标的扩展不予发布**。
 
 | 测试类型 | 位置 | 要求 | 参考 |
 |---------|------|------|------|
-| 单元测试 | `src/lib.rs` 内 `#[cfg(test)] mod tests` | 至少覆盖核心命令的 happy path | `weather-forecast-v2/src/lib.rs` |
-| 集成测试 | `tests/` 目录 | 至少 1 个集成测试文件 | `weather-forecast-v2/tests/` |
+| 单元测试 | `src/lib.rs` 内 `#[cfg(test)] mod tests` | 至少覆盖核心命令的 happy path | `weather-forecast/src/lib.rs` |
+| 集成测试 | `tests/` 目录 | 至少 1 个集成测试文件 | `weather-forecast/tests/` |
 
 最小化示例：
 

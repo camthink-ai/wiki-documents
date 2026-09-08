@@ -60,6 +60,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 ### Supported Operating Systems
 
 - **Linux**: Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / other mainstream distros (x86_64 / arm64)
+- **Edge devices (arm64)**: NVIDIA Jetson (Orin series, with the CUDA runtime auto-bootstrapped), RK3576, and other aarch64 SBCs — arm64 builds are available for both the server and extensions
 - **macOS**: 12 Monterey+ (development or small-scale deployment)
 - **Windows**: Windows 10 / Server 2019+ (via WSL2 or native)
 
@@ -87,7 +88,8 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 
 Server deployment **requires no manual dependency installation** — the install script downloads statically compiled binaries. Optional components:
 
-- **Ollama** (recommended): local LLM inference. Install at [ollama.com](https://ollama.com). Pull a model the first time you configure an LLM backend, e.g. `ollama pull qwen3.5:4b`
+- **None (default)**: The Docker deployment image ships with the llama.cpp runtime and curated official models — a one-click download in the wizard gives you a local LLM with nothing extra to install
+- **Ollama** (optional, if you already have it): for local LLM inference. Install at [ollama.com](https://ollama.com). Pull a model the first time you configure an LLM backend, e.g. `ollama pull qwen3.5:4b`
 - **Docker** (optional): one-line deploy via `docker compose up -d`
 - **nginx** (optional): production reverse proxy + static frontend hosting
 
@@ -139,4 +141,4 @@ See [Configure LLM Backend](../user-guide/2-configure-llm.md) for setup.
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

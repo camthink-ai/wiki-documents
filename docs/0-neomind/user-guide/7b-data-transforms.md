@@ -8,7 +8,7 @@ sidebar_position: 7.5
 
 # 数据转换
 
-数据转换（Transform）让 NeoMind 在**设备数据到达后、存储前**实时加工遥测数据——用一段 JavaScript 函数将原始指标转换为派生指标。例如：
+数据转换（Transform）让 NeoMind 在**设备数据写入后**自动加工遥测数据（由写入事件触发，毫秒级）——用一段 JavaScript 函数将原始指标转换为派生指标。例如：
 
 - 摄氏度 → 华氏度
 - 原始电压 + 电流 → 计算功率
@@ -30,7 +30,7 @@ sidebar_position: 7.5
 
 在自动化页面切换到 **Transforms** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有转换，每行包含：
 
@@ -51,7 +51,7 @@ sidebar_position: 7.5
 
 在 Transforms 页签点击 **Create** 按钮，打开全屏构建器：
 
-<img src="https://resources.camthink.ai/NeoMind/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 构建器采用**左右分栏**布局：
 
@@ -81,14 +81,14 @@ sidebar_position: 7.5
 
 ### 步骤 4：编写转换代码
 
-<img src="https://resources.camthink.ai/NeoMind/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-代码编辑器中使用 JavaScript 编写转换函数。`value` 变量代表输入的原始数据值，`return` 一个对象作为输出：
+代码编辑器中使用 JavaScript 编写转换函数。**`input` 变量代表输入值**——单键指标对象（如 `{"temperature": 25}`）会自动解包为标量，可直接参与运算；完整输入对象用 `input_raw` 访问。`return` 一个对象作为输出：
 
 ```javascript
 // 摄氏度转华氏度
 return {
-  temp_f: value * 9/5 + 32
+  temp_f: input * 9/5 + 32
 }
 ```
 
@@ -116,7 +116,7 @@ return {
 
 ```mermaid
 flowchart LR
-    A[设备发布数据] --> B{匹配作用域?}
+    A[设备数据写入 Telemetry] --> B{匹配作用域?}
     B -- 是 --> C[执行 JS 转换代码]
     B -- 否 --> A
     C --> D[输出派生指标]
@@ -135,7 +135,7 @@ flowchart LR
 
 ```javascript
 return {
-  temp_f: value * 9 / 5 + 32
+  temp_f: input * 9 / 5 + 32
 }
 ```
 
@@ -164,7 +164,7 @@ return {
 
 ```javascript
 // 调用 YOLO 扩展做目标检测
-const result = extensions_invoke('yolo-detector', 'detect', {
+const result = extensions_invoke('yolo-video', 'detect', {
   data: input
 })
 
@@ -192,28 +192,27 @@ return {
 ## CLI 管理
 
 ```bash
-# 创建转换
-neomind automation create --json '{
-  "name": "Fahrenheit Converter",
-  "type": "transform",
-  "enabled": true,
-  "definition": {
-    "scope": "global",
-    "js_code": "return { temp_f: value * 9/5 + 32 }",
-    "output_prefix": "converted",
-    "complexity": 2
-  }
-}'
+# 创建转换（摄氏 → 华氏；JS 中用 input 访问输入值）
+neomind transform create \
+  --name "Fahrenheit Converter" \
+  --scope global \
+  --code 'return { temp_f: input * 9/5 + 32 }' \
+  --output-prefix converted \
+  --enable
 
-# 列出所有转换
-neomind automation list
+# 列出所有转换 / 查看详情
+neomind transform list
+neomind transform get <id>
+
+# 查看最近执行记录（排查"代码跑了但没输出"的第一现场）
+neomind transform executions <id> --limit 20
 
 # 启用 / 禁用
-neomind automation status <id> --enabled true
-neomind automation status <id> --enabled false
+neomind transform enable <id>
+neomind transform disable <id>
 
 # 删除
-neomind automation delete <id>
+neomind transform delete <id>
 ```
 
 ## REST API
@@ -229,7 +228,7 @@ curl -X POST http://localhost:9375/api/automations \
     "enabled": true,
     "definition": {
       "scope": "global",
-      "js_code": "return { temp_f: value * 9/5 + 32 }",
+      "js_code": "return { temp_f: input * 9/5 + 32 }",
       "output_prefix": "converted",
       "complexity": 2
     }
@@ -270,10 +269,10 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为单列布局，支持查看列表、切换状态。编辑转换请在桌面端操作（代码编辑器需要大屏空间）。
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

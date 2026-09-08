@@ -164,17 +164,22 @@ cargo build --release
 
 ## Step 5：安装到 NeoMind
 
-把产物放到 NeoMind 的扩展目录（默认 `~/.neomind/extensions/<id>/` 或服务器部署的 `/var/lib/neomind/extensions/<id>/`）：
+用扩展 CLI 打包成 `.nep` 并安装：
 
 ```bash
-mkdir -p ~/.neomind/extensions/counter
-cp target/release/libneomind_extension_counter.* ~/.neomind/extensions/counter/
+# 打包（产物为 dist/counter-<version>.nep）
+neomind extension build --release
+neomind extension validate dist/counter-1.0.0.nep
 
-# 触发扫描
-curl -X POST http://localhost:9375/api/extensions/discover
+# 安装（或直接在 Web UI 的 Extensions 页点 Upload Extension 上传 .nep）
+neomind extension install dist/counter-1.0.0.nep
 ```
 
-或者更简单 —— 在 Web UI 的 **Extensions** 页点 **Install from file**，上传 `.dylib` / `.so` / `.dll`。
+也可以把 `.nep` 放到服务器数据目录的 `extensions/` 下，再触发扫描：
+
+```bash
+curl -X POST http://localhost:9375/api/extensions/sync
+```
 
 ## Step 6：验证
 
@@ -183,9 +188,9 @@ curl -X POST http://localhost:9375/api/extensions/discover
 curl http://localhost:9375/api/extensions
 
 # 调用命令
-curl -X POST http://localhost:9375/api/extensions/counter/commands/increment \
+curl -X POST http://localhost:9375/api/extensions/counter/command \
   -H 'Content-Type: application/json' \
-  -d '{"amount": 5}'
+  -d '{"command":"increment","args":{"amount": 5}}'
 # → {"success": true, "data": {"counter": 5}}
 ```
 
@@ -262,7 +267,7 @@ impl Extension for WeatherExtension {
 
     fn metrics(&self) -> &[MetricDescriptor] {
         // 温度、湿度、气压
-        // DataSourceId: extension:weather:temperature 等
+        // DataSourceId: extension:weather-forecast:temperature 等
     }
 
     async fn configure(&mut self, config: &Value) -> Result<()> {
@@ -430,34 +435,37 @@ async fn configure(&mut self, config: &Value) -> Result<()> {
 
 ```
 my-extension-1.0.0.nep (ZIP)
-├── metadata.json               ← 扩展元数据 + 平台映射
-├── darwin-arm64/
-│   └── libneomind_extension_my_extension.dylib
-├── darwin-x86_64/
-│   └── libneomind_extension_my_extension.dylib
-├── linux-x86_64/
-│   └── libneomind_extension_my_extension.so
-├── linux-arm64/
-│   └── libneomind_extension_my_extension.so
-├── windows-x86_64/
-│   └── neomind_extension_my_extension.dll
+├── manifest.json               ← 扩展元数据 + binaries 平台映射
+├── binaries/
+│   ├── darwin_aarch64/
+│   │   └── extension.dylib
+│   ├── linux_x86_64/
+│   │   └── extension.so
+│   ├── linux_aarch64/
+│   │   └── extension.so
+│   └── windows_x86_64/
+│       └── extension.dll
+├── frontend/                   ← （可选）仪表板组件 bundle（随包分发时另有 frontend.json）
 └── models/                     ← （可选）ML 模型文件
     └── yolov8n.onnx
 ```
 
-**metadata.json** 示例：
+**manifest.json** 示例（节选，与真实包一致）：
 
 ```json
 {
+  "format": "neomind-extension-package",
+  "format_version": "2.0",
+  "abi_version": 3,
   "id": "my-extension",
   "name": "My Extension",
   "version": "1.0.0",
   "sdk_version": "0.6.3",
-  "abi_version": 3,
-  "platforms": {
-    "darwin-arm64": "darwin-arm64/libneomind_extension_my_extension.dylib",
-    "linux-x86_64": "linux-x86_64/libneomind_extension_my_extension.so",
-    "windows-x86_64": "windows-x86_64/neomind_extension_my_extension.dll"
+  "type": "native",
+  "binaries": {
+    "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
+    "linux_x86_64": "binaries/linux_x86_64/extension.so",
+    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
   }
 }
 ```
@@ -468,9 +476,9 @@ runner 加载时会根据当前平台自动选择对应的二进制路径。
 
 [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库的每个扩展都是完整范本：
 
-- `weather-forecast-v2` —— 简单网络扩展（无 ML 模型）
-- `image-analyzer-v2` —— ML 模型 lazy-load 范本（YOLOv11）
-- `yolo-video-v2` —— 流式视频处理
+- `weather-forecast` —— 简单网络扩展（无 ML 模型）
+- `image-analyzer` —— ML 模型 lazy-load 范本（YOLOv11）
+- `yolo-video` —— 流式视频处理
 - `yolo-device-inference` —— 与 NE301/NE101 相机集成
 - `home-assistant-bridge` —— 第三方系统集成
 
@@ -499,9 +507,9 @@ runner 加载时会根据当前平台自动选择对应的二进制路径。
 本篇是 API 通用参考。如果你想看**真实工程里怎么用、为什么这么设计**，阅读：
 
 - [工程实践案例集 · 总览](./case-studies/0-overview.md)
-- [#1 weather-forecast-v2](./case-studies/1-weather-forecast.md) — 入门型数据扩展
+- [#1 weather-forecast](./case-studies/1-weather-forecast.md) — 入门型数据扩展
 - [#2 yolo-device-inference](./case-studies/2-yolo-device-inference.md) — AI 推理扩展
-- [#3 yolo-video-v2](./case-studies/3-yolo-video-v2.md) — 流式扩展
+- [#3 yolo-video](./case-studies/3-yolo-video-v2.md) — 流式扩展
 - [#4 onvif-bridge](./case-studies/4-onvif-bridge.md) — 标准协议桥接
 - [#5 uink-rms-bridge](./case-studies/5-uink-rms-bridge.md) — 生产验证桥接
 

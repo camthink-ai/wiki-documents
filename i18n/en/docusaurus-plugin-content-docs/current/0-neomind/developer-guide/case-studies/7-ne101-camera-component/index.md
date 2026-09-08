@@ -9,6 +9,10 @@ sidebar_label: "NE101 Camera Flagship"
 
 > **One-sentence positioning**: the flagship component that brings the CamThink NE101 sensing camera into the Dashboard — it is the first component in the NeoMind marketplace to combine device binding + image canvas + AI processing pipeline + ROI overlay in a single bundle, extending the entry-level metric_card "show a number" story into a full "device → inference → visual overlay" chain.
 
+> :::note
+> This source-code analysis is pinned to component version **v2.14.9**. The marketplace version has since moved on (v2.14.12+, with `paddle-ocr-vl` added to `EXT_MODES`), so the `AI_EXT_IDS` whitelist and bundle.js line numbers in this document may have shifted accordingly. Focus on the design ideas and contracts while reading; for exact line numbers, check the [current source code](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/ne101_camera).
+> :::
+
 This is the "flagship deep-dive case" of the NeoMind component marketplace. The previous six cases (with [6 metric_card](../6-metric-card-component.md) as the direct prerequisite) teach you "how to write a component"; this case's eight subpages answer "how to write a complex component that wires hardware + AI + visual effects together". After reading it you will understand why NeoMind's "IIFE + `window.React` injection" pattern (instead of ESM bundling) scales to 1972 lines of hand-written code, and why the manifest combination `has_data_source: false` + `has_device_binding: true` is the canonical signature of any device-bound component.
 
 ---
@@ -66,7 +70,7 @@ Reading all eight sections will give you five key capabilities:
 
 2. **How a 1972-line IIFE stays maintainable** — `bundle.js` has no build step at all; it is entirely hand-written IIFE. We break down its module layers (helper / template / sub-component / main / export) and explain why NeoMind chose this pattern over ESM. See [6 Component Build](./6-component-build.md) (v1.1).
 
-3. **The `processingExtensionId` generic AI processing contract** — the most important design innovation in this case: the component does not run AI itself; instead, the `processingExtensionId: ""` field lets the user pick an installed extension (object_detection / ocr / describe / any `locate-anything-v2`-compatible extension) to "outsource" the image to. This "component + pluggable extension" contract is the template for AI reuse across the NeoMind ecosystem. See [3 Extension Side](./3-extension-side.md) (v1.1).
+3. **The `processingExtensionId` generic AI processing contract** — the most important design innovation in this case: the component does not run AI itself; instead, the `processingExtensionId: ""` field lets the user pick an installed extension (object_detection / ocr / describe / any `locate-anything`-compatible extension) to "outsource" the image to. This "component + pluggable extension" contract is the template for AI reuse across the NeoMind ecosystem. See [3 Extension Side](./3-extension-side.md) (v1.1).
 
 4. **Engineering details of ROI overlay rendering** — from single-rectangle ROI (`processingRoiX/Y/W/H`, normalized 0-1) to multi-ROI arrays (`processingRois: []`), from center-point detection (deprecated) to the `processingRoiOverlap: 0.6` IoU-threshold detection. This involves Canvas coordinate mapping, the non-linear scaling of `object-cover`, and the async setup of ResizeObserver. See [5 Frontend Consume](./5-frontend-consume.md) and [7 Integration Test](./7-integration-test.md).
 
@@ -137,4 +141,4 @@ graph LR
 
 ---
 
-*Last updated: 2026-06-23*
+*Last updated: 2026-09-08*

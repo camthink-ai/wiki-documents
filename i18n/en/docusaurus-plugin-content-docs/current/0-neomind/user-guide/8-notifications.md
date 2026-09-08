@@ -34,7 +34,7 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 
 Open the **Messages** page — the default view is the notification center:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each message contains:
 
@@ -55,7 +55,7 @@ Each message contains:
 
 Switch to the **Channels** tab to see all channels:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The top shows summary cards (Total channels / Enabled / Channel type count). Below is the channel list. Each channel card shows:
 
@@ -68,7 +68,7 @@ The top shows summary cards (Total channels / Enabled / Channel type count). Bel
 
 Click **Create** to open the full-screen channel editor:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The editor uses a **split-pane** layout:
 - **Left sidebar**: Lists the 7 external channel types; click to switch
@@ -111,7 +111,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Email Channel
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | Example |
 |------|-------------|---------|
@@ -125,7 +125,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Telegram Channel
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | How to Get |
 |------|-------------|------------|
@@ -241,25 +241,20 @@ Configure a `notify` action in an [Automation Rule](./7-automation-rules.md):
 ```json
 {
   "name": "AlertHighTemp",
+  "trigger": { "trigger_type": "data_change" },
   "condition": {
-    "type": "comparison",
+    "condition_type": "comparison",
     "source": "device:sensor-01:temperature",
-    "operator": ">",
-    "value": 30
+    "operator": "greater_than",
+    "threshold": 30
   },
   "actions": [
     {
       "type": "notify",
-      "config": {
-        "title": "High Temperature Alert",
-        "message": "sensor-01 temperature {{value}}°C exceeded threshold 30°C",
-        "severity": "critical",
-        "category": "alert"
-      }
+      "message": "sensor-01 temperature {value}°C exceeded threshold 30°C",
+      "severity": "critical"
     }
-  ],
-  "trigger": "state_change",
-  "cooldown": 60
+  ]
 }
 ```
 
@@ -310,59 +305,41 @@ active → acknowledged → resolved → archived
 The NeoMind CLI provides `message` subcommands for managing messages and channels:
 
 ```bash
-# List the last 20 messages
+# List the last 20 messages (filter with --severity / --status)
 neomind message list --limit 20
 
-# Create a message (for testing channels)
-neomind message create --json '{
-  "title": "Test Alert",
-  "content": "Manually created test message",
-  "severity": "warning",
-  "category": "alert",
-  "source_type": "system"
-}'
+# View message details
+neomind message get <message_id>
+
+# Send a system message (for testing the delivery pipeline)
+neomind message send --title "Test Alert" --body "Manually created test message" --severity warning
+
+# Acknowledge (mark as read) / delete messages
+neomind message read <message_id>
+neomind message delete <message_id>
 
 # List all channels
-neomind message channels
+neomind message channel-list
 
-# Create a channel
-neomind message channel create --json '{
-  "name": "ops-feishu",
-  "channel_type": "feishu",
-  "config": {
-    "hook_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "secret": "secxxxxxxxx"
-  },
-  "enabled": true
-}'
+# View channel types and each type's config fields
+neomind message channel-types
+neomind message channel-type-schema feishu
 
-# Enable / disable a channel
-neomind message channel enable ops-feishu
-neomind message channel disable ops-feishu
+# Create a channel (--config takes the full JSON, or use repeatable --param k=v)
+neomind message channel-create --name ops-feishu --type feishu \
+  --config '{"hook_id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","secret":"secxxxxxxxx"}'
+
+# Update a channel (modify config / enable-disable, etc.)
+neomind message channel-update ops-feishu --config '{"enabled":false}'
 
 # Test a channel (send a test message)
-neomind message channel test ops-feishu
-
-# Configure channel filter
-neomind message channel filter ops-feishu --json '{
-  "source_types": ["rule", "device"],
-  "categories": ["alert"],
-  "min_severity": "critical"
-}'
-
-# Manage email recipients
-neomind message channel recipients ops-email --add "ops@example.com,oncall@example.com"
-neomind message channel recipients ops-email --list
-neomind message channel recipients ops-email --remove "ops@example.com"
-
-# Acknowledge / resolve / archive a message
-neomind message acknowledge <message_id>
-neomind message resolve <message_id>
-neomind message archive <message_id>
+neomind message channel-test ops-feishu
 
 # Delete a channel
-neomind message channel delete ops-feishu
+neomind message channel-delete ops-feishu
 ```
+
+> Message templates support `{value}` and `{source_id}` interpolation; channel filters (by source / category / minimum severity) are configured in the channel edit panel of the Web UI.
 
 ## REST API
 
@@ -520,4 +497,4 @@ When a critical alert fires, all three channels receive it — no missed alerts 
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

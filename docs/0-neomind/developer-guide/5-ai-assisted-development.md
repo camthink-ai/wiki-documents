@@ -18,7 +18,7 @@ NeoMind 的代码库从第一天起就为 **AI 辅助编程**而设计——结�
 | **项目级 `CLAUDE.md`** | AI 打开项目就自动读取技术栈、命令、架构规则、代码约定——零配置 |
 | **`web/DESIGN_SPEC.md`（33 节）** | 前端开发时 AI 自动遵守颜色系统、组件规范、无障碍标准 |
 | **Crate 化分层** | `neomind-devices`、`neomind-rules`、`neomind-extension-sdk`…AI 能精确定位目标模块 |
-| **真实扩展代码库** | 16 个官方扩展是现成的参考实现——AI 可以直接读代码学模式 |
+| **真实扩展代码库** | 27 个官方扩展是现成的参考实现——AI 可以直接读代码学模式 |
 | **CLI 优先架构** | `neomind widget create`、`neomind extension install`…AI 用 CLI 就能完成构建-测试-安装闭环 |
 | **强类型 Rust + TypeScript** | 编译器是 AI 的即时验证——生成代码对不对，编译一下就知道 |
 
@@ -126,16 +126,16 @@ AI 会运行跨平台编译脚本，生成 `.nep` 包，然后通过 `neomind ex
 
 ### 参考实现
 
-NeoMind-Extensions 仓库有 **16 个官方扩展**可直接参考：
+NeoMind-Extensions 仓库有 **27 个官方扩展**可直接参考：
 
 | 扩展 | 适合参考的场景 |
 |------|---------------|
-| `weather-forecast-v2` | HTTP API 调用 + metric 发布 |
+| `weather-forecast` | HTTP API 调用 + metric 发布 |
 | `yolo-device-inference` | ML 模型加载 + 推理命令 |
 | `modbus-bridge` | 工业协议桥接 |
 | `opcua-bridge` | OPC UA 协议接入 |
-| `image-analyzer-v2` | 图片处理 + 分析命令 |
-| `yolo-video-v2` | 视频流处理 + 流式推理 |
+| `image-analyzer` | 图片处理 + 分析命令 |
+| `yolo-video` | 视频流处理 + 流式推理 |
 | `homeassistant-bridge` | 第三方平台集成 |
 | `face-recognition` | 计算机视觉 + 组件 |
 
@@ -245,7 +245,7 @@ Claude Code 会逐文件追踪调用链，给出带文件路径和行号的流�
 | **加功能** | 「参考 `{existing-pattern}` 的模式，加一个 `{feature}`」 |
 | **探索代码** | 「帮我梳理 `{module}` 的执行流程，从 `{入口}` 到 `{终点}`」 |
 | **代码审查** | 「审查这段代码有没有安全问题、性能问题、不符合 `CLAUDE.md` 约定的地方」 |
-| **跨平台编译** | 「帮我编译扩展到 6 个平台（linux/darwin/windows × amd64/arm64）」 |
+| **跨平台编译** | 「帮我编译扩展到 5 个平台（linux/darwin/windows，无 windows-arm64，见附录构建矩阵）」 |
 
 ## 最佳实践
 
@@ -279,7 +279,7 @@ neomind extension install ./target/release/my-extension.nep
 ## Conventions
 - metric 名用 snake_case
 - 命令参数用 JSON
-- 参考 NeoMind-Extensions/weather-forecast-v2 的代码风格
+- 参考 NeoMind-Extensions/weather-forecast 的代码风格
 ```
 
 这样 Claude Code 打开你的项目就知道怎么构建、测试、以及参考哪个现有实现。
@@ -303,4 +303,4 @@ neomind extension install ./target/release/my-extension.nep
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

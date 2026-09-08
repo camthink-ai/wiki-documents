@@ -83,7 +83,7 @@ graph TB
     end
 
     subgraph extension["extension-driver type"]
-        EXT["locate-anything-v2 and friends<br/>(consumed by ne101_camera via<br/>processingExtensionId)"]
+        EXT["locate-anything and friends<br/>(consumed by ne101_camera via<br/>processingExtensionId)"]
     end
 
     subgraph bridge["bridge type"]
@@ -154,7 +154,7 @@ This section lists 4 key design decisions and the alternatives that were rejecte
 
 ### Decision 1: The component does not run AI itself; it outsources via `processingExtensionId`
 
-**Chosen**: the component only handles "image display + command trigger + ROI config"; AI inference is delegated via the `processingExtensionId` field to a user-selected extension (the `locate-anything-v2`-compatible family).
+**Chosen**: the component only handles "image display + command trigger + ROI config"; AI inference is delegated via the `processingExtensionId` field to a user-selected extension (the `locate-anything`-compatible family).
 
 **Rejected alternative**: bake AI inference into the component (call YOLO directly). Rejected for three reasons:
 
@@ -162,7 +162,7 @@ This section lists 4 key design decisions and the alternatives that were rejecte
 2. AI models iterate fast, and tying the model version to the component version makes upgrades painful
 3. different users want different AI capabilities (some want object detection, some OCR, some image description), and baking in one capability removes user choice.
 
-**Cost**: the component depends on an external extension to deliver real value — if the user has not installed any `locate-anything-v2`-compatible extension, the `processingExtensionId` dropdown is empty and the component degrades to a "pure image display" panel. This cost is considered acceptable because the NeoMind ecosystem recommends installing at least one AI extension by default.
+**Cost**: the component depends on an external extension to deliver real value — if the user has not installed any `locate-anything`-compatible extension, the `processingExtensionId` dropdown is empty and the component degrades to a "pure image display" panel. This cost is considered acceptable because the NeoMind ecosystem recommends installing at least one AI extension by default.
 
 ### Decision 2: Use `has_device_binding` + `device_type_filter`, not `has_data_source`
 
@@ -218,7 +218,7 @@ sequenceDiagram
     participant DEV as NE101 Device
     participant MQTT as MQTT Broker
     participant NM as NeoMind Controller
-    participant EXT as AI Extension<br/>(locate-anything-v2)
+    participant EXT as AI Extension<br/>(locate-anything)
     participant UI as ne101_camera Component
 
     DEV->>MQTT: publish telemetry<br/>(image_url + battery + signal + temp)
@@ -276,7 +276,7 @@ Later sections reference the commits below; they are listed here for convenience
 | Commit | Type | One-liner | Section |
 |--------|------|-----------|---------|
 | `c276c23` | feat | per-class detection colors via golden-angle HSV rotation | 5 Frontend Consume |
-| `8656148` | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 3 Extension Side |
+| `8656148` | feat | pass NMS IoU threshold 0.5 to locate-anything | 3 Extension Side |
 | `636a8ae` | feat | make ROI overlap threshold configurable (the `processingRoiOverlap` field) | 7 ROI Overlay |
 | `2109c45` | feat | overlap-based ROI detection instead of center point (IoU replaces center) | 7 ROI Overlay |
 | `b746c02` | feat | render OCR detection boxes as polygons with rect fallback | 5 Frontend Consume |

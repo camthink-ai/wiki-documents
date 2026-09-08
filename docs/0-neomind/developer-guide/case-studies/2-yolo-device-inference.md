@@ -22,7 +22,7 @@ sidebar_label: "yolo-device-inference"
 
 yolo-device-inference 就是这条数据链的「中间件」。
 
-**与 yolo-video-v2 的区别**：yolo-video-v2 接收用户主动推送的视频流（base64 帧序列），适合「人工触发分析」场景；而 yolo-device-inference 通过 NeoMind 能力系统订阅**已绑定设备**的图像更新事件，是「自动常驻」模式——一旦 `bind_device` 完成，扩展就会在每次设备图像更新时自动推理，不需要前端轮询。这是边缘 AI 部署的典型形态。本系列 3 会专门剖析 yolo-video-v2 的流式版本。
+**与 yolo-video 的区别**：yolo-video 接收用户主动推送的视频流（base64 帧序列），适合「人工触发分析」场景；而 yolo-device-inference 通过 NeoMind 能力系统订阅**已绑定设备**的图像更新事件，是「自动常驻」模式——一旦 `bind_device` 完成，扩展就会在每次设备图像更新时自动推理，不需要前端轮询。这是边缘 AI 部署的典型形态。本系列 3 会专门剖析 yolo-video 的流式版本。
 
 **目标读者**：准备把训练好的 ONNX 模型部署到 NeoMind 边缘节点的 AI 工程师；想理解扩展如何通过能力系统访问设备数据的平台开发者。需要 Rust 中级水平（async、trait、`cfg` 条件编译），并对 ONNX Runtime 的动态库加载机制有基本概念。
 
@@ -532,7 +532,7 @@ CI 流水线必须在每个目标平台上原生构建（不能用 cross-compile
 
 - [案例总览](./0-overview.md)——本案例在 NeoMind 扩展生态中的定位
 - [扩展标准附录](./appendix-standards.md)——metadata.json 字段规范、能力声明清单
-- [3 yolo-video-v2](./3-yolo-video-v2.md)——姊妹案例：流式视频推理版本，对比「设备绑定自动推理」与「前端推送帧分析」的设计差异
+- [3 yolo-video](./3-yolo-video-v2.md)——姊妹案例：流式视频推理版本，对比「设备绑定自动推理」与「前端推送帧分析」的设计差异
 - [7 NE101 摄像头组件](./7-ne101-camera-component/index.md)——消费本扩展的旗舰硬件案例，展示从设备到 AI 推理到前端展示的完整链路
 - [扩展开发 API](../7-extension-development.md)——`Extension` trait、`ExtensionMetadata`、`CapabilityContext` 的完整参考
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference)——`extensions/yolo-device-inference/src/lib.rs`（本文所有深链指向此文件）

@@ -23,14 +23,14 @@ Each dashboard is a **responsive grid** that can hold multiple widgets:
 1. Click the **Dashboards** icon in the left navigation to open the dashboard list
 2. Click the **+ (New Dashboard)** button
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-create-dialog.png" alt="Create dashboard dialog — enter name and description" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-create-dialog.png" alt="Create dashboard dialog — enter name and description" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 3. Enter a **name** (required) and **description** (optional), then click create
 4. The new dashboard enters edit mode automatically with an empty canvas
 
 > The dashboard list shows all created dashboards — click any name to view it:
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-list.png" alt="Dashboard list — all created dashboards" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-list.png" alt="Dashboard list — all created dashboards" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## View Mode vs Edit Mode
 
@@ -41,19 +41,28 @@ Dashboards have two modes, toggled via the **gear / checkmark icon** on the left
 | **View Mode** (default) | Layout locked, shows real-time data only. This is what regular users and share link visitors see | Gear icon (Settings2) |
 | **Edit Mode** | Drag widgets to reposition/resize, add/delete widgets, edit configurations. Grid supports snap-to-align | Checkmark icon (Check) |
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-view-empty.png" alt="Dashboard view mode — empty state prompting to enter edit mode" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-view-empty.png" alt="Dashboard view mode — empty state prompting to enter edit mode" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > An empty dashboard in view mode shows "Click Edit Layout to add components". Click the gear icon to enter edit mode, which reveals the **Add Component** button.
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-edit-mode.png" alt="Dashboard edit mode — empty state with Add Component button" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-edit-mode.png" alt="Dashboard edit mode — empty state with Add Component button" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## Adding Widgets
 
 ### Component Library
 
-In edit mode, click **Add Component** to open the component library panel. Components are organized by category:
+In edit mode, click **Add Component** to open the component library panel. The panel has four tabs:
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-widget-library.png" alt="Component library — built-in widgets organized by category" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+| Tab | Contents |
+|-----|----------|
+| **Components** | Platform built-in widgets, grouped by category (see below) |
+| **Extensions** | Dashboard widgets bundled by installed extensions (e.g. video stream player, detection view) |
+| **Marketplace** | Install online from the [community widget repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components) |
+| **Custom** | Import your own ZIP widget packages or server-path widgets |
+
+Built-in widgets are grouped by category:
+
+<img src="/img/neomind/dashboard-widget-library.png" alt="Component library — built-in widgets organized by category" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### Indicators & Metrics
 
@@ -117,7 +126,7 @@ After selection, a **DataSourceId** is auto-generated in the format `{type}:{id}
 | Type | Example | Meaning |
 |------|---------|---------|
 | `device` | `device:esp32-01:temperature` | A device metric |
-| `extension` | `extension:weather:temp` | An extension metric |
+| `extension` | `extension:weather-forecast:temperature` | An extension metric |
 | `agent` | `agent:guard-01:last_result` | An agent execution result |
 
 > DataSourceId is auto-generated — no need to write it manually.
@@ -146,6 +155,17 @@ NeoMind pushes device data to the frontend via **WebSocket / SSE**:
 
 For historical data queries, use the widget's "Time Range" setting (last 1 hour / 24 hours / 7 days / custom).
 
+## Data Explorer
+
+The **Data Explorer** page is a centralized place to browse all data sources on the platform — device metrics, extension metrics, and transform-derived metrics in one place. It is also the management entry for [data push](./7c-data-push.md) (the **Push** tab).
+
+Click any data source to open a **fullscreen detail view**:
+
+- **Left pane (current state)** — value card and metadata; numeric metrics also show a min / max / avg statistics grid
+- **Right pane (history)** — trend chart (numeric metrics only) + paginated history table
+
+> The history table uses **server-side pagination** — even very old data can be paged through, no longer limited by the frontend cache size. The trend chart shows the latest 500 points by default, with a hint when truncated. String / boolean / image metrics have no trend chart — table only.
+
 ## Sharing Dashboards
 
 You can generate **public links** to share dashboards with unauthenticated users:
@@ -163,7 +183,7 @@ You can generate **public links** to share dashboards with unauthenticated users
 
 ## Mobile Experience
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-mobile.png" alt="Dashboard on mobile — single column stacked layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-mobile.png" alt="Dashboard on mobile — single column stacked layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 - **Responsive breakpoint**: < 768px switches to single-column stacked layout
 - **Edit mode**: Drag-and-drop editing is disabled on mobile (screen too small) — edit on desktop
@@ -182,7 +202,7 @@ Built-in widgets cover common IoT visualization needs. For more widgets, NeoMind
 
 Switch to the **Marketplace** tab in the component library to browse the community widget marketplace:
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-marketplace.png" alt="Community widget marketplace — browse and install community widgets" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-marketplace.png" alt="Community widget marketplace — browse and install community widgets" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each widget card shows:
 
@@ -202,13 +222,13 @@ Click **Install** to add a widget. Once installed, it appears in the **Component
 
 If you've developed your own widget or obtained a widget package from another source, you can upload it via **Import Component**:
 
-1. In the Marketplace tab, click the **Import Component** button in the top right
+1. Switch to the **Custom** tab and click the **Import Component** button
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-widget-import.png" alt="Import component dialog — upload ZIP widget package" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-widget-import.png" alt="Import component dialog — upload ZIP widget package" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-2. Click the upload zone to select a `.zip` file (or drag a file onto the zone)
+2. Click the upload zone to select a `.zip` file (or drag a file onto the zone); on desktop/server deployments you can alternatively use **server-path import** (expand the advanced options and enter the widget package's path on the server directly)
 3. The ZIP must contain `manifest.json` (widget metadata) and `bundle.js` (widget code)
-4. Click **Install Confirm** to complete the installation
+4. Click **Install Confirm** to complete the installation. Imported custom widgets are all managed under the **Custom** tab (widgets installed from the marketplace remain under Marketplace)
 
 > See [Developer Guide — Dashboard Component Development](../developer-guide/8-dashboard-component-dev.md) for the ZIP package structure.
 
@@ -239,4 +259,4 @@ See [Developer Guide — Dashboard Component Development](../developer-guide/8-d
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

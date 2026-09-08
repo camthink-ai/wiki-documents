@@ -18,7 +18,7 @@ The NeoMind codebase is designed for **AI-assisted development** from day one �
 | **Project-level `CLAUDE.md`** | AI reads tech stack, commands, architecture rules, and code conventions automatically on project open — zero config |
 | **`web/DESIGN_SPEC.md` (33 sections)** | When building frontend, AI automatically follows the color system, component standards, and accessibility rules |
 | **Crate-based layering** | `neomind-devices`, `neomind-rules`, `neomind-extension-sdk`… AI can precisely locate the target module |
-| **Real extension codebase** | 16 official extensions serve as ready-made reference implementations — AI can read the code and learn patterns directly |
+| **Real extension codebase** | 27 official extensions serve as ready-made reference implementations — AI can read the code and learn patterns directly |
 | **CLI-first architecture** | `neomind widget create`, `neomind extension install`… AI can complete the build-test-install loop via CLI |
 | **Strongly typed Rust + TypeScript** | The compiler is AI's instant verification — generate code, compile, and immediately know if it's correct |
 
@@ -126,16 +126,16 @@ AI will run the cross-platform build script, generate the `.nep` package, then i
 
 ### Reference implementations
 
-The NeoMind-Extensions repo has **16 official extensions** to reference directly:
+The NeoMind-Extensions repo has **27 official extensions** to reference directly:
 
 | Extension | Good reference for |
 |-----------|-------------------|
-| `weather-forecast-v2` | HTTP API calls + metric publishing |
+| `weather-forecast` | HTTP API calls + metric publishing |
 | `yolo-device-inference` | ML model loading + inference commands |
 | `modbus-bridge` | Industrial protocol bridging |
 | `opcua-bridge` | OPC UA protocol integration |
-| `image-analyzer-v2` | Image processing + analysis commands |
-| `yolo-video-v2` | Video stream processing + streaming inference |
+| `image-analyzer` | Image processing + analysis commands |
+| `yolo-video` | Video stream processing + streaming inference |
 | `homeassistant-bridge` | Third-party platform integration |
 | `face-recognition` | Computer vision + components |
 
@@ -245,7 +245,7 @@ Claude Code will trace the call chain file by file, giving you a flow diagram wi
 | **Add feature** | "Following the `{existing-pattern}` pattern, add a `{feature}`" |
 | **Explore code** | "Help me trace the execution flow of `{module}`, from `{entry point}` to `{endpoint}`" |
 | **Code review** | "Review this code for security issues, performance problems, and `CLAUDE.md` convention violations" |
-| **Cross-platform build** | "Help me compile this extension for 6 platforms (linux/darwin/windows × amd64/arm64)" |
+| **Cross-platform build** | "Help me compile this extension for 5 platforms (linux/darwin/windows, no windows-arm64, see the appendix build matrix)" |
 
 ## Best Practices
 
@@ -279,7 +279,7 @@ neomind extension install ./target/release/my-extension.nep
 ## Conventions
 - Use snake_case for metric names
 - Use JSON for command parameters
-- Follow the NeoMind-Extensions/weather-forecast-v2 code style
+- Follow the NeoMind-Extensions/weather-forecast code style
 ```
 
 This way, Claude Code knows how to build, test, and which existing implementation to reference when opening your project.
@@ -303,4 +303,4 @@ This way, Claude Code knows how to build, test, and which existing implementatio
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

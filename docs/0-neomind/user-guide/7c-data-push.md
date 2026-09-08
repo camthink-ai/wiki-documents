@@ -21,7 +21,7 @@ sidebar_position: 7.75
 
 进入左侧导航的 **Data Explorer**（数据库图标），切换到 **Push** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有推送目标，每行包含：
 
@@ -39,7 +39,7 @@ sidebar_position: 7.75
 
 点击 **Create** 按钮，打开全屏配置对话框：
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. 基本信息
 
@@ -75,7 +75,7 @@ sidebar_position: 7.75
 
 ### 4. 数据源过滤
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 选择哪些数据源的数据需要推送：
 
@@ -88,7 +88,7 @@ sidebar_position: 7.75
 
 ### 5. 重试与批量
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **重试策略（Retry Config）**：
 
@@ -138,36 +138,25 @@ sidebar_position: 7.75
 
 ```bash
 # 列出所有推送目标
-neomind data-push list
+neomind push list
 
-# 创建推送目标
-neomind data-push create --json '{
-  "name": "Temperature to API",
-  "target_type": "webhook",
-  "config": {
-    "url": "https://api.example.com/ingest",
-    "method": "POST",
-    "headers": {"Content-Type": "application/json"}
-  },
-  "schedule": {"type": "event_driven"},
-  "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false}
-}'
+# 创建推送目标（webhook / mqtt，--config 传目标配置 JSON）
+neomind push create --name "Temperature to API" --type webhook \
+  --config '{"url":"https://api.example.com/ingest","headers":{"Content-Type":"application/json"}}'
 
 # 启动 / 停止
-neomind data-push start <target_id>
-neomind data-push stop <target_id>
+neomind push start <target_id>
+neomind push stop <target_id>
 
 # 测试推送
-neomind data-push test <target_id>
+neomind push test <target_id>
 
-# 查看投递日志
-neomind data-push logs <target_id>
-
-# 查看统计
-neomind data-push stats
+# 查看投递日志 / 统计
+neomind push logs <target_id>
+neomind push stats
 
 # 删除
-neomind data-push delete <target_id>
+neomind push delete <target_id>
 ```
 
 ## REST API
@@ -223,7 +212,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **类型**：Webhook
 - **调度**：Event Driven
-- **数据源**：`extension:yolo-detector:detections`
+- **数据源**：`extension:yolo-video:detections`
 - **目标 URL**：业务系统的接收端点
 
 ## 与其他模块联动
@@ -245,4 +234,4 @@ curl http://localhost:9375/api/data-push/stats
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

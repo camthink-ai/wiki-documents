@@ -23,14 +23,14 @@ sidebar_label: "Use Dashboards"
 1. 点击左侧导航栏的 **Dashboards（仪表板）** 图标进入仪表板列表
 2. 点击列表中的 **+（New Dashboard）** 按钮
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 3. 输入**名称**（必填）与**描述**（可选），点击创建
 4. 新仪表板自动进入编辑模式，此时画布为空
 
 > 仪表板列表页会展示所有已创建的仪表板，点击名称即可进入查看：
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 查看模式 vs 编辑模式
 
@@ -41,19 +41,28 @@ sidebar_label: "Use Dashboards"
 | **查看模式**（默认） | 锁定布局，仅展示实时数据。普通用户和分享链接访客看到的就是这个模式 | 齿轮图标（Settings2） |
 | **编辑模式** | 可拖拽组件位置与大小、添加/删除组件、修改配置。网格支持磁吸对齐 | ✓ 图标（Check） |
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > 空仪表板在查看模式下会提示「Click Edit Layout to add components」。点击齿轮图标进入编辑模式后，会出现 **Add Component** 按钮。
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 添加组件
 
 ### 组件库
 
-在编辑模式下点击 **Add Component**，打开组件库面板。组件按类别分组：
+在编辑模式下点击 **Add Component**，打开组件库面板。面板分四个页签：
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+| 页签 | 内容 |
+|------|------|
+| **Components（组件）** | 平台内置组件，按类别分组（见下） |
+| **Extensions（扩展）** | 已安装扩展附带的仪表板组件（如视频流播放、检测画面） |
+| **Marketplace（市场）** | 从[社区组件仓库](https://github.com/camthink-ai/NeoMind-Dashboard-Components)在线安装 |
+| **Custom（自定义）** | 导入你自己开发的 ZIP 组件包或服务器路径组件 |
+
+内置组件按类别分组：
+
+<img src="/img/neomind/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### 指标与指示器（Indicators & Metrics）
 
@@ -117,7 +126,7 @@ sidebar_label: "Use Dashboards"
 | 类型 | 示例 | 含义 |
 |------|------|------|
 | `device` | `device:esp32-01:temperature` | 设备的某个指标 |
-| `extension` | `extension:weather:temp` | 扩展提供的指标 |
+| `extension` | `extension:weather-forecast:temperature` | 扩展提供的指标 |
 | `agent` | `agent:guard-01:last_result` | Agent 执行结果 |
 
 > DataSourceId 自动生成，无需手写。
@@ -146,6 +155,17 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 历史数据查询见组件的「时间范围」配置（最近 1 小时 / 24 小时 / 7 天 / 自定义）。
 
+## 数据浏览（Data Explorer）
+
+**Data Explorer** 页面用于集中浏览平台上的所有数据源——设备指标、扩展指标、转换派生指标一网打尽，也是 [数据推送](./7c-data-push.md) 的管理入口（**Push** 标签）。
+
+点击任意数据源进入**全屏详情视图**：
+
+- **左栏（当前状态）** — 数值卡片与元信息；数值型指标附带 min / max / avg 统计网格
+- **右栏（历史）** — 趋势图（数值型指标）+ 分页历史表格
+
+> 历史表格采用**服务端分页**——再久远的数据也能翻页查询，不再受前端缓存条数限制；趋势图默认展示最新 500 个点，截断时会有提示。字符串 / 布尔 / 图像类指标没有趋势图，仅展示表格。
+
 ## 分享仪表板
 
 可将仪表板生成**公开链接**分享给未登录用户：
@@ -163,7 +183,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ## 移动端适配
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 - **响应式断点**：< 768px 自动切单列堆叠布局
 - **编辑模式**：移动端默认禁用拖拽编辑（屏幕过小），建议在桌面端编辑
@@ -182,7 +202,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 在组件库面板切换到 **Marketplace** 标签页，可以浏览社区组件市场：
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每个组件卡片显示：
 
@@ -200,15 +220,15 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ### 方式二：上传 ZIP 包导入
 
-如果你自己开发了组件，或从其他渠道获得了组件包，可以通过 **Import Component** 功能上传：
+如果你自己开发了组件，或从其他渠道获得了组件包，可以通过 **Import Component** 功能导入：
 
-1. 在 Marketplace 标签页点击右上角的 **Import Component** 按钮
+1. 切换到 **Custom** 标签页，点击 **Import Component** 按钮
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-2. 点击上传区域选择 `.zip` 文件（或拖拽文件到上传区）
+2. 点击上传区域选择 `.zip` 文件（或拖拽文件到上传区）；桌面/服务器部署也可以改用**服务器路径导入**（展开高级选项，直接填写组件包在服务器上的路径）
 3. ZIP 包内必须包含 `manifest.json`（组件元数据）和 `bundle.js`（组件代码）
-4. 点击 **Install Confirm** 完成安装
+4. 点击 **Install Confirm** 完成安装。导入的自定义组件统一在 **Custom** 标签页管理（市场安装的组件仍归 Marketplace 管理）
 
 > ZIP 包结构详见 [开发指南 — Dashboard 组件开发](../developer-guide/8-dashboard-component-dev.md)。
 
@@ -239,4 +259,4 @@ neomind widget install /path/to/widget.zip
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

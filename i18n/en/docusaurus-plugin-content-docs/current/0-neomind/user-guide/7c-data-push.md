@@ -21,7 +21,7 @@ Data Push automatically sends NeoMind device telemetry **to external systems** �
 
 Open **Data Explorer** (database icon) in the left nav and switch to the **Push** tab:
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page lists all push targets in a table, each row containing:
 
@@ -39,7 +39,7 @@ The page lists all push targets in a table, each row containing:
 
 Click **Create** to open the full-screen configuration dialog:
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. Basic Info
 
@@ -75,7 +75,7 @@ Click **Create** to open the full-screen configuration dialog:
 
 ### 4. Data Source Filter
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Choose which data sources to push:
 
@@ -88,7 +88,7 @@ The source panel is grouped by type (Device / Extension / Transform / System) wi
 
 ### 5. Retry & Batch
 
-<img src="https://resources.camthink.ai/NeoMind/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **Retry Config**:
 
@@ -138,36 +138,25 @@ Each log records:
 
 ```bash
 # List all push targets
-neomind data-push list
+neomind push list
 
-# Create a push target
-neomind data-push create --json '{
-  "name": "Temperature to API",
-  "target_type": "webhook",
-  "config": {
-    "url": "https://api.example.com/ingest",
-    "method": "POST",
-    "headers": {"Content-Type": "application/json"}
-  },
-  "schedule": {"type": "event_driven"},
-  "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false}
-}'
+# Create a push target (webhook / mqtt; --config takes the target config JSON)
+neomind push create --name "Temperature to API" --type webhook \
+  --config '{"url":"https://api.example.com/ingest","headers":{"Content-Type":"application/json"}}'
 
 # Start / stop
-neomind data-push start <target_id>
-neomind data-push stop <target_id>
+neomind push start <target_id>
+neomind push stop <target_id>
 
 # Test push
-neomind data-push test <target_id>
+neomind push test <target_id>
 
-# View delivery logs
-neomind data-push logs <target_id>
-
-# View stats
-neomind data-push stats
+# View delivery logs / stats
+neomind push logs <target_id>
+neomind push stats
 
 # Delete
-neomind data-push delete <target_id>
+neomind push delete <target_id>
 ```
 
 ## REST API
@@ -223,7 +212,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **Type**: Webhook
 - **Schedule**: Event Driven
-- **Source**: `extension:yolo-detector:detections`
+- **Source**: `extension:yolo-video:detections`
 - **Target URL**: The business system's ingest endpoint
 
 ## Integration with Other Modules
@@ -245,4 +234,4 @@ curl http://localhost:9375/api/data-push/stats
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

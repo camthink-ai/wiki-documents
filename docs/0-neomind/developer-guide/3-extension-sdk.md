@@ -134,6 +134,8 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 | `set_output_sender()` | 推送模式启动 | 保存输出通道，后续主动推送数据 |
 | `start_push()` / `stop_push()` | 推送开始/停止 | 启动/停止后台推送任务 |
 
+> **推送帧格式（0.9.23+）**：Push 扩展的输出经 `/api/extensions/:id/stream` WS 端点送达前端。客户端在 `init` 配置传入 `{"binary": true}` 并得到 `session_created.binary` 确认后，`send_push_output` 的二进制负载（JPEG/PCM 等）改以 WS Binary 帧直传（`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`），省去 base64；未协商时自动回退旧版 Text + base64，扩展代码无需任何改动——协商完全由宿主与前端处理。
+
 ## Metadata / Metric / Command
 
 **ExtensionMetadata** 完整结构（在 `metadata()` 返回）：
@@ -223,6 +225,8 @@ neomind_extension_sdk::neomind_export!(MyExtension);
 | `device_metrics_read` | 读取设备指标 |
 | `device_metrics_write` | 写入设备指标（虚拟设备） |
 | `device_control` | 向设备发送命令 |
+| `device_template_register` | 注册设备类型模板（bridge 类扩展用，如 lorawan-bridge / modbus-bridge / onvif-bridge） |
+| `device_register` / `device_unregister` | 注册 / 注销设备实例（bridge 扩展把外部设备接入 NeoMind 设备模型） |
 | `storage_query` | 查询时序数据库 |
 | `event_publish` | 发布事件 |
 | `event_subscribe` | 订阅事件 |
@@ -334,4 +338,4 @@ curl -X POST http://localhost:9375/api/extensions/discover
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

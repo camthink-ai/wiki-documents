@@ -27,7 +27,7 @@ ne101_camera 的源码仓库 [`camthink-ai/NeoMind-Dashboard-Components`](https:
 4. **ROI 叠加**（最重的阶段，10+ commits）——从中心点判定到 Sutherland-Hodgman 裁剪、从固定阈值到可配置阈值、ROI 多边形编辑器、坐标对齐修复
 5. **OCR 多边形支持**——`ocr_text_blocks` responseType、对象坐标（x/y pair）的转换、多边形渲染 + 矩形回退
 6. **React hooks 稳定化**——条件 useState 导致的 #310 崩溃、IME 输入冻结的两次迭代、ResizeObserver 异步挂载修复
-7. **每类检测着色 + NMS 调优**——golden-angle HSV 旋转的颜色分配、locate-anything-v2 的 `nms_iou_threshold` 透传。
+7. **每类检测着色 + NMS 调优**——golden-angle HSV 旋转的颜色分配、locate-anything 的 `nms_iou_threshold` 透传。
 
 这 7 个阶段不是严格线性的——例如 ROI 叠加（阶段 4）和 hooks 稳定化（阶段 6）在时间上有重叠，但用 gantt 图能看出每个阶段的相对体量。
 

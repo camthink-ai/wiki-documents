@@ -61,6 +61,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 ### 支持的操作系统
 
 - **Linux**：Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / 其他主流发行版（x86_64 / arm64）
+- **边缘设备（arm64）**：NVIDIA Jetson（Orin 系列，CUDA 运行时自动引导安装）、RK3576 等 aarch64 SBC——服务端与扩展均有 arm64 构建
 - **macOS**：12 Monterey 及以上（开发或小规模部署）
 - **Windows**：Windows 10/Server 2019 及以上（通过 WSL2 或原生）
 
@@ -88,7 +89,8 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 
 服务器部署**无需手动安装额外依赖**——安装脚本会下载静态编译的二进制。可选组件：
 
-- **Ollama**（推荐）：用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
+- **无（默认）**：Docker 部署镜像已内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM，无需额外安装
+- **Ollama**（可选）：已有 Ollama 环境时用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
 - **Docker**（可选）：`docker compose up -d` 一键部署
 - **nginx**（可选）：生产环境反向代理 + 静态前端托管
 
@@ -140,4 +142,4 @@ NeoMind 支持多种 LLM 后端，按部署形态分两类：
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

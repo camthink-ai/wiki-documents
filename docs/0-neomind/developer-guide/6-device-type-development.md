@@ -205,7 +205,7 @@ neomind device control <DEVICE_ID> set_brightness \
   --params '{"brightness": 80}'
 
 # 直接写入指标（测试用）
-neomind device write-metric <DEVICE_ID> temperature 25.5
+neomind device write-metric <DEVICE_ID> --metric temperature --value 25.5
 ```
 
 ### 设备类型管理
@@ -223,6 +223,14 @@ neomind device types create \
 # 查看类型详情
 neomind device types get <TYPE_ID>
 ```
+
+### 命令模板：`payload_template` 与 `request_id` 自动注入
+
+`CommandDefinition` 支持 **`payload_template`**——用模板定义下行 JSON 的完整结构，占位符在发送时用实际参数替换，设备端收到的就是它期望的原生报文格式（而不是平台通用信封）。未在模板中出现的参数会被拒或忽略（取决于模板约束）。
+
+平台还会为每条命令**自动注入自增的 `request_id`**，设备回应答中带回同值即可关联请求-响应，无需设备端自己维护序号。
+
+> 完整字段说明见 [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes)。该仓库目前维护着 **129 个设备类型模板**（含 123 个 Milesight LoRaWAN 传感器），NE101/NE301 相机类型为 `mode: full`（带命令模板），可直接导入参考。
 
 ## REST API 快速参考
 
@@ -343,4 +351,4 @@ while True:
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

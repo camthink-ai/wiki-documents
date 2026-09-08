@@ -27,7 +27,7 @@ flowchart TB
         RULE["Rule Engine<br/>Event-driven · JSON"]:::core
         AGENT["AI Agent<br/>Think-Act-Observe"]:::ai
         WEBUI["Web UI<br/>Dashboard · AI Chat"]:::consumer
-        MSG["Notifications<br/>7-channel routing"]:::consumer
+        MSG["Notifications<br/>9-channel routing"]:::consumer
 
         MQTT ==> STORE
         API ==> STORE
@@ -35,7 +35,7 @@ flowchart TB
         TRANSFORM -.->|"write back"| STORE
         STORE -.-> RULE
         STORE -.-> AGENT
-        RULE -.->|"Notify"| MSG
+        RULE -.->|"notify"| MSG
         STORE -.->|"SSE push"| WEBUI
     end
 
@@ -70,7 +70,7 @@ flowchart TB
 | **Transform** | — | JavaScript (Boa engine) pipeline | Raw data → derived metrics (unit conversion, aggregation, custom formulas), 3 scope levels |
 | **Rule Engine** | — | Event-driven | Evaluates on data write (zero latency), pure JSON conditions + actions |
 | **AI Agent** | — | LLM + CLI toolchain | Natural language understanding, Think-Act-Observe loop, Interval/Cron/Event scheduling |
-| **Notifications** | — | 7-channel routing | Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram |
+| **Notifications** | — | 9-channel routing | 7 external channels (Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram) + 2 built-in |
 | **Extension System** | — | Process isolation + FFI | Vision AI (YOLO/OCR), device bridges (Modbus/OPC-UA), independent process won't crash main service |
 
 :::info Why no external dependencies?
@@ -115,7 +115,7 @@ Downlink topic: device/{device_type}/{device_id}/downlink
 Discovery topic: {discovery_prefix}/announce
 ```
 
-JSON published to the uplink topic is automatically parsed into telemetry data and stored. Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
+JSON published to the uplink topic is automatically parsed into telemetry data and stored (this convention applies to manually added devices; devices with a recognized type or connected via Auto-Discovery may also publish to arbitrary topics — such data first lands in the **pending approval list**, and registration completes after confirmation). Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
 
 **Webhook (stateless)** — for one-off pushes or devices that can't run an MQTT client:
 
@@ -148,16 +148,16 @@ Stored data is queried via REST API — dashboards, rules, and agents all use th
 
 ```bash
 # Query temperature data from the last 1 hour
-curl "http://localhost:9375/api/telemetry?source=device:demo-sensor:temperature&start=-1h&end=now"
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400"
 
 # Aggregate by 5-minute time buckets (avg/min/max/sum/count)
-curl "http://localhost:9375/api/telemetry/aggregate?source=device:demo-sensor:temperature&interval=5m&function=avg&start=-24h"
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400&aggregate=avg&bucketed=true"
 ```
 
 | Parameter | Description |
 |-----------|-------------|
 | `source` | DataSourceId (`{type}:{id}:{field}`) |
-| `start` / `end` | Time range — Unix ms or relative (`-1h` / `now`) |
+| `start` / `end` | Time range (Unix seconds) |
 | `interval` | Aggregation time bucket (e.g. `5m` / `1h` / `1d`) |
 | `function` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
 | `limit` | Max data points returned, paginated |
@@ -248,7 +248,7 @@ YOLO extension panics due to a model loading failure? The main service and other
 
 **2. Capability Declaration** — declared at startup, denied if undeclared
 
-Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. 14 built-in capabilities cover device read/write, storage queries, event pub/sub, agent/rule triggers, and more:
+Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. 20 built-in capabilities (including the chat streaming family) cover device read/write, storage queries, event pub/sub, agent/rule triggers, and more:
 
 | Category | Capability | Description |
 |----------|-----------|-------------|
@@ -263,7 +263,7 @@ Also supports `Custom(String)` for custom capabilities.
 
 **3. Lazy Loading** — ML models load on first call, then stay resident
 
-A 50MB YOLOv8n model doesn't occupy memory at startup — it loads into memory on the first detection command, then stays resident for subsequent calls.
+A about 12 MB YOLOv8n model doesn't occupy memory at startup — it loads into memory on the first detection command, then stays resident for subsequent calls.
 
 **4. Cross-Process Communication** — serde JSON serialization, debug-friendly
 
@@ -324,7 +324,7 @@ AI Agents support three scheduling triggers:
 | Mode | Trigger | Typical Scenario |
 |------|---------|-----------------|
 | **Interval** | Fixed interval (e.g. every 5 min) | "Patrol device status periodically" |
-| **Cron** | Cron expression (e.g. `0 9 * * 1-5`) | "Generate daily report every weekday at 9 AM" |
+| **Cron** | Cron expression (e.g. `0 0 9 * * 1-5`) | "Generate daily report every weekday at 9 AM" |
 | **Event** | Data event (rule match / metric change) | "Analyze immediately when temperature spikes" |
 
 ### CLI-First Architecture
@@ -363,7 +363,7 @@ The agent core is a **Think-Act-Observe loop**, max 30 rounds (configurable):
 
 **Safety mechanisms**:
 - Global timeout: 5 minutes (300s) forced termination
-- Tool timeouts: Shell 30s, extensions 300s, HTTP 10s
+- Tool timeouts: Shell defaults to 30s (max 600s), web requests 15s, extensions 300s
 - Concurrency: 10 global parallel executions, 2 per LLM backend
 - Context compaction: compresses history by priority when exceeding window size (system prompt never dropped)
 
@@ -382,17 +382,17 @@ The rule engine evaluates conditions **immediately** when data is written to Tel
 ```json
 {
   "name": "High Temperature Alert",
+  "trigger": { "trigger_type": "data_change" },
   "condition": {
+    "condition_type": "comparison",
     "source": "device:demo-sensor:temperature",
-    "operator": "GreaterThan",
+    "operator": "greater_than",
     "threshold": 30.0
   },
   "actions": [
-    { "type": "Notify", "message": "Temperature exceeds 30°C!", "severity": "Critical" },
-    { "type": "TriggerAgent", "agent_id": "analyzer" }
-  ],
-  "trigger": "event",
-  "cooldown": 60
+    { "type": "notify", "message": "Temperature exceeds 30°C!", "severity": "critical" },
+    { "type": "trigger_agent", "agent_id": "analyzer" }
+  ]
 }
 ```
 
@@ -476,4 +476,4 @@ NeoMind also supports cloud LLMs (OpenAI / Anthropic / GLM / DeepSeek, etc.). Th
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

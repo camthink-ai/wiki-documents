@@ -157,6 +157,8 @@ neomind widget get temperature-gauge   # Check full manifest
 | `size_constraints` | object | YES | Grid size limits |
 | `has_data_source` | boolean | YES | Whether widget accepts data source bindings |
 | `max_data_sources` | number | NO | Maximum data sources (0 = none, omit = unlimited) |
+| `has_device_binding` | boolean | NO | Whether the component supports **device binding** — when true, the component receives a `deviceContext` prop (device online state, latest metrics, etc.) and links with the device detail view |
+| `device_type_filter` | string[] | NO | Paired with `has_device_binding`: restricts the bindable device types (e.g. `["ne101_camera"]`) |
 | `has_display_config` | boolean | NO | Whether widget has display configuration |
 | `has_actions` | boolean | NO | Whether widget sends commands (e.g., toggle) |
 | `config_schema` | object | NO | JSON Schema for `display` and `config` fields |
@@ -303,7 +305,7 @@ neomind widget install ../my-widget.zip
 
 ### Method 2: Web UI
 
-In NeoMind's **Extensions** page, click **Install Widget** and upload the ZIP file.
+In the dashboard edit mode, open the **Add Component → Custom** tab and click **Import Component** to upload the ZIP file (see the [Dashboard User Guide](../user-guide/4-use-dashboard.md)).
 
 ### Method 3: Uninstall
 
@@ -445,4 +447,4 @@ This page is the component API reference. Real-world engineering examples:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

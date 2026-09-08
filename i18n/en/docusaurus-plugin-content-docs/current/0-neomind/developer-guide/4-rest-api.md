@@ -113,11 +113,12 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | GET | `/devices/:id` | Device detail (metrics + commands) |
 | PUT | `/devices/:id` | Update device |
 | DELETE | `/devices/:id` | Delete device |
-| GET | `/devices/:id/history` | Telemetry history (`?metric=&time_range=`) |
-| POST | `/devices/:id/control` | Send command (`{"command": "...", "params": {...}}`) |
+| GET | `/devices/:id/telemetry` | Device telemetry history (`?metric=&start=&end=`) |
+| GET | `/telemetry` | Cross-device telemetry query (`?source=&metric=&start=&end=&limit=&offset=`; `offset` skips the newest N items for server-side pagination; the response carries an exact `total_count`) |
+| POST | `/devices/:id/command/:command` | Send command (body is the params object, e.g. `{"offset": 1}`) |
 | POST | `/devices/:id/webhook` | Push data via webhook (no auth) |
-| GET | `/devices/types` | List device types |
-| POST | `/devices/types` | Create device type |
+| GET | `/device-types` | List device types |
+| POST | `/device-types` | Create device type |
 | GET | `/devices/drafts` | Pending drafts (auto-discovered) |
 | POST | `/devices/drafts/:id/approve` | Approve a draft |
 
@@ -131,7 +132,7 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | PUT | `/dashboards/:id` | Update dashboard (including layout) |
 | DELETE | `/dashboards/:id` | Delete dashboard |
 | POST | `/dashboards/:id/share` | Generate a share link (with expiration) |
-| GET | `/dashboards/shared/:token` | Access a shared dashboard (no auth) |
+| GET | `/share/:token` | Access a shared dashboard (no auth) |
 
 ### Rules
 
@@ -192,7 +193,7 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | PUT | `/messages/channels/:id` | Update channel |
 | DELETE | `/messages/channels/:id` | Delete channel |
 | POST | `/messages/channels/:id/test` | Test channel delivery |
-| POST | `/messages/send` | Send a message manually |
+| POST | `/messages` | Send a message manually |
 
 ### Extensions
 
@@ -200,12 +201,13 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 |--------|------|-------------|
 | GET | `/extensions` | List installed extensions |
 | GET | `/extensions/types` | Enumerate extension types |
-| POST | `/extensions/discover` | Scan the extensions directory |
+| POST | `/extensions/sync` | Scan the extensions directory and install (sync) |
 | GET | `/extensions/:id` | Extension detail |
 | GET | `/extensions/:id/health` | Health check |
 | GET | `/extensions/:id/commands` | List extension commands |
-| POST | `/extensions/:id/commands/:cmd` | Execute an extension command |
+| POST | `/extensions/:id/command` | Execute an extension command |
 | GET | `/extensions/:id/components` | Dashboard components provided by the extension |
+| GET / WS | `/extensions/:id/stream` | Extension stream session (Push-mode real-time frames; see [Realtime API](#realtime-api)) |
 
 ### Data Push
 
@@ -226,16 +228,29 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/settings/*` | System settings (retention policy, etc.) |
-| GET | `/system/info` | System info (MQTT / network / webhook) |
-| GET | `/system/network-info` | Network info |
+| GET | `/system/network-info` | Network info (MQTT / webhook endpoints) |
 
 ## Realtime API
 
 In addition to REST, NeoMind exposes:
 
-- **WebSocket**: `ws://<host>:9375/api/events` — dashboard live data, device state changes
-- **SSE**: `GET /api/events` (Server-Sent Events) — same event stream over plain HTTP
+- **WebSocket**: `ws://<host>:9375/api/events/ws` — dashboard live data, device state changes
+- **SSE**: `GET /api/events/stream` (Server-Sent Events) — same event stream over plain HTTP
 - **MQTT**: connect directly to `mqtt://<host>:1883` and subscribe to device topics
+
+### Extension Stream (`/api/extensions/:id/stream`)
+
+Push-mode extensions (video/audio and other continuous-frame outputs) establish a stream session through this WebSocket endpoint. Since **0.9.23**, optional **binary push frames** are supported:
+
+1. The client opts in by sending `{"binary": true}` in the `init` config
+2. The server confirms via `session_created.binary`; if unconfirmed, the legacy Text (JSON + base64) format is kept
+3. Once enabled, `push_output` frames travel as WS Binary frames, avoiding double base64 encoding overhead. Frame format:
+
+```
+[kind u8=1][version u8=1][sequence u64 BE][meta_len u32 BE][meta JSON][payload bytes]
+```
+
+`meta` mirrors the Text envelope fields (minus `data`/`sequence`); control messages (`session_created`, `error`, etc.) always travel on Text frames — the WS frame type is the first-level discriminator. Any combination of old/new frontends and old/new servers degrades safely.
 
 The canonical reference for the realtime protocol (WebSocket / SSE) is the frontend implementation: `web/src/lib/events.ts` and `web/src/lib/websocket.ts`.
 
@@ -265,4 +280,4 @@ else:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

@@ -9,7 +9,7 @@ tags: [NeoMind, Developer Guide]
 NeoMind is a modular ecosystem split into four independent repositories organized by **development goal**. This page helps you pick the right repo to start from and points to the deeper doc for each path.
 
 :::tip Recommended: AI-Assisted Development
-The NeoMind codebase is purpose-built for AI coding tools like **Claude Code** — the project ships with a `CLAUDE.md` context file, a 33-section frontend design spec, and 16 reference extension implementations. **Whether you're building extensions, components, or contributing to the main project, we recommend starting with AI-assisted development.** See the [AI-Assisted Development Guide](./5-ai-assisted-development.md).
+The NeoMind codebase is purpose-built for AI coding tools like **Claude Code** — the project ships with a `CLAUDE.md` context file, a 33-section frontend design spec, and 27 reference extension implementations. **Whether you're building extensions, components, or contributing to the main project, we recommend starting with AI-assisted development.** See the [AI-Assisted Development Guide](./5-ai-assisted-development.md).
 :::
 
 ## First Question: What Are You Building?
@@ -143,4 +143,4 @@ cd web && npm run tauri:dev
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

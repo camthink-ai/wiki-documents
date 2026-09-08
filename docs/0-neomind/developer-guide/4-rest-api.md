@@ -114,11 +114,12 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/devices/:id` | 设备详情（含 metrics + commands） |
 | PUT | `/devices/:id` | 更新设备 |
 | DELETE | `/devices/:id` | 删除设备 |
-| GET | `/devices/:id/history` | 遥测历史（`?metric=&time_range=`） |
-| POST | `/devices/:id/control` | 下发指令（`{"command": "...", "params": {...}}`） |
+| GET | `/devices/:id/telemetry` | 设备遥测历史（`?metric=&start=&end=`） |
+| GET | `/telemetry` | 跨设备遥测查询（`?source=&metric=&start=&end=&limit=&offset=`；`offset` 为跳过最新 N 条，用于服务端分页，响应含精确 `total_count`） |
+| POST | `/devices/:id/command/:command` | 下发指令（body 为参数对象，如 `{"offset": 1}`） |
 | POST | `/devices/:id/webhook` | Webhook 推数据（无需认证） |
-| GET | `/devices/types` | 列出设备类型 |
-| POST | `/devices/types` | 创建设备类型 |
+| GET | `/device-types` | 列出设备类型 |
+| POST | `/device-types` | 创建设备类型 |
 | GET | `/devices/drafts` | 待审批草稿（自动发现） |
 | POST | `/devices/drafts/:id/approve` | 审批草稿 |
 
@@ -132,7 +133,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | PUT | `/dashboards/:id` | 更新仪表板（含布局） |
 | DELETE | `/dashboards/:id` | 删除仪表板 |
 | POST | `/dashboards/:id/share` | 生成分享链接（带过期） |
-| GET | `/dashboards/shared/:token` | 访问分享（无需认证） |
+| GET | `/share/:token` | 访问分享仪表板（无需认证） |
 
 ### Rules（规则）
 
@@ -193,7 +194,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | PUT | `/messages/channels/:id` | 更新渠道 |
 | DELETE | `/messages/channels/:id` | 删除渠道 |
 | POST | `/messages/channels/:id/test` | 测试渠道投递 |
-| POST | `/messages/send` | 手动发消息 |
+| POST | `/messages` | 手动发消息 |
 
 ### Extensions（扩展）
 
@@ -201,12 +202,13 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 |------|------|------|
 | GET | `/extensions` | 列出已装扩展 |
 | GET | `/extensions/types` | 扩展类型枚举 |
-| POST | `/extensions/discover` | 扫描扩展目录 |
+| POST | `/extensions/sync` | 扫描扩展目录并安装（同步） |
 | GET | `/extensions/:id` | 扩展详情 |
 | GET | `/extensions/:id/health` | 健康检查 |
 | GET | `/extensions/:id/commands` | 扩展命令列表 |
-| POST | `/extensions/:id/commands/:cmd` | 执行扩展命令 |
+| POST | `/extensions/:id/command` | 执行扩展命令（body `{"command": "...", "args": {...}}`） |
 | GET | `/extensions/:id/components` | 扩展提供的 Dashboard 组件 |
+| GET / WS | `/extensions/:id/stream` | 扩展流会话（Push 模式实时帧；见[实时 API](#实时-api)） |
 
 ### Data Push（数据推送）
 
@@ -227,16 +229,29 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/settings/*` | 系统设置（保留策略等） |
-| GET | `/system/info` | 系统信息（MQTT / 网络 / webhook） |
-| GET | `/system/network-info` | 网络信息 |
+| GET | `/system/network-info` | 网络信息（MQTT / webhook 地址） |
 
 ## 实时 API
 
 除 REST 外，NeoMind 提供：
 
-- **WebSocket**：`ws://<host>:9375/api/events` — 仪表板实时数据流、设备状态变化推送
-- **SSE**：`GET /api/events`（Server-Sent Events）— 同样的事件流，HTTP 单向
+- **WebSocket**：`ws://<host>:9375/api/events/ws` — 仪表板实时数据流、设备状态变化推送
+- **SSE**：`GET /api/events/stream`（Server-Sent Events）— 同样的事件流，HTTP 单向
 - **MQTT**：直连 `mqtt://<host>:1883` 订阅设备原始 topic
+
+### 扩展流（`/api/extensions/:id/stream`）
+
+Push 模式扩展（视频/音频等连续帧输出）通过该 WebSocket 端点建立流会话。自 **0.9.23** 起支持**二进制推送帧**（可选启用）：
+
+1. 客户端在 `init` 配置中携带 `{"binary": true}` 主动协商
+2. 服务端在 `session_created.binary` 中确认；未确认则保持旧版 Text（JSON + base64）格式
+3. 启用后，`push_output` 帧改用 WS Binary 帧传输，免去双重 base64 编码开销，帧格式：
+
+```
+[kind u8=1][version u8=1][sequence u64 BE][meta_len u32 BE][meta JSON][payload bytes]
+```
+
+`meta` 与 Text 信封字段一致（不含 `data`/`sequence`）；控制消息（`session_created`、`error` 等）始终走 Text 帧——WS 帧类型即第一级判别器。新旧前端与新旧服务器的任意组合均可安全回退。
 
 实时协议（WebSocket / SSE）的权威实现参考 Web 前端 `web/src/lib/events.ts` 与 `web/src/lib/websocket.ts`。
 
@@ -266,4 +281,4 @@ else:
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

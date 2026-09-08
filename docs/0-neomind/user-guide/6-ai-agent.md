@@ -25,7 +25,7 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 点击左侧导航的 **Agents**（机器人图标）进入 Agent 管理页面：
 
-<img src="https://resources.camthink.ai/NeoMind/agents-list.png" alt="AI Agent 列表 — 卡片式展示所有 Agent，含状态、调度方式、上次执行时间" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/agents-list.png" alt="AI Agent 列表 — 卡片式展示所有 Agent，含状态、调度方式、上次执行时间" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以**卡片网格**展示所有 Agent，每张卡片显示：
 
@@ -38,11 +38,13 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 页面顶部有三个页签：**Agents**（智能体列表）、**Memory**（系统记忆）、**Skills**（技能管理）。
 
+> **Skills（技能）**：为 Agent 提供场景化操作指南的知识文件（内置技能只读，用户技能可在页签内增删改）。Agent 执行时按描述自动匹配相关技能（BM25 词法排序），也可在 Agent 编辑器中手动固定（pin）某些技能。
+
 ## 创建 Agent
 
 点击右上角的 **Create AI Agent** 按钮，打开全屏编辑器：
 
-<img src="https://resources.camthink.ai/NeoMind/agent-editor.png" alt="AI Agent 编辑器 — 左侧基本信息与提示词，右侧执行模式与调度配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/agent-editor.png" alt="AI Agent 编辑器 — 左侧基本信息与提示词，右侧执行模式与调度配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 编辑器分为左右两栏，以下是各配置项说明：
 
@@ -69,7 +71,7 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 ### 3. 调度方式（右侧）
 
-<img src="https://resources.camthink.ai/NeoMind/agent-editor-schedule.png" alt="Agent 编辑器 — 调度配置区域，含 cron、interval、event 选项" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/agent-editor-schedule.png" alt="Agent 编辑器 — 调度配置区域，含 cron、interval、event 选项" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Agent 按调度方式自动触发执行：
 
@@ -95,7 +97,7 @@ Agent 按调度方式自动触发执行：
 
 点击任意 Agent 卡片，打开详情面板：
 
-<img src="https://resources.camthink.ai/NeoMind/agent-detail.png" alt="Agent 详情面板 — 概览、执行历史、记忆系统、用户消息" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/agent-detail.png" alt="Agent 详情面板 — 概览、执行历史、记忆系统、用户消息" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 详情面板包含多个区域：
 
@@ -245,7 +247,7 @@ neomind agent invoke <agent_id> "检查所有传感器最新读数"
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/agents-mobile.png" alt="Agent 管理移动端 — 卡片列表自适应单列" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="/img/neomind/agents-mobile.png" alt="Agent 管理移动端 — 卡片列表自适应单列" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为单列卡片列表，支持查看状态、手动执行、切换暂停/激活。
 
@@ -257,4 +259,4 @@ neomind agent invoke <agent_id> "检查所有传感器最新读数"
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

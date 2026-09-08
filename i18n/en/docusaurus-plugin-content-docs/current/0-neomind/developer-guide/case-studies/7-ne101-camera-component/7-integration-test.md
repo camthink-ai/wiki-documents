@@ -1,5 +1,5 @@
 ---
-description: "ne101_camera integration tests: end-to-end test matrix (test_bundle.js 35KB), ROI overlay verification (Sutherland-Hodgman clipping + object-cover mapping), multi-extension switching tests (locate-anything-v2 / image-analyzer-v2 / yolo-device-inference / ocr-device-inference), source_ts alignment verification, WS+REST dual-channel tests"
+description: "ne101_camera integration tests: end-to-end test matrix (test_bundle.js 35KB), ROI overlay verification (Sutherland-Hodgman clipping + object-cover mapping), multi-extension switching tests (locate-anything / image-analyzer / yolo-device-inference / ocr-device-inference), source_ts alignment verification, WS+REST dual-channel tests"
 keywords: [ne101_camera, integration test, test_bundle.js, ROI verification, multi-extension switching, test matrix]
 tags: [NeoMind, Case Study]
 sidebar_label: "Integration Test"
@@ -265,7 +265,7 @@ graph LR
 `AI_EXT_IDS` ([`bundle.js` L144](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)) hardcodes 4 whitelisted extensions, each with a different `responseType` contract — the JSON shape of the AI inference result.
 
 ```js
-  var AI_EXT_IDS = ['locate-anything-v2', 'image-analyzer-v2', 'yolo-device-inference', 'ocr-device-inference'];
+  var AI_EXT_IDS = ['locate-anything', 'image-analyzer', 'yolo-device-inference', 'ocr-device-inference'];
 ```
 
 Source: [`bundle.js` L144`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)
@@ -327,20 +327,20 @@ The test matrix covers the **directed complete graph** of the 4 extensions — e
 2. the Transform is rebuilt (the `_configHash` change triggers a Tier 2/3 update)
 3. feeding a mock response with the new extension's `responseType` produces a normalized detection array with the correct structure.
 
-The most critical regression assertion was introduced by commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148): **only `locate-anything-v2` hardcodes `nms_iou_threshold: 0.5` in the Transform JS** ([L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)); the other three extensions do not pass this parameter.
+The most critical regression assertion was introduced by commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148): **only `locate-anything` hardcodes `nms_iou_threshold: 0.5` in the Transform JS** ([L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)); the other three extensions do not pass this parameter.
 
 ```js
-    // Pass NMS threshold to locate-anything-v2 — extension postprocess_args reads it from args
-    if (extensionId === 'locate-anything-v2') L.push(',  nms_iou_threshold: 0.5');
+    // Pass NMS threshold to locate-anything — extension postprocess_args reads it from args
+    if (extensionId === 'locate-anything') L.push(',  nms_iou_threshold: 0.5');
 ```
 
 Source: [`bundle.js` L281-L282`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L281-L282)
 
-The matrix verifies "the JS generated when switching to locate-anything-v2 contains `nms_iou_threshold`; switching away makes this field disappear", preventing the NMS parameter from leaking into extensions that don't support it (which would cause `image-analyzer-v2` to error with "unknown parameter").
+The matrix verifies "the JS generated when switching to locate-anything contains `nms_iou_threshold`; switching away makes this field disappear", preventing the NMS parameter from leaking into extensions that don't support it (which would cause `image-analyzer` to error with "unknown parameter").
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LA2: locate-anything-v2
+    [*] --> LA2: locate-anything
     LA2 --> IA2: switch<br/>boxes_x1y1x2y2 → objects_bbox
     IA2 --> YDI: switch<br/>objects_bbox → detections_bbox
     YDI --> ODI: switch<br/>detections_bbox → ocr_text_blocks
@@ -348,7 +348,7 @@ stateDiagram-v2
     LA2 --> LA2: self-loop (mode switch)<br/>NMS threshold must persist
 
     note right of LA2
-        locate-anything-v2 exclusive:
+        locate-anything exclusive:
         nms_iou_threshold: 0.5
         (commit 8656148)
     end note
@@ -357,7 +357,7 @@ stateDiagram-v2
 **Design decision: exhaustive directed complete graph vs pairwise testing**
 
 - **Choice**: exhaustive 4×4 = 16 switching paths including self-loops.
-- **Alternative A**: pairwise testing — use an orthogonal table to pick 6-8 "representative" paths. Rejected because the NMS leak bug is a "specific source → specific target" combination problem; pairwise randomly skips combinations and may miss the critical "locate-anything-v2 → ocr-device-inference" regression path.
+- **Alternative A**: pairwise testing — use an orthogonal table to pick 6-8 "representative" paths. Rejected because the NMS leak bug is a "specific source → specific target" combination problem; pairwise randomly skips combinations and may miss the critical "locate-anything → ocr-device-inference" regression path.
 - **Alternative B**: test only 4 "switch to each extension" paths (without exercising the source extension). Rejected because it cannot capture cumulative side effects of "A → B → C" switching (e.g., dirty config fields not cleaned).
 - **Rationale**: the directed complete graph of 4 extensions has only 16 edges — exhaustive cost is fully acceptable, and adding a new extension only extends the matrix (no redesign needed). Exhaustive testing also **automatically covers mode self-switching** (switching `object_detection` → `grounding` → `point` within the same extension), a common user path through the AdvancedPanel template dropdown (6.6).
 - **Cost**: matrix runtime grows quadratically with extension count, but the whitelist currently has only 4 extensions — far from any bottleneck.
@@ -546,7 +546,7 @@ Under the IIFE pattern with no type checker, linter, or bundler as a safety net,
 |--------|------|----------------------|---------|
 | [`2109c45`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/2109c45) | feat | overlap-based ROI detection instead of center point | 7.3 |
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | 7.3 |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 7.4 |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 7.4 |
 | [`e3a70be`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/e3a70be) | fix | parse JSON string detections from backend virtual metrics | 7.5 |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | 7.6 |
 | [`0eedd27`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/0eedd27) | fix | update virtual data on WS-triggered REST fetch | 7.6 |

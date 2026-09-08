@@ -15,7 +15,7 @@ sidebar_label: "uink-rms-bridge"
 2. 周期性拉取设备遥测（电量百分比、信号强度 dBm、温度、刷新计数）
 3. 把用户编辑的 Markdown / 纯文本 / 图像转换为 JPEG 并推送到 e-paper 屏幕上刷新显示
 
-当前版本 `2.7.6`，核心实现集中在单个 [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) 文件共 2250 行，外加 React + TypeScript 编写的 [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) 前端组件（entrypoint `uink-rms-bridge-components.umd.cjs`）。
+audit 版本 `2.7.6`，核心实现集中在单个 [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) 文件共 2250 行，外加 React + TypeScript 编写的 [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) 前端组件（entrypoint `uink-rms-bridge-components.umd.cjs`）。
 
 **与 [案例 4 onvif-bridge](./4-onvif-bridge.md) 的对比（本案例核心叙事轴）**：onvif-bridge 是**标准协议桥接**（ONVIF 是开放规范，任何 Profile S 摄像头通用），uink-rms-bridge 是**厂商专有协议桥接**（Uink-RMS 云 API 是封闭的私有接口，仅 Uink 自家设备可用）。
 

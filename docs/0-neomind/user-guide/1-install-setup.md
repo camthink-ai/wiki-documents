@@ -41,14 +41,14 @@ xattr -cr /Applications/NeoMind.app
 
 ### 首次启动向导
 
-安装后首次启动，NeoMind 会进入**配置向导**，仅需两步：
+安装后首次启动，NeoMind 会进入**配置向导**，共四步（可随时跳过，稍后在设置中补配）：
 
-1. **创建管理员账号** — 设置用户名与密码，时区自动检测
-2. **完成** — 进入主界面，页面上会给出快速上手指引（聊天、配置 LLM、浏览功能）
+1. **欢迎** — 平台简介与文档入口
+2. **LLM 后端** — 配置 AI 模型：支持**内置模型一键下载**（无需自备 API Key）、接入自定义后端（OpenAI/Ollama 等）或 CLI 快速配置
+3. **设备连接** — 连接/审批设备
+4. **完成** — 进入主界面
 
-> LLM 后端配置已**延后**——当你首次使用 AI Chat 或创建 Agent 时，系统会引导你前往「设置」页面配置。详见 [配置 LLM 后端](./2-configure-llm.md)。
-
-向导完成后即进入主界面。
+> 跳过 LLM 配置也没关系——首次使用 AI Chat 或创建 Agent 时，系统会再次引导。内置本地模型的详细说明见 [配置 LLM 后端](./2-configure-llm.md)。
 
 ## 服务器一键部署（Linux / macOS）
 
@@ -71,7 +71,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `VERSION` | 最新版 | 指定版本，如 `0.8.0` |
+| `VERSION` | 最新版 | 指定版本，如 `0.9.23` |
 | `INSTALL_DIR` | `/usr/local/bin` | 二进制安装目录 |
 | `DATA_DIR` | `/var/lib/neomind` | 数据目录（redb 文件、日志等） |
 | `WEB_DIR` | `/var/www/neomind` | 前端静态文件目录 |
@@ -84,7 +84,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 ```bash
 # 指定版本
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.8.0 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
 
 # 自定义目录
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -95,22 +95,46 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
   | USE_NGINX=true sh
 ```
 
+### 升级
+
+- **浏览器部署（推荐）**：`设置 → 关于` 会自动检查新版本（每 24 小时一次，有更新时右上角出现提示图标），点击即可在线升级——系统自动下载、校验、备份并重启，全程无需 SSH（需要 install.sh 部署的辅助 systemd 单元，老安装重新运行一次安装脚本即可获得）。
+- **重新运行安装脚本**：`VERSION=0.9.23 sh install.sh` 指定版本重装。
+- **Docker**：`docker compose pull && docker compose up -d`。
+
+数据目录自动备份见 [故障排查](./10-troubleshooting.md)。
+
 ## Docker 部署
 
+官方发布多架构编译镜像（amd64 + arm64，每次发版自动构建），**无需克隆仓库、无需 Rust 工具链**：
+
 ```bash
-git clone https://github.com/camthink-ai/NeoMind.git
-cd NeoMind
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+或使用 Docker Compose（自动拉取 `camthink/neomind:latest`）：
+
+```bash
+mkdir neomind && cd neomind
+curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-compose.yml
 docker compose up -d
 ```
 
-单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。
+单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。镜像内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM。
+
+| 镜像 | 说明 |
+|------|------|
+| `camthink/neomind:latest` | 跟随最新发布 |
+| `camthink/neomind:<版本>` | 锁定版本，如 `camthink/neomind:0.9.22` |
 
 | 端口 | 用途 |
 |------|------|
 | `9375` | HTTP API + Web UI + WebSocket |
 | `1883` | MQTT Broker（设备接入） |
 
-可通过 `.env` 自定义端口与其他参数（复制 `.env.example` 开始）：
+可通过 `.env` 自定义端口与其他参数（从[仓库](https://github.com/camthink-ai/NeoMind/blob/main/.env.example)复制 `.env.example` 开始）：
 
 ```bash
 cp .env.example .env
@@ -125,7 +149,7 @@ docker compose up -d
 适用于无法运行一键脚本的环境（如离线服务器、特殊目录结构）：
 
 ```bash
-VERSION=0.8.0  # 替换为目标版本号
+VERSION=0.9.23  # 替换为目标版本号
 
 # 按平台选择（amd64 或 arm64）
 ARCH=amd64  # Linux x86_64；arm64 设备改为 arm64
@@ -199,7 +223,7 @@ cd web && npm run tauri:build
 
 1. **创建管理员账号** — 首个注册的用户自动成为管理员，时区自动检测
 
-创建完成后即进入主界面。LLM 后端配置和设备接入已延后——你可以在需要时随时进行：
+创建完成后即进入主界面，随后进入上文介绍的**四步配置向导**（欢迎 → LLM 后端 → 设备连接 → 完成；每一步都可以跳过）。跳过的项目随时可以补配：
 
 - **[配置 LLM 后端](./2-configure-llm.md)** — 使用 AI Chat 前需配置
 - **[接入设备](./3-onboard-device.md)** — 通过 onboarding 向导连接相机或传感器
@@ -316,4 +340,4 @@ NeoMind 已跑起来了？接下来按顺序：
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

@@ -224,6 +224,14 @@ neomind device types create \
 neomind device types get <TYPE_ID>
 ```
 
+### Command Template: `payload_template` and `request_id` Auto-Injection
+
+`CommandDefinition` supports **`payload_template`** — a template defining the complete structure of the downlink JSON, with placeholders replaced by actual parameters at send time, so the device receives the native message format it expects (rather than the platform's generic envelope). Parameters not present in the template are rejected or ignored (depending on the template constraints).
+
+The platform also **auto-injects an auto-incrementing `request_id`** into every command; the device only needs to echo the same value back in its response to correlate request-response, without maintaining its own sequence numbers.
+
+> For full field documentation, see the [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes). The repo currently maintains **129 device-type templates** (including 123 Milesight LoRaWAN sensors); the NE101/NE301 camera types are `mode: full` (with command templates) and can be imported directly for reference.
+
 ## REST API Quick Reference
 
 | Method | Path | Description |
@@ -343,4 +351,4 @@ while True:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

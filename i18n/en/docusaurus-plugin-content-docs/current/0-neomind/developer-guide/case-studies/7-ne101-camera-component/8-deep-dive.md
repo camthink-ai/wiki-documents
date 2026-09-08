@@ -27,7 +27,7 @@ Grouping the 133 commits by topic reveals **7 clear development phases**:
 4. **ROI overlay** (the heaviest phase, 10+ commits) — center-point judgment → Sutherland-Hodgman clipping, fixed threshold → configurable threshold, ROI polygon editor, coordinate alignment fixes
 5. **OCR polygon support** — `ocr_text_blocks` responseType, conversion of object coordinates (x/y pair), polygon rendering + rectangle fallback
 6. **React hooks stabilization** — conditional useState causing #310 crash, two iterations of IME input freeze fix, ResizeObserver async mount fix
-7. **Per-class coloring + NMS tuning** — golden-angle HSV rotation for color allocation, `nms_iou_threshold` pass-through for locate-anything-v2.
+7. **Per-class coloring + NMS tuning** — golden-angle HSV rotation for color allocation, `nms_iou_threshold` pass-through for locate-anything.
 
 These 7 phases are not strictly linear — for example, ROI overlay (phase 4) and hooks stabilization (phase 6) overlap in time, but the gantt chart shows each phase's relative volume.
 
