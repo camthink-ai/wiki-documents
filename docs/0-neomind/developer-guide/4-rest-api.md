@@ -94,6 +94,8 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 
 > **重要陷阱**：后端返回 **snake_case**（如 `data_source`），前端使用 **camelCase**（如 `dataSource`）。前端所有 API 响应都经 `web/src/store/persistence/types.ts::fromDashboardDTO()` 转换。集成商自己解析 JSON 时，字段以**后端原样 snake_case** 为准。
 
+> 本页面向集成商与脚本作者。字段命名、认证与实时协议的细节均在本页内；UI 层操作见[用户指南](../user-guide/1-install-setup.md)。
+
 ## 主要端点分组
 
 ### Auth（认证）
@@ -112,6 +114,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/devices` | 列出设备 |
 | POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空） |
 | GET | `/devices/:id` | 设备详情（含 metrics + commands） |
+| GET | `/devices/:id/current` | 设备全部指标当前值 |
 | PUT | `/devices/:id` | 更新设备 |
 | DELETE | `/devices/:id` | 删除设备 |
 | GET | `/devices/:id/telemetry` | 设备遥测历史（`?metric=&start=&end=`） |
@@ -253,7 +256,14 @@ Push 模式扩展（视频/音频等连续帧输出）通过该 WebSocket 端点
 
 `meta` 与 Text 信封字段一致（不含 `data`/`sequence`）；控制消息（`session_created`、`error` 等）始终走 Text 帧——WS 帧类型即第一级判别器。新旧前端与新旧服务器的任意组合均可安全回退。
 
-实时协议（WebSocket / SSE）的权威实现参考 Web 前端 `web/src/lib/events.ts` 与 `web/src/lib/websocket.ts`。
+实时协议（WebSocket / SSE）的权威实现参考 Web 前端 `web/src/lib/events.ts` 与 `web/src/lib/websocket.ts`；Push 帧格式的实战案例见[案例研究：yolo-video](./case-studies/3-yolo-video-v2.md)。
+
+## 相关页面
+
+- [设备接入](../user-guide/3-onboard-device.md) — Webhook 推入与设备模型
+- [自动化规则](../user-guide/7-automation-rules.md) · [数据推送](../user-guide/7c-data-push.md) · [通知](../user-guide/8-notifications.md)
+- [扩展管理](../user-guide/9-extensions.md) · [配置 LLM 后端](../user-guide/2-configure-llm.md)
+- [设备类型开发](./6-device-type-development.md) · [扩展开发](./7-extension-development.md)
 
 ## 错误处理建议
 

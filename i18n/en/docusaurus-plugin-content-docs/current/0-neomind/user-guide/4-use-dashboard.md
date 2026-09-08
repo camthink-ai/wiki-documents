@@ -129,7 +129,9 @@ After selection, a **DataSourceId** is auto-generated in the format `{type}:{id}
 | `extension` | `extension:weather-forecast:temperature` | An extension metric |
 | `agent` | `agent:guard-01:last_result` | An agent execution result |
 
-> DataSourceId is auto-generated — no need to write it manually.
+:::tip
+DataSourceId is auto-generated — no need to write it manually.
+:::
 
 **② Display Options**
 
@@ -164,7 +166,9 @@ Click any data source to open a **fullscreen detail view**:
 - **Left pane (current state)** — value card and metadata; numeric metrics also show a min / max / avg statistics grid
 - **Right pane (history)** — trend chart (numeric metrics only) + paginated history table
 
-> The history table uses **server-side pagination** — even very old data can be paged through, no longer limited by the frontend cache size. The trend chart shows the latest 500 points by default, with a hint when truncated. String / boolean / image metrics have no trend chart — table only.
+:::note
+The history table uses **server-side pagination** — even very old data can be paged through, no longer limited by the frontend cache size. The trend chart shows the latest 500 points by default, with a hint when truncated. String / boolean / image metrics have no trend chart — table only.
+:::
 
 ## Sharing Dashboards
 
@@ -179,7 +183,9 @@ You can generate **public links** to share dashboards with unauthenticated users
 4. Copy the generated link (e.g. `https://your-host/share/<token>`)
 5. Recipients can view without an account (read-only)
 
-> **Note**: Share links only expose a read-only view of that specific dashboard. They do not expose API keys, device controls, or other dashboards. Links automatically expire after the set duration.
+:::warning Share links expose a read-only view only
+Share links only expose a read-only view of that specific dashboard. They do not expose API keys, device controls, or other dashboards. Links automatically expire after the set duration.
+:::
 
 ## Mobile Experience
 

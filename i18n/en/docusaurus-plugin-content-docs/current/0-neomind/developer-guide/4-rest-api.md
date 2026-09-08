@@ -93,6 +93,8 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 
 > **Important gotcha**: the backend returns **snake_case** (e.g. `data_source`), the frontend uses **camelCase** (e.g. `dataSource`). The frontend converts every API response via `web/src/store/persistence/types.ts::fromDashboardDTO()`. When you parse the JSON yourself as an integrator, trust the backend's snake_case.
 
+> This page targets integrators and script authors. UI-level operations live in the [User Guide](../user-guide/1-install-setup.md).
+
 ## Main Endpoint Groups
 
 ### Auth
@@ -111,6 +113,7 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | GET | `/devices` | List devices |
 | POST | `/devices` | Create device (requires `connection_config: {}` even if empty) |
 | GET | `/devices/:id` | Device detail (metrics + commands) |
+| GET | `/devices/:id/current` | Current values for all device metrics |
 | PUT | `/devices/:id` | Update device |
 | DELETE | `/devices/:id` | Delete device |
 | GET | `/devices/:id/telemetry` | Device telemetry history (`?metric=&start=&end=`) |

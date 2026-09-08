@@ -89,10 +89,27 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 
 服务器部署**无需手动安装额外依赖**——安装脚本会下载静态编译的二进制。可选组件：
 
-- **无（默认）**：Docker 部署镜像已内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM，无需额外安装
+- **Docker 镜像内置（默认）**：官方镜像 `camthink/neomind` 已内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM，无需额外安装
 - **Ollama**（可选）：已有 Ollama 环境时用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
 - **Docker**（可选）：`docker compose up -d` 一键部署
 - **nginx**（可选）：生产环境反向代理 + 静态前端托管
+
+### Docker 部署要求
+
+| 项 | 要求 |
+|----|------|
+| 镜像 | `camthink/neomind:latest`（多架构 amd64 + arm64，随发版构建） |
+| 端口 | `9375`（HTTP API + Web UI）、`1883`（MQTT） |
+| 数据持久化 | volume `neomind-data`（挂载至容器 `/app/data`） |
+| 本地 LLM | 镜像内置 llama.cpp 运行时，模型按需下载（预留 4-8GB 磁盘 + 内存） |
+
+详见 [安装与配置 — Docker 部署](../user-guide/1-install-setup.md#docker-部署)。
+
+### 边缘设备说明
+
+- **NVIDIA Jetson**（Orin 系列）：CUDA 运行时自动引导安装，视觉管线（YOLO / DeepStream）建议 8GB+ 显存预算
+- **RK3576 等 aarch64 SBC**：服务端与扩展均有 arm64 构建；纯 CPU 推理建议选 small 档模型
+- 内存紧张的设备建议：本地 LLM 用 2-3B 档模型，视觉推理与 LLM 分机部署
 
 ## 数据存储
 

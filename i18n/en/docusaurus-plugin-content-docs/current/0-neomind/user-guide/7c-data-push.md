@@ -232,6 +232,12 @@ curl http://localhost:9375/api/data-push/stats
 - **Test before enabling**: After creating, use Test to verify the connection works before starting the push
 - **Monitor delivery logs**: Periodically review failed logs to catch target-system issues early
 
+## Next Steps
+
+- [Notifications & Messages](./8-notifications.md) — Data Push handles data streams; the message system handles alert streams
+- [Automation Rules](./7-automation-rules.md) — Evaluate data in-platform and trigger actions
+- [Troubleshooting](./10-troubleshooting.md) — General debugging steps when pushes fail
+
 ---
 
 *Last updated: 2026-09-08*

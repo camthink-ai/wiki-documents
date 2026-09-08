@@ -1,11 +1,13 @@
 ---
-sidebar_label: \"Object Detection\"
+sidebar_label: "Object Detection"
 description: 基于 NeoMind 平台实现人物与目标识别及通知推送的完整方案，提供 YOLO Inference 扩展（边缘推理）和 AI Agent（LLM 智能分析）两种实现路径，支持 NE101/NE301 智能相机。
 keywords: [NeoMind, YOLO, AI Agent, 人物识别, 目标检测, 通知推送, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, 人物识别, YOLO, AI Agent, 通知推送]
 ---
 
-# AI Agent and Extensions Solutions
+# Object Detection with YOLO & AI Agent
+
+> 两种实现路径——**YOLO Inference 扩展**（边缘推理，低延迟）与 **AI Agent**（LLM 智能分析，灵活），把 NE101/NE301 相机变成会主动报警的目视哨兵。
 
 ---
 
@@ -228,6 +230,8 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 进入 **Dashboard（仪表板）** 管理页面，点击 **创建仪表板**：
 
+> 📷 待补截图｜创建仪表板 · 建议路径 `…/neomind/object-detection/05-create-dashboard.png`
+
 
 
 ### 6.2 添加 YOLO Inference 面板
@@ -313,6 +317,17 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 - **快速原型验证**：无需训练模型，通过提示词快速验证检测方案
 
 **组合使用**：两种方案可以同时运行。例如，YOLO 扩展负责实时快速检测，AI Agent 负责深度分析和异常行为理解，两者互为补充。
+
+## 9. 相关文档
+
+- [扩展管理](../user-guide/9-extensions.md) — YOLO 扩展安装与命令调用
+- [使用仪表板](../user-guide/4-use-dashboard.md) — 检测结果的组件化展示
+- [通知渠道](../user-guide/8-notifications.md) — 告警推送配置
+- [配置 LLM 后端](../user-guide/2-configure-llm.md) — 方案 B 的 AI Agent 依赖
+- [NE101 摄像头 OCR 应用案例](./4-camera-ocr.md) — 同一相机的 OCR 方案
+- [LocateAnything 视觉定位](./6-locate-anything-v2.md) — 开放词汇的定位/计数方案
+
+---
 
 ---
 

@@ -7,14 +7,7 @@ sidebar_label: "AI Agent"
 
 # AI Agent
 
-AI Agent is NeoMind's **autonomous execution mode** — you set goals and triggers, and the Agent runs automatically on schedule or event, collecting data, calling LLM for analysis, and executing actions. Compared to [AI Chat](./5-ai-chat.md):
-
-| Dimension | AI Chat (Interactive) | AI Agent (Autonomous) |
-|-----------|----------------------|----------------------|
-| Trigger | You send messages, real-time | Scheduled / event-triggered |
-| Context | Conversation history | Memory system (journal + knowledge) |
-| Use case | Ad-hoc queries, exploration, debugging | Long-term monitoring, scheduled checks, event response |
-| Config | Go to Chat page | Create in Agents tab |
+AI Agent is NeoMind's **autonomous execution mode** — you set goals and triggers, and the Agent runs automatically on schedule or event, collecting data, calling LLM for analysis, and executing actions. For a detailed comparison with [AI Chat](./5-ai-chat.md) (trigger, context, use cases), see the [Chat vs Agent](./5-ai-chat.md#chat-vs-agent-two-modes) table in the AI Chat doc.
 
 ## Prerequisites
 
@@ -38,7 +31,9 @@ The page displays all agents in a **card grid**, each card showing:
 
 The page has three tabs at the top: **Agents** (agent list), **Memory** (system memory), **Skills** (skill management).
 
-> **Skills**: Knowledge files that provide Agents with scenario-specific operational guidance (built-in skills are read-only; user skills can be created, edited, and deleted in the tab). During execution, an Agent automatically matches relevant skills by description (BM25 lexical ranking), and you can also manually pin specific skills in the Agent editor.
+:::note Skills
+Knowledge files that provide Agents with scenario-specific operational guidance (built-in skills are read-only; user skills can be created, edited, and deleted in the tab). During execution, an Agent automatically matches relevant skills by description (BM25 lexical ranking), and you can also manually pin specific skills in the Agent editor.
+:::
 
 ## Creating an Agent
 
@@ -81,7 +76,9 @@ Agents trigger automatically based on their schedule:
 | **Interval** | Executes every N seconds | `schedule_type: "interval"`, `interval_seconds: 300` |
 | **Event** | Triggers on device data change / alert | `schedule_type: "event"` |
 
-> **Cron uses 6-field format** (with seconds): `sec min hour day month weekday`. For example, `0 0 * * * *` = every hour on the hour, `0 0 8 * * *` = daily at 8 AM.
+:::note
+Agent Cron expressions use the **6-field format** (with seconds): `sec min hour day month weekday` — the same syntax as the triggers in [Automation Rules](./7-automation-rules.md).
+:::
 
 **Event trigger**: Executes automatically when devices push new data or the system generates alerts. Ideal for real-time response scenarios (e.g. immediate analysis after anomaly detection). Event triggers have a 60-second dedup window to prevent event storms.
 

@@ -23,7 +23,7 @@ A single extension can declare multiple capabilities. For example, `yolo-video` 
 
 ## Official Extensions
 
-The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repository provides official extensions, installable in one click from the built-in extension marketplace (current marketplace version **2.7.8**; the list below is updated continuously as the marketplace evolves):
+The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repository provides official extensions, installable in one click from the built-in extension marketplace (marketplace currently at version **2.7.8**, September 2026, updated with each extension repo release; the list below evolves with the marketplace):
 
 | Extension ID | Category | Description |
 |--------------|----------|-------------|
@@ -119,13 +119,9 @@ neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/rele
 
 # List installed extensions
 neomind extension list
-
-# View extension details (metrics, commands, configuration parameters)
-neomind extension info <extension_id>
-
-# Uninstall
-neomind extension uninstall <extension_id>
 ```
+
+For the full list of subcommands (`install` / `info` / `uninstall`, etc.), see the [CLI Reference](#cli-reference) below.
 
 ### Method 4: AI Chat
 

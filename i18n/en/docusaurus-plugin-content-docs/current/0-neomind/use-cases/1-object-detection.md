@@ -1,11 +1,13 @@
 ---
-sidebar_label: \"Object Detection\"
+sidebar_label: "Object Detection"
 description: A complete solution for person and object detection with notification push using the NeoMind platform, offering two implementation paths — YOLO Inference extension (edge inference) and AI Agent (LLM-powered analysis) — supporting NE101/NE301 smart cameras.
 keywords: [NeoMind, YOLO, AI Agent, person detection, object detection, notification push, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, person detection, YOLO, AI Agent, notification push]
 ---
 
-# AI Agent and Extensions Solutions
+# Object Detection with YOLO & AI Agent
+
+> Two implementation paths — the **YOLO Inference extension** (edge inference, low latency) and the **AI Agent** (LLM-powered analysis) — turning NE101/NE301 cameras into proactive visual sentinels.
 
 ---
 
@@ -311,6 +313,17 @@ To receive notifications via email:
 - **Rapid prototyping**: Validate detection approaches via prompts without model training
 
 **Combined use**: Both approaches can run simultaneously. For example, the YOLO extension handles fast real-time detection while the AI Agent performs deep analysis and anomalous behavior understanding — complementing each other.
+
+## 9. Related Docs
+
+- [Extension Management](../user-guide/9-extensions.md) — YOLO extension install and command calls
+- [Using Dashboards](../user-guide/4-use-dashboard.md) — componentizing detection results
+- [Notification Channels](../user-guide/8-notifications.md) — alert delivery setup
+- [Configure LLM Backend](../user-guide/2-configure-llm.md) — required by path B (AI Agent)
+- [NE101 Camera OCR](./4-camera-ocr.md) — OCR solution for the same camera
+- [LocateAnything Grounding](./6-locate-anything-v2.md) — open-vocabulary grounding/counting
+
+---
 
 ---
 

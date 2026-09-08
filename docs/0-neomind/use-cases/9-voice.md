@@ -148,8 +148,6 @@ NeoMind API Token 可用环境变量 `export NEOMIND_TOKEN=nmk_xxx` 设置，也
 - [ ] 头部延迟面板出现 **ASR / LLM / TTS / Total** 数字——PoC 实测从 ASR 完成到听到首段音频约 200ms；
 - [ ] 播报中插话能立即打断（barge-in）。
 
-> 当前为 PoC：回显阶段尚未接 NeoMind Agent；ASR/TTS 链路已可用，可先用它验证端到端语音通路。
-
 ---
 
 ## 5. 语音转文字（sensevoice-asr）
@@ -271,7 +269,9 @@ Body: {"text": "...", "voice": "...", ...}
 
 ### 6.3 部署与配置
 
-**moss-tts-nano**（CPU 全平台，0.1B，48kHz 立体声，20+ 语种）：需先克隆上游 [MOSS-TTS-Nano](https://github.com/OpenMOSS/MOSS-TTS-Nano) 仓库并 `pip install -e .`（pynini 建议用 conda 装），首次运行下载 ~200MB ONNX 权重：
+#### moss-tts-nano（CPU 全平台）
+
+（CPU 全平台，0.1B，48kHz 立体声，20+ 语种）：需先克隆上游 [MOSS-TTS-Nano](https://github.com/OpenMOSS/MOSS-TTS-Nano) 仓库并 `pip install -e .`（pynini 建议用 conda 装），首次运行下载 ~200MB ONNX 权重：
 
 ```bash
 cd extensions/moss-tts-nano/service
@@ -280,7 +280,9 @@ MOSS_TTS_NANO_REPO=~/MOSS-TTS-Nano ./start.sh    # 监听 http://127.0.0.1:9382
 
 关键配置：`MOSS_TTS_SERVICE_URL`（默认 `http://127.0.0.1:9382`）、`MOSS_TTS_VOICE`（默认 `Junhao`）、`MOSS_TTS_NANO_REPO`、`MOSS_TTS_MODEL_DIR`、`MOSS_TTS_CPU_THREADS`（默认 4）。也提供 Docker 镜像（挂载模型目录、`-p 9382:9382`）。
 
-**cosyvoice-3**（0.5B，24kHz，质量最高）：Python 3.10+，首次运行从 ModelScope 下载约 2GB 模型到 `~/.cache/modelscope/`（约 5–10 分钟），目标首包不超过 200ms、30 字句子合成不超过 500ms：
+#### cosyvoice-3（GPU 高质量）
+
+（0.5B，24kHz，质量最高）：Python 3.10+，首次运行从 ModelScope 下载约 2GB 模型到 `~/.cache/modelscope/`（约 5–10 分钟），目标首包不超过 200ms、30 字句子合成不超过 500ms：
 
 ```bash
 cd extensions/cosyvoice-3/service
@@ -290,7 +292,9 @@ pip install -r requirements.txt
 
 关键配置：`COSYVOICE_SERVICE_URL`（默认 `http://127.0.0.1:9385`）、`COSYVOICE_VOICE`（默认 `中文女`）、`COSYVOICE_MODEL_DIR`（ModelScope ID 或本地路径）、`COSYVOICE_HOST` / `COSYVOICE_PORT`、`PYTORCH_ENABLE_MPS_FALLBACK=1`。Linux / Jetson 生产环境建议 Docker + `--gpus all`。
 
-**voice-edge-tts**（sherpa-onnx ZipVoice，~150MB，Mac/ARM CPU 友好）：
+#### voice-edge-tts（Mac / ARM 边缘）
+
+（sherpa-onnx ZipVoice，~150MB，Mac/ARM CPU 友好）：
 
 ```bash
 cd extensions/voice-edge-tts/service

@@ -273,6 +273,12 @@ Export file format: `neomind-transforms-YYYY-MM-DD.json`.
 
 On mobile, the interface switches to a single-column layout supporting list viewing and status toggling. Edit transforms on desktop (the code editor needs screen space).
 
+## Next Steps
+
+- [Automation Rules](./7-automation-rules.md) — Reference transform-derived metrics in rule conditions
+- [Use Dashboards](./4-use-dashboard.md) — Bind derived metrics as dashboard widget data sources
+- [Extensions](./9-extensions.md) — Call extension commands from transforms via `extensions_invoke()`
+
 ---
 
 *Last updated: 2026-09-08*

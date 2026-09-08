@@ -42,7 +42,9 @@ In the screenshot above, the user asked "How many devices are online right now?"
 2. **Call tool**: Execute the `device list` command (green ✓ means success)
 3. **Synthesize answer**: Generate a natural language reply based on the data returned by the tool
 
-> **Thinking process display**: Above the AI's reply, a "Thinking process" summary appears (rounds, character count) so you can see how many steps the AI reasoned through. Complex requests may chain multiple tool call rounds (NeoMind caps at 30 rounds per turn with a 5-minute timeout).
+:::note Thinking process display
+Above the AI's reply, a "Thinking process" summary appears (rounds, character count) so you can see how many steps the AI reasoned through. Complex requests may chain multiple tool call rounds (NeoMind caps at 30 rounds per turn with a 5-minute timeout).
+:::
 
 ## What You Can Ask
 
@@ -70,10 +72,11 @@ AI Chat has built-in tools covering nearly every NeoMind capability. Here are ty
 - "What was the last face recognition result?"
 
 ### System & Diagnostics
-- "How many devices are online right now?"
-- "Why isn't this device reporting data?" → triggers a diagnostic flow
+- "Why has sensor-03 been silent for two hours?" → triggers a diagnostic flow
 
-> The LLM decides which tools to call and in what order. If the AI only ran query operations but didn't complete your actual request (e.g. you asked it to create a rule but it only checked), just follow up with "Please create it".
+:::tip
+The LLM decides which tools to call and in what order. If the AI only ran query operations but didn't complete your actual request (e.g. you asked it to create a rule but it only checked), just follow up with "Please create it".
+:::
 
 ## Switching LLM Backend
 
@@ -100,7 +103,9 @@ Typical use cases:
 | Camera snapshot | "Read the digits on this meter" | OCR extension |
 | Surveillance frame | "Identify the faces in this frame" | Face recognition extension |
 
-> **Ollama users**: You must pull a vision model (e.g. `qwen3.5:4b-vl` / `llava`) first — otherwise uploaded images are silently dropped. NeoMind auto-detects backend capability. Text-only models (e.g. `qwen3.5:4b`, DeepSeek-V3) cannot process images.
+:::warning Ollama users need a vision model
+You must pull a vision model (e.g. `qwen3.5:4b-vl` / `llava`) first — otherwise uploaded images are silently dropped. NeoMind auto-detects backend capability. Text-only models (e.g. `qwen3.5:4b`, DeepSeek-V3) cannot process images.
+:::
 
 ## Chat vs Agent: Two Modes
 

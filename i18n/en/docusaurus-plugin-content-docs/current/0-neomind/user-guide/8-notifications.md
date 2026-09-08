@@ -26,7 +26,9 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 | **Slack** | Incoming Webhook | International team collaboration | Webhook URL | Yes |
 | **Feishu** | Custom Bot | China enterprise collaboration | Hook ID + signing | Yes |
 
-> NeoMind **does not support SMS**. For SMS alerts, use a Webhook channel to bridge to a third-party SMS gateway (e.g. Twilio, Alibaba Cloud SMS).
+:::note
+NeoMind **does not support SMS**. For SMS alerts, use a Webhook channel to bridge to a third-party SMS gateway (e.g. Twilio, Alibaba Cloud SMS).
+:::
 
 ## Interface Overview
 
@@ -121,7 +123,9 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Password** | SMTP password or app-specific password | `••••••••` |
 | **From Address** | Sender address (usually same as Username) | `alert@example.com` |
 
-> **Recipients are managed separately**: After saving the Email channel, use **Manage Recipients** in the channel action menu to add/remove recipient addresses — no need to reopen the channel editor.
+:::tip Recipients are managed separately
+After saving the Email channel, use **Manage Recipients** in the channel action menu to add/remove recipient addresses — no need to reopen the channel editor.
+:::
 
 ### Telegram Channel
 
@@ -149,7 +153,9 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Access Token** | The `access_token` portion of the group bot Webhook URL | Group Settings → Smart Group Assistant → Add Custom Bot → copy Webhook URL, take the value after `access_token=` |
 | **Secret** (optional) | Signing secret | Bot security settings → choose "Sign" → copy the Secret. **Strongly recommended** — otherwise the bot can be invoked maliciously |
 
-> When signing is enabled, NeoMind computes an HMAC-SHA256 signature and appends `timestamp` and `sign` to the URL per DingTalk protocol.
+:::note
+When signing is enabled, NeoMind computes an HMAC-SHA256 signature and appends `timestamp` and `sign` to the URL per DingTalk protocol.
+:::
 
 ### Slack Channel
 
@@ -166,7 +172,9 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Hook ID** | The `hook_id` portion of the bot Webhook URL (**not the full URL**) | Group Settings → Group Bots → Add Custom Bot → copy Webhook URL, take the UUID after `open.feishu.cn/open-apis/bot/v2/hook/` |
 | **Secret** (optional) | Signing secret | Bot security settings → choose "Signature Verification" → copy the Secret |
 
-> When signing is enabled, NeoMind computes `timestamp` and `sign` fields per Feishu protocol and includes them in the request body.
+:::note
+When signing is enabled, NeoMind computes `timestamp` and `sign` fields per Feishu protocol and includes them in the request body.
+:::
 
 ### Testing a Channel
 
@@ -228,7 +236,9 @@ Single-select dropdown, filtering out messages below the chosen level:
 - Feishu / DingTalk group: min `critical` (only important alerts)
 - Webhook → monitoring dashboard: All (preserve full data)
 
-> **No filter configured = receive all messages**. Newly created rule notifications enter all enabled channels by default; use filters for tiered routing.
+:::warning No filter configured = receive all messages
+Newly created rule notifications enter all enabled channels by default; use filters for tiered routing.
+:::
 
 ## Triggering Notifications
 
@@ -239,24 +249,10 @@ Messages don't appear in isolation — they are triggered by other modules:
 Configure a `notify` action in an [Automation Rule](./7-automation-rules.md):
 
 ```json
-{
-  "name": "AlertHighTemp",
-  "trigger": { "trigger_type": "data_change" },
-  "condition": {
-    "condition_type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": "greater_than",
-    "threshold": 30
-  },
-  "actions": [
-    {
-      "type": "notify",
-      "message": "sensor-01 temperature {value}°C exceeded threshold 30°C",
-      "severity": "critical"
-    }
-  ]
-}
+{ "type": "notify", "message": "sensor-01 temperature {value}°C exceeded threshold 30°C", "severity": "critical" }
 ```
+
+For the complete rule structure, see [Automation Rules](./7-automation-rules.md).
 
 A `notify` action generates a message that **enters all enabled channels** — each channel's filter then decides whether to forward. So after creating a rule, make sure to configure filters on the channels that should carry it.
 
@@ -298,7 +294,9 @@ active → acknowledged → resolved → archived
 - Bulk: filter a batch via the filter Popover, then bulk-act
 - Delete: Delete removes from the database (irreversible — prefer Archive)
 
-> **Value of false-positive marking**: Messages archived as `false_positive` are referenced by the rule engine and Agents for learning, helping reduce similar future false alarms.
+:::tip Value of false-positive marking
+Messages archived as `false_positive` are referenced by the rule engine and Agents for learning, helping reduce similar future false alarms.
+:::
 
 ## CLI Management
 
@@ -344,6 +342,9 @@ neomind message channel-delete ops-feishu
 ## REST API
 
 All features are accessible via HTTP API (default port 9375):
+
+<details>
+<summary>Full REST API example</summary>
 
 ```bash
 # List messages
@@ -428,6 +429,8 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY"
 ```
 
+</details>
+
 ## Delivery Tracking & Retry
 
 NeoMind records the delivery status of each message on each channel:
@@ -487,13 +490,6 @@ When a critical alert fires, all three channels receive it — no missed alerts 
 | [Device Management](./3-onboard-device.md) | Device online / offline / data anomalies trigger messages automatically |
 | [Extensions](./9-extensions.md) | Extension crashes and other system events enter the notification center |
 | [Data Push](./7c-data-push.md) | Data Push handles data streams; the message system handles alert streams |
-
-## Next Steps
-
-- [Automation Rules](./7-automation-rules.md) — Rule `notify` action routed to notification channels
-- [AI Agent](./6-ai-agent.md) — Agent decides whether to notify after analysis
-- [Data Push](./7c-data-push.md) — Push data to external systems (vs. the message system)
-- [Extensions](./9-extensions.md) — Bridge to external systems via the Webhook channel
 
 ---
 

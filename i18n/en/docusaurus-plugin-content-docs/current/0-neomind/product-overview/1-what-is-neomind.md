@@ -34,7 +34,7 @@ NeoMind uses a **single-process, multi-layer** architecture — all core capabil
 flowchart TB
     CLIENT["Web · Desktop · CLI"]
     CHAT["Chat & Agents"]
-    LLM["LLM Backends<br/>Ollama · OpenAI · Claude · GLM"]
+    LLM["LLM Backends<br/>Built-in Models · Ollama · OpenAI · Claude · GLM"]
     MEM["Memory & Skills"]
 
     API["REST API :9375"]
@@ -99,6 +99,7 @@ flowchart TB
 ## Core Capabilities
 
 ### AI Intelligence
+- **Built-in local AI, zero setup** — one-click curated model download in the wizard (Qwen 3.5 / Gemma 4 etc.), no API key, no Ollama; GGUF import supported
 - **Natural Language Chat** — Conversational interface to query and control all connected devices
 - **Autonomous Agents** — Scheduled or event-driven AI agents that monitor, analyze, and act on device data independently
 - **10+ LLM Backends** — Ollama, llama.cpp (with the platform's built-in local models, one-click download and ready to use), OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
@@ -126,6 +127,16 @@ flowchart TB
 - **Real-time Updates** — WebSocket / SSE for live data streaming to dashboards
 - **Dashboard Sharing** — Public links with expiration
 - **Custom Components** — Build and publish your own dashboard widgets
+
+### Voice & Multimodal
+- **Real-time voice assistant** — mic → VAD → ASR → LLM → TTS, fully local end-to-end
+- **ASR / TTS** — SenseVoice 5-language ASR; three interchangeable TTS engines incl. voice cloning
+- **Vision AI extensions** — object detection, OCR, face recognition, visual grounding, video VLM
+
+### Industry & Protocol Integrations
+- **Industrial protocols** — Modbus / OPC-UA / BACnet bridges for PLCs, meters, and BACnet controllers
+- **LoRaWAN** — ChirpStack / TTN sensor auto-discovery with downlink control
+- **Home Assistant** — two-way sync with 3000+ smart-home entities
 
 ### Notification & Data Push
 - **9 Notification Channels** — 7 external channels (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu) + 2 built-in
@@ -177,5 +188,7 @@ NeoMind is a modular ecosystem with specialized repositories for each concern:
 - [Use Cases](../use-cases/1-object-detection.md) — End-to-end scenario examples
 
 ---
+
+*Applies to: v0.9.x (Sep 2026)*
 
 *Last updated: 2026-09-08*

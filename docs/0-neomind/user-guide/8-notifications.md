@@ -26,7 +26,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Slack** | Incoming Webhook | 国际团队协作 | Webhook URL | 是 |
 | **飞书（Feishu）** | 自定义机器人 | 国内企业协作 | Hook ID + 加签 | 是 |
 
-> NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道对接第三方短信网关（如 Twilio、阿里云短信）。
+:::note
+NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道对接第三方短信网关（如 Twilio、阿里云短信）。
+:::
 
 ## 界面概览
 
@@ -121,7 +123,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Password** | SMTP 登录密码或应用专用密码 | `••••••••` |
 | **From Address** | 发件人地址（一般同 Username） | `alert@example.com` |
 
-> **收件人（Recipients）单独管理**：Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收件人列表。这样无需重新打开渠道编辑器即可增删收件人。
+:::tip 收件人（Recipients）单独管理
+Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收件人列表。这样无需重新打开渠道编辑器即可增删收件人。
+:::
 
 ### Telegram 渠道
 
@@ -149,7 +153,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Access Token** | 群机器人 Webhook URL 的 access_token | 群设置 → 智能群助手 → 添加自定义机器人 → 复制 Webhook URL，取 `access_token=` 后的值 |
 | **Secret**（可选） | 加签密钥 | 机器人安全设置选「加签」，复制 Secret 填入。**强烈建议启用加签**，否则机器人可能被恶意调用 |
 
-> 启用加签后，NeoMind 使用 HMAC-SHA256 计算签名，按钉钉协议追加 `timestamp` 和 `sign` 到 URL。
+:::note
+启用加签后，NeoMind 使用 HMAC-SHA256 计算签名，按钉钉协议追加 `timestamp` 和 `sign` 到 URL。
+:::
 
 ### Slack 渠道
 
@@ -166,7 +172,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Hook ID** | 群机器人 Webhook URL 的 hook_id 部分（**不是完整 URL**） | 群设置 → 群机器人 → 添加自定义机器人 → 复制 Webhook URL，取 `open.feishu.cn/open-apis/bot/v2/hook/` 之后的 UUID |
 | **Secret**（可选） | 加签密钥 | 机器人安全设置选「签名校验」，复制 Secret |
 
-> 启用签名后，NeoMind 按飞书协议计算 `timestamp` 和 `sign` 字段并加入请求体。
+:::note
+启用签名后，NeoMind 按飞书协议计算 `timestamp` 和 `sign` 字段并加入请求体。
+:::
 
 ### 测试渠道
 
@@ -228,7 +236,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 - 飞书 / 钉钉群：最低 `critical`（只接收重要告警）
 - Webhook → 监控大盘：全部（保留完整数据）
 
-> **未配置过滤器 = 接收所有消息**。新创建的规则通知默认会进所有启用渠道，需要用过滤器做分级路由。
+:::warning 未配置过滤器 = 接收所有消息
+新创建的规则通知默认会进所有启用渠道，需要用过滤器做分级路由。
+:::
 
 ## 触发通知的方式
 
@@ -239,24 +249,10 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 在 [自动化规则](./7-automation-rules.md) 中配置 `notify` 动作：
 
 ```json
-{
-  "name": "AlertHighTemp",
-  "trigger": { "trigger_type": "data_change" },
-  "condition": {
-    "condition_type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": "greater_than",
-    "threshold": 30
-  },
-  "actions": [
-    {
-      "type": "notify",
-      "message": "sensor-01 温度 {value}°C 已超过阈值 30°C",
-      "severity": "critical"
-    }
-  ]
-}
+{ "type": "notify", "message": "sensor-01 温度 {value}°C 已超过阈值 30°C", "severity": "critical" }
 ```
+
+完整规则结构见 [自动化规则](./7-automation-rules.md)。
 
 `notify` 动作生成的消息**会进所有启用渠道**，由每个渠道的过滤器决定是否转发。所以创建规则后，记得配置关键渠道的过滤器。
 
@@ -298,7 +294,9 @@ active → acknowledged → resolved → archived
 - 批量：用筛选器过滤出一批消息后批量操作
 - 删除：Delete 会从数据库移除（不可恢复，归档更安全）
 
-> **误报标记的价值**：归档为 false_positive 的消息会被规则引擎和 Agent 学习参考，有助于减少未来同类误报。
+:::tip 误报标记的价值
+归档为 false_positive 的消息会被规则引擎和 Agent 学习参考，有助于减少未来同类误报。
+:::
 
 ## CLI 管理
 
@@ -344,6 +342,9 @@ neomind message channel-delete ops-feishu
 ## REST API
 
 所有功能均可通过 HTTP API 调用（默认端口 9375）：
+
+<details>
+<summary>REST API 完整示例</summary>
 
 ```bash
 # 列出消息
@@ -428,6 +429,8 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY"
 ```
 
+</details>
+
 ## 投递跟踪与重试
 
 NeoMind 记录每条消息在每个渠道的投递状态：
@@ -487,13 +490,6 @@ NeoMind 记录每条消息在每个渠道的投递状态：
 | [设备管理](./3-onboard-device.md) | 设备上线 / 离线 / 数据异常自动触发消息 |
 | [扩展管理](./9-extensions.md) | 扩展崩溃等系统事件进消息中心 |
 | [数据推送](./7c-data-push.md) | 数据推送负责数据流；消息系统负责告警流 |
-
-## 下一步
-
-- [自动化规则](./7-automation-rules.md) — 规则触发 `notify` 动作路由到通知渠道
-- [AI Agent](./6-ai-agent.md) — Agent 分析后决定是否发通知
-- [数据推送](./7c-data-push.md) — 推送数据到外部系统（与消息系统的区别）
-- [扩展管理](./9-extensions.md) — 用 Webhook 渠道对接外部系统
 
 ---
 

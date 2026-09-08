@@ -148,8 +148,6 @@ Check each item:
 - [ ] The header latency panel shows **ASR / LLM / TTS / Total** numbers — PoC measurements put ASR-done-to-first-audio at ~200 ms;
 - [ ] Speaking during playback interrupts immediately (barge-in).
 
-> Currently PoC: the echo stage is not yet wired to a NeoMind Agent; the ASR/TTS chain works and can validate the end-to-end voice path now.
-
 ---
 
 ## 5. Speech to Text (sensevoice-asr)
@@ -271,7 +269,9 @@ Response (one line per PCM chunk):
 
 ### 6.3 Deployment and configuration
 
-**moss-tts-nano** (CPU on all platforms, 0.1B, 48kHz stereo, 20+ languages): clone the upstream [MOSS-TTS-Nano](https://github.com/OpenMOSS/MOSS-TTS-Nano) repo first and `pip install -e .` (conda recommended for pynini); the first run downloads ~200MB of ONNX weights:
+#### moss-tts-nano (CPU, all platforms)
+
+(CPU on all platforms, 0.1B, 48kHz stereo, 20+ languages): clone the upstream [MOSS-TTS-Nano](https://github.com/OpenMOSS/MOSS-TTS-Nano) repo first and `pip install -e .` (conda recommended for pynini); the first run downloads ~200MB of ONNX weights:
 
 ```bash
 cd extensions/moss-tts-nano/service
@@ -280,7 +280,9 @@ MOSS_TTS_NANO_REPO=~/MOSS-TTS-Nano ./start.sh    # listens on http://127.0.0.1:9
 
 Key config: `MOSS_TTS_SERVICE_URL` (default `http://127.0.0.1:9382`), `MOSS_TTS_VOICE` (default `Junhao`), `MOSS_TTS_NANO_REPO`, `MOSS_TTS_MODEL_DIR`, `MOSS_TTS_CPU_THREADS` (default 4). A Docker image is also provided (mount the model dir, `-p 9382:9382`).
 
-**cosyvoice-3** (0.5B, 24kHz, highest quality): Python 3.10+; the first run downloads ~2GB from ModelScope into `~/.cache/modelscope/` (5–10 min); targets a first chunk under 200 ms and under 500 ms per 30-character sentence:
+#### cosyvoice-3 (GPU, highest quality)
+
+(0.5B, 24kHz, highest quality): Python 3.10+; the first run downloads ~2GB from ModelScope into `~/.cache/modelscope/` (5–10 min); targets a first chunk under 200 ms and under 500 ms per 30-character sentence:
 
 ```bash
 cd extensions/cosyvoice-3/service
@@ -290,7 +292,9 @@ pip install -r requirements.txt
 
 Key config: `COSYVOICE_SERVICE_URL` (default `http://127.0.0.1:9385`), `COSYVOICE_VOICE` (default `中文女`), `COSYVOICE_MODEL_DIR` (ModelScope ID or local path), `COSYVOICE_HOST` / `COSYVOICE_PORT`, `PYTORCH_ENABLE_MPS_FALLBACK=1`. For Linux / Jetson production prefer Docker + `--gpus all`.
 
-**voice-edge-tts** (sherpa-onnx ZipVoice, ~150MB, Mac/ARM CPU friendly):
+#### voice-edge-tts (Mac / ARM edge)
+
+(sherpa-onnx ZipVoice, ~150MB, Mac/ARM CPU friendly):
 
 ```bash
 cd extensions/voice-edge-tts/service

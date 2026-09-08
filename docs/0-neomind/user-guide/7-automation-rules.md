@@ -55,9 +55,34 @@ sidebar_label: "Automation Rules"
 }
 ```
 
-## 通过 Web UI 创建规则
+<details>
+<summary>完整 JSON 字段参考</summary>
 
-### 步骤 1：打开规则构建器
+```json
+{
+  "name": "持续高温",
+  "trigger": { "trigger_type": "data_change" },
+  "condition": {
+    "condition_type": "comparison",
+    "source": "device:sensor-01:temperature",
+    "operator": "greater_than",
+    "threshold": 30
+  },
+  "actions": [
+    { "type": "notify", "message": "温度持续高于 30°C 已 5 分钟", "severity": "critical" }
+  ],
+  "for_duration": 300,
+  "cooldown": 60
+}
+```
+
+</details>
+
+## 创建方式
+
+### 方式一：Web UI
+
+#### 步骤 1：打开规则构建器
 
 在 Rules 页签点击 **Create** 按钮，打开全屏规则构建器：
 
@@ -71,7 +96,7 @@ sidebar_label: "Automation Rules"
 | **Description（描述）** | 可选，说明规则用途 |
 | **Trigger（触发器）** | 选择触发方式（见下文） |
 
-### 步骤 2：配置触发器
+#### 步骤 2：配置触发器
 
 | 触发类型 | 说明 | 适用场景 |
 |---------|------|---------|
@@ -83,7 +108,7 @@ sidebar_label: "Automation Rules"
 
 `data_change` 触发器会自动从 `condition` 中提取引用的数据源，无需手动指定 `sources`。
 
-### 步骤 3：配置条件
+#### 步骤 3：配置条件
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -125,7 +150,7 @@ sidebar_label: "Automation Rules"
 }
 ```
 
-### 步骤 4：配置动作
+#### 步骤 4：配置动作
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -155,7 +180,7 @@ sidebar_label: "Automation Rules"
 { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 离线，请诊断原因" }
 ```
 
-### 步骤 5：持续时间与冷却
+#### 步骤 5：持续时间与冷却
 
 | 字段 | 说明 |
 |------|------|
@@ -163,37 +188,6 @@ sidebar_label: "Automation Rules"
 | **Cooldown（秒）** | 两次触发之间的最小间隔，默认 60 秒 |
 
 配置完成后点击 **Save** 保存规则。
-
-## JSON 结构速查
-
-<details>
-<summary>完整 JSON 字段参考</summary>
-
-```json
-{
-  "name": "持续高温",
-  "trigger": { "trigger_type": "data_change" },
-  "condition": {
-    "condition_type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": "greater_than",
-    "threshold": 30
-  },
-  "actions": [
-    { "type": "notify", "message": "温度持续高于 30°C 已 5 分钟", "severity": "critical" }
-  ],
-  "for_duration": 300,
-  "cooldown": 60
-}
-```
-
-</details>
-
-## 创建方式
-
-### 方式一：Web UI
-
-见上文「通过 Web UI 创建规则」一节——Rules 页签 → **Create** 打开全屏规则构建器，四个步骤依次填写即可。
 
 ### 方式二：CLI
 
@@ -333,6 +327,7 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 | [AI Agent](./6-ai-agent.md) | `trigger_agent` 动作调用自主智能体做深度分析 |
 | [设备](./3-onboard-device.md) | `execute` 动作下发设备指令 |
 | [数据转换](./7b-data-transforms.md) | 规则可引用 Transform 生成的派生指标 |
+| [数据推送](./7c-data-push.md) | 规则在平台内评估数据并触发动作；数据推送把数据发送到平台外 |
 | [AI Chat](./5-ai-chat.md) | 自然语言创建规则，LLM 自动生成 JSON |
 
 ## 最佳实践
@@ -342,6 +337,12 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 - **分级通知**：普通告警 `severity: "info"`，严重告警 `severity: "critical"`
 - **优先用规则而非 Agent**：确定性逻辑用规则（毫秒级评估），模糊判断才用 Agent（秒级 LLM 分析）
 - **动作幂等**：设备指令设计为幂等（如 `power_on` 多次调用安全），防止规则重试产生副作用
+
+## 下一步
+
+- [数据推送](./7c-data-push.md) — 把平台内的数据实时推送到外部系统
+- [通知](./8-notifications.md) — 为 `notify` 动作配置通知渠道与过滤器
+- [AI Agent](./6-ai-agent.md) — 用 `trigger_agent` 动作让 Agent 做深度分析
 
 ---
 

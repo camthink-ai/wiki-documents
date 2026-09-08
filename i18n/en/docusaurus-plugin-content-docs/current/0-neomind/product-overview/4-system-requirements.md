@@ -84,6 +84,23 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 
 > For production, use an nginx reverse proxy and expose only 80/443 externally; keep 9375 / 1883 on the internal network.
 
+### Docker Deployment Requirements
+
+| Item | Requirement |
+|------|-------------|
+| Image | `camthink/neomind:latest` (multi-arch amd64 + arm64, built per release) |
+| Ports | `9375` (HTTP API + Web UI), `1883` (MQTT) |
+| Data persistence | volume `neomind-data` (mounted at `/app/data`) |
+| Local LLM | the image bundles the llama.cpp runtime; models download on demand (reserve 4-8 GB disk + RAM) |
+
+See [Install & Setup — Docker](../user-guide/1-install-setup.md#docker).
+
+### Edge Devices
+
+- **NVIDIA Jetson** (Orin series): CUDA runtime auto-bootstrapped; budget 8 GB+ VRAM for vision pipelines (YOLO / DeepStream)
+- **RK3576 and other aarch64 SBCs**: prefer small-tier models for CPU-only inference
+- Memory-constrained boxes: use a 2-3B local model and run vision inference on a separate machine
+
 ### Runtime Dependencies
 
 Server deployment **requires no manual dependency installation** — the install script downloads statically compiled binaries. Optional components:

@@ -51,10 +51,12 @@ ls data/api_keys.redb
 | auto-auth 之前能用，突然 401 | **重启 Server**：CLI 直接操作 `api_keys.redb` 可能导致 redb 锁冲突 |
 
 :::warning 关键
-> - `NEOMIND_API_KEY` 一旦设置（即使是占位符），auto-auth 就被完全跳过。先 `unset` 再试。
-> - 不要在 Server 运行时执行 `neomind api-key create`——会与 Server 的 redb 锁冲突。如需重建 Key，先停 Server，再创建，再启动。
+`NEOMIND_API_KEY` 一旦设置（即使是占位符），auto-auth 就被完全跳过。先 `unset` 再试。
 
-> 完整 API Key 配置流程见 [安装与配置 → CLI API Key 配置](./1-install-setup.md#cli-api-key-配置)。
+不要在 Server 运行时执行 `neomind api-key create`——会与 Server 的 redb 锁冲突。如需重建 Key，先停 Server，再创建，再启动。
+:::
+
+> 完整 API Key 配置流程见 [CLI 与 API Key](./11-cli-api-keys.md)。
 
 ## 服务启动
 
@@ -227,6 +229,8 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 - DataSourceId 拼写不对 → 格式必须是 `extension:<id>:<metric>`
 - 扩展的 command/metric 未正确声明 → 看扩展的 manifest
 - 扩展进程在跑但没发布数据 → 查扩展日志
+
+扩展级故障排查对照表（安装失败、Crash Loop、超时等）见 [扩展管理 — 故障排查](./9-extensions.md#故障排查)。
 
 ## 仪表板 / 前端
 

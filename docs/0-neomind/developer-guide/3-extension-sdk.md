@@ -1,4 +1,4 @@
----
+sidebar_label: "Extension SDK"
 description: "neomind-extension-sdk 参考：Extension trait、ExtensionMetadata、MetricDescriptor、neomind_export! FFI 宏、capability 声明、ML 模型生命周期（lazy-load + keep-loaded）、跨平台打包（cdylib + panic=unwind）。"
 keywords: [NeoMind, Extension SDK, neomind_export, FFI, capability, ML 模型, 打包]
 tags: [NeoMind, 开发指南]
@@ -136,6 +136,12 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 
 > **推送帧格式（0.9.23+）**：Push 扩展的输出经 `/api/extensions/:id/stream` WS 端点送达前端。客户端在 `init` 配置传入 `{"binary": true}` 并得到 `session_created.binary` 确认后，`send_push_output` 的二进制负载（JPEG/PCM 等）改以 WS Binary 帧直传（`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`），省去 base64；未协商时自动回退旧版 Text + base64，扩展代码无需任何改动——协商完全由宿主与前端处理。
 
+## 延伸阅读
+
+- [附录：工程标准](./case-studies/appendix-standards.md) — Capability 使用场景对照、跨平台构建矩阵、`.nep` 包结构
+- [案例研究总览](./case-studies/0-overview.md) — 5 个扩展案例逐一剖析 SDK 用法
+- [扩展开发实战](./7-extension-development.md) — 从零到 `.nep` 的完整教程
+
 ## Metadata / Metric / Command
 
 **ExtensionMetadata** 完整结构（在 `metadata()` 返回）：
@@ -218,7 +224,9 @@ neomind_extension_sdk::neomind_export!(MyExtension);
 
 扩展运行在隔离进程里，启动时**必须声明所需能力**。runner 按声明授权，未声明的能力调用会被拒。
 
-扩展通过 `CapabilityContext` 调用平台能力。以下是 SDK 内置的完整 capability 常量列表：
+扩展通过 `CapabilityContext` 调用平台能力。以下是 SDK 的**规范 capability 清单**（与 `neomind-extension-sdk` 的 `ExtensionCapability` 枚举一一对应，共 **20 种内置**）：
+
+**设备与指令**
 
 | Capability 常量 | 含义 |
 |-----------------|------|
@@ -227,21 +235,41 @@ neomind_extension_sdk::neomind_export!(MyExtension);
 | `device_control` | 向设备发送命令 |
 | `device_template_register` | 注册设备类型模板（bridge 类扩展用，如 lorawan-bridge / modbus-bridge / onvif-bridge） |
 | `device_register` / `device_unregister` | 注册 / 注销设备实例（bridge 扩展把外部设备接入 NeoMind 设备模型） |
+
+**存储与聚合**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
 | `storage_query` | 查询时序数据库 |
-| `event_publish` | 发布事件 |
-| `event_subscribe` | 订阅事件 |
 | `telemetry_history` | 查询遥测历史 |
 | `metrics_aggregate` | 指标聚合查询 |
+
+**事件**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
+| `event_publish` | 发布事件 |
+| `event_subscribe` | 订阅事件 |
+
+**扩展协作与自动化**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
 | `extension_call` | 调用其他扩展的命令 |
 | `agent_trigger` | 触发 Agent 执行 |
 | `rule_trigger` | 触发规则 |
-| `network` | 出站网络访问（HTTP / MQTT 客户端等） |
-| `filesystem:read` / `filesystem:write` | 文件读写（限定路径范围） |
-| `ml-model` | 加载 / 运行 ML 模型 |
-| `camera` | 访问相机 |
-| `serial` | 串口访问 |
 
-> Capability 是**最小权限原则**的体现：只声明你真正需要的。`network` + `ml-model` 是视觉类扩展的典型组合；只读数据扩展可能只需 `network` + `device_metrics_write`。
+**Agent 对话流（6 个）**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
+| `chat_stream` | 流式对话（token 级事件经 EventPush 推送） |
+| `chat_stream_cancel` / `chat_stream_cancel_turn` | 取消进行中的流式会话 / 会话内指定回合 |
+| `chat_session_open` / `chat_session_send` / `chat_session_close` | 打开持久会话订阅 / 发消息（返回 turn_id）/ 关闭会话 |
+
+> 除内置 20 种外，SDK 允许以 `Custom(String)` 声明任意自定义能力名（生态惯例如 `network`、`ml-model`、`camera`、`serial`、`filesystem:read/write`），运行时按声明字符串校验。
+
+> Capability 是**最小权限原则**的体现：只声明你真正需要的。完整能力-使用场景对照与跨平台构建矩阵见 [附录：工程标准](./case-studies/appendix-standards.md)；实际用法可参考[案例研究](./case-studies/0-overview.md)中的真实扩展。
 
 ### 调用 Capability
 

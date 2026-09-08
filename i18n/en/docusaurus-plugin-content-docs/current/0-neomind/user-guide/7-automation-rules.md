@@ -55,9 +55,34 @@ A rule has four parts — **name**, **trigger**, **condition**, and **actions** 
 }
 ```
 
-## Creating a Rule via Web UI
+<details>
+<summary>Complete JSON field reference</summary>
 
-### Step 1: Open the Rule Builder
+```json
+{
+  "name": "Sustained High Temperature",
+  "trigger": { "trigger_type": "data_change" },
+  "condition": {
+    "condition_type": "comparison",
+    "source": "device:sensor-01:temperature",
+    "operator": "greater_than",
+    "threshold": 30
+  },
+  "actions": [
+    { "type": "notify", "message": "Temperature above 30°C for 5 minutes", "severity": "critical" }
+  ],
+  "for_duration": 300,
+  "cooldown": 60
+}
+```
+
+</details>
+
+## Other Creation Methods
+
+### Option 1: Web UI
+
+#### Step 1: Open the Rule Builder
 
 In the Rules tab, click the **Create** button to open the full-screen rule builder:
 
@@ -71,7 +96,7 @@ Fill in the top of the builder:
 | **Description** | Optional, explains the rule's purpose |
 | **Trigger** | Select the trigger type (see below) |
 
-### Step 2: Configure the Trigger
+#### Step 2: Configure the Trigger
 
 | Trigger Type | Description | Use Case |
 |--------------|-------------|----------|
@@ -83,7 +108,7 @@ Fill in the top of the builder:
 
 The `data_change` trigger automatically extracts referenced data sources from the `condition` — no need to specify `sources` manually.
 
-### Step 3: Configure the Condition
+#### Step 3: Configure the Condition
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -125,7 +150,7 @@ Conditions determine when a rule fires. Three types are supported:
 }
 ```
 
-### Step 4: Configure Actions
+#### Step 4: Configure Actions
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -155,7 +180,7 @@ Actions execute when the condition is met. A rule can have multiple actions, exe
 { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 is offline, please diagnose" }
 ```
 
-### Step 5: Duration and Cooldown
+#### Step 5: Duration and Cooldown
 
 | Field | Description |
 |-------|-------------|
@@ -163,37 +188,6 @@ Actions execute when the condition is met. A rule can have multiple actions, exe
 | **Cooldown (seconds)** | Minimum interval between triggers, default 60 seconds |
 
 Click **Save** to save the rule.
-
-## JSON Structure Reference
-
-<details>
-<summary>Complete JSON field reference</summary>
-
-```json
-{
-  "name": "Sustained High Temperature",
-  "trigger": { "trigger_type": "data_change" },
-  "condition": {
-    "condition_type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": "greater_than",
-    "threshold": 30
-  },
-  "actions": [
-    { "type": "notify", "message": "Temperature above 30°C for 5 minutes", "severity": "critical" }
-  ],
-  "for_duration": 300,
-  "cooldown": 60
-}
-```
-
-</details>
-
-## Other Creation Methods
-
-### Option 1: Web UI
-
-See the [Creating a Rule via Web UI](#creating-a-rule-via-web-ui) section above — Rules tab → **Create** opens the full-screen rule builder, then fill in the four steps in order.
 
 ### CLI
 
@@ -333,6 +327,7 @@ Click the **actions menu** on any rule row to view execution history:
 | [AI Agent](./6-ai-agent.md) | `trigger_agent` action calls an autonomous agent for deep analysis |
 | [Devices](./3-onboard-device.md) | `execute` action sends device commands |
 | [Data Transforms](./7b-data-transforms.md) | Rules can reference derived metrics from Transforms |
+| [Data Push](./7c-data-push.md) | Rules evaluate data in-platform and trigger actions; Data Push sends data off-platform |
 | [AI Chat](./5-ai-chat.md) | Create rules in natural language, LLM auto-generates JSON |
 
 ## Best Practices
@@ -342,6 +337,12 @@ Click the **actions menu** on any rule row to view execution history:
 - **Tiered notifications**: Regular alerts `severity: "info"`, severe alerts `severity: "critical"`
 - **Prefer rules over Agents**: Deterministic logic uses rules (millisecond evaluation), fuzzy judgment uses Agents (seconds of LLM analysis)
 - **Idempotent actions**: Design device commands as idempotent (e.g. `power_on` safe to call repeatedly), preventing side effects from rule retries
+
+## Next Steps
+
+- [Data Push](./7c-data-push.md) — Send in-platform data to external systems in real time
+- [Notifications](./8-notifications.md) — Configure channels and filters for `notify` actions
+- [AI Agent](./6-ai-agent.md) — Use `trigger_agent` actions for deep Agent analysis
 
 ---
 

@@ -53,7 +53,7 @@ ls data/api_keys.redb
 > - Once `NEOMIND_API_KEY` is set (even to a placeholder), auto-auth is completely skipped. Always `unset` first.
 > - Do NOT run `neomind api-key create` while the server is running — it conflicts with the server's redb lock. To regenerate a key: stop the server, create the key, then restart.
 
-> Full API key setup walkthrough: [Install & Setup → CLI API Key Setup](./1-install-setup.md#cli-api-key-setup).
+> Full API key setup walkthrough: [CLI & API Keys](./11-cli-api-keys.md).
 
 ## Service Startup
 
@@ -220,6 +220,8 @@ neomind extension info <ID>   # recent error for a specific extension
 - DataSourceId typo → format must be `extension:<id>:<metric>`
 - Command / metric not declared → check the extension manifest
 - Process running but not publishing → check extension logs
+
+For the extension-level troubleshooting table (install failures, Crash Loop, timeouts, etc.), see [Extension Management — Troubleshooting](./9-extensions.md#troubleshooting).
 
 ## Dashboard / Frontend
 

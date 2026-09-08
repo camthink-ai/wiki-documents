@@ -100,9 +100,10 @@ flowchart TB
 ## 核心能力
 
 ### AI 智能化
+- **内置本地 AI，开箱即用** — 向导内一键下载精选模型（Qwen 3.5 / Gemma 4 等），无需 API Key、无需装 Ollama，也支持导入自己的 GGUF
 - **自然语言对话** — 会话式接口，查询并控制所有已连接设备
 - **自主智能体** — 按计划或事件触发的 AI Agent，独立监控、分析并执行设备数据
-- **10+ LLM 后端** — Ollama、llama.cpp（含平台内置本地模型，一键下载即用）、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
+- **10+ LLM 后端** — 内置 llama.cpp（本地模型一键下载）、Ollama、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
 - **记忆系统** — 跨会话记忆（用户档案 / 知识库 + 执行日志），对话结束后自动抽取持久化
 - **技能系统** — YAML + Markdown 技能文件，针对特定场景引导 Agent 行为
 - **多模态** — 支持图像上传与视觉分析
@@ -127,6 +128,16 @@ flowchart TB
 - **实时更新** — WebSocket / SSE 将数据流式推送到仪表板
 - **仪表板分享** — 带过期时间的公开链接
 - **自定义组件** — 构建并发布你自己的仪表板组件
+
+### 语音与多模态
+- **实时语音助手** — 麦克风 → VAD → 语音识别 → LLM → 语音合成，全链路本地可跑
+- **语音识别 / 合成** — SenseVoice 五语种 ASR；三个可互换 TTS（含音色克隆），边缘设备可用
+- **视觉 AI 扩展** — 目标检测、OCR、人脸识别、视觉定位、视频流 VLM 理解
+
+### 行业与协议接入
+- **工业协议** — Modbus / OPC-UA / BACnet 桥接，PLC、电表、楼宇控制器一步接入
+- **LoRaWAN** — ChirpStack / TTN 无线传感器自动发现与下行控制
+- **Home Assistant** — 3000+ 智能家居实体双向同步
 
 ### 通知与数据推送
 - **9 个通知渠道** — 7 个外部渠道（Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书）+ 2 个内置
@@ -178,5 +189,7 @@ NeoMind 是一个模块化生态系统，每个关注点由专门仓库承载：
 - [应用案例](../use-cases/1-object-detection.md) — 端到端场景示例
 
 ---
+
+*适用版本: v0.9.x（2026-09）*
 
 *最后更新: 2026-09-08*

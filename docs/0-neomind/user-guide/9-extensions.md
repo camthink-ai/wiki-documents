@@ -23,7 +23,7 @@ sidebar_label: "Extension Management"
 
 ## 官方扩展
 
-[NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库提供官方扩展，通过内置扩展市场一键安装（当前市场版本 **2.7.8**，以下列表随市场持续更新）：
+[NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库提供官方扩展，通过内置扩展市场一键安装（市场当前版本 **2.7.8**，2026-09，随扩展仓库发版更新；以下列表随市场持续更新）：
 
 | 扩展 ID | 类别 | 说明 |
 |---------|------|------|
@@ -119,13 +119,9 @@ neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/rele
 
 # 列出已安装扩展
 neomind extension list
-
-# 查看扩展详情（指标、命令、配置参数）
-neomind extension info <extension_id>
-
-# 卸载
-neomind extension uninstall <extension_id>
 ```
+
+`install` / `info` / `uninstall` 等全部子命令见下文 [CLI 参考](#cli-参考)。
 
 ### 方式四：AI Chat
 
