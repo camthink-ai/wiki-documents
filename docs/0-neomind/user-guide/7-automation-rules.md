@@ -71,8 +71,8 @@ sidebar_label: "Automation Rules"
   "actions": [
     { "type": "notify", "message": "温度持续高于 30°C 已 5 分钟", "severity": "critical" }
   ],
-  "for_duration": 300,
-  "cooldown": 60
+  "for_duration": 300000,
+  "cooldown": 60000
 }
 ```
 
@@ -184,8 +184,8 @@ sidebar_label: "Automation Rules"
 
 | 字段 | 说明 |
 |------|------|
-| **For Duration（秒）** | 条件必须**持续满足**该时长后才触发，避免传感器抖动误报 |
-| **Cooldown（秒）** | 两次触发之间的最小间隔，默认 60 秒 |
+| **For Duration（持续时间）** | 条件必须**持续满足**该时长后才触发，避免传感器抖动误报。JSON 中单位为**毫秒**（如 5 分钟 = `300000`；UI 中可选秒 / 分钟 / 小时） |
+| **Cooldown（冷却时间）** | 两次触发之间的最小间隔，JSON 中单位为**毫秒**，默认 `60000`（60 秒） |
 
 配置完成后点击 **Save** 保存规则。
 
@@ -241,16 +241,16 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 | 操作 | 说明 |
 |------|------|
 | **Export** | 导出所有规则为 JSON 文件（`neomind-rules-YYYY-MM-DD.json`） |
-| **Import** | 上传 JSON 文件批量导入规则，支持增量导入（跳过已存在的同名规则） |
+| **Import** | 上传 JSON 文件批量导入规则；无法导入的规则（如格式错误）会计入"跳过"并在结果中报告 |
 
 ## 规则验证
 
 创建规则时，NeoMind 会做**上下文感知验证**：
 
-- 设备/扩展是否存在
+- 规则引用的设备是否存在
 - 指标名是否合法
 - 指令参数是否匹配设备类型定义
-- Agent ID 是否存在（trigger_agent 动作）
+- 扩展与 Agent ID 做非空校验
 
 验证失败会返回详细的错误信息，列出具体哪个字段有问题。
 
@@ -302,7 +302,7 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
   "name": "设备离线诊断",
   "trigger": { "trigger_type": "data_change" },
   "condition": { "condition_type": "comparison", "source": "device:sensor-03:online", "operator": "equal", "threshold": 0 },
-  "for_duration": 600,
+  "for_duration": 600000,
   "actions": [
     { "type": "notify", "message": "sensor-03 已离线 10 分钟", "severity": "critical" },
     { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 离线，请诊断原因" }
@@ -332,7 +332,7 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 
 ## 最佳实践
 
-- **加 `for_duration` 防抖**：传感器数据有噪声，用 `"for_duration": 120` 过滤瞬时波动
+- **加 `for_duration` 防抖**：传感器数据有噪声，用 `"for_duration": 120000`（2 分钟）过滤瞬时波动（单位为毫秒）
 - **设 `cooldown` 防刷屏**：高频数据源配合冷却时间，防止告警风暴
 - **分级通知**：普通告警 `severity: "info"`，严重告警 `severity: "critical"`
 - **优先用规则而非 Agent**：确定性逻辑用规则（毫秒级评估），模糊判断才用 Agent（秒级 LLM 分析）
@@ -346,4 +346,4 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-09*

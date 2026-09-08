@@ -19,7 +19,7 @@ cd /path/to/neomind    # cd to project root
 neomind device list     # just works
 ```
 
-> Note: auto-auth resolves the path `data/api_keys.redb` **relative to the current working directory**. You must be in the project root. The `NEOMIND_DATA_DIR` env var does **not** affect auto-auth path resolution.
+> Auto-auth resolves the data directory in this order: the `NEOMIND_DATA_DIR` env var → the platform user data dir (when it contains `api_keys.redb`) → the relative `data/` path (project-root fallback). A credential saved by `neomind login` takes top priority and works from any directory.
 :::
 
 ## When You Need a Manual Key
@@ -27,7 +27,8 @@ neomind device list     # just works
 | Scenario | Manual Key Needed? |
 |----------|-------------------|
 | Local dev, running CLI from project root | No (auto-auth) |
-| Running CLI from `web/`, `/tmp`, etc. | Yes |
+| `NEOMIND_DATA_DIR` set, or `neomind login` already done | No (auto-auth can locate the data) |
+| Running CLI from `web/`, `/tmp`, etc. (none of the above) | Yes |
 | Connecting to a remote server | Yes |
 | Desktop app's embedded CLI | No (auto-configured) |
 

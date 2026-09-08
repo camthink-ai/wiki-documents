@@ -44,6 +44,8 @@ Case code is aligned with the source repository's release; the audit locks to a 
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |
 | 7 ne101_camera | v2.14.9 | — | 2026-06-22 |
 
+> Note: since the last audit the source repository has kept evolving — the current versions are weather-forecast 2.7.7, yolo-device-inference / yolo-video 2.7.8, and ne101_camera 2.14.12. Each case page's audit-time snapshot is pinned by the banner at the top of that page.
+
 A case audit is triggered when the source repository cuts a release (manual, not automated).
 
 ## Component Source Format Note
@@ -54,7 +56,7 @@ A case audit is triggered when the source repository cuts a release (manual, not
 >
 > - Runtime dependencies are injected via `var React = window.React` + `var jsx = window.jsxRuntime.jsx` (React / JSX runtime are provided by the host page).
 > - Full comments and reasonable line breaks are preserved; readability is close to plain source code — you can read it directly without a source map.
-> - Current sizes: `metric_card` is 352 lines, `ne101_camera` is 1972 lines.
+> - Current sizes: `metric_card` is 328 lines, `ne101_camera` is 2036 lines.
 >
 > Therefore the "key code walkthroughs" in cases 6 / 7 point directly at specific line numbers in `bundle.js` — readers can open the source file and follow along.
 

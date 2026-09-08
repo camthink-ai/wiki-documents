@@ -16,11 +16,11 @@ Each dashboard is a **responsive grid** that can hold multiple widgets:
 - **Real-time updates**: Data changes are pushed via WebSocket / SSE — widgets update within seconds
 - **Responsive layout**: Drag-and-drop editing on desktop; auto-stacked single column on mobile
 - **Shareable**: Generate public links with expiry times — no login required to view
-- **Multi-backend**: One dashboard can display data from multiple NeoMind instances simultaneously
+- **Multi-instance**: Register and switch between multiple NeoMind backend instances from the sidebar
 
 ## Creating a Dashboard
 
-1. Click the **Dashboards** icon in the left navigation to open the dashboard list
+1. Click the **Visual Dashboard** icon in the left navigation to open the dashboard list
 2. Click the **+ (New Dashboard)** button
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-create-dialog.png" alt="Create dashboard dialog — enter name and description" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
@@ -43,7 +43,7 @@ Dashboards have two modes, toggled via the **gear / checkmark icon** on the left
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-view-empty.png" alt="Dashboard view mode — empty state prompting to enter edit mode" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-> An empty dashboard in view mode shows "Click Edit Layout to add components". Click the gear icon to enter edit mode, which reveals the **Add Component** button.
+> An empty dashboard in view mode shows "Enter edit mode to add your first component". Click the gear icon to enter edit mode, which reveals the **Add Component** button.
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-edit-mode.png" alt="Dashboard edit mode — empty state with Add Component button" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -86,7 +86,14 @@ Built-in widgets are grouped by category:
 
 | Widget | Purpose | Typical Use |
 |--------|---------|-------------|
-| **Toggle Switch** | Send on/off commands to devices | Remote control lights, pumps |
+| **Command Button** | Opens a command form dialog to send commands to devices or extensions | Remote switching, parameter delivery |
+
+#### Business Components
+
+| Widget | Purpose | Typical Use |
+|--------|---------|-------------|
+| **Agent Monitor Widget** | Agent selector, real-time status, statistics, and execution history | Monitoring inspection agents |
+| **AI Analyst** | Timeline-style AI analysis of images, metrics, and data sources | Data interpretation, anomaly attribution |
 
 #### Display & Content
 
@@ -113,11 +120,10 @@ After selecting a widget type from the library, it's added to the canvas and a c
 
 **① Data Source Binding**
 
-Each widget needs a data source to display data. In the config panel, select:
+Each widget needs a data source to display data. Data comes from the currently connected NeoMind instance; in the config panel, select:
 
 | Selection | Description |
 |-----------|-------------|
-| **Instance** | Choose a NeoMind backend instance (local or remote) |
 | **Device** | Choose which device's data to display |
 | **Metric** | Choose the specific metric (e.g. `temperature`, `humidity`) |
 
@@ -127,7 +133,7 @@ After selection, a **DataSourceId** is auto-generated in the format `{type}:{id}
 |------|---------|---------|
 | `device` | `device:esp32-01:temperature` | A device metric |
 | `extension` | `extension:weather-forecast:temperature` | An extension metric |
-| `agent` | `agent:guard-01:last_result` | An agent execution result |
+| `transform` | `transform:tf-01:avg_temp` | A transform-derived metric |
 
 :::tip
 DataSourceId is auto-generated — no need to write it manually.
@@ -138,7 +144,7 @@ DataSourceId is auto-generated — no need to write it manually.
 Depending on widget type, you can configure:
 - **Title / Unit**: Name and unit shown above the widget
 - **Color / Threshold**: Change color when value exceeds threshold (e.g. temp > 30°C turns red)
-- **Time Range**: For chart widgets — last 1h / 24h / 7d / custom
+- **Time Range**: For chart widgets — presets (last 5 minutes to 24 hours, today / yesterday / this week) or custom
 - **Refresh Interval**: Data pull frequency (doesn't affect real-time push)
 
 **③ Layout Adjustment**
@@ -155,7 +161,7 @@ NeoMind pushes device data to the frontend via **WebSocket / SSE**:
 - End-to-end latency typically < 1 second (same datacenter)
 - On disconnect, the frontend auto-reconnects and backfills recent data
 
-For historical data queries, use the widget's "Time Range" setting (last 1 hour / 24 hours / 7 days / custom).
+For historical data queries, use the widget's "Time Range" setting (last 1 hour / 24 hours / custom, plus other presets).
 
 ## Data Explorer
 
@@ -179,16 +185,16 @@ You can generate **public links** to share dashboards with unauthenticated users
 <img src="https://resources.camthink.ai/NeoMind/dashboard-share-dialog.png" alt="Share dialog — generate public link" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 2. Click **New Link** to generate a new link
-3. Set the expiry time (1 hour / 1 day / 7 days / permanent)
+3. Set the expiry time (1 hour / 24 hours / 3 days / 7 days / 30 days / never)
 4. Copy the generated link (e.g. `https://your-host/share/<token>`)
 5. Recipients can view without an account (read-only)
-
-:::warning Share links expose a read-only view only
-Share links only expose a read-only view of that specific dashboard. They do not expose API keys, other dashboards, or configuration editing. Links automatically expire after the set duration.
 
 :::note Interactive shares
 The share dialog supports an **interactive mode** — visitors may also press device-control buttons you expose (e.g. issue commands), but still cannot edit the dashboard layout.
 :::
+
+:::warning Share links never expose sensitive data
+Share links never expose API keys or other dashboards. Except for device-control buttons explicitly enabled via interactive mode, visitors only see a read-only view of that specific dashboard. Links automatically expire after the set duration.
 :::
 
 ## Mobile Experience
@@ -202,7 +208,7 @@ The share dialog supports an **interactive mode** — visitors may also press de
 
 ## Multi-Instance Dashboards
 
-If you manage multiple NeoMind backends (e.g. multiple edge servers in a factory), you can register them under **Settings → Instances**. Once registered, you can select **cross-instance** data sources when editing widgets — one dashboard can display device data from multiple backends simultaneously.
+If you manage multiple NeoMind backends (e.g. multiple edge servers in a factory), you can register them via **Instance Management (Instances)**, opened from the instance switcher in the left sidebar. Once registered, you can switch to an instance with one click — a dashboard shows the device data of the currently active instance.
 
 ## Community & Custom Widgets
 
@@ -224,7 +230,7 @@ Each widget card shows:
 | **Description** | Brief summary of widget functionality |
 | **Install / Uninstall** | One-click install or remove |
 
-Click **Install** to add a widget. Once installed, it appears in the **Components** tab and works just like built-in widgets. Installed widgets show an **Uninstall** button for easy removal.
+Click **Install** to add a widget. Once installed, it appears under the **Marketplace** category and can be added just like built-in widgets. Installed widgets show an **Uninstall** button for easy removal.
 
 > Marketplace widgets come from the [NeoMind-Dashboard-Components](https://github.com/camthink-ai/NeoMind-Dashboard-Components) community repository, continuously updated.
 
@@ -246,10 +252,10 @@ You can also install via CLI:
 
 ```bash
 # List available marketplace widgets
-neomind widget list
+neomind widget market-list
 
 # Install a marketplace widget
-neomind widget install <widget-name>
+neomind widget market-install <widget-id>
 
 # Install from a local ZIP file
 neomind widget install /path/to/widget.zip

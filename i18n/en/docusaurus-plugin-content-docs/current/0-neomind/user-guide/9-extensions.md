@@ -77,7 +77,7 @@ The toolbar at the top provides three actions:
 | **Upload** | Upload | Open a local `.nep` package installation dialog |
 | **Marketplace** | Globe | Open the official extension marketplace for one-click install |
 
-Each extension card displays: extension name, version, current status (Running / Stopped / Error), and capability icons (metric / command / component). **Click anywhere on a card** to open the extension details dialog.
+Each extension card displays: extension name, version, current status (Running / Stopped / Error / Crashed), and capability icons (metric / command / component). **Click anywhere on a card** to open the extension details dialog.
 
 ## Installing Extensions
 
@@ -105,7 +105,7 @@ If you already have a `.nep` package (self-developed or downloaded from [Release
 
 1. Click the **Upload button** in the toolbar
 2. In the dialog, drag in or select a `.nep` file
-3. NeoMind automatically validates package integrity, ABI version, and signature
+3. NeoMind automatically validates package integrity (manifest / format / platform binaries) and the ABI version
 4. After validation, it unpacks, loads, and starts the extension
 
 :::tip
@@ -147,7 +147,7 @@ The Overview section displays basic information about the extension:
 
 - **Extension ID**: Unique identifier (e.g., `yolo-device-inference`), used for API calls and data source binding
 - **Name and version**: Human-readable name + SemVer version
-- **Status**: Current runtime status (Running / Stopped / Error / Crash Loop)
+- **Status**: Current runtime status (Running / Stopped / Error / Warning / Crashed)
 - **Capability declaration**: Types of capabilities provided (metric count / command count / component count)
 - **Description**: Functional description of the extension
 - **ABI version**: ABI version the extension was compiled against (must match the main service)
@@ -163,15 +163,15 @@ Configuration parameters are automatically rendered as appropriate input control
 | Parameter type | Control | Validation rules |
 |----------------|---------|-------------------|
 | `string` | Text input | Required check, max length |
-| `string` + `password: true` | Password input (masked) | Required check |
+| `string` (name contains `password`) | Password input (masked) | Required check |
 | `string` + `enum` | Dropdown select | Must choose from predefined values |
 | `integer` / `number` | Number input | Min / max range |
 | `boolean` | Toggle switch | true / false |
 
-After filling in the fields, click **Save**. The extension automatically restarts to load the new configuration. Invalid values (out-of-range numbers, missing required fields) cause an error on save and are not persisted.
+After filling in the fields, click **Save**. The configuration is first validated against the schema (out-of-range numbers, missing required fields cause an error on save and are not persisted), then **hot-reloaded** into the running extension process — most parameters take effect without a restart.
 
 :::tip
-Configuration changes trigger an extension process restart — **in-flight commands will be interrupted**. For production environments, modify configuration only during maintenance windows.
+On save, NeoMind attempts to push the new configuration to the running extension (hot-reload). If hot-reload fails (or the extension only reads config at startup), the configuration is still saved — run `neomind extension reload <id>` or restart from the details-page action menu for it to take effect.
 :::
 
 ### 3. Commands
@@ -217,9 +217,9 @@ Features:
 - **Auto-refresh**: Fetches new log lines every 3 seconds
 - **Auto-scroll to bottom**: New logs automatically scroll into view
 - **Error highlighting**: `ERROR` / `WARN` level logs are highlighted in red / yellow
-- **Retention**: Keeps the most recent 500 lines by default
+- **Retention**: Keeps the most recent 2,000 lines by default
 
-When troubleshooting extension issues, the Logs section is your first stop. If an extension is in **Error** or **Crash Loop** state, the logs usually show the panic stack trace or initialization failure reason directly.
+When troubleshooting extension issues, the Logs section is your first stop. If an extension is in **Error** or **Crashed** state, the logs usually show the panic stack trace or initialization failure reason directly.
 
 ## Extension Status and Lifecycle
 
@@ -228,8 +228,8 @@ When troubleshooting extension issues, the Logs section is your first stop. If a
 | **Running** | Green dot | Extension is running normally | Install complete / manual start / auto-recovery |
 | **Stopped** | Gray dot | Extension has been stopped | Manual stop / restarting after config change |
 | **Error** | Red dot | Extension crashed or failed to load | Process exited abnormally / initialization failed |
-| **Crashed** | Red badge | A stopped extension with a crash history (shows the reason and consecutive crash count) | Entered after restart attempts are exhausted |
-| **Crash Loop** | Yellow dot | Crash loop detection triggered; auto-restart suspended | ≥ 3 consecutive crashes within 50 seconds |
+| **Warning** | Yellow dot | Health check reports a warning | Running abnormally but not crashed |
+| **Crashed** | Red badge | A stopped extension whose auto-restart was suspended by crash-loop protection (hover shows the crash reason and consecutive crash count) | Entered when consecutive crashes trigger crash-loop protection |
 
 ### Restart / Reload Extensions
 
@@ -252,10 +252,10 @@ Extensions run in separate processes. NeoMind safeguards main service stability 
 1. **Process isolation** — An extension crash does not affect the API, MQTT, dashboards, or other extensions
 2. **Auto-restart** — An extension process that exits abnormally is automatically restarted, up to **3 attempts** with a **5-second** interval
 3. **Hang detection** — Each extension process has a liveness probe (Ping); an unresponsive hung process is treated as crashed and enters the restart flow
-4. **Crash loop detection** — If **≥ 3 consecutive crashes occur within 50 seconds**, the extension enters **Crash Loop** state, **suspending auto-restart** to prevent resource exhaustion
-5. **In-app notifications** — Crash events send system messages through [notification channels](./8-notifications.md), so operations staff receive alerts
+4. **Crash loop detection** — If **≥ 3 consecutive crashes** occur and the last crash happened within the **50-second** cooldown window, a crash loop is declared and **auto-restart is suspended** (the extension shows as Crashed), preventing resource exhaustion
+5. **In-app notifications** — When an extension stops auto-restarting, the system sends an in-app message so operations staff receive an alert
 
-Crash Loop state requires **manual intervention**:
+A crash-loop-stopped extension requires **manual intervention**:
 
 ```bash
 # View the extension's crash reason and status (recommended)
@@ -330,7 +330,7 @@ weather-forecast.nep
 ```
 
 :::note
-Extensions must match the main service's **ABI version** (currently v3). Mismatched extensions are rejected at load time and display an "ABI version mismatch" error on the details page.
+Extensions must match the main service's **ABI version** (currently v3). Mismatched extensions are rejected at load time with an "Incompatible version" (ABI mismatch) error.
 :::
 
 For detailed `.nep` structure and the development workflow, see [Developer Guide - Extension Development](../developer-guide/7-extension-development.md).
@@ -340,15 +340,15 @@ For detailed `.nep` structure and the development workflow, see [Developer Guide
 ```bash
 # Listing
 neomind extension list                              # List all installed extensions
-neomind extension list --json                       # JSON output (for scripting)
+neomind extension list -v                           # Detailed output (metrics / commands info)
 
 # Install / uninstall
-neomind extension install <path-or-url>             # Install
+neomind extension install <path-or-url>             # Install (local path or URL)
 neomind extension uninstall <extension_id>          # Uninstall
 
 # Details and status
 neomind extension info <extension_id>               # View metadata, metrics, commands, config params
-neomind extension status <extension_id>             # View runtime status
+neomind extension status <extension_id>             # View runtime status (process, uptime, last error, resources)
 
 # Lifecycle control
 neomind extension reload <extension_id>             # Reload (restart process; start/stop go through the REST API)
@@ -358,7 +358,7 @@ neomind extension config <extension_id>             # View current configuration
 neomind extension config <extension_id> --set '{"city":"Beijing"}'  # Modify a config field (JSON object)
 ```
 
-All commands support `--json` output for parsing in scripts. The CLI authenticates via the `NEOMIND_API_KEY` environment variable or `--api-key` flag.
+For extension development you will also use `extension validate` (pre-install .nep validation), `extension create` (scaffold), `extension build` (compile & package), `extension logs` (process logs), and `extension market-list` / `market-install` (marketplace install). The CLI authenticates via the `NEOMIND_API_KEY` environment variable or `--api-key` flag.
 
 ## REST API
 
@@ -388,7 +388,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
      http://localhost:9375/api/extensions/<extension_id>/command
 ```
 
-Full API documentation is available in Swagger UI at: `http://localhost:9375/api/docs`.
+The authoritative list of extension endpoints lives in the [Developer Guide — REST API Reference](../developer-guide/4-rest-api.md).
 
 ## Troubleshooting
 
@@ -420,12 +420,12 @@ You can also open the **Logs** tab on the extension details page to view process
 | Install fails with `Unsupported platform` | The `.nep` package lacks a binary for the current platform | Verify the package contains the right platform directory (e.g., macOS arm64 needs `binaries/darwin_aarch64/`); re-download the full package from the official source |
 | Install fails with `Extension already registered` | An extension with the same ID already exists | Run `neomind extension uninstall <id>` first, then install the new version |
 | Extension startup times out (Error after 120s) | Large model files / blocking initialization | Check Logs to see which step is stuck; if model loading is slow, wait longer or use a smaller model |
-| Extension enters **Crash Loop** | Initialization failure / missing model / port conflict | Triggered after 3 crashes within 50 seconds. Check Logs for the root cause, fix it, then run `neomind extension reload <id>` |
+| Extension stops auto-restarting due to crash loop (shows **Crashed**) | Initialization failure / missing model / port conflict | Triggered after 3 consecutive crashes. Check Logs for the root cause, fix it, then run `neomind extension reload <id>` |
 | Extension metrics don't show on dashboard | Extension not configured / DataSourceId typo | Confirm the format is `extension:<id>:<metric>`; open details → Metrics to see actual metric names |
 | AI cannot invoke extension commands | Extension is stopped | Start the extension from the Extensions tab; confirm status is Running |
 | Command execution times out | Inference takes too long / input too large | Default timeout is 300 seconds; compress input images, reduce batch size, or check the network |
 | No visualization components after install | The extension does not provide Component capability | Only extensions that declare a frontend bundle have dashboard components; check the capability declaration on the Overview tab |
-| Extension doesn't restart after config save | Restart is triggered only when a value actually changes | Confirm the new value differs from the old; check Logs for reload confirmation |
+| Config not taking effect after save | Extension lacks hot-reload / reads config only at startup | Run `neomind extension reload <id>` after saving, then verify |
 | Marketplace install fails / `Checksum failed` | Network interruption / corrupted package | Click Install again; check proxy settings; or use the CLI to download from GitHub Releases instead |
 
 For more general troubleshooting tips, see [Troubleshooting](./10-troubleshooting.md).

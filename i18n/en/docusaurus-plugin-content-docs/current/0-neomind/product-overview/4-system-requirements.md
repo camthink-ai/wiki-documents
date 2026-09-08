@@ -14,14 +14,14 @@ NeoMind runs on desktop (macOS / Windows / Linux) or servers. Below are the requ
 
 | Artifact | Size | Notes |
 |----------|------|-------|
-| **Server binary** (tar.gz) | ~23–26 MB | `neomind` + `neomind-extension-runner` bundled; per-platform |
-| **Web frontend** (tar.gz) | ~5.4 MB | Static assets (HTML/JS/CSS), served by the backend |
-| **macOS Desktop** (.dmg) | ~39 MB | Tauri app — bundles backend + frontend + system WebView |
-| **Windows Desktop** (.msi) | ~39 MB | |
-| **Linux Desktop** (.deb) | ~43 MB | |
-| **Linux AppImage** | ~112 MB | Fully self-contained — includes all system libraries |
+| **Server binary** (tar.gz) | ~27–30 MB | `neomind` + `neomind-extension-runner` bundled; per-platform |
+| **Web frontend** (tar.gz) | ~5.3 MB | Static assets (HTML/JS/CSS), served by the backend |
+| **macOS Desktop** (.dmg) | ~45 MB | Tauri app — bundles backend + frontend + system WebView |
+| **Windows Desktop** (.msi) | ~44 MB | |
+| **Linux Desktop** (.deb) | ~48 MB | |
+| **Linux AppImage** | ~117 MB | Fully self-contained — includes all system libraries |
 
-> **Total server footprint**: ~30 MB on disk (binary + web assets). No Docker layers, no pip/npm runtime — a single statically compiled binary plus static files.
+> **Total server footprint**: ~35 MB on disk (binary + web assets). No Docker layers, no pip/npm runtime — a single statically compiled binary plus static files.
 
 ### Runtime Resource Usage
 
@@ -91,7 +91,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 | Image | `camthink/neomind:latest` (multi-arch amd64 + arm64, built per release) |
 | Ports | `9375` (HTTP API + Web UI), `1883` (MQTT) |
 | Data persistence | volume `neomind-data` (mounted at `/app/data`) |
-| Local LLM | the image bundles the llama.cpp runtime; models download on demand (reserve 4-8 GB disk + RAM) |
+| Local LLM | the image bundles the llama.cpp runtime and a default curated model (LFM2.5-2.6B, swappable/skippable via build arg); other models can be downloaded on demand in the wizard (reserve 4-8 GB disk + RAM) |
 
 See [Install & Setup — Docker](../user-guide/1-install-setup.md#docker).
 

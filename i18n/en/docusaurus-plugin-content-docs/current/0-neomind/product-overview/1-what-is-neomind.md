@@ -139,10 +139,10 @@ flowchart TB
 - **Home Assistant** — two-way sync with 3000+ smart-home entities
 
 ### Notification & Data Push
-- **9 Notification Channels** — 7 external channels (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu) + 2 built-in
+- **7 Notification Channels** — Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu, plus the in-app notification center
 - **IM Bridges** — Chat with AI agents directly in Telegram / Feishu (independent from the notification channels)
 - **Data Push** — Forward telemetry data to external systems via Webhook or MQTT
-- **Delivery Tracking** — Exponential backoff retry, delivery history, and log management
+- **Delivery Tracking** (Data Push) — Exponential backoff retry, delivery history, and log management
 - **Message Deduplication** — Prevent notification storms from high-frequency triggers
 
 ### Platform

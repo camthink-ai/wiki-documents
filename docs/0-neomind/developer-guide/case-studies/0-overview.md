@@ -44,6 +44,8 @@ sidebar_label: Overview
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |
 | 7 ne101_camera | v2.14.9 | — | 2026-06-22 |
 
+> 注：自上次 audit 以来源仓库已继续演进——当前 weather-forecast 为 2.7.7，yolo-device-inference / yolo-video 为 2.7.8，ne101_camera 为 2.14.12。各案例页以页首 banner 标注的 audit 时点为准。
+
 源仓库 release 时触发案例 audit（人工，非自动化）。
 
 ## 组件源码格式说明
@@ -54,7 +56,7 @@ sidebar_label: Overview
 >
 > - 使用 `var React = window.React` + `var jsx = window.jsxRuntime.jsx` 注入运行时依赖（React / JSX runtime 由 Host 页面提供）。
 > - 保留完整注释、合理分行，可读性接近普通源码——可以直接阅读，不需要 source map。
-> - 当前体量：`metric_card` 352 行，`ne101_camera` 1972 行。
+> - 当前体量：`metric_card` 328 行，`ne101_camera` 2036 行。
 >
 > 因此案例 6 / 7 的「关键代码走读」会直接指向 `bundle.js` 的具体行号，读者可以打开源文件边读边对照。
 

@@ -51,11 +51,11 @@ NeoMind is a Rust workspace. Each crate has a single, clear responsibility:
 | Crate | Responsibility |
 |-------|----------------|
 | **neomind-core** | Core traits and types: `EventBus`, `DataSourceId`, `LLM` trait, capability detection |
-| **neomind-api** | Axum web server, HTTP / WebSocket / SSE handlers, Swagger at `/api/docs` |
+| **neomind-api** | Axum web server, HTTP / WebSocket / SSE handlers, route definitions centralized in `src/server/router.rs` |
 | **neomind-agent** | AI agent: LLM backends, tool calling, memory system, skill system, scheduler |
 | **neomind-devices** | Device management: MQTT / webhook adapters, registration, command queue, draft approval |
 | **neomind-storage** | redb embedded storage: schema and access layer for all `*.redb` tables |
-| **neomind-messages** | Message notification: 9 channels (7 external webhook/email/telegram/wecom/dingtalk/slack/feishu + 2 built-in) |
+| **neomind-messages** | Message notification: 7 external channel types (webhook/email/telegram/wecom/dingtalk/slack/feishu) + the in-app message center |
 | **neomind-rules** | JSON rule engine: parse, execute, event trigger |
 | **neomind-extension-sdk** | Extension SDK: `neomind_export!` macro, capability, ML model lifecycle (public API surface) |
 | **neomind-extension-runner** | Extension process host: isolated sandbox, FFI bridge, crash-loop protection |
@@ -85,9 +85,9 @@ A single process hosting all core functionality:
 Spawned and supervised by `neomind-extension-runner`:
 
 - Each extension runs in its own OS process — full process-level isolation
-- Communicates with the main process via FFI (C ABI)
-- **A crash doesn't affect the main process**: the runner has crash-loop protection; an extension that crashes repeatedly is auto-disabled
-- Capability-gated: the extension declares required capabilities (network, filesystem, ml-model) at startup; the runner authorizes exactly those
+- The extension dynamic library (`.so` / `.dylib` / `.dll`) is loaded in-process by the runner via FFI (C ABI); the runner then talks to the main process over stdin/stdout JSON IPC
+- **A crash doesn't affect the main process**: the runner has crash-loop protection (auto-restart + max retry count + cooldown) and stops restarting once the retry limit is reached
+- Capability-gated: the extension declares required capabilities via the SDK's `ExtensionCapability` (including `Custom` names); calls to undeclared capabilities are rejected, and the runner additionally applies resource limits (memory / CPU) to the extension process
 
 ```
 ┌─────────────────────────┐
@@ -108,11 +108,11 @@ Spawned and supervised by `neomind-extension-runner`:
 
 | Source | Event | Subscribers |
 |--------|-------|-------------|
-| Device MQTT data | `DeviceDataReceived` | Rule engine, data push, dashboard WS |
+| Device data write (MQTT / Webhook / extension virtual metrics) | `DeviceMetric` | Rule engine, data push, dashboard WS |
 | Rule fires | `RuleTriggered` | Message notifier, agent |
 | Agent completes | `AgentExecutionCompleted` | Memory system, message notifier |
-| Extension metric | `ExtensionMetric` | Storage, dashboard |
-| System state change | `SystemEvent` | In-app message center |
+| Extension output | `ExtensionOutput` | Storage, dashboard |
+| Message created | `MessageCreated` | In-app message center |
 
 Pub/sub — multiple subscribers fire in parallel; within a single subscriber, events are processed sequentially.
 
@@ -120,11 +120,11 @@ Pub/sub — multiple subscribers fire in parallel; within a single subscriber, e
 
 Extensions are written in Rust but **compile to a separate binary** from the main process, bridged by FFI:
 
-- The `neomind_export!` macro (in the SDK) auto-generates C ABI entry points (`extern "C"` functions) from your `ExtensionHandler` trait impl
-- The runner loads the extension binary → invokes the agreed entry → wraps it in an `ExtensionProxy` registered with the main process
-- Data crosses the FFI boundary as serde JSON (metrics, commands, config)
+- The `neomind_export!` macro (in the SDK) auto-generates C ABI entry points (`extern "C"` functions such as `neomind_extension_abi_version` / `neomind_extension_metadata` / `neomind_extension_execute_command_json`) from your `Extension` trait impl
+- The main process's isolated loader spawns the runner process → the runner loads the extension dynamic library and invokes the agreed entry points → the main process wraps all communication with the extension process in an `ExtensionProxy` (`neomind-core::extension::proxy`)
+- Data crosses the FFI / IPC boundary as serde JSON (metrics, commands, config)
 
-**Capability system**: the extension declares `capabilities: ["network", "filesystem:read", "ml-model"]` in its metadata; the runner opens the sandbox accordingly when spawning. Calls requiring undeclared capabilities are rejected.
+**Capability system**: the extension declares required capabilities via the SDK's `ExtensionCapability` enum (20 built-ins + `Custom(String)` names such as `network` / `filesystem:read` / `ml-model`); the platform validates every capability call at runtime and rejects undeclared ones. The runner additionally applies resource limits to the extension process (memory cap / CPU affinity / nice level, see the runner's `resource_limits.rs`).
 
 See [Extension SDK](./3-extension-sdk.md) for macro usage and lifecycle.
 

@@ -81,9 +81,9 @@ It contains the key information AI needs:
 | **Code Conventions** | Rust fmt/clippy, Zustand slices pattern, DESIGN_SPEC.md | Follow project coding standards |
 | **Frontend Design Standards** | 33-section design spec index | Generate frontend code that matches the design system |
 
-> **Extension and component repos** currently don't have a `CLAUDE.md`. Before developing, ask AI to read `docs/guides/en/extension-system.md` or the relevant technical docs to establish context:
+> **The component and device-type repos** currently don't have a `CLAUDE.md` (the extensions repo does). For repos without one, ask AI to read the root-level `README.md` / `EXTENSION_GUIDE.md` technical docs first to establish context:
 > ```
-> > First read docs/guides/en/extension-system.md to understand the extension architecture, then help me create...
+> > First read EXTENSION_GUIDE.md to understand the extension architecture, then help me create...
 > ```
 
 ## Workflow 1: Building Extensions with AI
@@ -245,7 +245,7 @@ Claude Code will trace the call chain file by file, giving you a flow diagram wi
 | **Add feature** | "Following the `{existing-pattern}` pattern, add a `{feature}`" |
 | **Explore code** | "Help me trace the execution flow of `{module}`, from `{entry point}` to `{endpoint}`" |
 | **Code review** | "Review this code for security issues, performance problems, and `CLAUDE.md` convention violations" |
-| **Cross-platform build** | "Help me compile this extension for 5 platforms (linux/darwin/windows, no windows-arm64, see the appendix build matrix)" |
+| **Cross-platform build** | "Help me compile this extension for all platform targets (linux/darwin/windows, no windows-arm64, see the appendix build matrix)" |
 
 ## Best Practices
 
@@ -259,7 +259,7 @@ Claude Code will trace the call chain file by file, giving you a flow diagram wi
 ### DON'T
 
 - **Don't skip CLAUDE.md**: If the repo doesn't have one, create it first with build commands and conventions — this is the key to AI understanding the project
-- **Don't let AI guess API formats**: Have AI read `docs/guides/en/14-api.md` or the Swagger docs first, then write integration code
+- **Don't let AI guess API formats**: Have AI read the [REST API reference](./4-rest-api.md) first, then write integration code
 - **Don't use hardcoded colors in frontend**: Have AI read `DESIGN_SPEC.md` Section 1, use only design token class names
 
 ## Setting up AI context for your own repos
@@ -292,7 +292,7 @@ This way, Claude Code knows how to build, test, and which existing implementatio
 | **`neomind widget create`** | Dashboard component scaffolding |
 | **`neomind extension install`** | Extension installation and testing |
 | **`cargo build --release`** | Rust extension compilation |
-| **Swagger UI** (`/api/docs`) | API documentation — have AI read this to understand endpoint formats |
+| **REST API reference** | API endpoint reference — have AI read [4-rest-api.md](./4-rest-api.md) to understand endpoint formats |
 
 ## Next Steps
 

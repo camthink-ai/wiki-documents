@@ -6,7 +6,7 @@ tags: [NeoMind, 开发指南]
 
 # Extension SDK
 
-`neomind-extension-sdk`（最新 v0.6.3）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
+`neomind-extension-sdk`（最新 v0.6.6）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
 
 > 本文聚焦 SDK 本身。端到端的实战流程见 [扩展开发实战](./7-extension-development.md)。
 
@@ -42,7 +42,7 @@ name = "neomind_extension_my_extension"   # 前缀必须是 neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.3"   # 或 path 指向本地 SDK
+neomind-extension-sdk = "0.6.6"   # 或 path 指向本地 SDK
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -70,23 +70,30 @@ use async_trait::async_trait;
 use neomind_extension_sdk::prelude::*;
 
 #[async_trait]
-pub trait Extension: Send + Sync + 'static {
+pub trait Extension: Send + Sync {
     // ===== 必填 =====
     fn metadata(&self) -> &ExtensionMetadata;
-    async fn execute_command(&self, command: &str, args: &serde_json::Value)
-        -> Result<serde_json::Value>;
+    async fn execute_command(&self, command_name: &str, args: &serde_json::Value)
+        -> Result<serde_json::Value>;   // 有默认实现（返回 CommandNotFound），命令型扩展必须覆盖
+    fn as_any(&self) -> &dyn std::any::Any;
 
     // ===== 选填：声明与生命周期 =====
-    fn metrics(&self) -> &[MetricDescriptor] { &[] }
-    fn commands(&self) -> &[ExtensionCommand] { &[] }
+    fn init(&mut self) -> Result<()> { Ok(()) }
+    fn start(&mut self) -> Result<()> { Ok(()) }
+    fn stop(&mut self) -> Result<()> { Ok(()) }
+    fn status(&self) -> String { /* ... */ }
+    fn descriptor(&self) -> Option<ExtensionDescriptor> { None }
+    fn metrics(&self) -> Vec<MetricDescriptor> { vec![] }
+    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // CommandDescriptor 即 ExtensionCommand 别名
     fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
     fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
     async fn health_check(&self) -> Result<bool> { Ok(true) }
     async fn configure(&mut self, _config: &serde_json::Value) -> Result<()> { Ok(()) }
+    async fn on_unload(&self) -> Result<()> { Ok(()) }
 
     // ===== 选填：事件订阅 =====
     fn event_subscriptions(&self) -> &[&str] { &[] }
-    fn handle_event(&self, _ty: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
+    fn handle_event(&self, _event_type: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
 
     // ===== 选填：流式处理（视频等）=====
     fn stream_capability(&self) -> Option<StreamCapability> { None }
@@ -97,11 +104,9 @@ pub trait Extension: Send + Sync + 'static {
 
     // ===== 选填：推送模式（传感器等）=====
     fn set_output_sender(&self, _sender: Arc<mpsc::Sender<PushOutputMessage>>) { }
+    fn latest_output(&self) -> Option<PushOutputMessage> { None }
     async fn start_push(&self, _session_id: &str) -> Result<()> { /* ... */ }
     async fn stop_push(&self, _session_id: &str) -> Result<()> { Ok(()) }
-
-    // ===== 必填：类型擦除支持 =====
-    fn as_any(&self) -> &dyn std::any::Any;
 }
 ```
 
@@ -150,7 +155,7 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 pub struct ExtensionMetadata {
     pub id: String,                              // 全局唯一 ID
     pub name: String,                            // 显示名
-    pub version: semver::Version,                // 语义版本
+    pub version: String,                         // 语义版本字符串
     pub description: Option<String>,             // 描述
     pub author: Option<String>,                  // 作者
     pub homepage: Option<String>,                // 主页 URL

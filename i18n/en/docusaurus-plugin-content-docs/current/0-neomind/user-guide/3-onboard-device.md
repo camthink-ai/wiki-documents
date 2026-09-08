@@ -336,7 +336,7 @@ Best for: You already know the device details and want to skip auto-discovery, o
 >
 > When NeoMind receives data from a device, it uses the type template to **parse and store** the data. Without a type, the system wouldn't know that `{ "t": 25.3 }` means temperature — and couldn't display it correctly on dashboards.
 >
-> Built-in types include CamThink hardware (NE301 Edge AI Camera, NE101 Sensing Camera) and common sensor types. You can also create custom types in **Settings → Device Types**.
+> Built-in types include CamThink hardware (NE301 Edge AI Camera, NE101 Sensing Camera). You can also create custom types under the **Devices → Device Types** tab.
 
 3. **Click Add** to create the device. Its status will be **Disconnected** until it starts sending data, then it automatically becomes Online.
 
@@ -484,7 +484,7 @@ MQTT-connected devices support bidirectional communication — you can control t
 neomind device control ac-01 power_on --params '{"mode": "cool", "temp": 24}'
 ```
 
-Commands are delivered via MQTT to the device's `{topic}/command` — the device subscribes to that topic to receive them.
+Commands are delivered via MQTT to the device's downlink topic (default `device/{type}/{id}/downlink`) — the device subscribes to that topic to receive them.
 
 ## Device Status Reference
 
@@ -504,7 +504,7 @@ When a device sends data for the first time, before it's been approved:
 
 | Status | Meaning | Color |
 |--------|---------|-------|
-| **Waiting Processing** | Device auto-discovered, awaiting admin approval | Yellow / Orange |
+| **Waiting Processing** | Device auto-discovered, awaiting admin approval | Blue |
 
 > Draft devices don't appear in the Device List — they're only visible in the **Pending Devices** tab. Only after approval are they formally registered.
 
@@ -516,7 +516,7 @@ Once approved, the device is registered. Depending on connectivity, it toggles b
 |--------|---------|---------|-------|
 | **Online** | Device connected and actively sending data | Data received within the last 5 minutes | Green |
 | **Offline** | Device was connected, but is now disconnected or timed out | Has reported data before, but no new data for over 5 minutes | Yellow |
-| **Disconnected** | Device has never sent data | Manually registered or created via CLI, but the device has never come online | Blue |
+| **Disconnected** | Device has never sent data | Manually registered or created via CLI, but the device has never come online | Gray |
 
 > NeoMind considers a device online if it has reported data **within the last 5 minutes**. Even if the MQTT connection is alive, the status changes to Offline if no data arrives for 5+ minutes.
 >
@@ -536,7 +536,7 @@ When you send a command via `neomind device control`, each command tracks its ow
 
 ## Supported Device Types
 
-NeoMind ships with built-in types for CamThink hardware. Go to Web UI → **Settings → Device Types** to view and manage all types:
+NeoMind ships with built-in types for CamThink hardware. Go to Web UI → **Devices → Device Types** tab to view and manage all types:
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="Device Types management page — built-in and custom types" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 

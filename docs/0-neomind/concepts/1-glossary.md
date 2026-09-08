@@ -265,7 +265,7 @@ Agent 的**交互模式**——用户在对话框输入消息，AI 实时调用�
 |------|------------|--------|
 | **MemorySnapshot** | AI Chat | 对话记忆快照，落盘为 `user.md`（用户偏好）与 `knowledge.md`（关键事实），新会话开始时恢复上下文 |
 | **Journal** | AI Agent | 执行日志：每次执行追加一条记录（触发方式、数据摘要、LLM 结论、动作、成功/失败），下次执行读取最近 N 条学习历史模式 |
-| **Knowledge Files** | AI Agent | 长期知识文件（Markdown）：`identity.md`（身份职责）、`mission.md`（任务目标）、`resources.md`（绑定资源）、`schedule.md`（执行计划），首次执行自动初始化，可在 Agent 详情 → Memory 面板手动编辑 |
+| **Knowledge Files** | AI Agent | 长期知识文件（Markdown）：首次成功执行后自动初始化一份 `task-understanding`（含角色 / 使命 / 资源 / 计划四节），Agent 之后可通过 memory 工具自行创建更多知识文件，可在 Agent 详情 → Memory 面板手动编辑 |
 
 **例**：Agent 对同一设备重复发送了两次告警，Journal 里留下失败记录后，下次执行会跳过已发送的告警并调整阈值——这就是"读 Journal → 改行为"的闭环。
 
@@ -359,7 +359,7 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 
 ### Message Channel（消息渠道）
 
-规则触发通知时的投递通道。共 9 个渠道——**2 个内置 + 7 个外部**。两个内置渠道是 **Console（控制台）**（打印到服务端日志，调试用）和 **Memory（记忆）**（写入 AI Agent 长期记忆，让 Agent 学习告警），无需配置、不可禁用；7 个外部渠道需自行创建。所有消息同时沉淀在应用内消息中心（Messages 页面）。
+规则触发通知时的投递通道。共 **7 种渠道类型**——Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书，需自行创建并配置。所有通知同时沉淀在应用内消息中心（Messages 页面），无需配置。
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule 触发</span>
@@ -483,10 +483,10 @@ NeoMind 的发布/订阅（pub/sub）骨干，由 `neomind-core::event_bus` 实�
 
 | 事件源 | 事件 | 订阅者 |
 |--------|------|--------|
-| 设备 MQTT 数据 | `DeviceDataReceived` | 规则引擎、数据推送、仪表板 WS |
+| 设备数据写入（含 MQTT / Webhook / 扩展虚拟指标） | `DeviceMetric` | 规则引擎、数据推送、仪表板 WS |
 | 规则触发 | `RuleTriggered` | 消息通知、Agent |
 | Agent 完成 | `AgentExecutionCompleted` | 记忆系统、消息通知 |
-| 扩展 metric | `ExtensionMetric` | 存储、仪表板 |
+| 扩展输出 | `ExtensionOutput` | 存储、仪表板 |
 
 **例**：一条 MQTT 上报同时"点亮"仪表板曲线、命中高温规则、驱动数据推送——三类订阅者互不知晓，全靠事件总线扇出。
 
@@ -612,7 +612,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
           <strong>Dashboard</strong> / Widget<br/><br/>规则引擎<br/><br/>Agent (LLM)
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
-          实时界面<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket 推送)</span><br/><br/>通知<br/><span style={{fontSize: '0.85em', color: '#666'}}>(9 种渠道)</span><br/><br/>AI 回答<br/><span style={{fontSize: '0.85em', color: '#666'}}>(自然语言)</span>
+          实时界面<br/><span style={{fontSize: '0.85em', color: '#666'}}>(WebSocket 推送)</span><br/><br/>通知<br/><span style={{fontSize: '0.85em', color: '#666'}}>(7 种渠道)</span><br/><br/>AI 回答<br/><span style={{fontSize: '0.85em', color: '#666'}}>(自然语言)</span>
         </td>
       </tr>
     </tbody>

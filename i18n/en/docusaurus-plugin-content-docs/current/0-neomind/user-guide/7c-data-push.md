@@ -31,7 +31,7 @@ The page lists all push targets in a table, each row containing:
 | **Type** | Webhook / MQTT |
 | **Status** | Running / Stopped |
 | **Schedule** | Event Driven / Interval |
-| **Data Sources** | Matched source patterns (e.g. `device:*:temperature`) |
+| **Data Sources** | Matched source patterns (e.g. `device:sensor-01:*`) |
 | **Updated** | Last modified time |
 | **Actions** | Edit, delete, test, view logs |
 
@@ -62,7 +62,7 @@ Click **Create** to open the full-screen configuration dialog:
 
 | Field | Description |
 |-------|-------------|
-| **Broker URL** | MQTT Broker address (e.g. `mqtt://broker.example.com:1883`) |
+| **Broker** | MQTT Broker host (e.g. `broker.example.com`; port is a separate field, default `1883`) |
 | **Topic** | Publish topic (e.g. `factory/line1/sensors`) |
 | **Username / Password** | Authentication credentials (optional) |
 
@@ -81,8 +81,8 @@ Choose which data sources to push:
 
 | Setting | Description |
 |---------|-------------|
-| **Source Patterns** | Wildcard matching. `device:*:temperature` = all devices' temperature metric; `device:sensor-01:*` = all metrics of sensor-01 |
-| **Only Changes** | When enabled, pushes only when the data value actually changes, skipping duplicates to reduce traffic |
+| **Source Patterns** | Wildcard matching. `device:sensor-01:*` = all metrics of sensor-01; `device:sensor-01:temperature` = sensor-01's temperature metric. Note: patterns match by **prefix** — a `*` in the middle has no effect (`device:*:temperature` actually matches all device data) |
+| **Only Changes** | When enabled, pushes only when the data value actually changes, skipping duplicates to reduce traffic. Configured via the API's `data_filter.only_changes` field (the create dialog doesn't expose this toggle yet; off by default) |
 
 The source panel is grouped by type (Device / Extension / Transform / System) with search and multi-select.
 
@@ -90,13 +90,13 @@ The source panel is grouped by type (Device / Extension / Transform / System) wi
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-**Retry Config**:
+**Retry Config** — configured via the API's `retry_config` field; when omitted, the following defaults apply:
 
 | Field | Description | Default |
 |------|-------------|---------|
 | **Max Retries** | Maximum retry attempts | 3 |
 | **Backoff (secs)** | Initial backoff seconds | 5 |
-| **Max Backoff (secs)** | Maximum backoff cap | 60 |
+| **Max Backoff (secs)** | Maximum backoff cap | 300 |
 
 > Retry uses exponential backoff: 1st retry waits 5s, 2nd 10s, 3rd 20s … up to the Max Backoff cap.
 
@@ -104,8 +104,8 @@ The source panel is grouped by type (Device / Extension / Transform / System) wi
 
 | Field | Description |
 |------|-------------|
-| **Batch Size** | Maximum items per batch |
-| **Batch Interval (ms)** | Batch send interval in milliseconds |
+| **Batch Size** | Maximum items per batch (default `1`, i.e. no batching — push each item immediately) |
+| **Batch Interval (ms)** | Batch send interval in milliseconds (default `2000`) |
 
 Click **Save** when done.
 
@@ -162,14 +162,14 @@ neomind push delete <target_id>
 ## REST API
 
 ```bash
-# Create push target
+# Create push target (event-driven schedule requires event_types; interval uses {"type": "interval", "interval_secs": 60})
 curl -X POST http://localhost:9375/api/data-push \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Temperature to API",
     "target_type": "webhook",
     "config": {"url": "https://api.example.com/ingest", "method": "POST"},
-    "schedule": {"type": "event_driven"},
+    "schedule": {"type": "event_driven", "event_types": ["device_metric"]},
     "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false},
     "enabled": true
   }'
@@ -196,7 +196,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **Type**: Webhook
 - **Schedule**: Event Driven (push on new data)
-- **Source**: `device:*:temperature`
+- **Source**: `device:*:temperature` (prefix-matched — effectively all device data; list `device:<id>:temperature` per device to target the metric precisely)
 - **Only Changes**: enabled (avoid duplicate values)
 - **Retry**: 3 attempts, exponential backoff
 
@@ -240,4 +240,4 @@ curl http://localhost:9375/api/data-push/stats
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-09*

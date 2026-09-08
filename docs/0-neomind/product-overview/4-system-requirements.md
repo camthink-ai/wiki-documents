@@ -15,14 +15,14 @@ NeoMind 可在桌面（macOS / Windows / Linux）或服务器上运行。以下�
 
 | 产物 | 大小 | 说明 |
 |------|------|------|
-| **服务器二进制** (tar.gz) | ~23–26 MB | `neomind` + `neomind-extension-runner` 打包；按平台分发 |
-| **Web 前端** (tar.gz) | ~5.4 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
-| **macOS 桌面** (.dmg) | ~39 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
-| **Windows 桌面** (.msi) | ~39 MB | |
-| **Linux 桌面** (.deb) | ~43 MB | |
-| **Linux AppImage** | ~112 MB | 完全自包含 — 包含所有系统库 |
+| **服务器二进制** (tar.gz) | ~27–30 MB | `neomind` + `neomind-extension-runner` 打包；按平台分发 |
+| **Web 前端** (tar.gz) | ~5.3 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
+| **macOS 桌面** (.dmg) | ~45 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
+| **Windows 桌面** (.msi) | ~44 MB | |
+| **Linux 桌面** (.deb) | ~48 MB | |
+| **Linux AppImage** | ~117 MB | 完全自包含 — 包含所有系统库 |
 
-> **服务器总磁盘占用**：~30 MB（二进制 + Web 资源）。没有 Docker 镜像层，没有 pip/npm 运行时——一个静态编译二进制 + 一组静态文件。
+> **服务器总磁盘占用**：~35 MB（二进制 + Web 资源）。没有 Docker 镜像层，没有 pip/npm 运行时——一个静态编译二进制 + 一组静态文件。
 
 ### 运行时资源占用
 
@@ -101,7 +101,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 镜像 | `camthink/neomind:latest`（多架构 amd64 + arm64，随发版构建） |
 | 端口 | `9375`（HTTP API + Web UI）、`1883`（MQTT） |
 | 数据持久化 | volume `neomind-data`（挂载至容器 `/app/data`） |
-| 本地 LLM | 镜像内置 llama.cpp 运行时，模型按需下载（预留 4-8GB 磁盘 + 内存） |
+| 本地 LLM | 镜像内置 llama.cpp 运行时与默认精选模型（LFM2.5-2.6B，构建参数可换/跳过）；向导内也可按需下载其他模型（预留 4-8GB 磁盘 + 内存） |
 
 详见 [安装与配置 — Docker 部署](../user-guide/1-install-setup.md#docker-部署)。
 

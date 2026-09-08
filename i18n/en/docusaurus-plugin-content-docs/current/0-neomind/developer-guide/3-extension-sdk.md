@@ -6,7 +6,7 @@ tags: [NeoMind, Developer Guide]
 
 # Extension SDK
 
-The `neomind-extension-sdk` crate (latest v0.6.3) is the core library for writing NeoMind extensions. It defines the `Extension` trait, metadata / metric / command types, and the `neomind_export!` macro that turns your impl into an FFI entry point the main process's `neomind-extension-runner` can load.
+The `neomind-extension-sdk` crate (latest v0.6.6) is the core library for writing NeoMind extensions. It defines the `Extension` trait, metadata / metric / command types, and the `neomind_export!` macro that turns your impl into an FFI entry point the main process's `neomind-extension-runner` can load.
 
 > This page covers the SDK itself. For the end-to-end build flow, see [Extension Development](./7-extension-development.md).
 
@@ -42,7 +42,7 @@ name = "neomind_extension_my_extension"   # prefix MUST be neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.3"   # or path = "../NeoMind/crates/neomind-extension-sdk"
+neomind-extension-sdk = "0.6.6"   # or path = "../NeoMind/crates/neomind-extension-sdk"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -70,23 +70,30 @@ use async_trait::async_trait;
 use neomind_extension_sdk::prelude::*;
 
 #[async_trait]
-pub trait Extension: Send + Sync + 'static {
+pub trait Extension: Send + Sync {
     // ===== Required =====
     fn metadata(&self) -> &ExtensionMetadata;
-    async fn execute_command(&self, command: &str, args: &serde_json::Value)
-        -> Result<serde_json::Value>;
+    async fn execute_command(&self, command_name: &str, args: &serde_json::Value)
+        -> Result<serde_json::Value>;   // has a default impl (returns CommandNotFound); command-capable extensions must override
+    fn as_any(&self) -> &dyn std::any::Any;
 
     // ===== Optional: declarations & lifecycle =====
-    fn metrics(&self) -> &[MetricDescriptor] { &[] }
-    fn commands(&self) -> &[ExtensionCommand] { &[] }
+    fn init(&mut self) -> Result<()> { Ok(()) }
+    fn start(&mut self) -> Result<()> { Ok(()) }
+    fn stop(&mut self) -> Result<()> { Ok(()) }
+    fn status(&self) -> String { /* ... */ }
+    fn descriptor(&self) -> Option<ExtensionDescriptor> { None }
+    fn metrics(&self) -> Vec<MetricDescriptor> { vec![] }
+    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // CommandDescriptor is aliased as ExtensionCommand
     fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
     fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
     async fn health_check(&self) -> Result<bool> { Ok(true) }
     async fn configure(&mut self, _config: &serde_json::Value) -> Result<()> { Ok(()) }
+    async fn on_unload(&self) -> Result<()> { Ok(()) }
 
     // ===== Optional: event subscriptions =====
     fn event_subscriptions(&self) -> &[&str] { &[] }
-    fn handle_event(&self, _ty: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
+    fn handle_event(&self, _event_type: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
 
     // ===== Optional: streaming (video etc.) =====
     fn stream_capability(&self) -> Option<StreamCapability> { None }
@@ -97,11 +104,9 @@ pub trait Extension: Send + Sync + 'static {
 
     // ===== Optional: push mode (sensors etc.) =====
     fn set_output_sender(&self, _sender: Arc<mpsc::Sender<PushOutputMessage>>) { }
+    fn latest_output(&self) -> Option<PushOutputMessage> { None }
     async fn start_push(&self, _session_id: &str) -> Result<()> { /* ... */ }
     async fn stop_push(&self, _session_id: &str) -> Result<()> { Ok(()) }
-
-    // ===== Required: type erasure support =====
-    fn as_any(&self) -> &dyn std::any::Any;
 }
 ```
 
@@ -144,7 +149,7 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 pub struct ExtensionMetadata {
     pub id: String,                              // globally unique id
     pub name: String,                            // display name
-    pub version: semver::Version,                // semantic version
+    pub version: String,                         // semantic version string
     pub description: Option<String>,             // description
     pub author: Option<String>,                  // author
     pub homepage: Option<String>,                // homepage URL

@@ -1,21 +1,21 @@
 ---
-description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端），含 Swagger 入口与错误格式。"
-keywords: [NeoMind, REST API, HTTP, Swagger, JWT, API Key, 端点]
+description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
+keywords: [NeoMind, REST API, HTTP, JWT, API Key, 端点]
 tags: [NeoMind, 开发指南]
 sidebar_label: "REST API Reference"
 ---
 
 # REST API 参考
 
-NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整交互式文档见 Swagger UI。
+NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整端点清单以源码 `crates/neomind-api/src/server/router.rs` 为准。
 
 ## 入口
 
 | 项 | 值 |
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| Swagger UI（交互式文档） | `http://<SERVER_IP>:9375/api/docs` |
-| 默认端口 | 9375（可用 `--port` / `PORT` 环境变量改） |
+| 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
+| 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
 
 > **所有端点路径以 `/api` 开头**。下文的端点列表都省略 `/api` 前缀。
 
@@ -103,7 +103,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | POST | `/auth/login` | 登录拿 JWT |
-| POST | `/auth/register` | 注册（首个用户自动 admin） |
+| POST | `/auth/register` | 自助注册（默认关闭，需管理员在设置中开启；注册用户为普通角色——首个管理员由 `/setup/initialize` 创建） |
 | GET | `/auth/status` | 当前认证状态 |
 | GET | `/auth/verify` | 验证 JWT 是否有效 |
 
@@ -194,9 +194,9 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/messages` | 消息列表 |
 | GET | `/messages/channels` | 列出通知渠道 |
 | POST | `/messages/channels` | 添加渠道（webhook/email/telegram/wecom/dingtalk/slack/feishu） |
-| PUT | `/messages/channels/:id` | 更新渠道 |
-| DELETE | `/messages/channels/:id` | 删除渠道 |
-| POST | `/messages/channels/:id/test` | 测试渠道投递 |
+| PUT | `/messages/channels/:name` | 更新渠道 |
+| DELETE | `/messages/channels/:name` | 删除渠道 |
+| POST | `/messages/channels/:name/test` | 测试渠道投递 |
 | POST | `/messages` | 手动发消息 |
 
 ### Extensions（扩展）
@@ -285,7 +285,7 @@ else:
 
 ## 下一步
 
-- **完整交互式文档**：`/api/docs`（Swagger）——所有端点 + 参数 schema + 在线试调用
+- **完整端点清单**：`crates/neomind-api/src/server/router.rs` —— 所有路由（公开 / 保护 / 管理员）的权威定义
 - 加新端点 → 在 `crates/neomind-api/src/` 加 handler，遵循现有分模块模式
 - 实时推送 → WebSocket / SSE（参考 `web/src/lib/websocket.ts`）
 

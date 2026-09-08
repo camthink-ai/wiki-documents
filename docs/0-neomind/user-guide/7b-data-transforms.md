@@ -38,10 +38,10 @@ sidebar_position: 7.5
 |------|------|
 | **名称** | 转换的显示名称 |
 | **作用域** | Global（全局）/ Device Type（设备类型）/ Device（指定设备） |
-| **代码摘要** | JavaScript 代码片段预览 |
-| **输出前缀** | 派生指标的命名前缀（如 `converted`） |
+| **创建时间** | 转换的创建时间 |
+| **最近执行** | 上次执行时间 |
 | **状态开关** | 启用 / 禁用切换 |
-| **操作菜单** | 编辑、删除、导出 |
+| **操作菜单** | 编辑、导出、删除 |
 
 右上角的 **Import / Export** 按钮可批量导入导出转换 JSON。
 
@@ -96,9 +96,9 @@ return {
 
 | 变量 | 说明 |
 |------|------|
-| `value` | 当前数据点的值 |
-| `input` | 完整的输入数据对象（含 timestamp、quality 等） |
-| `extensions_invoke(ext_id, command, params)` | 调用扩展命令 |
+| `input` | 输入数据：单键指标对象（如 `{"temperature": 25}`）会自动解包为标量，可直接参与运算 |
+| `input_raw` | 完整的输入数据对象（不做自动解包） |
+| `extensions.invoke(ext_id, command, params)` | 调用扩展命令，返回扩展执行结果 |
 
 **变量面板**：左侧的变量面板可插入设备指标和扩展数据源。选择设备类型后，该类型的所有指标会列出，点击即可插入代码。也可从扩展面板选择扩展命令生成调用代码。
 
@@ -124,7 +124,7 @@ flowchart LR
     E --> F[可用于仪表板/规则/Agent]
 ```
 
-转换输出的派生指标使用 DataSourceId 格式 `transform:<output_prefix>:<field>`，如 `transform:converted:temp_f`。这些指标可以：
+转换输出的派生指标以 DataSourceId 格式 `transform:<transform_id>:<前缀>.<字段>` 注册（如 `transform:9a1b2c3d…:converted.temp_f`），在数据源选择器中按 Transform 类型分组显示。这些指标可以：
 - 在仪表板中绑定为数据源
 - 在规则条件中引用
 - 在 Agent 的 Focused 模式中绑定
@@ -155,8 +155,8 @@ return {
 
 ```javascript
 return {
-  status_text: value === 1 ? "在线" : "离线",
-  is_online: value === 1
+  status_text: input === 1 ? "在线" : "离线",
+  is_online: input === 1
 }
 ```
 
@@ -164,7 +164,7 @@ return {
 
 ```javascript
 // 调用 YOLO 扩展做目标检测
-const result = extensions_invoke('yolo-video', 'detect', {
+const result = extensions.invoke('yolo-video', 'detect', {
   data: input
 })
 
@@ -179,9 +179,9 @@ return {
 
 ```javascript
 let level = 'normal'
-if (value > 80) level = 'critical'
-else if (value > 60) level = 'warning'
-else if (value > 40) level = 'notice'
+if (input > 80) level = 'critical'
+else if (input > 60) level = 'warning'
+else if (input > 40) level = 'notice'
 
 return {
   level: level,
@@ -198,7 +198,7 @@ neomind transform create \
   --scope global \
   --code 'return { temp_f: input * 9/5 + 32 }' \
   --output-prefix converted \
-  --enable
+  --enabled true
 
 # 列出所有转换 / 查看详情
 neomind transform list
@@ -257,7 +257,7 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 | [自动化规则](./7-automation-rules.md) | 规则条件可引用转换输出的 `transform:<prefix>:<field>` 指标 |
 | [AI Agent](./6-ai-agent.md) | Agent 的 Focused 模式可绑定转换输出指标 |
 | [设备](./3-onboard-device.md) | 转换处理设备发布的原始遥测数据 |
-| [扩展](./9-extensions.md) | 转换代码可调用 `extensions_invoke()` 执行扩展命令 |
+| [扩展](./9-extensions.md) | 转换代码可调用 `extensions.invoke()` 执行扩展命令 |
 
 ## 最佳实践
 
@@ -277,8 +277,8 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 
 - [自动化规则](./7-automation-rules.md) — 在规则条件中引用转换输出的派生指标
 - [使用仪表板](./4-use-dashboard.md) — 把派生指标绑定为仪表板组件数据源
-- [扩展管理](./9-extensions.md) — 在转换中用 `extensions_invoke()` 调用扩展命令
+- [扩展管理](./9-extensions.md) — 在转换中用 `extensions.invoke()` 调用扩展命令
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-09*

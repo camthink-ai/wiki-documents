@@ -38,10 +38,10 @@ The page displays all transforms in a table, each row containing:
 |--------|-------------|
 | **Name** | Transform display name |
 | **Scope** | Global / Device Type / Device |
-| **Code Summary** | JavaScript code snippet preview |
-| **Output Prefix** | Naming prefix for derived metrics (e.g. `converted`) |
+| **Created** | When the transform was created |
+| **Last Executed** | When it last ran |
 | **Status Toggle** | Enable / disable switch |
-| **Actions Menu** | Edit, delete, export |
+| **Actions Menu** | Edit, export, delete |
 
 The **Import / Export** button in the top right lets you bulk import/export transform JSON.
 
@@ -96,9 +96,9 @@ return {
 
 | Variable | Description |
 |----------|-------------|
-| `value` | Current data point value |
-| `input` | Full input data object (includes timestamp, quality, etc.) |
-| `extensions_invoke(ext_id, command, params)` | Invoke an extension command |
+| `input` | The input data — single-key metric objects (e.g. `{"temperature": 25}`) are auto-unwrapped to the scalar so it can participate in arithmetic directly |
+| `input_raw` | The full input data object (no auto-unwrap) |
+| `extensions.invoke(ext_id, command, params)` | Invoke an extension command; returns the extension's result |
 
 **Variables panel**: The left panel lets you insert device metrics and extension data sources. After selecting a device type, all its metrics are listed — click to insert into code. You can also select extension commands from the extension panel to generate invocation code.
 
@@ -124,7 +124,7 @@ flowchart LR
     E --> F[Available for dashboards/rules/agents]
 ```
 
-Derived metrics use DataSourceId format `transform:<output_prefix>:<field>`, e.g. `transform:converted:temp_f`. These metrics can be:
+Derived metrics are registered with the DataSourceId format `transform:<transform_id>:<prefix>.<field>`, e.g. `transform:9a1b2c3d…:converted.temp_f`, and appear grouped under the Transform type in data source pickers. These metrics can be:
 - Bound as data sources in dashboards
 - Referenced in rule conditions
 - Bound in Agent Focused mode
@@ -155,8 +155,8 @@ return {
 
 ```javascript
 return {
-  status_text: value === 1 ? "Online" : "Offline",
-  is_online: value === 1
+  status_text: input === 1 ? "Online" : "Offline",
+  is_online: input === 1
 }
 ```
 
@@ -164,7 +164,7 @@ return {
 
 ```javascript
 // Call YOLO extension for object detection
-const result = extensions_invoke('yolo-video', 'detect', {
+const result = extensions.invoke('yolo-video', 'detect', {
   data: input
 })
 
@@ -179,9 +179,9 @@ return {
 
 ```javascript
 let level = 'normal'
-if (value > 80) level = 'critical'
-else if (value > 60) level = 'warning'
-else if (value > 40) level = 'notice'
+if (input > 80) level = 'critical'
+else if (input > 60) level = 'warning'
+else if (input > 40) level = 'notice'
 
 return {
   level: level,
@@ -198,7 +198,7 @@ neomind transform create \
   --scope global \
   --code 'return { temp_f: input * 9/5 + 32 }' \
   --output-prefix converted \
-  --enable
+  --enabled true
 
 # List all transforms / view details
 neomind transform list
@@ -257,7 +257,7 @@ Export file format: `neomind-transforms-YYYY-MM-DD.json`.
 | [Automation Rules](./7-automation-rules.md) | Rule conditions can reference transform output `transform:<prefix>:<field>` metrics |
 | [AI Agent](./6-ai-agent.md) | Agent Focused mode can bind transform output metrics |
 | [Devices](./3-onboard-device.md) | Transforms process raw telemetry published by devices |
-| [Extensions](./9-extensions.md) | Transform code can call `extensions_invoke()` to execute extension commands |
+| [Extensions](./9-extensions.md) | Transform code can call `extensions.invoke()` to execute extension commands |
 
 ## Best Practices
 
@@ -277,8 +277,8 @@ On mobile, the interface switches to a single-column layout supporting list view
 
 - [Automation Rules](./7-automation-rules.md) — Reference transform-derived metrics in rule conditions
 - [Use Dashboards](./4-use-dashboard.md) — Bind derived metrics as dashboard widget data sources
-- [Extensions](./9-extensions.md) — Call extension commands from transforms via `extensions_invoke()`
+- [Extensions](./9-extensions.md) — Call extension commands from transforms via `extensions.invoke()`
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-09*

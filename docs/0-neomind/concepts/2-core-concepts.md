@@ -29,7 +29,7 @@ flowchart TB
         RULE["规则引擎<br/>事件驱动 · JSON"]:::core
         AGENT["AI Agent<br/>Think-Act-Observe"]:::ai
         WEBUI["Web UI<br/>仪表板 · AI Chat"]:::consumer
-        MSG["通知系统<br/>9 渠道路由"]:::consumer
+        MSG["通知系统<br/>7 类外部渠道"]:::consumer
 
         MQTT ==> STORE
         API ==> STORE
@@ -71,8 +71,8 @@ flowchart TB
 | **Telemetry 存储** | — | redb 嵌入式 | 时序遥测数据，零配置持久化，支持聚合查询 |
 | **数据转换 (Transform)** | — | JavaScript (Boa 引擎) 管道 | 原始数据 → 派生指标（单位换算、聚合、自定义公式），三级作用域 |
 | **规则引擎** | — | 事件驱动 | 数据写入即评估（零延迟），纯 JSON 定义条件 + 动作 |
-| **AI Agent** | — | LLM + CLI 工具链 | 自然语言理解、Think-Act-Observe 循环、定时/Cron/事件三种调度 |
-| **通知系统** | — | 9 种渠道路由 | 7 个外部渠道（Webhook · 邮件 · 飞书 · 钉钉 · 企业微信 · Slack · Telegram）+ 2 个内置 |
+| **AI Agent** | — | LLM + CLI 工具链 | 自然语言理解、Think-Act-Observe 循环、定时/Cron/事件/手动多种调度 |
+| **通知系统** | — | 7 种外部渠道路由 | Webhook · 邮件 · 飞书 · 钉钉 · 企业微信 · Slack · Telegram（另置应用内消息中心） |
 | **扩展系统 (Extension)** | — | 进程隔离 + FFI | 视觉 AI (YOLO/OCR)、设备桥接 (Modbus/OPC-UA)，独立进程不影响主服务 |
 
 :::info 为什么不用外部依赖？
@@ -170,8 +170,7 @@ curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=tempe
 
 Telemetry 默认**永久保留**，但可配置自动清理策略（Settings → System → Retention）：
 
-- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）
-- **按容量**：存储超过阈值时删除最旧数据
+- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）；普通指标与图像类数据可分别设置保留期，清理周期亦可配置
 
 策略由后台任务定期执行，不影响实时写入性能。
 
@@ -207,17 +206,17 @@ flowchart LR
 ```javascript
 // 示例：温度单位换算 + 露点计算
 // input = { temperature: 25.6, humidity: 60 }
-function transform(input) {
-  const temp = input.temperature;
-  const humidity = input.humidity;
-  // 露点温度公式
-  const dewPoint = temp - (100 - humidity) / 5;
-  return {
-    temperature_f: temp * 9 / 5 + 32,   // 华氏温度
-    dew_point: Math.round(dewPoint * 10) / 10,
-    comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
-  };
-}
+// 直接写语句即可（用 return 返回对象）；单键对象（如 {"value": 42}）会自动解包，
+// 完整原始输入始终可通过 input_raw 访问
+const temp = input.temperature;
+const humidity = input.humidity;
+// 露点温度公式
+const dewPoint = temp - (100 - humidity) / 5;
+return {
+  temperature_f: temp * 9 / 5 + 32,   // 华氏温度
+  dew_point: Math.round(dewPoint * 10) / 10,
+  comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
+};
 ```
 
 转换后的派生指标以 `transform:{output_prefix}:{field}` 格式写入 Telemetry，和原始设备数据一样可以被仪表板、规则引擎和 Agent 消费。
@@ -321,15 +320,16 @@ NeoMind 的 AI 共用同一个 Think-Act-Observe 循环，但有两种触发方�
 
 **AI Chat** 偏向交互——用户提问，AI 实时调用工具并流式回复，支持上传图片做多模态分析；**AI Agent** 偏向自主——按计划或事件触发，后台独立完成任务并在 Journal 记录经验。两者共享同一套工具（neomind CLI + 扩展 commands）。
 
-### 三种调度方式（仅 AI Agent）
+### 调度方式（仅 AI Agent）
 
-AI Agent 支持三种调度触发：
+AI Agent 支持三种自动调度触发，另有 Manual（手动调用）模式：
 
 | 调度方式 | 触发条件 | 典型场景 |
 |---------|---------|---------|
 | **Interval** | 固定间隔（如每 5 分钟） | "每隔一段时间巡检设备状态" |
 | **Cron** | Cron 表达式（如 `0 0 9 * * 1-5`） | "工作日每天早上 9 点生成日报" |
 | **Event** | 数据事件触发（规则匹配/指标变化） | "温度骤升时立即分析原因" |
+| **Manual** | 手动调用（invoke / 被其他 Agent 委托），不参与自动调度 | "按需执行的一次性分析任务" |
 
 ### CLI 优先架构
 

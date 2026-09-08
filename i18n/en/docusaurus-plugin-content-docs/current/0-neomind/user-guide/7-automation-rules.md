@@ -71,8 +71,8 @@ A rule has four parts — **name**, **trigger**, **condition**, and **actions** 
   "actions": [
     { "type": "notify", "message": "Temperature above 30°C for 5 minutes", "severity": "critical" }
   ],
-  "for_duration": 300,
-  "cooldown": 60
+  "for_duration": 300000,
+  "cooldown": 60000
 }
 ```
 
@@ -184,8 +184,8 @@ Actions execute when the condition is met. A rule can have multiple actions, exe
 
 | Field | Description |
 |-------|-------------|
-| **For Duration (seconds)** | Condition must be **continuously met** for this duration before firing, filtering out sensor jitter |
-| **Cooldown (seconds)** | Minimum interval between triggers, default 60 seconds |
+| **For Duration** | Condition must be **continuously met** for this duration before firing, filtering out sensor jitter. The JSON field is in **milliseconds** (e.g. 5 minutes = `300000`; the UI offers seconds / minutes / hours) |
+| **Cooldown** | Minimum interval between triggers. The JSON field is in **milliseconds**, default `60000` (60 seconds) |
 
 Click **Save** to save the rule.
 
@@ -241,16 +241,16 @@ The **Import / Export** button in the Rules tab supports bulk management:
 | Operation | Description |
 |-----------|-------------|
 | **Export** | Export all rules to a JSON file (`neomind-rules-YYYY-MM-DD.json`) |
-| **Import** | Upload a JSON file to bulk import rules, with incremental import (skips existing rules with the same name) |
+| **Import** | Upload a JSON file to bulk import rules; rules that fail to import (e.g. invalid format) are counted as "skipped" and reported in the result |
 
 ## Rule Validation
 
 When creating a rule, NeoMind performs **context-aware validation**:
 
-- Device/extension exists
+- Referenced device exists
 - Metric name is valid
 - Command parameters match the device type definition
-- Agent ID exists (for trigger_agent actions)
+- Extension and Agent IDs are checked to be non-empty
 
 Validation failures return detailed error messages listing which field has the problem.
 
@@ -302,7 +302,7 @@ Device offline for 10+ minutes triggers diagnostic Agent:
   "name": "Device Offline Diagnosis",
   "trigger": { "trigger_type": "data_change" },
   "condition": { "condition_type": "comparison", "source": "device:sensor-03:online", "operator": "equal", "threshold": 0 },
-  "for_duration": 600,
+  "for_duration": 600000,
   "actions": [
     { "type": "notify", "message": "sensor-03 offline for 10 minutes", "severity": "critical" },
     { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 is offline, please diagnose" }
@@ -332,7 +332,7 @@ Click the **actions menu** on any rule row to view execution history:
 
 ## Best Practices
 
-- **Add `for_duration` for debounce**: Sensor data is noisy; use `"for_duration": 120` to filter transient spikes
+- **Add `for_duration` for debounce**: Sensor data is noisy; use `"for_duration": 120000` (2 minutes) to filter transient spikes (unit is milliseconds)
 - **Set `cooldown` to prevent spam**: High-frequency data sources need cooldown to prevent alert storms
 - **Tiered notifications**: Regular alerts `severity: "info"`, severe alerts `severity: "critical"`
 - **Prefer rules over Agents**: Deterministic logic uses rules (millisecond evaluation), fuzzy judgment uses Agents (seconds of LLM analysis)
@@ -346,4 +346,4 @@ Click the **actions menu** on any rule row to view execution history:
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-09*

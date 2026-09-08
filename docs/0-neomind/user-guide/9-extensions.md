@@ -77,7 +77,7 @@ sidebar_label: "Extension Management"
 | **上传安装** | Upload | 打开本地 `.nep` 包安装对话框 |
 | **扩展市场** | Globe（地球） | 打开官方扩展市场，一键下载安装 |
 
-扩展卡片本身展示：扩展名称、版本号、当前状态（Running / Stopped / Error）、提供的能力图标（指标 / 命令 / 组件）。**点击卡片任意区域**即可进入扩展详情页。
+扩展卡片本身展示：扩展名称、版本号、当前状态（Running / Stopped / Error / Crashed）、提供的能力图标（指标 / 命令 / 组件）。**点击卡片任意区域**即可进入扩展详情页。
 
 ## 安装扩展
 
@@ -105,7 +105,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 
 1. 点击工具栏的 **Upload 按钮**
 2. 在弹出的对话框中拖入或选择 `.nep` 文件
-3. NeoMind 自动校验包完整性、ABI 版本、签名
+3. NeoMind 自动校验包完整性（manifest / 格式 / 平台二进制）与 ABI 版本
 4. 校验通过后解包、加载、启动
 
 :::tip
@@ -147,7 +147,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 - **扩展 ID**：唯一标识（如 `yolo-device-inference`），用于 API 调用、数据源绑定
 - **名称与版本**：人类可读名称 + SemVer 版本号
-- **状态**：当前运行状态（Running / Stopped / Error / Crash Loop）
+- **状态**：当前运行状态（Running / Stopped / Error / Warning / Crashed）
 - **能力声明**：扩展提供的能力类型（指标数 / 命令数 / 组件数）
 - **描述**：扩展的功能说明
 - **ABI 版本**：扩展编译时对应的 ABI 版本（必须与主服务匹配）
@@ -163,15 +163,15 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 | 参数类型 | 控件 | 校验规则 |
 |----------|------|----------|
 | `string` | 文本输入框 | 必填校验、最大长度 |
-| `string` + `password: true` | 密码输入框（掩码） | 必填校验 |
+| `string`（名称含 `password`） | 密码输入框（掩码） | 必填校验 |
 | `string` + `enum` | 下拉选择 | 只能选预定义值 |
 | `integer` / `number` | 数字输入框 | 最小值 / 最大值范围 |
 | `boolean` | 开关（Switch） | true / false |
 
-填写完成后点击 **Save**，扩展会自动重启以加载新配置。错误的值（如越界的数字、必填项留空）会在保存时报错，不会写入。
+填写完成后点击 **Save**，配置会先按 schema 校验（越界数字、必填留空会在保存时报错，不会写入），随后**热更新**到运行中的扩展进程——多数参数无需重启即可生效。
 
 :::tip
-配置参数变更后会触发扩展进程重启，**正在执行的命令会被中断**。生产环境请在维护时间窗内修改配置。
+保存后会尝试把新配置推送给运行中的扩展（热更新）。若热更新失败（或扩展只在启动时读取配置），配置已保存，执行 `neomind extension reload <id>` 或在详情页操作菜单重启后生效。
 :::
 
 ### 3. Commands（命令）
@@ -217,9 +217,9 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 - **自动刷新**：每 3 秒拉取一次新日志
 - **滚动到底部**：新日志自动滚动到视图底部
 - **错误高亮**：`ERROR` / `WARN` 级别日志会用红色 / 黄色高亮显示
-- **保留行数**：默认保留最近 500 行
+- **保留行数**：默认保留最近 2000 行
 
-排查扩展问题时，日志页是第一现场。如果扩展状态为 **Error** 或 **Crash Loop**，日志通常能直接看到 panic 堆栈或初始化失败原因。
+排查扩展问题时，日志页是第一现场。如果扩展状态为 **Error** 或 **Crashed**，日志通常能直接看到 panic 堆栈或初始化失败原因。
 
 ## 扩展状态与生命周期
 
@@ -228,8 +228,8 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 | **Running** | 绿色圆点 | 扩展正常运行中 | 安装完成 / 手动启动 / 自动恢复 |
 | **Stopped** | 灰色圆点 | 扩展已停止 | 手动停止 / 配置变更重启中 |
 | **Error** | 红色圆点 | 扩展崩溃或加载失败 | 进程异常退出 / 初始化失败 |
-| **Crashed** | 红色标签 | 有崩溃历史的已停止扩展（显示原因与连续崩溃次数） | 重启次数耗尽后进入 |
-| **Crash Loop** | 黄色圆点 | 崩溃循环检测触发，已停止自动重启 | 50 秒内连续崩溃 ≥ 3 次 |
+| **Warning** | 黄色圆点 | 扩展健康检查有告警 | 运行异常但未崩溃 |
+| **Crashed** | 红色标签 | 因崩溃停止自动重启的已停止扩展（悬停显示崩溃原因与连续崩溃次数） | 连续崩溃触发崩溃循环保护后进入 |
 
 ### 重启 / 重载扩展
 
@@ -252,10 +252,10 @@ neomind extension status <extension_id>
 1. **进程隔离** — 扩展崩溃不影响 API、MQTT、仪表板、其他扩展
 2. **自动重启** — 扩展进程异常退出后自动重启，最多重试 **3 次**，每次间隔 **5 秒**
 3. **挂起检测** — 每个扩展进程有 liveness 探测（Ping），无响应的挂起进程会被判定为崩溃并进入重启流程
-4. **崩溃循环检测** — 如果 **50 秒内连续崩溃 ≥ 3 次**，扩展进入 **Crash Loop** 状态，**停止自动重启**，防止资源耗尽
-5. **应用内通知** — 崩溃事件通过 [通知渠道](./8-notifications.md) 发送系统消息，运维人员会收到告警
+4. **崩溃循环检测** — **连续崩溃 ≥ 3 次**且最后一次崩溃发生在 **50 秒**冷却窗口内时，判定为崩溃循环，**停止自动重启**（扩展显示为 Crashed 状态），防止资源耗尽
+5. **应用内通知** — 扩展停止自动重启时，系统会发送一条应用内消息，运维人员会收到告警
 
-崩溃循环状态需要**人工介入排查**：
+因崩溃循环停止自启的扩展需要**人工介入排查**：
 
 ```bash
 # 查看扩展崩溃原因与状态（推荐）
@@ -330,7 +330,7 @@ weather-forecast.nep
 ```
 
 :::note
-扩展需匹配主服务的 **ABI 版本**（当前 v3）。不匹配的扩展会被拒绝加载，并在详情页显示 "ABI version mismatch" 错误。
+扩展需匹配主服务的 **ABI 版本**（当前 v3）。不匹配的扩展会被拒绝加载，安装 / 加载时报 "Incompatible version"（ABI 版本不兼容）错误。
 :::
 
 详细的 `.nep` 结构与开发流程见 [开发指南 - 扩展开发](../developer-guide/7-extension-development.md)。
@@ -340,15 +340,15 @@ weather-forecast.nep
 ```bash
 # 列表
 neomind extension list                              # 列出所有已安装扩展
-neomind extension list --json                       # JSON 格式输出（脚本集成）
+neomind extension list -v                           # 详细输出（指标 / 命令信息）
 
 # 安装 / 卸载
-neomind extension install <path-or-url>             # 安装
+neomind extension install <path-or-url>             # 安装（本地路径或 URL）
 neomind extension uninstall <extension_id>          # 卸载
 
 # 详情与状态
 neomind extension info <extension_id>               # 查看元数据、指标、命令、配置参数
-neomind extension status <extension_id>             # 查看运行状态
+neomind extension status <extension_id>             # 查看运行状态（进程、uptime、最近错误、资源占用）
 
 # 生命周期控制
 neomind extension reload <extension_id>             # 重载（重启进程；启动/停止走 REST API）
@@ -358,7 +358,7 @@ neomind extension config <extension_id>             # 查看当前配置
 neomind extension config <extension_id> --set '{"city":"Beijing"}'  # 修改配置项（JSON 对象）
 ```
 
-所有命令支持 `--json` 输出，便于在脚本中解析。CLI 通过 `NEOMIND_API_KEY` 环境变量或 `--api-key` 参数认证。
+开发扩展还会用到 `extension validate`（安装前校验 .nep 包）、`extension create`（脚手架）、`extension build`（编译打包）、`extension logs`（进程日志）与 `extension market-list` / `market-install`（市场安装）。CLI 通过 `NEOMIND_API_KEY` 环境变量或 `--api-key` 参数认证。
 
 ## REST API
 
@@ -388,7 +388,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
      http://localhost:9375/api/extensions/<extension_id>/command
 ```
 
-完整 API 文档见 Swagger UI：`http://localhost:9375/api/docs`。
+扩展相关接口的权威清单见[开发指南 — REST API 参考](../developer-guide/4-rest-api.md)。
 
 ## 故障排查
 
@@ -420,12 +420,12 @@ journalctl -u neomind.service | grep -i extension
 | 安装报 `Unsupported platform` | `.nep` 包不含当前平台的二进制 | 确认包内含对应平台二进制目录（如 macOS arm64 需 `binaries/darwin_aarch64/`）；从官方源重新下载完整包 |
 | 安装报 `Extension already registered` | 扩展 ID 已存在 | 先 `neomind extension uninstall <id>` 卸载旧版，再安装新版 |
 | 扩展启动超时（120s 后 Error） | 模型文件过大 / 初始化逻辑阻塞 | 查看详情页 Logs 确认卡在哪一步；如果是模型加载慢，耐心等待或减小模型 |
-| 扩展进入 **Crash Loop** | 初始化失败 / 模型缺失 / 端口冲突 | 50 秒内崩溃 3 次会触发。查看 Logs 找根因，修复后 `neomind extension reload <id>` |
+| 扩展因崩溃循环停止自启（显示 **Crashed**） | 初始化失败 / 模型缺失 / 端口冲突 | 连续崩溃 3 次触发保护。查看 Logs 找根因，修复后 `neomind extension reload <id>` |
 | 扩展指标在仪表板不显示 | 扩展未配置 / DataSourceId 拼写错误 | 确认格式为 `extension:<id>:<metric>`；打开详情页 → Metrics 查看实际指标名 |
 | AI 无法调用扩展命令 | 扩展已停止 | 在 Extensions 页签启动扩展，确认状态为 Running |
 | 命令执行超时 | 推理耗时过长 / 输入过大 | 默认超时 300 秒；压缩输入图片、减小 batch size，或检查网络连接 |
 | 扩展安装后无可视化组件 | 该扩展未提供 Component 能力 | 只有声明了 frontend bundle 的扩展才有仪表板组件；在详情页 Overview 查看能力声明 |
-| 配置保存后扩展不重启 | 仅在值真正变化时触发重启 | 确认新值与旧值不同；查看 Logs 确认 reload 日志 |
+| 配置保存后未生效 | 扩展不支持热更新 / 仅启动时读取配置 | 保存后 `neomind extension reload <id>` 重启扩展进程再验证 |
 | 市场安装失败 / `Checksum failed` | 网络中断 / 包损坏 | 重新点击 Install；检查网络代理设置；或改用 CLI 从 GitHub Releases 下载安装 |
 
 更多通用排查技巧见 [故障排查](./10-troubleshooting.md)。

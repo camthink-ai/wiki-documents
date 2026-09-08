@@ -52,7 +52,7 @@ What do you want to do?
 - Desktop: Tauri 2.x
 - Protocols: REST + WebSocket + SSE + MQTT 3.1.1
 
-**Extensions**: Rust, depend on the `neomind-extension-sdk` crate (latest v0.6.3), export via the `neomind_export!` FFI macro, run in an isolated process provided by `neomind-extension-runner`.
+**Extensions**: Rust, depend on the `neomind-extension-sdk` crate (latest v0.6.6), export via the `neomind_export!` FFI macro, run in an isolated process provided by `neomind-extension-runner`.
 
 **Device types**: declarative JSON, no runtime code — just describes the metrics, commands, and defaults. Loaded by NeoMind on the fly.
 

@@ -1,20 +1,20 @@
 ---
-description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), Swagger entry, error format."
-keywords: [NeoMind, REST API, HTTP, Swagger, JWT, API Key]
+description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
+keywords: [NeoMind, REST API, HTTP, JWT, API Key]
 tags: [NeoMind, Developer Guide]
 ---
 
 # REST API Reference
 
-The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. For the full interactive reference, see Swagger UI.
+The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. The authoritative endpoint list lives in `crates/neomind-api/src/server/router.rs`.
 
 ## Entry Points
 
 | Item | Value |
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| Swagger UI (interactive) | `http://<SERVER_IP>:9375/api/docs` |
-| Default port | 9375 (override with `--port` or the `PORT` env var) |
+| Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
+| Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
 
 > **Every endpoint path starts with `/api`.** The endpoint lists below omit the `/api` prefix.
 
@@ -102,7 +102,7 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/auth/login` | Login, get JWT |
-| POST | `/auth/register` | Register (first user becomes admin) |
+| POST | `/auth/register` | Self-service registration (disabled by default; an admin can enable it in settings. Registrants get the regular user role — the first admin is created via `/setup/initialize`) |
 | GET | `/auth/status` | Current auth status |
 | GET | `/auth/verify` | Verify JWT validity |
 
@@ -193,9 +193,9 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | GET | `/messages` | Message list |
 | GET | `/messages/channels` | List notification channels |
 | POST | `/messages/channels` | Add a channel (webhook/email/telegram/wecom/dingtalk/slack/feishu) |
-| PUT | `/messages/channels/:id` | Update channel |
-| DELETE | `/messages/channels/:id` | Delete channel |
-| POST | `/messages/channels/:id/test` | Test channel delivery |
+| PUT | `/messages/channels/:name` | Update channel |
+| DELETE | `/messages/channels/:name` | Delete channel |
+| POST | `/messages/channels/:name/test` | Test channel delivery |
 | POST | `/messages` | Send a message manually |
 
 ### Extensions
@@ -277,7 +277,7 @@ else:
 
 ## Next Steps
 
-- **Full interactive docs**: `/api/docs` (Swagger) — every endpoint + parameter schema + live try-it
+- **Full endpoint list**: `crates/neomind-api/src/server/router.rs` — the authoritative route definitions (public / protected / admin)
 - Adding a new endpoint → add a handler under `crates/neomind-api/src/`, follow the existing per-module pattern
 - Realtime push → WebSocket / SSE (see `web/src/lib/websocket.ts`)
 

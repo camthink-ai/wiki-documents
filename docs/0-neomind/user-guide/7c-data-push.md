@@ -31,7 +31,7 @@ sidebar_position: 7.75
 | **类型** | Webhook / MQTT |
 | **状态** | 运行中 / 已停止 |
 | **调度方式** | Event Driven（事件驱动）/ Interval（定时间隔） |
-| **数据源** | 匹配的数据源模式（如 `device:*:temperature`） |
+| **数据源** | 匹配的数据源模式（如 `device:sensor-01:*`） |
 | **更新时间** | 最后修改时间 |
 | **操作** | 编辑、删除、测试、查看日志 |
 
@@ -62,7 +62,7 @@ sidebar_position: 7.75
 
 | 字段 | 说明 |
 |------|------|
-| **Broker URL** | MQTT Broker 地址（如 `mqtt://broker.example.com:1883`） |
+| **Broker** | MQTT Broker 主机地址（如 `broker.example.com`；端口单独填写，默认 `1883`） |
 | **Topic** | 发布主题（如 `factory/line1/sensors`） |
 | **Username / Password** | 认证凭据（可选） |
 
@@ -81,8 +81,8 @@ sidebar_position: 7.75
 
 | 配置 | 说明 |
 |------|------|
-| **Source Patterns（数据源模式）** | 使用通配符匹配。`device:*:temperature` = 所有设备的温度指标；`device:sensor-01:*` = sensor-01 的所有指标 |
-| **Only Changes（仅变化推送）** | 开启后只在数据值发生变化时推送，跳过重复值，减少流量 |
+| **Source Patterns（数据源模式）** | 使用通配符匹配。`device:sensor-01:*` = sensor-01 的所有指标；`device:sensor-01:temperature` = sensor-01 的温度指标。注意：通配符按**前缀**匹配，放在中间的 `*` 不生效（`device:*:temperature` 实际会匹配所有设备数据） |
+| **Only Changes（仅变化推送）** | 开启后只在数据值发生变化时推送，跳过重复值，减少流量。通过 API 的 `data_filter.only_changes` 字段配置（UI 创建面板暂未提供该开关，默认关闭） |
 
 数据源面板按类型分组（Device / Extension / Transform / System），支持搜索和多选。
 
@@ -90,13 +90,13 @@ sidebar_position: 7.75
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-**重试策略（Retry Config）**：
+**重试策略（Retry Config）**——通过 API 的 `retry_config` 字段配置，未配置时按以下默认值启用：
 
 | 字段 | 说明 | 默认值 |
 |------|------|--------|
 | **Max Retries** | 最大重试次数 | 3 |
 | **Backoff (secs)** | 初始退避秒数 | 5 |
-| **Max Backoff (secs)** | 最大退避秒数 | 60 |
+| **Max Backoff (secs)** | 最大退避秒数 | 300 |
 
 > 重试使用指数退避策略：第 1 次重试等 5s，第 2 次等 10s，第 3 次等 20s……直到达到 Max Backoff 上限。
 
@@ -104,8 +104,8 @@ sidebar_position: 7.75
 
 | 字段 | 说明 |
 |------|------|
-| **Batch Size** | 每批最大数据条数 |
-| **Batch Interval (ms)** | 批量发送间隔（毫秒） |
+| **Batch Size** | 每批最大数据条数（默认 `1`，即不批量、逐条立即推送） |
+| **Batch Interval (ms)** | 批量发送间隔（毫秒，默认 `2000`） |
 
 配置完成后点击 **Save** 保存。
 
@@ -162,14 +162,14 @@ neomind push delete <target_id>
 ## REST API
 
 ```bash
-# 创建推送目标
+# 创建推送目标（事件驱动必须带 event_types；间隔调度用 {"type": "interval", "interval_secs": 60}）
 curl -X POST http://localhost:9375/api/data-push \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Temperature to API",
     "target_type": "webhook",
     "config": {"url": "https://api.example.com/ingest", "method": "POST"},
-    "schedule": {"type": "event_driven"},
+    "schedule": {"type": "event_driven", "event_types": ["device_metric"]},
     "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false},
     "enabled": true
   }'
@@ -196,7 +196,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **类型**：Webhook
 - **调度**：Event Driven（有新数据即推送）
-- **数据源**：`device:*:temperature`
+- **数据源**：`device:*:temperature`（按前缀匹配，实际匹配所有设备数据；如需精确到指标可逐台设备列出 `device:<id>:temperature`）
 - **Only Changes**：开启（避免重复值）
 - **重试**：3 次，指数退避
 
@@ -240,4 +240,4 @@ curl http://localhost:9375/api/data-push/stats
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-09*

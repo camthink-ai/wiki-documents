@@ -94,7 +94,7 @@ ollama pull qwen3.5:4b
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/step2-llm-config.png" alt="LLM 配置向导" style={{width: '100%'}} />
 
-### 方案 B：云端 API
+### 方案 C：云端 API
 
 选 OpenAI / Anthropic / GLM 等，填入 API Key 和模型名（如 `gpt-4o`、`claude-sonnet-4-6`）。
 
@@ -180,7 +180,7 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 
 ## Step 4：在仪表板看数据（30 秒）
 
-进入 **仪表板** 页面——默认仪表板已自动创建。点 **编辑**，添加一个 **数值卡** 组件：
+进入 **仪表板** 页面，创建一个仪表板（选择 **Overview** 模板或空白画布），然后添加一个 **数值卡** 组件：
 
 1. 点 **添加组件** → 选 **数值卡**
 2. 数据源填 `device:demo-sensor:temperature`
@@ -194,7 +194,7 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 
 - `device:demo-sensor:temperature` — 设备遥测
 - `extension:weather-forecast:temperature` — 扩展指标
-- `agent:guard:status` — Agent 状态
+- `transform:temp-converter:temp_f` — 数据转换输出
 
 仪表板、规则、数据推送都用这个格式。详见 [术语表](../concepts/1-glossary.md)。
 :::

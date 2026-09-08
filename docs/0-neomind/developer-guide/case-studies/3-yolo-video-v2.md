@@ -1,5 +1,5 @@
 ---
-description: "NeoMind 最复杂的流式扩展：Push 模式实时视频流处理、YOLOv11 检测、ROI/越线/智能抓拍、ffmpeg-next + nokhwa 双后端、跨平台 ONNX Runtime dylib 治理、前端 MJPEG 联动的完整工程剖析"
+description: "NeoMind 最复杂的流式扩展：Push 模式实时视频流处理、YOLOv11 检测、ROI/越线/智能抓拍、ffmpeg-next 解码 + base64 帧推送双通道、跨平台 ONNX Runtime dylib 治理、前端 MJPEG 联动的完整工程剖析"
 keywords: [NeoMind, yolo-video, 流式扩展, Push 模式, 视频分析, ROI]
 tags: [NeoMind, 案例, 流式]
 sidebar_label: "yolo-video"
@@ -9,6 +9,7 @@ sidebar_label: "yolo-video"
 
 :::note
 本案例源码剖析完成于市场 **v2.7.6** 时点（该扩展当时名为 `yolo-video-v2`，现已更名为 `yolo-video`，文中仓库路径已同步更新）。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video)为准。
+注：2026-09 起该扩展已继续重构——`src/lib.rs` 现约 3700 行、`src/video_source.rs` 约 600 行，`src/` 下的备份文件已清理，版本已推进至 2.7.8；另上游 `camthink-ai` main 分支暂未同步新目录名（仍为 `yolo-video-v2`），本文深链在上游合并前会 404。
 :::
 
 > **阅读提示**：全篇约 950 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。
@@ -19,7 +20,7 @@ sidebar_label: "yolo-video"
 
 **业务能力方面**，附带 ROI 区域计数、越线计数、智能抓拍规则（阈值/出现/消失触发）等业务能力。
 
-当前版本 2.7.6，核心代码约 2829 行 Rust（`src/lib.rs`）+ 721 行（`src/detector.rs`）+ 387 行（`src/video_source.rs`），是本系列单 crate 代码量最大的扩展，也是唯一一个完整使用 SDK `StreamCapability` + `StreamMode::Push` + `send_push_output` FFI 链路的扩展。
+audit 时点版本 2.7.6，核心代码约 2829 行 Rust（`src/lib.rs`）+ 721 行（`src/detector.rs`）+ 387 行（`src/video_source.rs`），是本系列单 crate 代码量最大的扩展，也是最完整地使用 SDK `StreamCapability` + `StreamMode::Push` + `send_push_output` FFI 链路的扩展（stream-player、voice-assistant 等也使用该链路，但以本案例用法最完整）。
 
 **它解决了什么问题？** NeoMind 的同步能力桥（参考 [案例 #2](./2-yolo-device-inference.md)）适合「事件驱动 + 单帧推理」——设备图像更新时跑一次 YOLO。
 
@@ -36,7 +37,7 @@ yolo-video 用 **Push 模式**解决了这个问题：
 
 | 维度 | yolo-device-inference (2) | yolo-video (3) |
 |------|----------------------------|---------------------|
-| 数据来源 | 订阅已绑定设备的 image metric（event-driven pull） | RTSP/摄像头/base64 三选一（init_session 时启动） |
+| 数据来源 | 订阅已绑定设备的 image metric（event-driven pull） | RTSP 网络流 / `camera://` 本地摄像头 / base64 帧推送（后两者共用 base64 通道） |
 | 调用模式 | `configure + bind_device` 后常驻 | `start_stream / stop_stream` 显式会话生命周期 |
 | 流模式 | 同步能力桥（`invoke_capability_sync`） | `StreamCapability` + `StreamMode::Push` + `send_push_output` |
 | 帧率 | 设备图像更新频率（通常 < 1 FPS） | 视频原生帧率（25~30 FPS） |
@@ -51,7 +52,7 @@ yolo-video 用 **Push 模式**解决了这个问题：
 
 1. **Push 模式语义**——为什么视频流必须用 Push 而非 Pull，`StreamMode::Push` 在 SDK 层到底做了什么
 2. **会话生命周期**——`init_session` → `start_push` → 帧循环 → `stop_stream` 的完整状态机和清理逻辑
-3. **多后端视频源**——为什么 RTSP 用 ffmpeg-next 而本地摄像头用 nokhwa，base64 推流又走哪条路径
+3. **多后端视频源**——为什么网络流用 ffmpeg-next、本地摄像头（`camera://`）与 base64 推流共用 `process_session_chunk` 通道，以及 `Cargo.toml` 中声明却未被 `src/` 引用的 nokhwa
 4. **跨平台 ONNX Runtime dylib 治理**——从 `libonnxruntime.so.N` 版本化符号链接到 Windows DLL 路径再到 macOS `DYLD_LIBRARY_PATH`
 5. **源码卫生反例**——为什么 `detector.rs.backup` 这类备份文件不应该提交到仓库
 
@@ -59,7 +60,7 @@ yolo-video 用 **Push 模式**解决了这个问题：
 
 ## 架构总览
 
-**yolo-video 采用五层架构**：NeoMind Runtime（WebSocket relay）→ Extension（StreamProcessor + ActiveStream map）→ Detector（YoloDetector 懒加载 usls YOLO）→ Video Source（ffmpeg-next / nokhwa / base64 channel）→ Frontend（YoloVideoDisplay React 组件）。
+**yolo-video 采用五层架构**：NeoMind Runtime（WebSocket relay）→ Extension（StreamProcessor + ActiveStream map）→ Detector（YoloDetector 懒加载 usls YOLO）→ Video Source（ffmpeg-next / base64 channel）→ Frontend（YoloVideoDisplay React 组件）。
 
 下图展示数据流向和关键状态机。
 
@@ -88,8 +89,7 @@ graph TB
 
     subgraph "视频源（多后端）"
         FFMPEG[ffmpeg-next<br/>RTSP/RTMP/HLS/File]
-        NOKHWA[nokhwa<br/>本地摄像头 AVFoundation/V4L2]
-        BASE64[base64 channel<br/>前端推送帧]
+        BASE64[base64 channel<br/>camera:// 本地摄像头 / 前端推送帧]
     end
 
     subgraph "前端"
@@ -97,7 +97,6 @@ graph TB
     end
 
     FFMPEG -->|"decode → RgbImage"| PROC
-    NOKHWA -->|"frame → RgbImage"| PROC
     BASE64 -->|"process_session_chunk"| PROC
     PROC -->|"detect()"| DET
     PROC -->|"JPEG + metadata"| SDK
@@ -111,11 +110,11 @@ graph TB
 | 状态 | 触发方 | 回调 | 内部动作 |
 |------|--------|------|----------|
 | `Created` | 前端 `init` WebSocket | — | ActiveStream 结构体构造，未启动帧循环 |
-| `Initializing` | SDK | `init_session` | 解析 `source_url` 决定走 ffmpeg / nokhwa / base64；插入 registry |
+| `Initializing` | SDK | `init_session` | 解析 `source_url` 决定走 ffmpeg（网络流）或 base64 通道（`camera://` 本地摄像头 / 前端推送）；插入 registry |
 | `Streaming` | SDK | `start_push` | 专用 OS 线程跑帧循环：decode → detect → ROI/line → JPEG → `send_push_output` |
 | `Stopped` | 前端 `stop_stream` 或断连 | `stop_stream` | `running = false`，registry 移除，线程自然退出 |
 
-`init_session` 的关键判断逻辑在 [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308)：通过 `source_url` 的协议前缀（`rtsp://` / `http://` / `camera://` 等）决定走网络流（ffmpeg）还是本地摄像头（nokhwa / base64）。
+`init_session` 的关键判断逻辑在 [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308)：通过 `source_url` 的协议前缀（`rtsp://` / `http://` / `camera://` 等）决定走网络流（ffmpeg）还是本地摄像头 / base64 通道（`process_session_chunk`）。
 
 ```rust
 // lib.rs L1302-L1308
@@ -166,7 +165,7 @@ fn stream_capability(&self) -> Option<StreamCapability> {
 
 `StreamMode::Push` 的语义是：**扩展主动产出数据**，SDK 不需要轮询。
 
-与之对应的 `Pull` 模式是 SDK 主动请求数据（适合低频指标），`Stateless` 模式是无状态请求-响应（适合命令式 API）。视频流每秒产出 25~30 帧，只有 Push 模式能保证不丢帧。
+与之对应，native SDK 的 `StreamMode` 只有 `Stateless` / `Stateful` / `Push` 三个变体（没有 `Pull`）——前两者走 `process_chunk` / `process_session_chunk` 请求-响应通道，由调用方主动拉取（适合低频指标或命令式交互）。视频流每秒产出 25~30 帧，只有 Push 模式能保证不丢帧。
 
 **并发限制方面**，`max_concurrent_sessions: 4` 限制了单扩展实例最多同时跑 4 路视频流——这是基于 ONNX Runtime 显存和 CPU 推理吞吐的实测上限。
 
@@ -508,10 +507,13 @@ fn setup_native_lib_paths() {
 **`FfmpegVideoSource`** 用 ffmpeg-next v7（features: codec / format / software-scaling）解码网络流，`to_rgb_image()` 把 FFmpeg 帧转成 `image::RgbImage`。
 
 ```rust
-// video_source.rs L1-L80 (trait + enum summary)
-pub trait VideoSource: Send {
-    fn next_frame(&mut self) -> FrameResult;
+// video_source.rs (trait + enum summary)
+pub trait VideoSource {
+    fn info(&self) -> &SourceInfo;
+    fn is_active(&self) -> bool;
 }
+// 注意：next_frame() 定义在 FfmpegVideoSource 的 impl 块上，不是 trait 方法
+// （FfmpegVideoSource 单独实现 unsafe impl Send）
 
 pub enum FrameResult {
     Frame(VideoFrame),
@@ -540,9 +542,9 @@ pub fn parse_source_url(url: &str) -> SourceType {
 
 ### 决策 1：Push 模式而非 Pull 模式
 
-**我们选 `StreamMode::Push`；替代方案是 `Pull` + 定时轮询；理由**：视频流是高频主动产出（25~30 FPS），Pull 模式需要 SDK 以固定间隔调用 `pull_output()`，开销大且容易丢帧。
+**我们选 `StreamMode::Push`；替代方案是轮询式拉取（复用 `process_chunk` 请求-响应通道，native SDK 无 `Pull` 变体）；理由**：视频流是高频主动产出（25~30 FPS），轮询需要调用方以固定间隔拉取，开销大且容易丢帧。
 
-Push 模式让扩展自己控制推送节奏，SDK 只负责中转。`max_concurrent_sessions: 4` 的限制也是 Push 模式特有的——Pull 模式下 SDK 可以串行轮询多个 session，不需要硬上限。声明见 [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288)。
+Push 模式让扩展自己控制推送节奏，SDK 只负责中转。`max_concurrent_sessions: 4` 的限制也是 Push 模式特有的——轮询模式下调用方可以串行轮询多个 session，不需要硬上限。声明见 [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288)。
 
 ### 决策 2：ROI 绘制移到前端
 
@@ -560,11 +562,11 @@ Push 模式让扩展自己控制推送节奏，SDK 只负责中转。`max_concur
 // to avoid double-drawing (backend JPEG + frontend canvas overlay)
 ```
 
-### 决策 3：ffmpeg-next + nokhwa + base64 三后端
+### 决策 3：ffmpeg-next 解码 + base64 帧通道
 
 **我们选多后端；替代方案是统一用 ffmpeg；理由**：RTSP/RTMP/HLS 网络流必须用 ffmpeg（ffmpeg-next v7 是 Rust 生态最成熟的 FFmpeg binding）。
 
-但本地摄像头在 macOS 上用 ffmpeg + AVFoundation 支持很差（常崩溃），nokhwa（features: input-native）对 macOS AVFoundation 和 Linux V4L2 有原生封装，更稳定。
+本地摄像头（`camera://`）与前端 base64 推流则共用 `process_session_chunk` 通道：前端把摄像头帧编码为 JPEG base64 推给扩展，扩展自己不打开摄像头设备——这规避了 macOS 上 ffmpeg + AVFoundation 采集不稳（常崩溃）的问题。注意：`Cargo.toml` 中声明了 `nokhwa`（features: input-native）依赖，但 `src/` 从未引用它——历史上为本地摄像头原生采集预留，实际从未启用，属于无用依赖。
 
 base64 推流则完全不需要视频解码，直接通过 `process_session_chunk` 接收前端推送的 JPEG。`parse_source_url` 根据 URL 前缀分发：[`src/video_source.rs` L43-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L43-L80)。
 
@@ -628,7 +630,7 @@ ExtensionCommand {
 
 帧循环通过 `send_push_output(&PushOutputMessage::image_jpeg(...))` FFI 把数据灌入 SDK 的输出通道，SDK 再中转到前端 WebSocket。
 
-`set_output_sender` 是 no-op（[`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1362-L1364)），因为 Push 模式直接用 FFI 而非 tokio mpsc channel——这是一个容易混淆的点，**Pull 模式才需要 `set_output_sender`**。
+`set_output_sender` 是 no-op（[`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1362-L1364)），因为帧循环直接调用 `send_push_output` FFI 而不经过 tokio mpsc channel——这是一个容易混淆的点：SDK 里 `set_output_sender` 本身就是为 **Push 模式**准备的输出通道（SDK 源码注释即 "Set output sender for push mode"），本扩展选择不用它、直接走 FFI，而不是「只有 Pull 模式才需要它」。
 
 ```rust
 // lib.rs L1362-L1364
@@ -859,6 +861,8 @@ commit `f8f75b1` 则在 CI 层面 pin 了 FFmpeg 7.x，避免 macOS/Windows CI r
 ### 源码卫生反例
 
 **该扩展 `src/` 目录下存在多个备份文件**：`detector.rs.backup`、`detector.rs.bak`、`lib.rs.backup`、`lib.rs.backup2`，以及根目录的 `Cargo.toml.bak` 和 `frontend/src/index.tsx.bak`。
+
+> **2026-09 更新**：这些备份文件已在后续提交中清理，当前仓库 `src/` 仅含 `lib.rs` / `detector.rs` / `video_source.rs` 三个正式源文件。本节保留作为反例记录。
 
 :::warning 源码治理反例
 备份文件不应该提交到仓库。Git 本身就是版本管理系统，`git log` / `git diff` 可以查看任何历史版本，`git stash` 可以暂存未完成的工作。提交 `.bak` / `.backup` / `.backup2` 文件会导致：

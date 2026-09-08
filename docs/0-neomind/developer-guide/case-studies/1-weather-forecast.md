@@ -9,6 +9,7 @@ sidebar_label: "weather-forecast"
 
 :::note
 本案例源码剖析完成于市场 **v2.7.6** 时点（该扩展当时名为 `weather-forecast-v2`，现已更名为 `weather-forecast`，文中仓库路径已同步更新）。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast)为准。
+注：2026-09 起 `src/lib.rs` 已重构——状态字段拆分进 `WeatherInner`（`Arc` 包装），HTTP 调用改经 `tokio::task::spawn_blocking`，运行时 name 去掉 V2 后缀；4.1 的「同步阻塞调用线程」权衡与结构体走读对应重构前代码，版本已推进至 2.7.7。另上游 main 分支暂未同步新目录名（仍为 `weather-forecast-v2`），深链在上游合并前会 404。
 :::
 
 > **阅读提示**：全篇约 540 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。

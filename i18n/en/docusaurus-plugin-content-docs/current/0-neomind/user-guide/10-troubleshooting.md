@@ -35,7 +35,9 @@ systemctl status neomind.service
 # 1. Is the env var set? (a WRONG value also causes 401 — auto-auth is completely skipped)
 echo $NEOMIND_API_KEY
 
-# 2. Are you in the project root? (auto-auth needs relative path data/api_keys.redb)
+# 2. Can the CLI locate the data directory?
+#    auto-auth tries, in order: NEOMIND_DATA_DIR → platform user data dir
+#    (when it contains api_keys.redb) → ./data under the current directory (project-root fallback)
 ls data/api_keys.redb
 ```
 
@@ -44,7 +46,7 @@ ls data/api_keys.redb
 | Scenario | Fix |
 |----------|-----|
 | Set a wrong `NEOMIND_API_KEY` (e.g. doc placeholder) | `unset NEOMIND_API_KEY`, then run from project root |
-| Not in project root | `cd /path/to/neomind && neomind device list` |
+| Not in project root | `cd /path/to/neomind && neomind device list`, or set `NEOMIND_DATA_DIR` to the data dir, or run `neomind login` first to save a credential |
 | Need cross-directory access | Get real key from server startup output, `export NEOMIND_API_KEY=nmk_REAL_KEY` |
 | Connecting to remote server | Get the key from that server's startup output |
 | Auto-auth worked before, suddenly 401 | **Restart the server**: CLI operations on `api_keys.redb` can cause redb lock conflicts |
@@ -72,7 +74,7 @@ netstat -ano | findstr 9375   # Windows
 **Fix**:
 - Kill the holder: `kill <PID>`
 - Or run on a different port: `neomind serve --port 9376`
-- Or change the systemd service's `PORT` env var and `systemctl restart neomind`
+- One-click deployment: re-run the install script with `PORT=xxxx` (the port is written into the systemd unit's `--port` argument)
 
 ### Startup fails with "permission denied" writing `data/`
 
@@ -240,7 +242,7 @@ For the extension-level troubleshooting table (install failures, Crash Loop, tim
 
 ### Where is the data directory?
 
-Defaults: `/var/lib/neomind` (one-line install), `~/.neomind` (custom), `data/` in the project root (dev mode). Override with the `NEOMIND_DATA_DIR` env var.
+One-click install: `/var/lib/neomind` (data lives in its `data/` subdirectory); dev / manual mode: `data/` in the project root by default. Override with the `NEOMIND_DATA_DIR` env var to use a custom directory.
 
 Key files:
 

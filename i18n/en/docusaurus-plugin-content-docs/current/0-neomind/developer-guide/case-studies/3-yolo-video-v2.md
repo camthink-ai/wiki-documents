@@ -1,5 +1,5 @@
 ---
-description: "NeoMind's most complex streaming extension: Push-mode real-time video processing, YOLOv11 detection, ROI/line-crossing/smart-capture, ffmpeg-next + nokhwa dual backends, cross-platform ONNX Runtime dylib governance, and frontend MJPEG integration — a complete engineering dissection"
+description: "NeoMind's most complex streaming extension: Push-mode real-time video processing, YOLOv11 detection, ROI/line-crossing/smart-capture, ffmpeg-next decoding + base64 frame-push dual channels, cross-platform ONNX Runtime dylib governance, and frontend MJPEG integration — a complete engineering dissection"
 keywords: [NeoMind, yolo-video, streaming extension, Push mode, video analytics, ROI]
 tags: [NeoMind, case study, streaming]
 sidebar_label: "yolo-video"
@@ -9,6 +9,7 @@ sidebar_label: "yolo-video"
 
 :::note
 This source-code audit was completed at market version **v2.7.6** (the extension was named `yolo-video-v2` at the time and has since been renamed to `yolo-video`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video).
+Note: since 2026-09 the extension has been further refactored — `src/lib.rs` is now about 3700 lines and `src/video_source.rs` about 600 lines, the backup files under `src/` have been cleaned up, and the version has moved to 2.7.8. Also, the upstream `camthink-ai` main branch has not yet picked up the renamed directory (still `yolo-video-v2`), so deep links in this document will 404 until that lands upstream.
 :::
 
 > **Reading tip**: This article is about 870 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
@@ -19,7 +20,7 @@ This source-code audit was completed at market version **v2.7.6** (the extension
 
 **Business features** include ROI region counting, line-crossing counting, and smart-capture rules (threshold/presence/absence triggers).
 
-The current version is 2.7.6; the core code is about 2829 lines of Rust (`src/lib.rs`) plus 721 lines (`src/detector.rs`) and 387 lines (`src/video_source.rs`). It is the single largest crate in this series and the only extension that exercises the full SDK chain of `StreamCapability` + `StreamMode::Push` + the `send_push_output` FFI.
+At audit time (v2.7.6) the core code was about 2829 lines of Rust (`src/lib.rs`) plus 721 lines (`src/detector.rs`) and 387 lines (`src/video_source.rs`). It is the single largest crate in this series and the most complete exercise of the SDK chain of `StreamCapability` + `StreamMode::Push` + the `send_push_output` FFI (stream-player, voice-assistant and others also use this chain, but this case is the most thorough usage of it).
 
 **What problem does it solve?** NeoMind's synchronous capability bridge (see [Case #2](./2-yolo-device-inference.md)) is designed for "event-driven + single-frame inference" — you run YOLO once when a device's image metric updates.
 
@@ -36,7 +37,7 @@ yolo-video solves this with **Push mode**:
 
 | Dimension | yolo-device-inference (2) | yolo-video (3) |
 |-----------|----------------------------|---------------------|
-| Data source | Subscribes to a bound device's image metric (event-driven pull) | RTSP/camera/base64, one of three (started in init_session) |
+| Data source | Subscribes to a bound device's image metric (event-driven pull) | RTSP network streams / `camera://` local cameras / base64 frame pushes (the latter two share the base64 channel) |
 | Invocation | Resident after `configure + bind_device` | Explicit session lifecycle via `start_stream / stop_stream` |
 | Stream mode | Synchronous capability bridge (`invoke_capability_sync`) | `StreamCapability` + `StreamMode::Push` + `send_push_output` |
 | Frame rate | Device image-update frequency (usually < 1 FPS) | Native video frame rate (25-30 FPS) |
@@ -48,7 +49,7 @@ yolo-video solves this with **Push mode**:
 
 1. The semantics of Push mode — why video streams must use Push instead of Pull, and what `StreamMode::Push` actually does at the SDK layer
 2. Session lifecycle management — the complete `init_session` → `start_push` → frame loop → `stop_stream` state machine and cleanup logic
-3. Multi-backend video source abstraction — why RTSP uses ffmpeg-next while local cameras use nokhwa, and which path base64 pushing takes
+3. Multi-backend video source abstraction — why network streams use ffmpeg-next while local cameras (`camera://`) and base64 pushing share the `process_session_chunk` channel, plus the nokhwa dependency that is declared in `Cargo.toml` but never referenced by `src/`
 4. Cross-platform ONNX Runtime dynamic-library governance — from versioned `libonnxruntime.so.N` symlinks on Linux, to Windows DLL paths, to macOS `DYLD_LIBRARY_PATH`
 5. A source-hygiene anti-pattern — why files like `detector.rs.backup` should never be committed
 
@@ -56,7 +57,7 @@ yolo-video solves this with **Push mode**:
 
 ## Architecture Overview
 
-yolo-video uses a five-layer architecture: NeoMind Runtime (WebSocket relay) → Extension (StreamProcessor + ActiveStream map) → Detector (YoloDetector with lazy-loaded usls YOLO) → Video Source (ffmpeg-next / nokhwa / base64 channel) → Frontend (YoloVideoDisplay React component). The diagram below shows data flow and the key state machine.
+yolo-video uses a five-layer architecture: NeoMind Runtime (WebSocket relay) → Extension (StreamProcessor + ActiveStream map) → Detector (YoloDetector with lazy-loaded usls YOLO) → Video Source (ffmpeg-next / base64 channel) → Frontend (YoloVideoDisplay React component). The diagram below shows data flow and the key state machine.
 
 ```mermaid
 graph TB
@@ -83,8 +84,7 @@ graph TB
 
     subgraph "Video source (multi-backend)"
         FFMPEG[ffmpeg-next<br/>RTSP/RTMP/HLS/File]
-        NOKHWA[nokhwa<br/>local camera AVFoundation/V4L2]
-        BASE64[base64 channel<br/>frontend-pushed frames]
+        BASE64[base64 channel<br/>camera:// local camera / frontend-pushed frames]
     end
 
     subgraph "Frontend"
@@ -92,7 +92,6 @@ graph TB
     end
 
     FFMPEG -->|"decode → RgbImage"| PROC
-    NOKHWA -->|"frame → RgbImage"| PROC
     BASE64 -->|"process_session_chunk"| PROC
     PROC -->|"detect()"| DET
     PROC -->|"JPEG + metadata"| SDK
@@ -106,11 +105,11 @@ A stream moves through four stages from creation to destruction, each correspond
 | State | Trigger | Callback | Internal action |
 |-------|---------|----------|-----------------|
 | `Created` | Front-end `init` over WebSocket | — | ActiveStream struct constructed, frame loop not started |
-| `Initializing` | SDK | `init_session` | Parse `source_url` to choose ffmpeg / nokhwa / base64; insert into registry |
+| `Initializing` | SDK | `init_session` | Parse `source_url` to choose ffmpeg (network streams) or the base64 channel (`camera://` local cameras / front-end pushes); insert into registry |
 | `Streaming` | SDK | `start_push` | Dedicated OS thread runs the frame loop: decode → detect → ROI/line → JPEG → `send_push_output` |
 | `Stopped` | Front-end `stop_stream` or disconnect | `stop_stream` | `running = false`, remove from registry, thread exits naturally |
 
-The key dispatching logic in `init_session` lives at [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308): the protocol prefix of `source_url` (`rtsp://` / `http://` / `camera://` etc.) decides whether to take the network-stream path (ffmpeg) or the local-camera path (nokhwa / base64).
+The key dispatching logic in `init_session` lives at [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308): the protocol prefix of `source_url` (`rtsp://` / `http://` / `camera://` etc.) decides whether to take the network-stream path (ffmpeg) or the local-camera / base64 path (`process_session_chunk`).
 
 ```rust
 // lib.rs L1302-L1308
@@ -159,7 +158,7 @@ fn stream_capability(&self) -> Option<StreamCapability> {
 }
 ```
 
-The semantics of `StreamMode::Push` are: **the extension produces data proactively** and the SDK does not poll. The corresponding `Pull` mode has the SDK request data actively (suitable for low-frequency metrics), and `Stateless` mode is a stateless request-response (suitable for command-style APIs). A video stream produces 25-30 frames per second; only Push mode can guarantee no frame loss. `max_concurrent_sessions: 4` caps the number of simultaneous video streams per extension instance — this is an empirically-validated ceiling based on ONNX Runtime memory and CPU inference throughput. `direction: Bidirectional` is required because the front end both receives frames (Push output) and sends base64 frames (`process_session_chunk`).
+The semantics of `StreamMode::Push` are: **the extension produces data proactively** and the SDK does not poll. The native SDK's `StreamMode` has only three variants — `Stateless` / `Stateful` / `Push` (there is no `Pull`); the first two go through the `process_chunk` / `process_session_chunk` request-response channels, with the caller pulling actively (suitable for low-frequency metrics or command-style interactions). A video stream produces 25-30 frames per second; only Push mode can guarantee no frame loss. `max_concurrent_sessions: 4` caps the number of simultaneous video streams per extension instance — this is an empirically-validated ceiling based on ONNX Runtime memory and CPU inference throughput. `direction: Bidirectional` is required because the front end both receives frames (Push output) and sends base64 frames (`process_session_chunk`).
 
 ### `init_session`: session initialization
 
@@ -481,10 +480,13 @@ fn setup_native_lib_paths() {
 `video_source.rs` defines a unified `VideoSource` trait and a `FrameResult` enum (Frame / EndOfStream / NotReady / Error), and maps URL prefixes to `SourceType` (Camera / RTSP / RTMP / HLS / File / Screen) via `parse_source_url`. See [`src/video_source.rs` L1-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L1-L80). `FfmpegVideoSource` uses ffmpeg-next v7 (features: codec / format / software-scaling) to decode network streams; `to_rgb_image()` converts an FFmpeg frame to `image::RgbImage`.
 
 ```rust
-// video_source.rs L1-L80 (trait + enum summary)
-pub trait VideoSource: Send {
-    fn next_frame(&mut self) -> FrameResult;
+// video_source.rs (trait + enum summary)
+pub trait VideoSource {
+    fn info(&self) -> &SourceInfo;
+    fn is_active(&self) -> bool;
 }
+// Note: next_frame() is defined on the FfmpegVideoSource impl block, not on the trait
+// (FfmpegVideoSource has its own `unsafe impl Send`)
 
 pub enum FrameResult {
     Frame(VideoFrame),
@@ -513,7 +515,7 @@ This section lists five key decisions, each with the chosen approach, the altern
 
 ### Decision 1: Push mode over Pull mode
 
-**We chose `StreamMode::Push`; the alternative was `Pull` with periodic polling; rationale**: a video stream produces data at high frequency (25-30 FPS). Pull mode would require the SDK to call `pull_output()` at a fixed interval — high overhead and prone to dropped frames. Push mode lets the extension control the push cadence while the SDK only relays. The `max_concurrent_sessions: 4` cap is also specific to Push mode — under Pull the SDK can serialize polling across sessions without a hard limit. Declaration at [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288).
+**We chose `StreamMode::Push`; the alternative was pull-based polling (reusing the `process_chunk` request-response channel — the native SDK has no `Pull` variant); rationale**: a video stream produces data at high frequency (25-30 FPS). Polling would require the caller to fetch at a fixed interval — high overhead and prone to dropped frames. Push mode lets the extension control the push cadence while the SDK only relays. The `max_concurrent_sessions: 4` cap is also specific to Push mode — under polling the caller can serialize across sessions without a hard limit. Declaration at [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288).
 
 ### Decision 2: Move ROI drawing to the front end
 
@@ -529,9 +531,13 @@ This section lists five key decisions, each with the chosen approach, the altern
 // to avoid double-drawing (backend JPEG + frontend canvas overlay)
 ```
 
-### Decision 3: ffmpeg-next + nokhwa + base64 — three backends
+### Decision 3: ffmpeg-next decoding + base64 frame channel
 
-**We chose multiple backends; the alternative was a single ffmpeg backend; rationale**: RTSP/RTMP/HLS network streams must use ffmpeg (ffmpeg-next v7 is the most mature FFmpeg binding in the Rust ecosystem). However, ffmpeg + AVFoundation support for local cameras on macOS is poor (frequent crashes); nokhwa (features: input-native) provides native wrappers for macOS AVFoundation and Linux V4L2 and is far more stable. Base64 pushing needs no video decoding at all — frames arrive via `process_session_chunk` as ready JPEGs. `parse_source_url` dispatches by URL prefix: [`src/video_source.rs` L43-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L43-L80).
+**We chose multiple backends; the alternative was a single ffmpeg backend; rationale**: RTSP/RTMP/HLS network streams must use ffmpeg (ffmpeg-next v7 is the most mature FFmpeg binding in the Rust ecosystem).
+
+Local cameras (`camera://`) and front-end base64 pushes share the `process_session_chunk` channel: the front end encodes camera frames as base64 JPEG and pushes them to the extension, so the extension never opens a camera device itself — this sidesteps the poor reliability (frequent crashes) of ffmpeg + AVFoundation capture on macOS. Note: `Cargo.toml` declares a `nokhwa` dependency (features: input-native), but `src/` never references it — it was reserved historically for native camera capture and was never activated; it is an unused dependency.
+
+Base64 pushing needs no video decoding at all — frames arrive via `process_session_chunk` as ready JPEGs. `parse_source_url` dispatches by URL prefix: [`src/video_source.rs` L43-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L43-L80).
 
 ### Decision 4: process-isolated feature flag
 
@@ -583,7 +589,7 @@ ExtensionCommand {
 
 ### StreamCapability + `send_push_output`
 
-The push channel provided by the SDK is the core integration point. After `stream_capability()` declares the capability, the SDK calls `init_session` when a WebSocket session is established, and `start_push` once the session is ready. The frame loop pushes data into the SDK output channel via the `send_push_output(&PushOutputMessage::image_jpeg(...))` FFI; the SDK then relays to the front-end WebSocket. `set_output_sender` is a no-op ([`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1362-L1364)) because Push mode uses the FFI directly rather than a tokio mpsc channel — a point of confusion: only Pull mode needs `set_output_sender`.
+The push channel provided by the SDK is the core integration point. After `stream_capability()` declares the capability, the SDK calls `init_session` when a WebSocket session is established, and `start_push` once the session is ready. The frame loop pushes data into the SDK output channel via the `send_push_output(&PushOutputMessage::image_jpeg(...))` FFI; the SDK then relays to the front-end WebSocket. `set_output_sender` is a no-op ([`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1362-L1364)) because the frame loop calls the `send_push_output` FFI directly instead of going through a tokio mpsc channel — a point of confusion: in the SDK, `set_output_sender` is itself the output channel prepared **for Push mode** (the SDK source comment reads "Set output sender for push mode"); this extension simply opts out of it and uses the FFI directly — it is not "only needed in Pull mode".
 
 ```rust
 // lib.rs L1362-L1364
@@ -790,6 +796,8 @@ Commit `60e4e5b` upgraded ffmpeg-next from v7 to v8 (note: the current `Cargo.to
 ### Source-hygiene anti-pattern
 
 **The extension's `src/` directory contains multiple backup files**: `detector.rs.backup`, `detector.rs.bak`, `lib.rs.backup`, `lib.rs.backup2`, plus root-level `Cargo.toml.bak` and `frontend/src/index.tsx.bak`.
+
+> **2026-09 update**: these backup files have since been removed; the repository's `src/` now contains only the three canonical source files (`lib.rs` / `detector.rs` / `video_source.rs`). This section is kept as an anti-pattern record.
 
 :::warning Source-governance anti-pattern
 Backup files should never be committed to a repository. Git itself is the version-management system; `git log` / `git diff` can show any historical version, and `git stash` can hold unfinished work. Committing `.bak` / `.backup` / `.backup2` files causes:

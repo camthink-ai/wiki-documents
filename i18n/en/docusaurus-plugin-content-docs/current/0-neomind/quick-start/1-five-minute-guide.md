@@ -91,7 +91,7 @@ In the wizard:
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/step2-llm-config.png" alt="LLM configuration wizard" style={{width: '100%'}} />
 
-### Option B: Cloud API
+### Option C: Cloud API
 
 Pick OpenAI / Anthropic / GLM etc., enter your API Key and model name (e.g. `gpt-4o`, `claude-sonnet-4-6`).
 
@@ -173,7 +173,7 @@ NeoMind has a built-in MQTT broker (`localhost:1883`) that supports real devices
 
 ## Step 4: See Data on the Dashboard (30 sec)
 
-Go to the **Dashboard** page — a default dashboard is auto-created. Click **Edit**, then add a **Value Card** widget:
+Go to the **Dashboard** page and create a dashboard (pick the **Overview** template or a blank canvas), then add a **Value Card** widget:
 
 1. Click **Add Widget** → choose **Value Card**
 2. Data source → `device:demo-sensor:temperature`
@@ -187,7 +187,7 @@ The unified data source reference format is `{type}:{id}:{field}`:
 
 - `device:demo-sensor:temperature` — device telemetry
 - `extension:weather-forecast:temperature` — extension metric
-- `agent:guard:status` — agent status
+- `transform:temp-converter:temp_f` — data transform output
 
 Dashboards, rules, and data pushes all use this format. See the [Glossary](../concepts/1-glossary.md).
 :::

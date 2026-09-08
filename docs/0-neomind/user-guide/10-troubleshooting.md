@@ -36,7 +36,9 @@ systemctl status neomind.service
 # 1. 是否设了环境变量？（设了错误值也会导致 401——auto-auth 被完全跳过）
 echo $NEOMIND_API_KEY
 
-# 2. 当前目录是否在项目根？（auto-auth 需要相对路径 data/api_keys.redb）
+# 2. CLI 能否定位到数据目录？
+#    auto-auth 依次尝试：NEOMIND_DATA_DIR 指定目录 → 平台用户数据目录
+#    （存在 api_keys.redb 时）→ 当前目录下的 data/（项目根兜底）
 ls data/api_keys.redb
 ```
 
@@ -45,7 +47,7 @@ ls data/api_keys.redb
 | 场景 | 修复 |
 |------|------|
 | 设了错误的 `NEOMIND_API_KEY`（如文档占位符） | `unset NEOMIND_API_KEY`，然后在项目根目录运行 |
-| 不在项目根目录 | `cd /path/to/neomind && neomind device list` |
+| 不在项目根目录 | `cd /path/to/neomind && neomind device list`，或设 `NEOMIND_DATA_DIR` 指向数据目录，或先 `neomind login` 保存凭据 |
 | 需要跨目录使用 | 从 Server 启动输出获取真实 Key，`export NEOMIND_API_KEY=nmk_真实Key` |
 | 远程连接另一台 Server | 从那台 Server 的启动输出取 Key |
 | auto-auth 之前能用，突然 401 | **重启 Server**：CLI 直接操作 `api_keys.redb` 可能导致 redb 锁冲突 |
@@ -75,7 +77,7 @@ netstat -ano | findstr 9375   # Windows
 **修复**：
 - 杀掉占用进程：`kill <PID>`
 - 或换端口启动：`neomind serve --port 9376`
-- 或修改 systemd 服务的 `PORT` 环境变量后 `systemctl restart neomind`
+- 一键部署换端口：重新运行安装脚本并以 `PORT=xxxx` 指定（端口写入 systemd 单元的 `--port` 参数）
 
 ### 启动报 "permission denied" 写 `data/`
 
@@ -251,7 +253,7 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 数据目录在哪里？
 
-默认 `/var/lib/neomind`（一键部署）、`~/.neomind`（自定义）、项目根 `data/`（开发模式）。可用 `NEOMIND_DATA_DIR` 环境变量覆盖。
+一键部署在 `/var/lib/neomind`（数据位于其 `data/` 子目录）；开发 / 手动模式默认在项目根 `data/`。可用 `NEOMIND_DATA_DIR` 环境变量覆盖为自定义目录。
 
 主要文件：
 

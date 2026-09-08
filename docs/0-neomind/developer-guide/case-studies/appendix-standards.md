@@ -57,7 +57,7 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 }
 ```
 
-完整的 5 个 target 说明见 [跨平台构建目标矩阵](#跨平台构建目标矩阵)。
+完整的平台 target 说明见 [跨平台构建目标矩阵](#跨平台构建目标矩阵)。
 
 ### 前端声明（扩展独有）
 
@@ -76,13 +76,13 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 |------|------|------|------|------|
 | `size_constraints` | object | 是 | 网格尺寸约束（单位：网格单元） | `{ "min_w": 2, "min_h": 2, "default_w": 3, "default_h": 3, "max_w": 6, "max_h": 6 }` |
 | `has_data_source` | boolean | 是 | 是否支持数据源绑定（Data Source tab） | `false` |
-| `has_device_binding` | boolean | 是 | 是否支持设备绑定，影响 `deviceContext` prop 注入 | `true` |
+| `has_device_binding` | boolean | 否（推荐声明） | 是否支持设备绑定，影响 `deviceContext` prop 注入（省略视为 `false`；官方 6 个组件中有 3 个省略了此字段） | `true` |
 | `device_type_filter` | string[] | 否 | 限定可绑定的设备类型，空表示不限制 | `["ne101_camera"]` |
 | `has_display_config` | boolean | 是 | 是否展示「显示配置」tab | `false` |
 | `has_actions` | boolean | 是 | 是否展示「操作」tab（按钮、命令） | `false` |
 | `default_config` | object | 是 | 默认配置对象，用户未自定义时使用 | 见下方代码块 |
 | `global_name` | string | 是 | `bundle.js` 挂载到 `window` 的全局变量名 | `"NE101CameraPanel"` |
-| `export_name` | string | 是 | IIFE 默认导出名，与 `global_name` 通常一致 | `"NE101CameraPanel"` |
+| `export_name` | string | 是 | IIFE 导出名（解析顺序：`global[export_name]` → `global.default` → global 本身是函数）；通常是组件函数名（如 `MetricCard`），不一定与 `global_name` 相同 | `"NE101CameraPanel"` |
 | `max_data_sources` | integer | 可选 | 当 has_data_source 为 true 时生效，限制可绑定数据源数量上限 | 12 |
 
 `default_config` 示例（节选自 `ne101_camera`）：
@@ -107,7 +107,7 @@ NeoMind 通过**显式 capability 申请**实现扩展对平台能力的细粒�
 
 ### 完整 Capability 枚举
 
-下表为 SDK `ExtensionCapability` 全部变体（来源：`neomind-extension-sdk`）：
+下表为 SDK `ExtensionCapability` 全部变体——共 **20 个具名变体 + `Custom`**（来源：`neomind-extension-sdk` 的 `host.rs` `define_capabilities!` 宏）：
 
 | Capability 标识 | 含义 | 典型使用扩展 |
 |-----------------|------|--------------|
@@ -121,11 +121,17 @@ NeoMind 通过**显式 capability 申请**实现扩展对平台能力的细粒�
 | `metrics_aggregate` | 聚合设备指标 | 报表类扩展 |
 | `extension_call` | 调用其他扩展 | 编排类扩展 |
 | `agent_trigger` | 触发 AI Agent | LLM 联动类扩展 |
+| `chat_stream` | 流式 AI 对话（SessionManager，token 级事件推送） | 对话集成类扩展 |
+| `chat_stream_cancel` | 取消进行中的流式对话 | 对话集成类扩展 |
+| `chat_session_open` | 打开持久对话会话订阅 | 多轮对话类扩展 |
+| `chat_session_send` | 向已打开的会话发送消息 | 多轮对话类扩展 |
+| `chat_session_close` | 关闭对话会话订阅 | 多轮对话类扩展 |
+| `chat_stream_cancel_turn` | 取消会话中的单个回合 | 多轮对话类扩展 |
 | `rule_trigger` | 触发自动化规则 | 自动化类扩展 |
 | `device_template_register` | 注册设备类型模板 | lorawan-bridge、modbus-bridge、onvif-bridge、bacnet-bridge、opcua-bridge、uink-rms-bridge |
 | `device_register` | 注册设备实例 | 所有 bridge 扩展 |
 | `device_unregister` | 注销设备实例 | bridge 扩展清理逻辑 |
-| `Custom(String)` | 自定义 capability | 项目定制场景 |
+| `Custom(String)` | 自定义 capability（未匹配具名变体的字符串都会归为 Custom） | 项目定制场景 |
 
 ### 实际代码中的使用模式
 
@@ -149,10 +155,18 @@ let result = ctx.invoke_capability("device_template_register", &template_json);
 let result = ctx.invoke_capability("device_register", &device_json);
 ```
 
-### 同步 vs 异步调用
+### 调用方式：同步 API
 
-- **异步上下文**（如 `execute_command`）：使用 `ctx.invoke_capability(name, params).await`
-- **同步上下文**（如 `produce_metrics` / `handle_event`）：扩展内部封装 `invoke_capability_sync()` 方法，通过 `CapabilityContext::default()` 桥接
+`CapabilityContext::invoke_capability(name, params)` 是**同步方法**，直接返回 `serde_json::Value`（内部通过 `block_on_sync` 桥接异步 provider，或走 native capability bridge 的 FFI）。返回值统一为 `{"success": ..., "error"?...}` 形状的 JSON。因此在 `execute_command`、`produce_metrics`、`handle_event` 等任意上下文里都以同一方式调用：
+
+```rust
+let result = ctx.invoke_capability("device_metrics_write", &json!({ ... }));
+if result["success"].as_bool() != Some(true) {
+    // 处理 result["error"]
+}
+```
+
+部分扩展（如 yolo-device-inference、face-recognition）会在内部封装 `invoke_capability_sync()` 辅助方法做错误处理，模式相同。
 
 ## 版本号三段一致性
 
@@ -188,20 +202,23 @@ NeoMind-Extensions 仓库有**三个层级的版本号**，发布时**必须全�
 
 ## 跨平台构建目标矩阵
 
-NeoMind 扩展支持 **5 个** target（不是 6 个，没有 `windows-aarch64`）：
+NeoMind 扩展的 CI（`build-nep-packages.yml` / `build-extension.yml`）与 `build.sh` 共支持 **6 个**平台目标（没有 `windows-aarch64`）：
 
-| Target Key | Rust Target Triple | 产物后缀 | 用途 |
+| 平台标识（`.nep` 文件名 / 包内目录，下划线） | Rust Target Triple | 产物后缀 | 用途 |
 |------------|-------------------|----------|------|
-| `darwin-aarch64` | `aarch64-apple-darwin` | `.dylib` | Apple Silicon macOS（M1/M2/M3/M4） |
-| `darwin-x86_64` | `x86_64-apple-darwin` | `.dylib` | Intel macOS |
-| `linux-x86_64` | `x86_64-unknown-linux-gnu` | `.so` | 通用 Linux 服务器 |
-| `linux-aarch64` | `aarch64-unknown-linux-gnu` | `.so` | ARM Linux（树莓派 4/5、ARM 服务器） |
-| `windows-x86_64` | `x86_64-pc-windows-msvc` | `.dll` | Windows 10/11 |
+| `darwin_aarch64` | `aarch64-apple-darwin` | `.dylib` | Apple Silicon macOS（M1/M2/M3/M4） |
+| `darwin_x86_64` | `x86_64-apple-darwin` | `.dylib` | Intel macOS |
+| `linux_amd64` | `x86_64-unknown-linux-gnu` | `.so` | 通用 Linux 服务器 |
+| `linux_arm64` | `aarch64-unknown-linux-gnu` | `.so` | ARM Linux（树莓派 4/5、ARM 服务器；另有 jetson/cuda 硬件变体构建） |
+| `windows_amd64` | `x86_64-pc-windows-msvc` | `.dll` | Windows 10/11（64 位） |
+| `windows_x86` | `i686-pc-windows-msvc` | `.dll` | Windows（32 位） |
+
+> 注意区分两套命名：`metadata.json` 的 `builds` 下载映射用**连字符** key（`darwin-aarch64` 等，见上文），且通常只列 5 个主目标（不含 32 位 `windows_x86`）；而 `.nep` 文件名与包内 `binaries/` 目录用**下划线**平台名（`darwin_aarch64`）。
 
 ### 构建命令
 
 ```bash
-# 一次性构建全部 5 个 target 的 .nep 包
+# 一次性构建全部平台 target 的 .nep 包
 ./build.sh --release 2.7.0
 
 # 只构建单个扩展
@@ -214,10 +231,11 @@ NeoMind 扩展支持 **5 个** target（不是 6 个，没有 `windows-aarch64`�
 
 ```
 weather-forecast-2.7.6-darwin_aarch64.nep   (ZIP 格式)
-├── manifest.json           # 安装清单（从 metadata.json 转换）
+├── manifest.json           # 安装清单（构建时从 metadata.json 转换生成）
+├── frontend.json           # 有前端时存在：组件声明（entrypoint、export_name 等）
 ├── binaries/
 │   └── darwin_aarch64/
-│       └── libneomind_extension_weather_forecast_v2.dylib
+│       └── extension.dylib # 固定名（Windows 为 extension.dll，Linux 为 extension.so）
 ├── frontend/
 │   └── weather-forecast-components.umd.cjs
 └── models/                 # 可选：ONNX 模型
@@ -260,7 +278,7 @@ NeoMind-Dashboard-Components 采用手写 IIFE 作为分发格式，测试通过
 
 | 测试类型 | 位置 | 要求 | 参考 |
 |---------|------|------|------|
-| Bundle 测试 | `<component>/test_bundle.js` | 每个组件必须有 | `ne101_camera/test_bundle.js` |
+| Bundle 测试 | `<component>/test_bundle.js` | mock `window` 全局验证 IIFE 导出；目前 `ne101_camera/test_bundle.js` 是参考实现 | `ne101_camera/test_bundle.js` |
 
 `test_bundle.js` 的典型结构：
 
@@ -285,9 +303,8 @@ console.log('✓ bundle.js 导出测试通过');
 
 ### CI 要求
 
-- 扩展仓库：`cargo test --workspace` 全绿才能发布
-- 组件仓库：每个组件的 `test_bundle.js` 必须通过 `node` 执行
-- 两个仓库都有 GitHub Actions 在 PR 时自动运行测试
+- 扩展仓库：CI（GitHub Actions）在 push 到 main 时构建 `.nep` 包，构建过程中会运行部分扩展的 `cargo test`；发布前请本地保证 `cargo test --workspace` 全绿
+- 组件仓库：目前没有 GitHub Actions，组件测试以仓库内 `test_bundle.js` 脚本为准（`node` 直接执行）
 
 ## 发布 Checklist
 
@@ -297,10 +314,10 @@ console.log('✓ bundle.js 导出测试通过');
 - [ ] `extensions/index.json` 版本字段更新
 - [ ] `VERSION` 文件更新
 - [ ] `cargo test --workspace` 全绿
-- [ ] `./build.sh --release $VERSION` 产出 5 个 target 的 `.nep` 包
+- [ ] `./build.sh --release $VERSION` 产出全部平台 target 的 `.nep` 包
 - [ ] 验证 `dist/*.nep` 文件名版本号一致（`ls dist/*.nep`）
 - [ ] 组件：`bundle.js` + `manifest.json` 同步到 NeoMind-Dashboard-Components 仓库
-- [ ] GitHub Release 创建，5 个 `.nep` 上传到 release assets
+- [ ] GitHub Release 创建，全部 `.nep` 上传到 release assets
 - [ ] 案例集 `0-overview.md` 的 [版本对齐表](./0-overview.md#版本对齐表) audit 日期更新
 
 ### 完整发布流程

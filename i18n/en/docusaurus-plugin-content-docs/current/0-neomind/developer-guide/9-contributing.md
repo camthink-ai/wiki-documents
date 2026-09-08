@@ -28,9 +28,9 @@ npm run dev                         # Frontend (port 5173)
 ```
 
 **Toolchain requirements**:
-- Rust 1.92.0+ (edition 2021)
+- Rust 1.92.0+ (pinned in `rust-toolchain.toml`, edition 2021)
 - Node.js 20+
-- System dependency: protobuf compiler (`protoc`)
+- No extra system dependencies (no protobuf/protoc or other code-generation steps)
 
 ## Code Standards
 
@@ -80,7 +80,7 @@ The project follows [Conventional Commits](https://www.conventionalcommits.org/)
 | `feat` | New feature | `feat(web): redesign About page with hero card` |
 | `fix` | Bug fix | `fix(devices): 4-state connection model with per-device offline timeout` |
 | `ci` | CI/CD changes | `ci: auto-cleanup old releases after publish` |
-| `chore` | Misc (deps, refactoring) | `chore: bump neomind-extension-sdk to 0.6.3` |
+| `chore` | Misc (deps, refactoring) | `chore: bump neomind-extension-sdk to 0.6.6` |
 | `docs` | Documentation | `docs: enrich extension management user guide` |
 | `refactor` | Refactoring (no behavior change) | `refactor(web): unify data source config factories` |
 | `release` | Release | `release: bump version to 0.9.23` |
@@ -112,18 +112,29 @@ cd web && npm run lint && npm run build:check
 
 ## CI Pipeline
 
-The project uses GitHub Actions (`.github/workflows/build.yml`). Triggers: tag creation / release publishing / manual.
+The project runs two GitHub Actions pipelines:
 
-**4 parallel jobs**:
+**1. CI Checks (`.github/workflows/ci.yml`)** — runs on every PR and every push to `main`:
+
+| Job | Content |
+|-----|---------|
+| **Frontend checks** | `npm run lint:ci` → `tsc --noEmit` → `vitest run` (unit tests) |
+| **Skill ↔ CLI drift** | Verifies skill manifests stay in sync with CLI commands |
+| **Skill parser tests** | Skill parser/matcher tests |
+| **Rust lint** | `cargo fmt --check` + `cargo clippy --workspace --all-targets -- -D warnings` |
+| **Rust tests** | `cargo test --workspace --locked` (full test suite) |
+| **cargo audit** | Dependency security advisory scan |
+
+**2. Build (`.github/workflows/build.yml`)** — the release pipeline, triggered by a **tag push or manually**:
 
 | Job | Content | Artifacts |
 |-----|---------|-----------|
 | **Frontend** | `npm run lint` → `npm run build` | Web frontend static files |
 | **Desktop** | Tauri build (macOS arm64 / Windows x86_64 / Linux x86_64 / Linux arm64) | 4 platform desktop installers |
 | **Server** | `cargo build --release` (Linux amd64 / Linux arm64 / Darwin arm64) | 3 platform server binaries |
-| **Release** | Upload artifacts to GitHub Release + auto-cleanup old releases (keep latest 3) | GitHub Release assets |
+| **Release** | After the three build jobs finish, uploads artifacts to GitHub Release; `cleanup-releases` then deletes old releases (keeps latest 3) | GitHub Release assets |
 
-> **Local pre-check**: CI doesn't run `cargo test` — make sure to run `cargo test` locally before pushing a PR.
+> The three build jobs run in parallel; Release / cleanup run after them sequentially.
 
 ## Testing Requirements
 

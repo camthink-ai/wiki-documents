@@ -29,10 +29,10 @@ The page displays all agents in a **card grid**, each card showing:
 | **Schedule** | Cron expression / Interval / Event |
 | **Last Run** | Time and result of the most recent execution |
 
-The page has three tabs at the top: **Agents** (agent list), **Memory** (system memory), **Skills** (skill management).
+The page has four tabs at the top: **Agents** (agent list), **Memory** (system memory), **Skills** (skill management), and **Tools** (tool management).
 
 :::note Skills
-Knowledge files that provide Agents with scenario-specific operational guidance (built-in skills are read-only; user skills can be created, edited, and deleted in the tab). During execution, an Agent automatically matches relevant skills by description (BM25 lexical ranking), and you can also manually pin specific skills in the Agent editor.
+Knowledge files that provide Agents with scenario-specific operational guidance (built-in skills are read-only; user skills can be created, edited, and deleted in the tab). During execution, an Agent automatically matches relevant skills by description (BM25 lexical ranking), and can also search and load them on demand via the `skill` tool (`skill(action="search"/"load")`).
 :::
 
 ## Creating an Agent
@@ -100,13 +100,13 @@ The detail panel contains multiple sections:
 
 | Section | Description |
 |---------|-------------|
-| **Top Action Bar** | Edit and Run Now buttons |
+| **Top Action Bar** | Edit and Execute Now buttons |
 | **Overview** | Agent basic info, bound resources, schedule config, LLM backend |
 | **Execution History** | Chronological execution records with success/failure status and duration |
 | **Memory** | Journal logs and Knowledge files |
 | **User Messages** | Feedback messages left for the Agent |
 
-The **Run Now** button in the top right triggers an immediate execution without waiting for the schedule.
+The **Execute Now** button in the top right triggers an immediate execution without waiting for the schedule.
 
 ## Agent Memory System
 
@@ -125,13 +125,14 @@ On the next execution, the Agent reads recent journal entries to learn from hist
 
 ### Knowledge Files
 
-Agent's persistent knowledge in Markdown format:
-- **identity.md** — Agent identity and responsibilities
-- **mission.md** — Task objectives and constraints
-- **resources.md** — Bound resource descriptions
-- **schedule.md** — Execution plan
+The Agent's persistent knowledge in Markdown format. Each Agent automatically gets a single **task-understanding.md** file containing four sections:
 
-Auto-initialized on first execution. You can manually edit these files to fine-tune Agent behavior (Agent detail → Memory panel).
+- **Role** — Agent identity and responsibilities (from the system prompt)
+- **Mission** — Task objectives (from the User Prompt)
+- **Resources** — Bound resource descriptions
+- **Schedule** — Execution plan
+
+This file is auto-initialized when the Agent is created. You can manually edit it to fine-tune Agent behavior (Agent detail → Memory panel); the Agent also appends discovered thresholds, device quirks, and patterns as it runs.
 
 ### User Messages (Feedback)
 
@@ -166,6 +167,7 @@ The status badge on each Agent card reflects the current state in real time:
 | **Executing** | Agent is currently running (real-time WebSocket push) | Blue / animated |
 | **Paused** | Agent is paused, won't auto-trigger (can be run manually) | Gray |
 | **Error** | Last execution failed, check logs to troubleshoot | Red |
+| **Completed** | Ready state after a manual task finishes; can be run again | Green |
 
 Pause/activate is toggled via the switch button on the card, which syncs with the scheduler — pausing unschedules, activating reschedules.
 
@@ -175,7 +177,7 @@ When an Agent is executing, the card shows a live "Thinking..." indicator (pushe
 
 ### Manual Execution
 
-Don't want to wait for the schedule? Click **Run Now** on the Agent card or detail page to execute immediately.
+Don't want to wait for the schedule? Click **Execute Now** on the Agent card or detail page to execute immediately.
 
 ## Typical Scenarios
 
@@ -256,4 +258,4 @@ On mobile, the interface switches to a single-column card list, supporting statu
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-09*

@@ -29,7 +29,7 @@ flowchart TB
         RULE["Rule Engine<br/>Event-driven · JSON"]:::core
         AGENT["AI Agent<br/>Think-Act-Observe"]:::ai
         WEBUI["Web UI<br/>Dashboard · AI Chat"]:::consumer
-        MSG["Notifications<br/>9-channel routing"]:::consumer
+        MSG["Notifications<br/>7 external channel types"]:::consumer
 
         MQTT ==> STORE
         API ==> STORE
@@ -71,8 +71,8 @@ flowchart TB
 | **Telemetry Store** | — | redb embedded | Time-series data, zero-config persistence, aggregation queries |
 | **Transform** | — | JavaScript (Boa engine) pipeline | Raw data → derived metrics (unit conversion, aggregation, custom formulas), 3 scope levels |
 | **Rule Engine** | — | Event-driven | Evaluates on data write (zero latency), pure JSON conditions + actions |
-| **AI Agent** | — | LLM + CLI toolchain | Natural language understanding, Think-Act-Observe loop, Interval/Cron/Event scheduling |
-| **Notifications** | — | 9-channel routing | 7 external channels (Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram) + 2 built-in |
+| **AI Agent** | — | LLM + CLI toolchain | Natural language understanding, Think-Act-Observe loop, Interval/Cron/Event/Manual scheduling |
+| **Notifications** | — | 7 external channel types | Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram (plus the in-app message center) |
 | **Extension System** | — | Process isolation + FFI | Vision AI (YOLO/OCR), device bridges (Modbus/OPC-UA), independent process won't crash main service |
 
 :::info Why no external dependencies?
@@ -163,14 +163,14 @@ curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=tempe
 | `start` / `end` | Time range (Unix seconds) |
 | `aggregate` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
 | `bucketed` | Return aggregation results in time buckets |
+| `offset` | Skip the newest N records (server-side pagination) |
 | `limit` | Max data points returned, paginated |
 
 ### Data Retention & Cleanup
 
 Telemetry is **retained indefinitely** by default, but auto-cleanup policies can be configured (Settings → System → Retention):
 
-- **By duration**: Auto-delete data older than N days (e.g. retain 90 days)
-- **By capacity**: Delete oldest data when storage exceeds a threshold
+- **By duration**: Auto-delete data older than N days (e.g. retain 90 days); regular metrics and image-like data each have their own retention period, and the cleanup interval is configurable too
 
 Policies run periodically by a background task without affecting real-time write performance.
 
@@ -206,17 +206,18 @@ flowchart LR
 ```javascript
 // Example: temperature unit conversion + dew point calculation
 // input = { temperature: 25.6, humidity: 60 }
-function transform(input) {
-  const temp = input.temperature;
-  const humidity = input.humidity;
-  // Dew point formula
-  const dewPoint = temp - (100 - humidity) / 5;
-  return {
-    temperature_f: temp * 9 / 5 + 32,   // Fahrenheit
-    dew_point: Math.round(dewPoint * 10) / 10,
-    comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
-  };
-}
+// Just write statements (use return for the result); single-key objects
+// (e.g. {"value": 42}) are auto-unwrapped — the full raw input stays
+// available as input_raw
+const temp = input.temperature;
+const humidity = input.humidity;
+// Dew point formula
+const dewPoint = temp - (100 - humidity) / 5;
+return {
+  temperature_f: temp * 9 / 5 + 32,   // Fahrenheit
+  dew_point: Math.round(dewPoint * 10) / 10,
+  comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
+};
 ```
 
 Derived metrics are written to Telemetry in `transform:{output_prefix}:{field}` format, consumable by dashboards, rules, and agents just like raw device data.
@@ -320,15 +321,16 @@ NeoMind's AI shares the same Think-Act-Observe loop, but runs in two modes:
 
 **AI Chat** is interactive — the user asks, the AI calls tools in real time and streams the response, with support for image uploads and multimodal analysis. **AI Agent** is autonomous — triggered on schedule or event, it runs independently in the background and logs experience to its Journal. Both share the same toolset (neomind CLI + extension commands).
 
-### Three Scheduling Modes (AI Agent only)
+### Scheduling Modes (AI Agent only)
 
-AI Agents support three scheduling triggers:
+AI Agents support three automatic scheduling triggers, plus a Manual mode:
 
 | Mode | Trigger | Typical Scenario |
 |------|---------|-----------------|
 | **Interval** | Fixed interval (e.g. every 5 min) | "Patrol device status periodically" |
 | **Cron** | Cron expression (e.g. `0 0 9 * * 1-5`) | "Generate daily report every weekday at 9 AM" |
 | **Event** | Data event (rule match / metric change) | "Analyze immediately when temperature spikes" |
+| **Manual** | Manual invocation (invoke / delegation from another agent), never auto-scheduled | "One-off analysis tasks run on demand" |
 
 ### CLI-First Architecture
 

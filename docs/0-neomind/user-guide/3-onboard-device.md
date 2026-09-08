@@ -337,7 +337,7 @@ neomind device get <DEVICE_ID>
 >
 > NeoMind 收到设备数据后，需要根据类型模板来**解析和存储**数据。没有类型，系统就不知道 `{ "t": 25.3 }` 里的 `t` 代表什么，也就无法在仪表板上正确展示。
 >
-> 内置类型包括 CamThink 硬件（NE301 边缘 AI 相机、NE101 感知相机）和常见传感器类型。你也可以在 **Settings → Device Types** 创建自定义类型。
+> 内置类型包括 CamThink 硬件（NE301 边缘 AI 相机、NE101 感知相机）。你也可以在 **Devices → 设备类型（Device Types）** 标签页创建自定义类型。
 
 3. **填写完毕后点击 Add**，设备创建完成。此时设备状态为 **Disconnected**（未连接），等设备开始发数据后会自动变为 Online。
 
@@ -485,7 +485,7 @@ MQTT 方式接入的设备支持双向通信——可以远程控制：
 neomind device control ac-01 power_on --params '{"mode": "cool", "temp": 24}'
 ```
 
-指令通过 MQTT 发送到设备的 `{topic}/command`，设备订阅该 topic 即可接收。
+指令通过 MQTT 发送到设备的下行 Topic（默认 `device/{类型}/{ID}/downlink`），设备订阅该 topic 即可接收。
 
 ## 设备状态说明
 
@@ -505,7 +505,7 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 
 | 状态 | 含义 | 颜色标识 |
 |------|------|---------|
-| **Waiting Processing**（等待处理） | 设备已被自动发现，等待管理员审批 | 黄色 / 橙色 |
+| **Waiting Processing**（等待处理） | 设备已被自动发现，等待管理员审批 | 蓝色 |
 
 > 草稿设备不会出现在 Device List 中，只有在 **Pending Devices** 标签页可见。审批通过后才会正式注册为设备。
 
@@ -517,7 +517,7 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 |------|------|---------|------|
 | **Online**（在线） | 设备已连接，正在正常发送数据 | 5 分钟内有数据上报 | 绿色 |
 | **Offline**（离线） | 设备曾经连过，但当前已断开或超时 | 曾经上报过数据，但超过 5 分钟未收到新数据 | 黄色 |
-| **Disconnected**（未连接） | 设备从未发送过数据 | 通过手动注册或 CLI 创建，但设备从未上线 | 蓝色 |
+| **Disconnected**（未连接） | 设备从未发送过数据 | 通过手动注册或 CLI 创建，但设备从未上线 | 灰色 |
 
 > NeoMind 判断设备在线的标准是 **5 分钟内是否有数据上报**。即使设备 MQTT 连接还在，如果超过 5 分钟没发数据，状态也会变为 Offline。
 >
@@ -537,7 +537,7 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 
 ## 支持的设备类型
 
-NeoMind 内置 CamThink 硬件类型。在 Web UI → **Settings → Device Types** 可查看和管理所有类型：
+NeoMind 内置 CamThink 硬件类型。在 Web UI → **Devices → 设备类型（Device Types）** 标签页可查看和管理所有类型：
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="设备类型管理页 — 内置与自定义类型" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 

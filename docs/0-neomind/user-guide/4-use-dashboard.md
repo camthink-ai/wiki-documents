@@ -16,11 +16,11 @@ sidebar_label: "Use Dashboards"
 - **实时更新**：通过 WebSocket / SSE 推送，数据变化秒级反映到组件
 - **响应式布局**：桌面端拖拽编辑；移动端自动堆叠为单列
 - **可分享**：生成带过期时间的公开链接，免登录查看
-- **多后端**：一个仪表板可同时展示来自多个 NeoMind 实例的数据
+- **多实例**：在侧边栏注册并一键切换多个 NeoMind 后端实例
 
 ## 创建仪表板
 
-1. 点击左侧导航栏的 **Dashboards（仪表板）** 图标进入仪表板列表
+1. 点击左侧导航栏的 **可视化仪表板（Visual Dashboard）** 图标进入仪表板列表
 2. 点击列表中的 **+（New Dashboard）** 按钮
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
@@ -43,7 +43,7 @@ sidebar_label: "Use Dashboards"
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-> 空仪表板在查看模式下会提示「Click Edit Layout to add components」。点击齿轮图标进入编辑模式后，会出现 **Add Component** 按钮。
+> 空仪表板在查看模式下会提示「进入编辑模式，添加你的第一个组件」。点击齿轮图标进入编辑模式后，会出现 **Add Component（添加组件）** 按钮。
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
@@ -86,7 +86,14 @@ sidebar_label: "Use Dashboards"
 
 | 组件 | 用途 | 典型场景 |
 |------|------|---------|
-| **Toggle Switch**（开关） | 发送开/关指令到设备 | 远程控制灯光、水泵 |
+| **Command Button**（指令按钮） | 弹出指令表单对话框，向设备或扩展发送指令 | 远程开关、参数下发 |
+
+#### 业务组件（Business Components）
+
+| 组件 | 用途 | 典型场景 |
+|------|------|---------|
+| **Agent Monitor Widget**（Agent 监控） | Agent 选择器、实时状态、统计与执行历史 | 巡检 Agent 监控 |
+| **AI Analyst**（AI 分析师） | 对图像、指标、数据源做时间线式 AI 分析 | 数据解读、异常归因 |
 
 #### 展示与内容（Display & Content）
 
@@ -113,11 +120,10 @@ sidebar_label: "Use Dashboards"
 
 **① 数据源绑定（Data Source）**
 
-每个组件需要绑定一个数据源才能显示数据。在配置面板中选择：
+每个组件需要绑定一个数据源才能显示数据。数据取自当前连接的 NeoMind 实例；在配置面板中选择：
 
 | 选择项 | 说明 |
 |--------|------|
-| **Instance**（实例） | 选择 NeoMind 后端实例（本地或远程） |
 | **Device**（设备） | 选择要展示哪个设备的数据 |
 | **Metric**（指标） | 选择具体指标（如 `temperature`、`humidity`） |
 
@@ -127,7 +133,7 @@ sidebar_label: "Use Dashboards"
 |------|------|------|
 | `device` | `device:esp32-01:temperature` | 设备的某个指标 |
 | `extension` | `extension:weather-forecast:temperature` | 扩展提供的指标 |
-| `agent` | `agent:guard-01:last_result` | Agent 执行结果 |
+| `transform` | `transform:tf-01:avg_temp` | 转换派生指标 |
 
 :::tip
 DataSourceId 自动生成，无需手写。
@@ -138,7 +144,7 @@ DataSourceId 自动生成，无需手写。
 根据组件类型不同，可配置：
 - **标题/单位**：组件上方显示的名称和数据单位
 - **颜色/阈值**：数值超过阈值时变色（如温度 > 30°C 变红）
-- **时间范围**：图表类组件可选最近 1h / 24h / 7d / 自定义
+- **时间范围**：图表类组件可选预设时间窗（最近 5 分钟 ~ 24 小时、今天 / 昨天 / 本周）或自定义
 - **刷新间隔**：数据拉取频率（实时推送不受此限制）
 
 **③ 布局调整**
@@ -155,7 +161,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 - 端到端延迟通常 < 1 秒（同机房）
 - 离线时前端自动重连，重连后补齐最近数据
 
-历史数据查询见组件的「时间范围」配置（最近 1 小时 / 24 小时 / 7 天 / 自定义）。
+历史数据查询见组件的「时间范围」配置（最近 1 小时 / 24 小时 / 自定义等多种预设）。
 
 ## 数据浏览（Data Explorer）
 
@@ -178,8 +184,8 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 <img src="https://resources.camthink.ai/NeoMind/dashboard-share-dialog.png" alt="分享对话框 — 生成公开链接" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-2. 点击 **New Link** 生成新链接
-3. 设置过期时间（1 小时 / 1 天 / 7 天 / 永久）
+2. 点击 **New Link（新建链接）** 生成新链接
+3. 设置过期时间（1 小时 / 24 小时 / 3 天 / 7 天 / 30 天 / 永不过期）
 4. 复制生成的链接（形如 `https://your-host/share/<token>`）
 5. 访问者无需账号即可查看（只读）
 
@@ -187,8 +193,8 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 分享对话框可勾选**交互模式**——访问者除了看，还能操作你暴露的设备控制按钮（如下达指令），但始终无法编辑仪表板配置。
 :::
 
-:::warning 分享链接仅暴露只读视图
-分享链接只暴露该仪表板的只读视图，不暴露 API Key、设备控制权或其他仪表板。过期后链接自动失效。
+:::warning 分享链接不泄露敏感信息
+分享链接不暴露 API Key 或其他仪表板；除交互模式中显式开放的设备控制按钮外，访问者只能看到该仪表板的只读视图。过期后链接自动失效。
 :::
 
 ## 移动端适配
@@ -202,7 +208,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ## 多实例仪表板
 
-如果你管理多个 NeoMind 后端（如厂房的多台边缘服务器），可在 **Settings → Instances（实例）** 注册它们。注册后，在仪表板编辑组件时可以**跨实例**选择数据源——一个仪表板同时展示多个后端的设备数据。
+如果你管理多个 NeoMind 后端（如厂房的多台边缘服务器），可在左侧边栏的实例切换器中打开 **实例管理（Instances）** 注册它们。注册后可一键切换到对应实例——仪表板展示的是当前实例的设备数据。
 
 ## 社区组件与自定义组件
 
@@ -224,7 +230,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 | **描述** | 组件功能简介 |
 | **Install / Uninstall** | 一键安装或卸载 |
 
-点击 **Install** 即可安装，安装后组件出现在 **Components** 标签页中，可以像内置组件一样使用。已安装的组件显示 **Uninstall** 按钮，随时可移除。
+点击 **Install** 即可安装，安装后组件出现在 **Marketplace（市场）** 分类下，可以像内置组件一样添加使用。已安装的组件显示 **Uninstall** 按钮，随时可移除。
 
 > 市场组件来源于 [NeoMind-Dashboard-Components](https://github.com/camthink-ai/NeoMind-Dashboard-Components) 社区仓库，持续更新中。
 
@@ -246,10 +252,10 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ```bash
 # 列出市场可用组件
-neomind widget list
+neomind widget market-list
 
 # 安装市场组件
-neomind widget install <组件名>
+neomind widget market-install <组件ID>
 
 # 从本地 ZIP 安装
 neomind widget install /path/to/widget.zip

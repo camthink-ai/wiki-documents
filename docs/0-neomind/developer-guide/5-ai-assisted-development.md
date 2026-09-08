@@ -81,9 +81,9 @@ Claude Code 会：探索现有扩展代码 → 参考类似实现 → 生成代�
 | **Code Conventions** | Rust fmt/clippy、Zustand slices 模式、DESIGN_SPEC.md | 遵循项目编码规范 |
 | **Frontend Design Standards** | 33 节设计规范索引 | 生成符合设计系统的前端代码 |
 
-> **扩展仓库和组件仓库**目前没有 `CLAUDE.md`。建议开发前让 AI 先读 `docs/guides/en/extension-system.md` 或对应的技术文档来建立上下文：
+> **组件仓库和设备类型仓库**目前没有 `CLAUDE.md`（扩展仓库已有）。没有 `CLAUDE.md` 的仓库，建议开发前让 AI 先读根目录的 `README.md` / `EXTENSION_GUIDE.md` 等技术文档来建立上下文：
 > ```
-> > 先读 docs/guides/en/extension-system.md 理解扩展架构，然后帮我创建...
+> > 先读 EXTENSION_GUIDE.md 理解扩展架构，然后帮我创建...
 > ```
 
 ## 工作流一：用 AI 开发扩展
@@ -245,7 +245,7 @@ Claude Code 会逐文件追踪调用链，给出带文件路径和行号的流�
 | **加功能** | 「参考 `{existing-pattern}` 的模式，加一个 `{feature}`」 |
 | **探索代码** | 「帮我梳理 `{module}` 的执行流程，从 `{入口}` 到 `{终点}`」 |
 | **代码审查** | 「审查这段代码有没有安全问题、性能问题、不符合 `CLAUDE.md` 约定的地方」 |
-| **跨平台编译** | 「帮我编译扩展到 5 个平台（linux/darwin/windows，无 windows-arm64，见附录构建矩阵）」 |
+| **跨平台编译** | 「帮我编译扩展到全部平台目标（linux/darwin/windows，无 windows-arm64，见附录构建矩阵）」 |
 
 ## 最佳实践
 
@@ -259,7 +259,7 @@ Claude Code 会逐文件追踪调用链，给出带文件路径和行号的流�
 ### DON'T
 
 - **不要跳过 CLAUDE.md**：如果仓库没有，先创建一个，写清楚构建命令和约定——这是 AI 理解项目的关键
-- **不要让 AI 猜 API 格式**：让 AI 先读 `docs/guides/en/14-api.md` 或 Swagger 文档，再写集成代码
+- **不要让 AI 猜 API 格式**：让 AI 先读本站的 [REST API 参考](./4-rest-api.md)，再写集成代码
 - **不要在前端用硬编码颜色**：让 AI 读 `DESIGN_SPEC.md` 第 1 节，只用 design token 类名
 
 ## 为自己的仓库配置 AI 上下文
@@ -292,7 +292,7 @@ neomind extension install ./target/release/my-extension.nep
 | **`neomind widget create`** | 仪表板组件脚手架 |
 | **`neomind extension install`** | 扩展安装与测试 |
 | **`cargo build --release`** | Rust 扩展编译 |
-| **Swagger UI** (`/api/docs`) | API 文档——让 AI 读这个了解端点格式 |
+| **REST API 参考文档** | API 端点参考——让 AI 读 [4-rest-api.md](./4-rest-api.md) 了解端点格式 |
 
 ## 下一步
 

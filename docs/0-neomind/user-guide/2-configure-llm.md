@@ -19,15 +19,15 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | **本地（零配置）** | 内置 llama.cpp | 平台精选（Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5 等） | Docker 镜像自带运行时，向导内一键下载，见[下节](#内置本地模型零配置) |
 | **本地** | Ollama | `qwen3.5:4b` | 完全离线 |
 | 本地 | llama.cpp（自托管） | 启动时加载 | 自行运行 llama-server |
-| **云端** | OpenAI | `gpt-4o-mini` | 需 API Key |
-| 云端 | Anthropic | `claude-sonnet-4-6` | 需 API Key |
-| 云端 | Google | `gemini-2.0-flash` | 需 API Key |
-| 云端 | xAI | grok 系列 | 需 API Key |
-| 云端 | Qwen（阿里） | `qwen-max-latest` | 需 DashScope Key |
-| 云端 | DeepSeek | `deepseek-v3` | 需 API Key |
-| 云端 | GLM（智谱） | `glm-4-plus` | 需 API Key |
-| 云端 | MiniMax | `m2-1-19b` | 需 API Key |
-| 云端 | Custom | 任意 | OpenAI 兼容端点 |
+| **云端** | OpenAI | `gpt-4.1-mini` | 需 API Key |
+| 云端 | Anthropic | `claude-sonnet-4-5` | 需 API Key |
+| 云端 | Google | `gemini-2.5-flash` | 需 API Key |
+| 云端 | xAI | `grok-3-mini` | 需 API Key |
+| 云端 | Qwen（阿里） | `qwen-plus` | 需 DashScope Key |
+| 云端 | DeepSeek | `deepseek-chat` | 需 API Key |
+| 云端 | GLM（智谱） | `glm-4.5-flash` | 需 API Key |
+| 云端 | MiniMax | `MiniMax-M2` | 需 API Key |
+| 云端 | 自定义网关 | 任意 | OpenAI 兼容端点（类型选 OpenAI，填自定义 endpoint） |
 
 > **推荐**：本地用 Ollama + `qwen3.5:4b`（4B 参数，平衡速度与效果，8GB 内存可流畅运行）。需要更强能力或多模态时再接入云端。
 
@@ -68,7 +68,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-点击 **Add Backend（添加后端）** 进入配置表单。
+后端以卡片形式呈现（内置模型 / Ollama / llama.cpp / Cloud AI），点击对应卡片中的 **添加实例（Add Instance）** 进入配置表单。
 
 ### Step 3：填写后端信息
 
@@ -85,16 +85,16 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 | 字段 | 值 |
 |------|-----|
-| 类型 | OpenAI（或 Anthropic / Google / Qwen / …） |
+| 类型 | OpenAI 兼容协议（或 Anthropic 协议） |
 | API Key | 你的 API Key（如 `sk-...`） |
 | Base URL | 留空用官方；自建网关时填自定义端点 |
-| 模型 | `gpt-4o-mini`（或 `gpt-4o` / `gpt-4-turbo` 等） |
+| 模型 | `gpt-4.1-mini`（或 `gpt-4o` / `gpt-4-turbo` 等） |
 
 **国内厂商**：Qwen / DeepSeek / GLM / MiniMax 均使用 OpenAI 兼容协议，NeoMind 内置各厂商的默认 endpoint，只需填 API Key 与模型名即可。
 
-#### Custom（自定义 OpenAI 兼容端点）
+#### 自定义网关（OpenAI 兼容端点）
 
-如果你用的是 vLLM、Together AI、OpenRouter 等自建或第三方网关，选 **Custom**，填入：
+如果你用的是 vLLM、Together AI、OpenRouter 等自建或第三方网关，在 **Cloud AI** 卡片中选择 **OpenAI 兼容（OpenAI-compatible）** 协议，填入：
 
 - `base_url`：网关地址（如 `https://api.openrouter.ai/v1`）
 - `api_key`：网关 Key
@@ -106,7 +106,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 ### Step 4：设为默认并验证
 
-在后端列表中点击 **Set Default（设为默认）** 将其设为系统默认后端。
+在 **AI Chat** 顶部的模型选择器中选择该后端，即设为系统默认后端（当前默认后端带「活跃」标记），也可以用 CLI `neomind llm activate <ID>` 激活。
 
 然后进入 **AI Chat** 发送一句问候验证：
 
@@ -148,15 +148,15 @@ neomind llm create --name local --type ollama \
 # OpenAI 云端
 neomind llm create --name openai --type openai \
   --endpoint https://api.openai.com/v1 \
-  --model gpt-4o-mini --api-key sk-xxxx
+  --model gpt-4.1-mini --api-key sk-xxxx
 
 # GLM 云端（OpenAI 兼容）
 neomind llm create --name glm --type openai \
   --endpoint https://open.bigmodel.cn/api/paas/v4 \
   --model glm-4-flash --api-key xxx.xxx.xxx
 
-# 自定义网关（OpenRouter 等）
-neomind llm create --name router --type custom \
+# 自定义网关（OpenRouter 等，走 OpenAI 兼容协议）
+neomind llm create --name router --type openai \
   --endpoint https://openrouter.ai/api/v1 \
   --model anthropic/claude-3.5-sonnet --api-key sk-or-xxxx
 ```
@@ -195,7 +195,7 @@ neomind llm delete local
 
 | 命令 | 说明 | 关键参数 |
 |------|------|---------|
-| `llm list` | 列出所有后端 | `--json` 输出 JSON |
+| `llm list` | 列出所有后端 | — |
 | `llm get <id>` | 查看详情 | — |
 | `llm models` | 列出 Ollama 可用模型 | `--endpoint <url>` |
 | `llm create` | 创建后端 | `--name` `--type` `--endpoint` `--model` `--api-key` `--temperature` |
@@ -239,7 +239,7 @@ curl http://localhost:11434/api/chat -d '{
 NeoMind 支持图像输入与视觉分析。视觉能力的启用取决于模型：
 
 - **Ollama**：拉取视觉模型（如 `qwen3.5:4b-vl` / `llava` / `minicpm-v`）后，在 [AI Chat](./5-ai-chat.md) 中可直接上传图片提问。
-- **云端**：`gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-6` / `gemini-2.0-flash` / `qwen-vl` / `glm-4v` 等天然支持视觉。
+- **云端**：`gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen-vl` / `glm-4v` 等天然支持视觉。
 
 NeoMind 会自动探测模型的多模态能力（通过 LiteLLM 注册表 + `/api/show` 运行时探测 + 名称启发式匹配）。如果自动探测不准，可在后端详情页手动覆盖 **Multimodal** 开关。
 
@@ -253,7 +253,7 @@ NeoMind 会自动探测模型的多模态能力（通过 LiteLLM 注册表 + `/a
 - 规则引擎中的 LLM 分析
 
 :::tip 切换默认
-- **Web UI**：后端列表 → 点 **Set Default**
+- **Web UI**：AI Chat 顶部模型选择器 → 点选要设为默认的后端
 - **CLI**：
 
 ```bash

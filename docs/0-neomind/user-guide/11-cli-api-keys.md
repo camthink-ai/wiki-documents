@@ -17,7 +17,7 @@ cd /path/to/neomind    # 切到项目根目录
 neomind device list     # 直接可用
 ```
 
-> 注意：auto-auth 读取的是**相对路径** `data/api_keys.redb`，因此必须在项目根目录执行。`NEOMIND_DATA_DIR` 环境变量**不影响** auto-auth 的路径解析。
+> auto-auth 的数据目录解析顺序：`NEOMIND_DATA_DIR` 环境变量 → 平台用户数据目录（存在 `api_keys.redb` 时）→ 相对路径 `data/`（项目根兜底）。此外 `neomind login` 保存的凭据文件优先级最高，任意目录均可用。
 :::
 
 ## 何时需要手动配置 Key
@@ -25,7 +25,8 @@ neomind device list     # 直接可用
 | 场景 | 是否需要手动 Key |
 |------|-----------------|
 | 本地开发，从项目根运行 CLI | ❌ 不需要（auto-auth） |
-| 从 `web/`、`/tmp` 等其他目录运行 CLI | ✅ 需要 |
+| 设置了 `NEOMIND_DATA_DIR` 或已 `neomind login` | ❌ 不需要（auto-auth 可定位） |
+| 从 `web/`、`/tmp` 等其他目录运行 CLI（无上述条件） | ✅ 需要 |
 | 远程连接另一台机器上的 Server | ✅ 需要 |
 | 桌面应用内嵌 CLI | ❌ 不需要（自动配置） |
 

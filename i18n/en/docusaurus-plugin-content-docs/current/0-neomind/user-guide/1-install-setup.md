@@ -156,7 +156,7 @@ ARCH=amd64  # Linux x86_64; use arm64 for ARM devices
 
 # Download
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}.tar.gz
-wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web-${VERSION}.tar.gz
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web.tar.gz
 
 # Install binaries
 tar xzf neomind-server-linux-${ARCH}.tar.gz
@@ -165,7 +165,7 @@ sudo install -m 755 neomind-extension-runner /usr/local/bin/
 
 # Deploy frontend
 sudo mkdir -p /var/www/neomind
-sudo tar xzf neomind-web-${VERSION}.tar.gz -C /var/www/neomind
+sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 
 # Start
 ./neomind serve
@@ -233,7 +233,7 @@ Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashbo
 ## Users & Roles
 
 - The **first admin** comes from the first-start wizard and has full permissions
-- **Self-registration is closed by default** (by design): new accounts are created manually by an admin under **Settings → Users**; open self-registration in settings if needed (`PUT /api/settings/registration`)
+- **Self-registration is closed by default** (by design): new accounts are created by an admin via the API (`POST /api/users`, admin-only); open self-registration by calling `PUT /api/settings/registration`
 - **Roles**: admin (full access) / user (daily operations) / viewer (read-only)
 - **Offline recovery**: if an admin account's role is wrong, run `neomind user set-role <name> admin` on the server (no API required)
 - Changing a password or deleting a user **immediately revokes** all of that user's sessions
@@ -244,8 +244,8 @@ Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashbo
 # Probe backend health
 curl http://localhost:9375/api/health
 
-# Open API docs (Swagger)
-# Visit http://localhost:9375/api/docs in a browser
+# Verify the API is reachable
+# Visit http://localhost:9375 in a browser to see the Web UI
 
 # systemd status (one-line install)
 systemctl status neomind.service

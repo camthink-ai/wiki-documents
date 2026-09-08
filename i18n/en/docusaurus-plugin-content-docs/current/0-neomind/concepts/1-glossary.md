@@ -264,7 +264,7 @@ The concrete storage behind the two memory systems of [Memory](#memory):
 |-----------|------|------------|
 | **MemorySnapshot** | AI Chat | Conversation memory snapshot, persisted to `user.md` (user preferences) and `knowledge.md` (key facts), restored when a new session starts |
 | **Journal** | AI Agent | Execution log: one entry appended per execution (trigger, data summary, LLM conclusion, action, success/failure); the next execution reads the recent N entries to learn from history |
-| **Knowledge Files** | AI Agent | Long-term knowledge files (Markdown): `identity.md` (identity & duties), `mission.md` (goals & constraints), `resources.md` (bound resources), `schedule.md` (execution plan) — auto-initialized on first execution, editable in the Agent detail → Memory panel |
+| **Knowledge Files** | AI Agent | Long-term knowledge files (Markdown): a `task-understanding` file (role / mission / resources / schedule sections) is auto-initialized after the first successful execution; agents can create more knowledge files via the memory tool — editable in the Agent detail → Memory panel |
 
 **Example**: After an agent sends the same alert to one device twice, the Journal holds the failed records — on the next execution it skips already-sent alerts and adjusts the threshold. That is the "read Journal → change behavior" loop.
 
@@ -358,7 +358,7 @@ NeoMind's built-in automation evaluation engine. Evaluates bound rule conditions
 
 ### Message Channel
 
-The delivery channel used when a rule triggers a notification. There are 9 channels in total — **2 built-in + 7 external**. The two built-ins are **Console** (prints to the server log, for debugging) and **Memory** (writes into the AI agent's long-term memory so agents learn from alerts); they need no configuration and cannot be disabled. The 7 external channels are created by you. All messages also accumulate in the in-app message center (the Messages page).
+The delivery channel used when a rule triggers a notification. There are **7 channel types** — Webhook, Email, Telegram, WeCom, DingTalk, Slack, and Feishu — created and configured by you. All notifications also accumulate in the in-app message center (the Messages page), no setup required.
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule triggers</span>
@@ -482,10 +482,10 @@ NeoMind's publish/subscribe (pub/sub) backbone, implemented as `neomind-core::ev
 
 | Event source | Event | Subscribers |
 |--------------|-------|-------------|
-| Device MQTT data | `DeviceDataReceived` | Rule engine, data push, dashboard WS |
+| Device data write (MQTT / Webhook / extension virtual metrics) | `DeviceMetric` | Rule engine, data push, dashboard WS |
 | Rule triggered | `RuleTriggered` | Notifications, Agent |
 | Agent finished | `AgentExecutionCompleted` | Memory system, notifications |
-| Extension metric | `ExtensionMetric` | Storage, dashboard |
+| Extension output | `ExtensionOutput` | Storage, dashboard |
 
 **Example**: A single MQTT report lights up the dashboard curve, hits the high-temperature rule, and drives data push at the same time — three kinds of subscribers unaware of each other, all fanned out by the event bus.
 

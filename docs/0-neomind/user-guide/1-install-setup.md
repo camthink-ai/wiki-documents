@@ -156,7 +156,7 @@ ARCH=amd64  # Linux x86_64；arm64 设备改为 arm64
 
 # 下载
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}.tar.gz
-wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web-${VERSION}.tar.gz
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web.tar.gz
 
 # 安装二进制
 tar xzf neomind-server-linux-${ARCH}.tar.gz
@@ -165,7 +165,7 @@ sudo install -m 755 neomind-extension-runner /usr/local/bin/
 
 # 部署前端
 sudo mkdir -p /var/www/neomind
-sudo tar xzf neomind-web-${VERSION}.tar.gz -C /var/www/neomind
+sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 
 # 启动
 ./neomind serve
@@ -233,7 +233,7 @@ cd web && npm run tauri:build
 ## 用户与角色
 
 - **首个管理员**来自首次启动向导，拥有全部权限
-- **自注册默认关闭**（安全设计）：新用户由管理员在 **设置 → 用户管理** 中手动创建；如需开放自助注册，可在设置中开启（`PUT /api/settings/registration`）
+- **自注册默认关闭**（安全设计）：新用户由管理员通过 API 创建（`POST /api/users`，仅管理员可调用）；如需开放自助注册，可调用 `PUT /api/settings/registration` 开启
 - **角色**：admin（全部权限）/ user（日常操作）/ viewer（只读）
 - **离线修复**：管理员账号角色异常时，可在服务器上执行 `neomind user set-role <用户名> admin` 恢复（无需 API 在线）
 - 改密码 / 删除用户会**立即吊销**该用户的所有会话
@@ -244,8 +244,8 @@ cd web && npm run tauri:build
 # 检查后端进程与端口
 curl http://localhost:9375/api/health
 
-# 查看 API 文档（Swagger）
-# 浏览器打开 http://localhost:9375/api/docs
+# 验证 API 可达
+# 浏览器打开 http://localhost:9375 可看到 Web UI
 
 # systemd 状态（一键部署）
 systemctl status neomind.service
