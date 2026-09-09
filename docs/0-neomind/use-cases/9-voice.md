@@ -9,7 +9,9 @@ sidebar_label: "Voice & Speech"
 
 > NeoMind 的语音能力——**voice-assistant** 实时助手 + 可互换的 ASR / TTS 扩展，覆盖语音助手、语音输入、播报与音色克隆。
 
-> ⚠️ voice-assistant 当前为 **PoC（概念验证）** 版本，回复合逻辑仍是 echo（原样回显），后续将切换为 NeoMind Agent 调用。ASR / TTS 扩展本身已是可用版本。
+:::warning voice-assistant 为 PoC
+voice-assistant 当前为 **PoC（概念验证）** 版本，回复合逻辑仍是 echo（原样回显），后续将切换为 NeoMind Agent 调用。ASR / TTS 扩展本身已是可用版本。
+:::
 
 ---
 

@@ -241,7 +241,9 @@ Return:
 { "success": true, "device_id": "power_meter_1", "address": 0, "register_type": "holding", "count": 2, "data": [17673, 38912] }
 ```
 
-> ⚠️ The `data` returned by `read_registers` consists of **raw 16-bit words** with no type decoding or scaling (decoding only happens in the polling cycle). For engineering values use the `value` from `get_device_data` or the device metrics; keep `data` for cross-checking against the register manual.
+:::warning `data` is raw words
+The `data` returned by `read_registers` consists of **raw 16-bit words** with no type decoding or scaling (decoding only happens in the polling cycle). For engineering values use the `value` from `get_device_data` or the device metrics; keep `data` for cross-checking against the register manual.
+:::
 
 **Write a single holding register** — call arguments:
 
@@ -386,7 +388,9 @@ In other words, what you see on the Devices page / dashboards is a new data poin
 
 **Write a node value**: `write(node_id, value, data_type)` — `value` is a string; `data_type` is optional (e.g. `Float`, `Int32`) to specify the type explicitly.
 
-> ⚠️ **In the current open-source build (2.7.x), `write` is a protective stub**: the command returns an error and does not write to the server — preventing accidental writes to industrial servers from the bridge layer. For write control on OPC-UA points, use the device's own HMI / SCADA. Reads and subscriptions are unaffected.
+:::warning `write` is a protective stub
+**In the current open-source build (2.7.x), `write` is a protective stub**: the command returns an error and does not write to the server — preventing accidental writes to industrial servers from the bridge layer. For write control on OPC-UA points, use the device's own HMI / SCADA. Reads and subscriptions are unaffected.
+:::
 
 - Unsubscribe / disconnect: `unsubscribe(node_ids)` (`node_ids` format same as `subscribe`), `disconnect` (clears the node cache and subscriptions).
 - Helper commands: `list_nodes` / `get_node(node_id)` show cached node details (including `value` / `quality` / `source_timestamp`); `list_subscriptions` lists all active subscriptions (`subscription_id` / `node_ids` / `interval_ms` / `active`).

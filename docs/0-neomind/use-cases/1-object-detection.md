@@ -106,7 +106,7 @@ ollama list
 3. 填写设备 ID（与设备端一致）和 MQTT 主题（需要提前配置好 MQTT Broker）
 4. 保存并等待设备上线
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
+![设备上线并出现在设备列表](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
 
 > 详细的设备接入步骤请参考 [NeoMind 快速入门 - 设备管理](../user-guide/3-onboard-device.md)。
 
@@ -120,7 +120,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 **步骤 1**：进入 **Extensions（扩展）** 管理页面
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
+![扩展管理页面](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
 
 **步骤 2**：找到 **YOLO Device Inference** 扩展，点击安装
 
@@ -131,7 +131,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 **步骤 3**：安装完成后，启用扩展
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
+![扩展安装完成并启用](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
 
 ### 4.2 验证推理结果
 
@@ -172,7 +172,7 @@ AI Agent 通过 LLM 大语言模型对图像进行智能分析，使用自然语
 
 **步骤 1**：进入 **AI Agent** 管理页面
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
+![AI Agent 管理页面](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
 
 **步骤 2**：点击 **创建 Agent**，填写基本信息：
 
@@ -183,9 +183,9 @@ AI Agent 通过 LLM 大语言模型对图像进行智能分析，使用自然语
 
 AI Agent 的核心是提示词（Prompt）和执行规则。通过配置提示词定义分析逻辑，通过执行规则定义触发条件。
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
+![Agent 提示词配置](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
+![Agent 执行规则配置](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
+![Agent 执行规则配置（续）](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
 
 **配置步骤**：
 
@@ -244,7 +244,7 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 </div>
 
 绑定设备后，当设备采集到图像时，YOLO 扩展会自动推理并在面板中展示检测结果，包括标注后的图像和检测到的目标类型、数量：
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
+![YOLO 面板实时检测结果](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
 
 ### 6.3 添加 AI Agent 面板
 
@@ -256,7 +256,7 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 </div>
 
 ### 6.4 查看综合结果
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
+![检测结果综合查看](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
 
 完成后的仪表板可以同时展示 YOLO 扩展和 AI Agent 两种方案的检测结果，方便对比：
 <div style={{display: 'flex', gap: '8px'}}>
@@ -272,9 +272,9 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 根据 AI Agent 的提示词配置，当检测到目标时，NeoMind 会自动在 App 上显示通知。点击通知标签，可以查看具体的通知细节，关联检测图片。
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
+![App 通知详情](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
+![通知列表](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
 
 ### 7.2 邮件通知（可选）
 
@@ -331,4 +331,4 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-09*

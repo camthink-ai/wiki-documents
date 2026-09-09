@@ -166,4 +166,4 @@ cd web && npm run lint && npm run build:check
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-09*

@@ -9,7 +9,9 @@ sidebar_label: "Voice & Speech"
 
 > NeoMind's speech capabilities — a **voice-assistant** real-time assistant plus interchangeable ASR / TTS extensions, covering voice assistant, voice input, broadcast, and cloning.
 
-> ⚠️ voice-assistant is currently a **PoC (proof of concept)**: the reply stage still echoes input verbatim and will later switch to a NeoMind Agent call. The ASR / TTS extensions themselves are usable today.
+:::warning voice-assistant is a PoC
+voice-assistant is currently a **PoC (proof of concept)**: the reply stage still echoes input verbatim and will later switch to a NeoMind Agent call. The ASR / TTS extensions themselves are usable today.
+:::
 
 ---
 

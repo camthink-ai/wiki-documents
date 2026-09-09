@@ -241,7 +241,9 @@ neomind extension market-install bacnet-bridge
 { "success": true, "device_id": "power_meter_1", "address": 0, "register_type": "holding", "count": 2, "data": [17673, 38912] }
 ```
 
-> ⚠️ `read_registers` 返回的 `data` 是**原始 16 位字**，不做类型解码与缩放（解码只发生在轮询周期里）。要看工程值用 `get_device_data` 的 `value` 或设备指标；`data` 用于与寄存器手册对照。
+:::warning 注意 data 是原始字
+`read_registers` 返回的 `data` 是**原始 16 位字**，不做类型解码与缩放（解码只发生在轮询周期里）。要看工程值用 `get_device_data` 的 `value` 或设备指标；`data` 用于与寄存器手册对照。
+:::
 
 **写单个保持寄存器**——调用参数：
 
@@ -386,7 +388,9 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 **写节点值**：`write(node_id, value, data_type)`——`value` 为字符串，`data_type` 可选（如 `Float`、`Int32`）显式指定类型。
 
-> ⚠️ **当前开源版本（2.7.x）中 `write` 为保护性实现**：命令直接返回错误、不向服务器写入——避免桥接层对工业服务器误写。需要对 OPC-UA 点位做写控制时，请通过设备自带的上位机 / SCADA 操作。读与订阅不受影响。
+:::warning write 为保护性实现
+**当前开源版本（2.7.x）中 `write` 为保护性实现**：命令直接返回错误、不向服务器写入——避免桥接层对工业服务器误写。需要对 OPC-UA 点位做写控制时，请通过设备自带的上位机 / SCADA 操作。读与订阅不受影响。
+:::
 
 - 退订 / 断开：`unsubscribe(node_ids)`（`node_ids` 格式同 `subscribe`）、`disconnect`（清空节点缓存与订阅）。
 - 辅助命令：`list_nodes` / `get_node(node_id)` 查看缓存节点详情（含 `value` / `quality` / `source_timestamp`），`list_subscriptions` 列出全部活跃订阅（`subscription_id` / `node_ids` / `interval_ms` / `active`）。

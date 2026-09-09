@@ -92,11 +92,11 @@ flowchart LR
 
 **步骤 1**：进入 **Extensions（扩展）** 管理页面，点击工具栏的 **扩展市场**（地球图标），在搜索框输入 `face-recognition` 找到扩展
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-1.png)
+![扩展市场搜索 face-recognition](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-1.png)
 
 **步骤 2**：点击进入扩展详情页，查看扩展说明后点击 **Install**，NeoMind 自动下载安装。安装完成后扩展自动出现在扩展列表中并启动，确认状态为已启用（Running）
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-2.png)
+![扩展详情页点击 Install](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-2.png)
 
 ### 4.2 CLI 安装（可选）
 
@@ -122,14 +122,14 @@ neomind extension market-install face-recognition --version 2.7.8
 
 进入 **Dashboard（仪表板）** 管理页面，点击 **创建仪表板**，然后点击 **Add Component**，在 **Extensions** 页签选择 **Face Recognition** 组件（由 `face-recognition` 扩展提供）：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-1.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-2.png)
+![创建仪表板](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-1.png)
+![组件库选择 Face Recognition](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-2.png)
 
 ### 5.2 绑定设备
 
 在 Face Recognition 组件中绑定目标设备（NE101 或 NE301），图像指标使用设备实际的图像指标名（默认 `image`）。绑定完成后组件将自动接收并处理该设备采集的图像：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-3.png)
+![Face Recognition 组件绑定设备](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-3.png)
 
 > 📷 待补截图｜Face Recognition 组件绑定设备界面 · 建议路径 `…/neomind/face-recognition/dashboard-3b.png`
 
@@ -145,8 +145,8 @@ neomind extension market-install face-recognition --version 2.7.8
 
 在使用身份识别功能前，需要先注册人脸到人脸库中。在 Face Recognition 组件中点击 **注册人脸**，上传人员面部照片并填写对应的身份信息：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-4.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-5.png)
+![注册人脸界面](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-4.png)
+![人脸库列表](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-5.png)
 
 > 注册的人脸照片建议正面清晰、光线充足，以提高识别准确率。
 
@@ -193,7 +193,7 @@ neomind extension market-install face-recognition --version 2.7.8
 
 人脸注册完成后，设备采集到图像时，扩展会自动进行人脸检测和身份识别。一次完整的识别流程是：设备抓拍 → **SCRFD** 按检测阈值（`confidence_threshold`，默认 0.5）找出画面中的人脸 → 对齐后用 **ArcFace** 提取 512 维特征 → 与人脸库逐一生成余弦相似度 → 最高相似度 ≥ `recognition_threshold`（默认 0.45）即判定为该身份，否则标记 `unknown`。结果写入 `virtual.face_recognition.*` 指标并在组件上叠加人脸框与身份标签。在仪表板中可以查看实时识别结果：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
+![人脸识别结果展示](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
 
 识别结果包括：
 
@@ -245,7 +245,7 @@ neomind extension market-install face-recognition --version 2.7.8
 
 在设备详情中可以查看所有历史人脸识别记录，包括每次识别的原始图片和识别结果：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-1.png)
+![历史识别记录](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-1.png)
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-2.png" style={{width: '50%'}} />
@@ -272,7 +272,7 @@ neomind extension market-install face-recognition --version 2.7.8
 hello, please analyse the history data and result of 'face recognition', reply in english
 ```
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/chat-box.png)
+![AI Chat 查询识别记录](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/chat-box.png)
 
 > **提示**：AI Chat 功能需要配置 LLM 后端（如 Ollama），配置方法请参考 [NeoMind 快速入门](../user-guide/1-install-setup.md) 或 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 

@@ -74,7 +74,7 @@ Register your NE101 or NE301 to the NeoMind platform:
 3. Confirm the device info (device ID and topic are auto-generated, or customize them)
 4. Save and wait for the device to come online
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/device-0.png)
+![Device online](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/device-0.png)
 
 > For detailed device onboarding steps, refer to [NeoMind Quick Start - Device Management](../user-guide/3-onboard-device.md).
 
@@ -94,15 +94,15 @@ The OCR extension is published in the official extension marketplace; the curren
 
 **Step 1**: Navigate to the **Extensions** management page, click the **Extension Marketplace** icon (globe) in the toolbar, and search for `ocr-device-inference`
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-2.png)
+![Searching ocr-device-inference in the marketplace](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-2.png)
 
 **Step 2**: Click **Install** — NeoMind automatically picks the `.nep` package matching your platform / ABI and installs it
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-3.png)
+![Clicking Install to add the extension](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-3.png)
 
 **Step 3**: After installation the extension appears in the extension list and starts automatically; confirm its status is Running
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-1.png)
+![Extension installed and running](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-1.png)
 
 > In addition, the extension marketplace offers two newer OCR extensions: **`paddle-ocr-v6`** (PP-OCRv6 native ONNX inference with multi-tier models) and **`paddle-ocr-vl`** (high-accuracy multilingual OCR with table and key-information extraction). For complex layouts / tables, prefer the latter — see the [NE101 Camera OCR use case](./4-camera-ocr.md) and the [PaddleOCR-VL use case](./5-paddle-ocr-vl.md).
 
@@ -141,7 +141,7 @@ In the dashboard, click **Add Panel**, select the **OCR** component under the **
 
 Once bound, the OCR panel will automatically receive and process images captured by the device:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-3.png)
+![OCR panel bound to the device](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-3.png)
 
 You can add other widgets to the Dashboard page for additional data and content display.
 
@@ -242,7 +242,7 @@ After binding the device, you can manually trigger a capture to verify OCR recog
 
 In the OCR panel on the dashboard, you can view real-time recognition results, including the original image and extracted text:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-4.png)
+![Live OCR results in the panel](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-4.png)
 
 ### 6.3 View Recognition History
 
@@ -265,7 +265,7 @@ Once OCR recognition results are stored, you can query recognized text content v
 Hello, what's the OCR result of my device ne301-new? Reply in English.
 ```
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/ai-chat-test.png)
+![Querying OCR results in AI Chat](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/ai-chat-test.png)
 
 > **Tip**: AI Chat requires an LLM backend (e.g., Ollama). For configuration, refer to [NeoMind Quick Start](../user-guide/1-install-setup.md) or [Configure LLM Backend](../user-guide/2-configure-llm.md).
 

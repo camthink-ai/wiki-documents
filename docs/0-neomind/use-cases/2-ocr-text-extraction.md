@@ -74,7 +74,7 @@ flowchart LR
 3. 确认设备信息（设备 ID 与 Topic 由平台自动生成，也可自定义）
 4. 保存并等待设备上线
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/device-0.png)
+![设备上线](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/device-0.png)
 
 > 详细的设备接入步骤请参考 [NeoMind 快速入门 - 设备管理](../user-guide/3-onboard-device.md)。
 
@@ -94,15 +94,15 @@ OCR 扩展发布在官方扩展市场，当前版本为 **2.7.x**（本文以 2.
 
 **步骤 1**：进入 **Extensions（扩展）** 管理页面，点击工具栏的 **扩展市场**（地球图标），在搜索框输入 `ocr-device-inference` 找到扩展
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-2.png)
+![扩展市场搜索 ocr-device-inference](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-2.png)
 
 **步骤 2**：点击 **Install**，NeoMind 自动选择与当前平台 / ABI 匹配的 `.nep` 包并下载安装
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-3.png)
+![点击 Install 安装扩展](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-3.png)
 
 **步骤 3**：安装完成后扩展自动出现在扩展列表中并启动，确认状态为已启用（Running）
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-1.png)
+![扩展已安装并运行](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/extensions-1.png)
 
 > 此外，扩展市场还提供两个更新的 OCR 扩展：**`paddle-ocr-v6`**（PP-OCRv6 本地 ONNX 推理，多档模型）与 **`paddle-ocr-vl`**（高精度多语言识别、表格与关键信息抽取）。复杂版面/表格场景建议改用后者，见 [NE101 摄像头 OCR 应用案例](./4-camera-ocr.md) 与 [PaddleOCR-VL 用例](./5-paddle-ocr-vl.md)。
 
@@ -141,7 +141,7 @@ neomind extension market-install ocr-device-inference --version 2.7.8
 
 绑定完成后，OCR 面板将自动接收并处理该设备采集的图像：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-3.png)
+![OCR 面板绑定设备](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-3.png)
 
 用户可在 Dashboard 页面添加其他所需的组件，提供更多的数据和内容展示。
 
@@ -242,7 +242,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 在仪表板的 OCR 面板中可以查看实时识别结果，包括原始图像和提取的文字内容：
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-4.png)
+![OCR 面板实时识别结果](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/dashboard-4.png)
 
 ### 6.3 查看历史识别记录
 
@@ -265,7 +265,7 @@ OCR 识别结果存储后，可以在 **AI Chat** 中通过自然语言查询已
 Hello, what's the OCR result of my device ne301-new? Reply in English.
 ```
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/ai-chat-test.png)
+![AI Chat 查询 OCR 结果](https://resources.camthink.ai/wiki/img/ai-application/neomind/ocr-solution/ai-chat-test.png)
 
 > **提示**：AI Chat 功能需要配置 LLM 后端（如 Ollama），配置方法请参考 [NeoMind 快速入门](../user-guide/1-install-setup.md) 或 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 

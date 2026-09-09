@@ -92,11 +92,11 @@ The extension is published in the official extension marketplace; the current ve
 
 **Step 1**: Go to the **Extensions** management page, click the **Extension Marketplace** icon (globe) in the toolbar, and search for `face-recognition`
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-1.png)
+![Searching face-recognition in the marketplace](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-1.png)
 
 **Step 2**: Click to view the extension details, review the description, then click **Install** — NeoMind downloads and installs it automatically. After installation the extension appears in the extension list and starts automatically; confirm its status is Running
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-2.png)
+![Extension detail page with Install](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/extension-2.png)
 
 ### 4.2 CLI Installation (Optional)
 
@@ -122,14 +122,14 @@ neomind extension market-install face-recognition --version 2.7.8
 
 Go to the **Dashboard** management page, click **Create Dashboard**, then click **Add Panel** and select the **Face Recognition** component under the **Extensions** tab (provided by the `face-recognition` extension):
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-1.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-2.png)
+![Create a dashboard](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-1.png)
+![Selecting Face Recognition in the component library](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-2.png)
 
 ### 5.2 Bind Device
 
 Bind a target device (NE101 or NE301) in the Face Recognition widget; the image metric should match the device's actual image metric name (default `image`). Once bound, the widget will automatically receive and process images captured by the device:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-3.png)
+![Binding a device to the Face Recognition component](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-3.png)
 
 > 📷 Screenshot pending | Face Recognition widget device binding UI · suggested path `…/neomind/face-recognition/dashboard-3b.png`
 
@@ -145,8 +145,8 @@ Binding management commands: `get_bindings` to list all bindings and their statu
 
 Before using the identification feature, you need to register faces to the face gallery. In the Face Recognition widget, click **Register Face**, upload a clear frontal photo and fill in the corresponding identity information:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-4.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-5.png)
+![Face registration UI](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-4.png)
+![Face gallery list](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-5.png)
 
 > For best recognition accuracy, use clear, well-lit frontal photos for face registration.
 
@@ -193,7 +193,7 @@ Two gallery maintenance notes: registering beyond the `max_faces` limit (default
 
 Once faces are registered, the extension will automatically detect and identify faces when the device captures images. A full recognition pass works like this: the device captures a frame → **SCRFD** detects faces using the detection threshold (`confidence_threshold`, default 0.5) → each face is aligned and its 512-dim feature vector extracted with **ArcFace** → cosine similarity is computed against every gallery entry → the best match wins if its similarity ≥ `recognition_threshold` (default 0.45), otherwise the face is labeled `unknown`. Results are written to the `virtual.face_recognition.*` metrics and overlaid on the widget with face boxes and identity labels. View real-time recognition results on the dashboard:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
+![Recognition results](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
 
 Recognition results include:
 
@@ -245,7 +245,7 @@ Then validate with the live scene, watching two counters on the **Metrics** tab:
 
 View all historical face recognition records in the device details, including the original image and recognition result for each entry:
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-1.png)
+![Recognition history](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-1.png)
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/history-2.png" style={{width: '50%'}} />
@@ -272,7 +272,7 @@ Once recognition results are stored, you can query face data using **AI Chat** w
 hello, please analyse the history data and result of 'face recognition', reply in english
 ```
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/chat-box.png)
+![Querying recognition records in AI Chat](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/chat-box.png)
 
 > **Tip**: AI Chat requires an LLM backend (e.g., Ollama). For configuration, refer to [NeoMind Quick Start](../user-guide/1-install-setup.md) or [Configure LLM Backend](../user-guide/2-configure-llm.md).
 
