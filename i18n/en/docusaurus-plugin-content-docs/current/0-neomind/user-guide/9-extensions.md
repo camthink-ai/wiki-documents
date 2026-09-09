@@ -95,7 +95,7 @@ In the marketplace dialog:
 2. Click **Install** to download and install in one click
 3. After installation, the extension automatically appears in the list and starts
 
-Marketplace installation automatically selects the extension package matching the current main service's ABI version — no manual platform selection needed.
+Marketplace installation automatically selects the extension package matching the current main service's ABI version — no manual platform selection needed. The marketplace source can be switched in [Settings → Preferences](./12-settings.md#preferences).
 
 ### Method 2: Web UI Upload
 
