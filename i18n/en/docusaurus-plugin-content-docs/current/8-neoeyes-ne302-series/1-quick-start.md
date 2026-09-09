@@ -19,7 +19,7 @@ This procedure applies to the complete NE302 device (Main Board + Interface Boar
 
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'center', margin: '24px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-product-render-cropped.png" alt="NE302 white finished product with external antenna" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-board-connection-tight.png" alt="NE302 main board and interface board assembly" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-board-connection-tight-v2.png" alt="NE302 main board and interface board assembly" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
 </div>
 
 The left image shows the finished product; the right image shows the board assembly. Follow the delivery hardware record for power, antenna and board revision.

@@ -53,8 +53,8 @@ STM32N6 和 STM32U0 是独立 MCU。烧录前按接口板丝印确认目标；�
 接口板包括 USB-C 和 MicroSD 连接电路、烧录接口，以及 **SHT31-DIS** 温湿度传感器。该器件位于接口板上，但整机标准外壳未为其开孔；不能将其作为整机的环境温湿度测量功能。
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', margin: '20px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-programming-map.png" alt="NE302 接口板烧录接口标注图" style={{ width: '100%', borderRadius: '8px' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-storage-map.png" alt="NE302 接口板存储和 USB-C 接口标注图" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-programming-map-v2.png" alt="NE302 接口板烧录接口标注图" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-storage-map-v2.png" alt="NE302 接口板存储和 USB-C 接口标注图" style={{ width: '100%', borderRadius: '8px' }} />
 </div>
 
 | 接口板组件或区域 | 功能 | 使用边界 |
@@ -62,12 +62,13 @@ STM32N6 和 STM32U0 是独立 MCU。烧录前按接口板丝印确认目标；�
 | USB-C 电路 | 设备供电与 USB 连接 | 使用交付设备认可的 USB-C 电源和线缆 |
 | MicroSD 电路 | 访问本地存储卡 | 按当前设备流程操作；若未明确支持热插拔，请先停止设备并断电后再处理存储卡 |
 | SHT31-DIS | 原理图中的温湿度传感器 | 标准外壳未为传感器开孔，且本文未核验固件读取路径和 Web UI 是否显示；不作为整机环境温湿度测量功能 |
-| N6-STLINK / U0-STLINK | 两条独立 SWD 烧录路径 | 选择与固件目标一致的路径 |
-| U6-UART | STM32N6 串口控制台接口 | 仅使用匹配的转接器和串口流程；源码 README 标注为 921600 波特率 |
+| IR-CUT 插座 | 红外截止滤光片切换控制连接器（图中标注） | 本文未核验其控制路径与固件支持；接线前以交付资料为准 |
+| N6_STLINK / U0-STLINK | 两条独立 SWD 烧录路径 | 选择与固件目标一致的路径 |
+| N6_UART | STM32N6 串口控制台接口 | 仅使用匹配的转接器和串口流程；源码 README 标注为 921600 波特率 |
 | N6-BOOT / U0-BOOT | 烧录模式控制 | 仅在设备断电时切换对应开关 |
 
 ## 相关资料
 
-- 两板装配、USB-C、MicroSD、U6-UART 和 ST-LINK：[硬件连接](./1-hardware-connection.md)
+- 两板装配、USB-C、MicroSD、N6_UART 和 ST-LINK：[硬件连接](./1-hardware-connection.md)
 - 构建与烧录命令：[构建、烧录与更新](../4-software-guide/1-build-and-flash.md)
 - 源码中的原理图、PCB 图和工程文件：[NE302 源码仓库](https://github.com/camthink-ai/ne302)

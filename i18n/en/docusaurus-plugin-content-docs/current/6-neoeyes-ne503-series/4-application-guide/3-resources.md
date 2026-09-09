@@ -35,8 +35,8 @@ NE503 application-development materials are primarily maintained on GitHub, and 
 
 ## Prebuilt Applications
 
-- [Model Showcase ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.tar.gz)
-- [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.tar.gz)
+- [Model Showcase ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.neoapp)
+- [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.neoapp)
 - [All Releases](https://github.com/camthink-ai/neoruntime-apps/releases)
 
 For app builds, use `neoruntime-apps`; install the Python SDK from its [PyPI package](https://pypi.org/project/neoruntime-ipc-sdk/); for SDK APIs, use `neoruntime-sdks`; for platform APIs, event protocols, or deployment material, use `neoruntime`. If paths or artifacts change, follow the latest GitHub content.

@@ -45,10 +45,10 @@ tags: [NE503, 应用开发, Cookbook, 车辆检测, 事件集成]
 
 ### 3.1 直接下载 Release bundle
 
-推荐使用 [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.tar.gz)。解压后应包含 `app.yaml`、`parking-lot-image.tar` 和 `SHA256SUMS`：
+推荐使用 [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.neoapp)。Web 端导入直接使用该 `.neoapp` 文件；如需校验或命令行安装，解压后应包含 `app.yaml`、`parking-lot-image.tar` 和 `SHA256SUMS`：
 
 ```bash
-tar -xzf parking-lot-latest-arm64.tar.gz
+tar -xzf parking-lot-latest-arm64.neoapp
 cd parking-lot-*-arm64
 sha256sum -c SHA256SUMS
 ```
@@ -109,7 +109,7 @@ env:
 
 ### 4.1 安装
 
-在 Web Console 中进入 **App Management**，导入解压后的 `app.yaml` 和 `parking-lot-image.tar`，然后点击 **Install**。
+在 Web Console 中进入 **App Management**，通过 **Import → Upload Package** 上传下载的 `.neoapp` 文件，然后点击 **Install**。
 
 也可以在已登录设备的终端执行仓库 README 中的安装命令：
 

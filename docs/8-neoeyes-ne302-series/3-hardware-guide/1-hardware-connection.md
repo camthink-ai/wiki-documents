@@ -20,17 +20,17 @@ tags: [NE302, 硬件指南, 硬件连接, ST-LINK]
 | Trigger / Reset | 交付硬件和固件提供的物理触发或复位控制 | 仅使用交付设备实际提供的功能；本文不定义信号电平 |
 | 外置 SMA 天线 | 外置天线配置的无线连接 | 天线已牢固安装、避开金属遮挡，且可测试无线连接 |
 
-接口板的 **U6-UART** 是 STM32N6 串口控制台接口。仅使用匹配的转接器和串口流程；源码 README 标注为 921600 波特率。本文不定义其电平或引脚分配。
+接口板的 **N6_UART** 是 STM32N6 串口控制台接口。仅使用匹配的转接器和串口流程；源码 README 标注为 921600 波特率。本文不定义其电平或引脚分配。
 
 ## 编程接口识别
 
-![NE302 接口板烧录接口标注图](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/hardware-connection/ne302-interface-board-programming-map.png)
+![NE302 接口板烧录接口标注图](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/hardware-connection/ne302-interface-board-programming-map-v2.png)
 
-| 板卡丝印 | 物理目标 |
+| 图中标注 | 物理目标 |
 | :--- | :--- |
-| `N6-STLINK` | STM32N6 SWD 烧录与调试接口 |
 | `U0-STLINK` | STM32U0 SWD 烧录与调试接口 |
-| `U6-UART` | STM32N6 串口控制台接口 |
+| `N6_UART` | STM32N6 串口控制台接口 |
+| `N6_STLINK` | STM32N6 SWD 烧录与调试接口 |
 | `N6-BOOT` | STM32N6 启动模式开关 |
 | `U0-BOOT` | STM32U0 启动模式开关 |
 

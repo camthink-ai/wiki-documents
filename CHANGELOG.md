@@ -6,6 +6,12 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-09-09]
+
+### Changed
+- **NeoEyes NE503 AI Demo download**: The Model Showcase bundle is now distributed as `.neoapp` instead of `.tar.gz`. Quick Start, Resources, and the Parking Lot Cookbook now point to the current `neoruntime-apps` release assets, and the install steps upload the `.neoapp` file directly via Import → Upload Package without manual extraction (full bilingual support).
+- **NeoEyes NE302 Interface Board images**: Replaced the interface board photos on the product overview, components overview, hardware connection, build & flash, and quick start pages with the latest board revision shots (annotated programming/storage maps and the board-assembly photo), and aligned connector names in the text with the new callouts (`N6_UART`, `N6_STLINK`); added an IR-CUT header row noting its control path as unverified (full bilingual support).
+
 ## [2026-09-01]
 
 ### Changed

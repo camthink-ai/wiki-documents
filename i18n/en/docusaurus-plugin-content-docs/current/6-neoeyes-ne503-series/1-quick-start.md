@@ -62,13 +62,9 @@ Successful playback confirms streaming. For a black screen or stutter, confirm t
 
 ## 5. Run the AI Demo
 
-Download and extract [model-showcase-latest-arm64.tar.gz](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.tar.gz):
+Download [model-showcase-latest-arm64.neoapp](https://github.com/camthink-ai/neoruntime-apps/releases).
 
-~~~bash
-tar xzf model-showcase-latest-arm64.tar.gz
-~~~
-
-Open **Applications → Import → Upload Package**, select `app.yaml` and `image.tar`, grant the required model and stream permissions, and click **Install**.
+Open **Applications → Import → Upload Package**, select the `.neoapp` file, grant the required model and stream permissions, and click **Install**.
 
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-app-management.png" />
 
