@@ -219,16 +219,9 @@ See [Developer Guide](../developer-guide/1-overview.md) for build/contribution d
 
 ## First-Run Setup (All Modes)
 
-Regardless of install path, first visit to the Web UI requires just one step:
+Whichever installation you chose, the first visit to the web UI is the same: **create the admin account** (the first user automatically becomes admin; timezone is auto-detected) → then the [four-step setup wizard](#first-launch-wizard) (Welcome → LLM backend → Device connection → Done; every step is skippable).
 
-1. **Create an admin account** — the first registered user becomes admin; timezone is auto-detected
-
-After creation you land in the main UI, then walk through the **four-step setup wizard** described earlier (Welcome → LLM Backend → Device Connection → Done; every step can be skipped). Anything you skip can be configured later at any time:
-
-- **[Configure LLM Backend](./2-configure-llm.md)** — required before using AI Chat
-- **[Onboard a Device](./3-onboard-device.md)** — connect cameras or sensors via the onboarding wizard
-
-Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashboards](./4-use-dashboard.md), or create automation rules.
+Skipped items can be completed later: [Configure LLM Backend](./2-configure-llm.md), [Device Onboarding](./3-onboard-device.md). Then chat in [AI Chat](./5-ai-chat.md), build [dashboards](./4-use-dashboard.md), and create automation rules.
 
 ## Users & Roles
 
@@ -258,6 +251,18 @@ For common issues (port conflicts, LLM connection failures, MQTT unreachable), s
 `neomind` CLI and external integrations authenticate to the Server API with an **API key** (auto-generated on first start, format `nmk_xxx`). When run from the project root, the CLI auto-authenticates with no setup.
 
 For the full retrieval, configuration, and verification walkthrough see **[CLI & API Keys](./11-cli-api-keys.md)**.
+
+## Production Checklist
+
+Before moving from trial to production, walk through:
+
+- **[Backups](./10-troubleshooting.md#how-do-i-back-up)** — enable the automatic schedule (Settings → Preferences) and confirm retention count
+- **[Data retention](./12-settings.md#device-defaults--data-retention)** — set telemetry retention to match your needs (default is forever; disk grows continuously)
+- **[Users & roles](#users--roles)** — keep self-registration closed; create user / viewer accounts for operators and business users
+- **HTTPS** — front with an nginx reverse proxy and expose only 80/443 (keep 9375 / 1883 internal)
+- **[Marketplace source](./9-extensions.md)** — switch to a mirror if your network needs it
+- **[Online upgrade](#upgrade)** — make sure install.sh's helper systemd units are installed (older installs: rerun the script once)
+- **Timezone** — verify the system timezone; rule cron schedules and data timestamps depend on it (Settings → Preferences)
 
 ## Next Steps
 

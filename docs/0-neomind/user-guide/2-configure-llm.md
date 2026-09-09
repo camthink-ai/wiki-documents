@@ -215,22 +215,8 @@ neomind llm delete local
 
 ---
 
-## Ollama API 端点说明
-
-NeoMind 调用 Ollama 的**原生 `/api/chat` 端点**（不是 `/v1/chat/completions`）。这意味着：
-
-- 支持 `thinking` 字段（推理类模型如 qwen3.x / deepseek-r1 的思维链）
-- 支持原生多模态（图像输入）
-- 流式输出与工具调用走 Ollama 原生协议
-
-如果你在自测时用 `curl`，请注意调用正确的端点：
-
-```bash
-curl http://localhost:11434/api/chat -d '{
-  "model": "qwen3.5:4b",
-  "messages": [{"role": "user", "content": "你好"}],
-  "stream": false
-}'
+:::note Ollama 端点
+NeoMind 调用 Ollama 的**原生 `/api/chat` 端点**（不是 `/v1/chat/completions`）——因此支持思维链（`thinking`）、原生多模态与 Ollama 原生流式/工具调用协议。自测时的 curl 示例与常见 404 排查见 [故障排查 — LLM / Ollama](./10-troubleshooting.md#llm--ollama)。
 ```
 
 

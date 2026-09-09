@@ -212,24 +212,8 @@ neomind llm delete local
 For models that support reasoning, you can control the thinking effort uniformly in the backend capability panel: **none / low / medium / high** (some backends offer finer levels). NeoMind abstracts this into a single switch and maps it automatically to each backend's native parameters — Ollama's `think` levels, `reasoning_effort` for OpenAI / custom / GLM / Google, `thinking` for DeepSeek / Anthropic, and `enable_thinking` for Qwen. Backends that don't support reasoning show a read-only badge instead.
 
 
-## Ollama API Endpoint
-
-NeoMind calls Ollama's **native `/api/chat` endpoint** (not `/v1/chat/completions`). This means:
-
-- Supports the `thinking` field (chain-of-thought for reasoning models like qwen3.x / deepseek-r1)
-- Supports native multimodal (image input)
-- Streaming and tool calling use the Ollama native protocol
-
-If you're testing with `curl`, use the correct endpoint:
-
-```bash
-curl http://localhost:11434/api/chat -d '{
-  "model": "qwen3.5:4b",
-  "messages": [{"role": "user", "content": "Hello"}],
-  "stream": false
-}'
-```
-
+:::note Ollama endpoint
+NeoMind calls Ollama's **native `/api/chat` endpoint** (not `/v1/chat/completions`) — which is why thinking chains (`thinking`), native multimodality, and Ollama's native streaming/tool-call protocol all work. For curl examples during self-testing and the common 404 troubleshoot, see [Troubleshooting — LLM / Ollama](./10-troubleshooting.md#llm--ollama).
 
 ## Multimodal (Vision) Capability
 
