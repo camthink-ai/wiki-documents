@@ -270,7 +270,7 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 如何备份？
 
-**内置备份（0.9.21+，推荐）**——平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
+**内置备份（0.9.21+，推荐）**——计划与保留份数在 [系统设置 → Preferences](./12-settings.md#备份计划) 中配置；平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
 
 - **设置 → 偏好设置** 中配置备份计划（开关 / 间隔 6 小时 ~ 7 天 / 保留份数），也可点击「立即备份」
 - API：`POST /api/settings/backup`（立即备份）、`GET /api/settings/backups`（列出）

@@ -259,7 +259,7 @@ Yes. Stop the service, copy the entire data dir to the new host at the same path
 
 ### Backup
 
-**Built-in backup (0.9.21+, recommended)** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
+**Built-in backup (0.9.21+, recommended) — schedule and retention are configured in [Settings → Preferences](./12-settings.md#backup-schedule);** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
 
 - Configure the backup schedule under **Settings → Preferences** (on/off, 6h–7d interval, retention count); you can also click "Back up now"
 - API: `POST /api/settings/backup` (back up now), `GET /api/settings/backups` (list)
