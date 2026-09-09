@@ -125,7 +125,7 @@ flowchart LR
 
 接口板集中提供设备使用和开发所需的连接，包括 USB Type-C、MicroSD、调试/烧录连接、串口和其他版本相关接口。首次组装、烧录和现场接线时，应以接口板的丝印和交付资料为准。
 
-![NE302 接口板标注图](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-interface-board-cropped.png)
+![NE302 接口板标注图](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-interface-board-cropped-v2.png)
 
 ### 版本说明
 

@@ -125,7 +125,7 @@ The Main Board integrates the STM32N6, STM32U0, camera, PSRAM, SPI Flash, and wi
 
 The Interface Board exposes the connections needed for use and development, including USB Type-C, MicroSD, debug/flash channels, serial access and other revision-dependent interfaces. It is the main reference for first assembly, flashing and field connection.
 
-![Annotated NE302 interface board](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-interface-board-cropped.png)
+![Annotated NE302 interface board](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-interface-board-cropped-v2.png)
 
 ### Version Notes
 

@@ -69,9 +69,9 @@ If the variants differ, return to [Environment setup](./0-development-environmen
 
 STM32N6 covers FSBL, App, Web, Model and WiFi. The sequence is fixed: **set the switch → connect the hardware → power or reset → run the command on the PC → return the switch to run mode**.
 
-The image below labels the programming and serial interfaces on the actual Interface Board: `N6-STLINK` is for STM32N6, `U0-STLINK` is for STM32U0, and the middle `U6-UART` connector is serial, not an ST-LINK flashing interface.
+The image below labels the programming and serial interfaces on the actual Interface Board: `N6_STLINK` is for STM32N6, `U0-STLINK` is for STM32U0, and the middle `N6_UART` connector is serial, not an ST-LINK flashing interface.
 
-![NE302 flashing interface board](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/software-guide/build-and-flash/ne302-interface-board-programming-map.png)
+![NE302 flashing interface board](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/software-guide/build-and-flash/ne302-interface-board-programming-map-v2.png)
 
 ### Hardware connection
 

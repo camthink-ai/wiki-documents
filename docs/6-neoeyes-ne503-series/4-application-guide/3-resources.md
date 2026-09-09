@@ -35,8 +35,8 @@ NE503 应用开发资料主要维护在 GitHub；Python SDK 也已发布到 PyPI
 
 ## 预构建应用
 
-- [Model Showcase ARM64 安装包](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.tar.gz)
-- [Parking Lot ARM64 安装包](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.tar.gz)
+- [Model Showcase ARM64 安装包](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.neoapp)
+- [Parking Lot ARM64 安装包](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.neoapp)
 - [全部 Releases](https://github.com/camthink-ai/neoruntime-apps/releases)
 
 需要构建应用时查看 `neoruntime-apps`；需要安装 Python SDK 时使用 [PyPI 包](https://pypi.org/project/neoruntime-ipc-sdk/)；需要 SDK API 时查看 `neoruntime-sdks`；需要平台接口、事件协议或部署资料时查看 `neoruntime`。仓库中的路径和产物发生变化时，以 GitHub 最新内容为准。

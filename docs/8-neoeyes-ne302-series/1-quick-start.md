@@ -19,7 +19,7 @@ tags: [NE302, 快速指南, NeoEyes]
 
 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'center', margin: '24px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-product-render-cropped.png" alt="NE302 白色外置天线成品图" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-board-connection-tight.png" alt="NE302 主板和接口板组装图" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/quick-start/ne302-board-connection-tight-v2.png" alt="NE302 主板和接口板组装图" style={{ width: '100%', height: '360px', objectFit: 'contain' }} />
 </div>
 
 左图为成品，右图为主板与接口板组装状态。供电、天线和板卡版本以交付硬件资料为准。

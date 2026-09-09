@@ -45,10 +45,10 @@ The default manifest uses `sub.raw` and `STREAM_ID=sub`. Inference fails if the 
 
 ### 3.1 Download the Release bundle
 
-The recommended path is the [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.tar.gz). After extraction, it should contain `app.yaml`, `parking-lot-image.tar`, and `SHA256SUMS`:
+The recommended path is the [Parking Lot ARM64 bundle](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/parking-lot-latest-arm64.neoapp). The web import uses the `.neoapp` file directly; for checksum verification or CLI install, extract it to get `app.yaml`, `parking-lot-image.tar`, and `SHA256SUMS`:
 
 ```bash
-tar -xzf parking-lot-latest-arm64.tar.gz
+tar -xzf parking-lot-latest-arm64.neoapp
 cd parking-lot-*-arm64
 sha256sum -c SHA256SUMS
 ```
@@ -109,7 +109,7 @@ Keep `HD_PREVIEW_ENABLED=0` to use the app's MJPEG `/stream` preview.
 
 ### 4.1 Install
 
-In the Web Console, open **App Management**, import the extracted `app.yaml` and `parking-lot-image.tar`, then click **Install**.
+In the Web Console, open **App Management**, upload the downloaded `.neoapp` file via **Import → Upload Package**, then click **Install**.
 
 You can also use the installation command from the repository README on an authenticated device terminal:
 

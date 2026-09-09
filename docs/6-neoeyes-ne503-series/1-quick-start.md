@@ -62,13 +62,9 @@ rtsp://<设备IP>:8554/main
 
 ## 5. 体验 AI
 
-下载并解压 [model-showcase-latest-arm64.tar.gz](https://github.com/camthink-ai/neoruntime-apps/releases/download/showcase-bundles-latest/model-showcase-latest-arm64.tar.gz)：
+下载 [model-showcase-latest-arm64.neoapp](https://github.com/camthink-ai/neoruntime-apps/releases)。
 
-~~~bash
-tar xzf model-showcase-latest-arm64.tar.gz
-~~~
-
-在 **Applications → Import → Upload Package** 中分别选择 `app.yaml` 和 `image.tar`，按需授予模型和码流权限后点击 **Install**。
+在 **Applications → Import → Upload Package** 中选择该 `.neoapp` 文件，按需授予模型和码流权限后点击 **Install**。
 
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-app-management.png" />
 

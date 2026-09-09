@@ -53,8 +53,8 @@ STM32N6 and STM32U0 are separate MCUs. Before flashing, identify the target from
 The Interface Board includes the USB-C and MicroSD connection circuits, programming headers, and an **SHT31-DIS** temperature/humidity sensor. The component is present on the board, but the standard enclosure has no opening for it; it must not be presented as an enclosure-level ambient temperature/humidity measurement feature.
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', margin: '20px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-programming-map.png" alt="NE302 Interface Board programming interface map" style={{ width: '100%', borderRadius: '8px' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-storage-map.png" alt="NE302 Interface Board storage and USB-C map" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-programming-map-v2.png" alt="NE302 Interface Board programming interface map" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-interface-board-storage-map-v2.png" alt="NE302 Interface Board storage and USB-C map" style={{ width: '100%', borderRadius: '8px' }} />
 </div>
 
 | Interface-board component or area | Function | Use boundary |
@@ -62,12 +62,13 @@ The Interface Board includes the USB-C and MicroSD connection circuits, programm
 | USB-C circuit | Device power and USB connection | Use the approved USB-C supply and cable for the delivered unit |
 | MicroSD circuit | Local card access | Follow the current device procedure; if hot-plug behavior is not explicitly supported, stop the device and disconnect power before handling the card |
 | SHT31-DIS | Temperature/humidity sensor present in the schematic | The standard enclosure has no opening for the sensor, and its firmware read path and Web UI exposure were not verified; do not present it as an enclosure-level ambient measurement feature |
-| N6-STLINK / U0-STLINK | Separate SWD programming paths | Select the path that matches the firmware target |
-| U6-UART | STM32N6 serial-console connector | Use only with the matching adapter and serial procedure; the source README lists 921600 baud |
+| IR-CUT connector | IR-cut filter switch control connector (labeled in the image) | Its control path and firmware support are not verified in this guide; follow the delivered documentation before wiring |
+| N6_STLINK / U0-STLINK | Separate SWD programming paths | Select the path that matches the firmware target |
+| N6_UART | STM32N6 serial-console connector | Use only with the matching adapter and serial procedure; the source README lists 921600 baud |
 | N6-BOOT / U0-BOOT | Programming-mode controls | Change the matching switch only while the device is unpowered |
 
 ## Related resources
 
-- Board assembly, USB-C, MicroSD, U6-UART, and ST-LINK: [Hardware Connection](./1-hardware-connection.md)
+- Board assembly, USB-C, MicroSD, N6_UART, and ST-LINK: [Hardware Connection](./1-hardware-connection.md)
 - Build and flashing commands: [Build, Flash and Update](../4-software-guide/1-build-and-flash.md)
 - Schematics, PCB files, and project sources: [NE302 source repository](https://github.com/camthink-ai/ne302)

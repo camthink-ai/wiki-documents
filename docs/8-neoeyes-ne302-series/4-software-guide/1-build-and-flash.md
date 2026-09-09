@@ -69,9 +69,9 @@ make model STEDGEAI_VARIANT=4.0
 
 STM32N6 负责 FSBL、App、Web、Model 和 WiFi。烧录顺序固定为：**先拨码 → 接线 → 上电或复位 → 在 PC 执行命令 → 完成后拨回运行状态**。
 
-下图标出实际接口板上的烧录和串口接口：`N6-STLINK` 用于 STM32N6，`U0-STLINK` 用于 STM32U0；中间的 `U6-UART` 是串口接口，不是 ST-LINK 烧录接口。
+下图标出实际接口板上的烧录和串口接口：`N6_STLINK` 用于 STM32N6，`U0-STLINK` 用于 STM32U0；中间的 `N6_UART` 是串口接口，不是 ST-LINK 烧录接口。
 
-![NE302 实际烧录设备接口板](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/software-guide/build-and-flash/ne302-interface-board-programming-map.png)
+![NE302 实际烧录设备接口板](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/software-guide/build-and-flash/ne302-interface-board-programming-map-v2.png)
 
 ### 硬件接入
 

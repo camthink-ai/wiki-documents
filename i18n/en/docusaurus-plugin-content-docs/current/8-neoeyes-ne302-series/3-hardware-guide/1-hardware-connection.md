@@ -20,17 +20,17 @@ This page identifies the external, serial, and programming interfaces on the Int
 | Trigger / Reset | Physical input or recovery control provided by the delivered hardware and firmware | Use only the function exposed by the delivered device; do not infer signal levels from this guide |
 | External SMA antenna | Wireless connection for an external-antenna configuration | Antenna is firmly fitted, has clearance from metal, and wireless connectivity can be tested |
 
-The Interface Board provides **U6-UART** for the STM32N6 serial console. Use the matching adapter and serial procedure; the source README lists 921600 baud. Do not infer electrical levels or pin assignments from this guide.
+The Interface Board provides **N6_UART** for the STM32N6 serial console. Use the matching adapter and serial procedure; the source README lists 921600 baud. Do not infer electrical levels or pin assignments from this guide.
 
 ## Identify programming interfaces
 
-![NE302 Interface Board programming interface map](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/hardware-connection/ne302-interface-board-programming-map.png)
+![NE302 Interface Board programming interface map](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/hardware-connection/ne302-interface-board-programming-map-v2.png)
 
 | Board label | Physical target |
 | :--- | :--- |
-| `N6-STLINK` | STM32N6 SWD programming and debugging interface |
 | `U0-STLINK` | STM32U0 SWD programming and debugging interface |
-| `U6-UART` | STM32N6 serial-console interface |
+| `N6_UART` | STM32N6 serial-console interface |
+| `N6_STLINK` | STM32N6 SWD programming and debugging interface |
 | `N6-BOOT` | STM32N6 boot-mode switch |
 | `U0-BOOT` | STM32U0 boot-mode switch |
 
