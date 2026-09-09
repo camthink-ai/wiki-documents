@@ -118,7 +118,7 @@ neomind extension market-install ocr-device-inference --version 2.7.8
 - Open the **extension detail page** and confirm the Overview / Configuration / Commands / Metrics / Logs tabs exist.
 - Switch to the **Metrics** tab: the extension-level metrics `bound_devices`, `total_inferences`, `total_text_blocks`, and `total_errors` should be reporting (initially 0).
 
-> How to invoke commands: OCR binding and management can be done in the dashboard OCR widget (see [5.2](#52-添加-ocr-面板并绑定设备)) or via extension commands — either in the extension detail page **Commands** tab, or via the REST API `POST /api/extensions/:id/command` with body `{"command":"...","args":{...}}`.
+> How to invoke commands: OCR binding and management can be done in the dashboard OCR widget (see [5.2](#52-add-ocr-panel-and-bind-device)) or via extension commands — either in the extension detail page **Commands** tab, or via the REST API `POST /api/extensions/:id/command` with body `{"command":"...","args":{...}}`.
 
 ---
 
@@ -286,8 +286,8 @@ Locate issues with the trio: the extension detail page **Logs** tab for process 
 | `virtual.ocr.count` is 0; no text recognized | Image resolution too low, text too small or blurry; `language` does not match the text language (default `chinese`, Chinese/English only) | Improve capture resolution and lighting; switch `language` to match the scene; validate with `recognize_image` on a single clear image first to rule out capture quality issues |
 | Bounding boxes are offset, or irrelevant text is recognized | Full-frame recognition picks up background text; `draw_boxes` annotations do not match the expected region | Use `update_roi` to set polygons covering only the target area (vertices 0.0–1.0 normalized), and adjust `roi_overlap_threshold` as needed (default 0.5; higher requires more overlap between the text block and the ROI) |
 | `total_errors` keeps growing; inference fails | PP-OCRv4 model files (`det_mv3_db.onnx` / `rec_svtr.onnx` / `rec_en.onnx`) missing or corrupted; ONNX Runtime issue | Check the specific error in the **Logs** tab; reinstall the extension or re-download models per the extension README; the first inference loads models and is expected to be slower |
-| Garbled / missing characters in mixed Chinese-English text | The extension recognizes a single language at a time (`chinese` or `english`) | Pick `language` by the dominant language; for mixed scripts, multilingual text, or tables, switch to `paddle-ocr-v6` / `paddle-ocr-vl` (see the note in [4.1](#41-通过扩展市场安装推荐)) |
-| `virtual.ocr.confidence` stays low | Blurry images, glare, or tilted shooting angle | Improve capture conditions (focus, lighting, shoot head-on); use ROI to focus on key text; add the low-confidence alert rule from [8. Downstream Usage](#8-下游使用) as a safety net |
+| Garbled / missing characters in mixed Chinese-English text | The extension recognizes a single language at a time (`chinese` or `english`) | Pick `language` by the dominant language; for mixed scripts, multilingual text, or tables, switch to `paddle-ocr-v6` / `paddle-ocr-vl` (see the note in [4.1](#41-install-from-the-extension-marketplace-recommended)) |
+| `virtual.ocr.confidence` stays low | Blurry images, glare, or tilted shooting angle | Improve capture conditions (focus, lighting, shoot head-on); use ROI to focus on key text; add the low-confidence alert rule from [8. Downstream Usage](#8-downstream-usage) as a safety net |
 
 ---
 
