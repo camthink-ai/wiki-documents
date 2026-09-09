@@ -109,7 +109,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 4. 校验通过后解包、加载、启动
 
 :::tip
-官方 `.nep` 包按平台分发（如 `weather-forecast-2.7.7-linux_amd64.nep`）。市场安装会自动选择与当前平台和主服务 ABI 版本匹配的扩展包，无需手动挑选；从 Releases 手动下载时请选择对应平台目录下的包。
+官方 `.nep` 包按平台分发（如 `weather-forecast-2.7.7-linux_amd64.nep`）。市场安装会自动选择与当前平台和主服务 ABI 版本匹配的扩展包，无需手动挑选；从 Releases 手动下载时请选择对应平台目录下的包。市场源可在 [系统设置 → Preferences](./12-settings.md#偏好设置preferences) 中切换镜像。
 :::
 
 ### 方式三：CLI
