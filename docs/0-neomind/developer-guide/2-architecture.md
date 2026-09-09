@@ -105,17 +105,65 @@ NeoMind 运行时由**两类进程**组成：
 
 ## 事件总线
 
-`neomind-core::event_bus` 是组件解耦的神经系统。所有跨模块通信走事件，不直接 import 对方：
+`neomind-core::event_bus` 是组件解耦的神经系统。所有跨模块通信走事件，不直接 import 对方。事件枚举 `NeoMindEvent`（`crates/neomind-core/src/event.rs`）共 **45 个变体**，按域分组：
 
-| 事件源 | 事件 | 订阅者 |
-|--------|------|--------|
-| 设备数据写入（含 MQTT / Webhook / 扩展虚拟指标） | `DeviceMetric` | 规则引擎、数据推送、仪表板 WS |
-| 规则触发 | `RuleTriggered` | 消息通知、Agent |
-| Agent 完成 | `AgentExecutionCompleted` | 记忆系统、消息通知 |
-| 扩展输出 | `ExtensionOutput` | 存储、仪表板 |
-| 消息产生 | `MessageCreated` | 应用内消息中心 |
+| 域 | 事件（`NeoMindEvent` 变体） | 典型订阅者 |
+|----|------|--------|
+| 设备 | `DeviceOnline` / `DeviceOffline` / `DeviceTransportOnline` / `DeviceTransportOffline` / **`DeviceMetric`** / `DeviceCommandResult` / `DeviceDiscovered` | 规则引擎、数据推送、仪表板 WS、自动接入 |
+| 规则 | `RuleEvaluated` / `RuleTriggered` / `RuleExecuted` | 消息通知、审计 |
+| 告警与消息 | `AlertCreated` / `AlertAcknowledged` / `MessageCreated` / `MessageAcknowledged` / `MessageResolved` | 应用内消息中心、通知渠道、Agent |
+| IM | `ImMessageReceived` | IM 桥接会话 |
+| Agent | `AgentExecutionStarted` / `AgentThinking` / `AgentDecision` / `AgentProgress` / `AgentExecutionCompleted` / `AgentMemoryUpdated` / `AgentStreamChunk` / `AgentStreamEnd` | 记忆系统、消息通知、Chat SSE |
+| LLM 决策回路 | `PeriodicReviewTriggered` / `LlmDecisionProposed` / `LlmDecisionExecuted` | Agent 决策执行 |
+| 工具 | `ToolExecutionStart` / `ToolExecutionSuccess` / `ToolExecutionFailure` | Agent 过程展示 |
+| 扩展 | `ExtensionOutput` / `ExtensionLifecycle` / `ExtensionCommandStarted` / `ExtensionCommandCompleted` / `ExtensionCommandFailed` | 存储、仪表板 |
+| 系统 | `ModelDownloadProgress` / `SystemUpgradeProgress` / `DashboardUpdated` / `DataChanged` / `UserMessage` / `LlmResponse` / `Custom` | 前端事件流（SSE/WS） |
 
-发布订阅模型，多订阅者并行触发，单订阅者内串行处理。
+**订阅语义**：发布订阅模型，多订阅者并行触发，单订阅者内串行处理；订阅者处理过慢时事件会被丢弃（丢弃计数可通过 `/api/metrics` 的 `neomind_eventbus_dropped_total` 观测）——所以订阅者里不要做慢操作，慢活先 `spawn`。
+
+**最核心的一条**：`DeviceMetric` 是"主事件"——设备数据写入（含 MQTT / Webhook / 扩展虚拟指标）都会发布它，规则引擎、数据推送、仪表板 WS 都由它驱动。
+
+<details>
+<summary>完整枚举定义</summary>
+
+```rust
+// crates/neomind-core/src/event.rs
+pub enum NeoMindEvent { /* 45 个变体，见上表；serde 按变体名序列化 */ }
+```
+
+以变体名为准：新增事件时同步更新本表。
+</details>
+
+## 一次数据写入的生命周期
+
+以「LoRaWAN 温度传感器上报 23.5°C」为例，穿越整个架构的完整路径：
+
+```text
+MQTT 消息到达 (rmqtt, :1883)
+  → neomind-devices 适配器解析 + 设备匹配（未知设备 → 草稿/自动接入）
+  → 写入 neomind-storage（telemetry.redb，秒级时间戳）
+  → 发布 NeoMindEvent::DeviceMetric 到事件总线
+      ├→ neomind-rules：立即评估所有匹配规则（>30°C → notify 动作）
+      ├→ 数据转换（neomind-api automation）：input 解包 → JS 管道 → 派生指标再入库
+      ├→ neomind-data-push：匹配推送目标 → 外部 Webhook / MQTT
+      └→ 仪表板 WebSocket：实时推送到订阅的图表
+```
+
+理解这条路径就能解释大部分行为：为什么规则是"写入即评估"（事件驱动）、为什么转换读的是已入库数据、为什么仪表板不需要轮询。
+
+## 扩展加载时序
+
+`.nep` 从安装到可用的完整序列（`neomind-core/src/extension/loader/isolated.rs`）：
+
+```text
+安装：上传/市场下载 → 解包校验（zip 结构 + ABI 3 + 平台二进制）→ 落盘 extensions/<id>/
+启动：API spawn → neomind-extension-runner 子进程
+  → runner dlopen 平台二进制 → 校验 neomind_extension_abi_version() == 3
+  → JSON 桥握手（hello → capabilities → descriptor）
+  → 主进程注册扩展指标/命令/组件 → 状态 Running
+崩溃：进程退出/挂起（liveness Ping 超时）→ 自动重启（最多 3 次，间隔 5s）
+  → 超限 → 状态 Crashed，停止自动重启并经通知渠道告警
+```
 
 ## 扩展 ABI
 

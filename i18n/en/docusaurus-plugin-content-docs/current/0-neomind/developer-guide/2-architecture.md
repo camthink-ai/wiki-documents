@@ -104,17 +104,65 @@ Spawned and supervised by `neomind-extension-runner`:
 
 ## Event Bus
 
-`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly:
+`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly. The `NeoMindEvent` enum (`crates/neomind-core/src/event.rs`) has **45 variants**, grouped by domain:
 
-| Source | Event | Subscribers |
-|--------|-------|-------------|
-| Device data write (MQTT / Webhook / extension virtual metrics) | `DeviceMetric` | Rule engine, data push, dashboard WS |
-| Rule fires | `RuleTriggered` | Message notifier, agent |
-| Agent completes | `AgentExecutionCompleted` | Memory system, message notifier |
-| Extension output | `ExtensionOutput` | Storage, dashboard |
-| Message created | `MessageCreated` | In-app message center |
+| Domain | Events (`NeoMindEvent` variants) | Typical subscribers |
+|----|------|--------|
+| Devices | `DeviceOnline` / `DeviceOffline` / `DeviceTransportOnline` / `DeviceTransportOffline` / **`DeviceMetric`** / `DeviceCommandResult` / `DeviceDiscovered` | Rule engine, data push, dashboard WS, auto-onboarding |
+| Rules | `RuleEvaluated` / `RuleTriggered` / `RuleExecuted` | Notifications, audit |
+| Alerts & messages | `AlertCreated` / `AlertAcknowledged` / `MessageCreated` / `MessageAcknowledged` / `MessageResolved` | In-app message center, notification channels, Agent |
+| IM | `ImMessageReceived` | IM bridge sessions |
+| Agent | `AgentExecutionStarted` / `AgentThinking` / `AgentDecision` / `AgentProgress` / `AgentExecutionCompleted` / `AgentMemoryUpdated` / `AgentStreamChunk` / `AgentStreamEnd` | Memory system, notifications, Chat SSE |
+| LLM decision loop | `PeriodicReviewTriggered` / `LlmDecisionProposed` / `LlmDecisionExecuted` | Agent decision execution |
+| Tools | `ToolExecutionStart` / `ToolExecutionSuccess` / `ToolExecutionFailure` | Agent process display |
+| Extensions | `ExtensionOutput` / `ExtensionLifecycle` / `ExtensionCommandStarted` / `ExtensionCommandCompleted` / `ExtensionCommandFailed` | Storage, dashboards |
+| System | `ModelDownloadProgress` / `SystemUpgradeProgress` / `DashboardUpdated` / `DataChanged` / `UserMessage` / `LlmResponse` / `Custom` | Frontend event stream (SSE/WS) |
 
-Pub/sub — multiple subscribers fire in parallel; within a single subscriber, events are processed sequentially.
+**Subscription semantics**: pub/sub — multiple subscribers fire in parallel; within a single subscriber, events are processed sequentially. A slow subscriber causes events to be dropped (observable via `neomind_eventbus_dropped_total` on `/api/metrics`) — never do slow work inside a subscriber; `spawn` first.
+
+**The one event that drives everything**: `DeviceMetric` is the primary event — every device data write (MQTT / Webhook / extension virtual metrics) publishes it, powering the rule engine, data push, and dashboard WebSockets.
+
+<details>
+<summary>Full enum definition</summary>
+
+```rust
+// crates/neomind-core/src/event.rs
+pub enum NeoMindEvent { /* 45 variants, serialized by variant name */ }
+```
+
+The variant names are authoritative: update this table when adding events.
+</details>
+
+## Lifecycle of One Data Write
+
+Take "a LoRaWAN temperature sensor reports 23.5°C" through the whole architecture:
+
+```text
+MQTT message arrives (rmqtt, :1883)
+  → neomind-devices adapter parses + matches device (unknown → draft/auto-onboard)
+  → written to neomind-storage (telemetry.redb, second-precision timestamps)
+  → publishes NeoMindEvent::DeviceMetric on the event bus
+      ├→ neomind-rules: evaluates all matching rules immediately (>30°C → notify action)
+      ├→ transforms (neomind-api automation): input unwrap → JS pipeline → derived metrics re-stored
+      ├→ neomind-data-push: matches push targets → external Webhook / MQTT
+      └→ dashboard WebSocket: pushed in real time to subscribed charts
+```
+
+Understanding this path explains most behavior: why rules evaluate "on write" (event-driven), why transforms read already-stored data, and why dashboards never poll.
+
+## Extension Load Sequence
+
+The full sequence from `.nep` to usable (`neomind-core/src/extension/loader/isolated.rs`):
+
+```text
+Install: upload/market download → unpack & validate (zip layout + ABI 3 + platform binary) → extensions/<id>/
+Start: API spawn → neomind-extension-runner child process
+  → runner dlopens the platform binary → checks neomind_extension_abi_version() == 3
+  → JSON bridge handshake (hello → capabilities → descriptor)
+  → main process registers extension metrics/commands/components → state Running
+Crash: process exit / hang (liveness Ping timeout) → auto-restart (up to 3×, 5s apart)
+  → limit reached → state Crashed, auto-restart stops, alert via notification channels
+```
 
 ## Extension ABI
 
