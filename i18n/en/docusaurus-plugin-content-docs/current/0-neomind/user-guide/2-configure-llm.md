@@ -29,7 +29,7 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 | Cloud | MiniMax | `MiniMax-M2` | API Key required |
 | Cloud | Custom gateway | Any | OpenAI-compatible endpoint (type OpenAI with a custom endpoint) |
 
-> **Recommended**: Ollama + `qwen3.5:4b` (4B params, balances speed and quality, runs smoothly on 8GB RAM). Add cloud backends when you need more power or multimodal.
+> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). On the Ollama path use `qwen3.5:4b` (4B, the balanced pick). Add cloud backends when you need more power or multimodal.
 
 
 ## Built-in Local Models (Zero Config)

@@ -47,11 +47,13 @@ flowchart LR
 
 ## 2. 物料清单（BOM）
 
-| 物料 | 型号/规格 | 数量 | 用途 | 必需 |
-|------|----------|------|------|------|
-| **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
-| **OCR 扩展** | ocr-device-inference 2.7.x | 1 | 文字识别推理 | ✅ |
+开始前先确认手头物料：一台能抓拍图像的智能相机、一套 NeoMind 平台，再加一个 OCR 扩展即可，无需 GPU 等额外硬件。
+
+| 物料 | 规格 | 用途 | 必需 |
+|------|------|------|------|
+| **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
+| **NeoMind 平台** | v0.9.0+（[下载](https://github.com/camthink-ai/NeoMind/releases/latest)） | 边缘 AI 管理 | ✅ |
+| **OCR 扩展** | ocr-device-inference 2.7.x | 文字识别推理 | ✅ |
 
 > 推理硬件自动适配：macOS 走 CoreML，Linux 有 NVIDIA GPU 时走 CUDA，其余回退 CPU，无需手动配置。
 
@@ -147,7 +149,7 @@ OCR 组件同时支持**上传单张图片即时识别**与管理设备绑定，
 
 ### 5.3 命令方式绑定与管理（可选）
 
-除仪表板组件外，也可在扩展详情页 **命令（Commands）** 标签执行 `bind_device` 绑定（或经 REST 调用）：
+仪表板组件适合单人配置；如果需要用脚本 / API 批量绑定多台设备，就要走命令通道。可在扩展详情页 **命令（Commands）** 标签执行 `bind_device` 绑定（或经 REST 调用）：
 
 ```json
 {
@@ -160,6 +162,14 @@ OCR 组件同时支持**上传单张图片即时识别**与管理设备绑定，
   }
 }
 ```
+
+执行成功返回：
+
+```json
+{ "success": true, "device_id": "ne301-new" }
+```
+
+`device_id` 必填，其余参数省略时取默认值（`image_metric: image`、`draw_boxes: true`、`language: chinese`）。绑定会持久化到扩展配置，扩展重启后自动恢复，无需重新绑定。绑定成功只是第一步，还需要按 [5.4](#54-验证绑定) 确认识别真的在跑。
 
 | 命令 | 关键参数 | 说明 |
 |------|----------|------|
@@ -182,13 +192,43 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 ### 5.4 验证绑定
 
+`bind_device` 返回 `success: true` 只代表参数被接受，真正的确认标准是三件事：指标开始增长、`get_status` 能看到活跃绑定、识别结果指标开始写入。
+
 - 扩展详情页 **指标** 标签：`bound_devices` ≥ 1；设备抓拍后 `total_inferences` 持续增长、`total_errors` 不增长。
-- 扩展详情页 **命令** 标签执行 `get_bindings`，确认绑定为 active 状态。
+- 扩展详情页 **命令** 标签执行 `get_bindings`，确认绑定为 active 状态；或执行 `get_status` 一次拿到模型加载状态、累计统计与每个绑定的状态：
+
+```json
+{ "command": "get_status", "args": {} }
+```
+
+返回（字段无需转换，可直接断言）：
+
+```json
+{
+  "success": true,
+  "data": {
+    "model_loaded": true,
+    "model_error": null,
+    "total_inferences": 128,
+    "total_text_blocks": 342,
+    "total_errors": 0,
+    "bindings_count": 1,
+    "bindings": [
+      { "device_id": "ne301-new", "active": true, "total_inferences": 128 }
+    ]
+  }
+}
+```
+
+判读方法：`model_loaded` 为 `false` 属正常（模型在首次推理时才懒加载），但若同时 `model_error` 有值，说明模型文件加载失败，按第 10 节排查；`bindings` 里目标设备应为 `"active": true`，且其 `total_inferences` 随抓拍增长。
+
 - 每次识别都会向设备写入 `virtual.ocr.*` 结果指标，DataSourceId 形如：
   - `device:ne301-new:virtual.ocr.full_text`（识别全文）
   - `device:ne301-new:virtual.ocr.count`（文本块数量）
   - `device:ne301-new:virtual.ocr.confidence`（平均置信度 0.0–1.0）
   - `device:ne301-new:virtual.ocr.annotated_image`（绘制文本框后的标注图）
+
+关于标注图：`draw_boxes: true`（默认）时，扩展把每个识别到的文本框绘制在原图上，编码为 **JPEG** 后以 `data:image/jpeg;base64,…` 格式写入 `virtual.ocr.annotated_image`。把该指标绑定到仪表板图片组件即可看到「框随字走」的效果——这也是核对识别位置、ROI 区域是否准确最直观的方式。
 
 ---
 

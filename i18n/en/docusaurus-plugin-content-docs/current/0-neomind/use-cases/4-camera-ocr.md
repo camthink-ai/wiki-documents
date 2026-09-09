@@ -44,13 +44,15 @@ Inference results are written to virtual metrics `virtual.<extension>.*`; the co
 
 ## 2. Bill of Materials (BOM)
 
-| Item | Model / Spec | Qty | Purpose | Required |
-|------|----------|------|------|------|
-| **Smart camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind platform** | v0.9.0+ | 1 | Edge AI management | ✅ |
-| **paddle-ocr-v6 extension** | v2.7.8+ | 1 | Local OCR inference engine | ✅ |
-| **ne101_camera component** | v2.14.10+ | 1 | Camera panel + AI processing pipeline | ✅ (from the component marketplace) |
-| **Local LLM** | Ollama, etc. | 1 | AI Chat backend | Optional |
+All inference in this pipeline runs locally on the NeoMind host: the paddle-ocr-v6 `tiny` tier ships bundled with the extension — no GPU and no Internet needed (`small` / `medium` tiers only require connectivity the first time they are switched to).
+
+| Item | Model / Spec | Purpose | Required |
+|------|------|------|------|
+| **Smart camera** | NE101 or NE301 | Image capture | ✅ |
+| **NeoMind platform** | v0.9.0+ | Edge AI management | ✅ |
+| **paddle-ocr-v6 extension** | v2.7.8+ | Local OCR inference engine | ✅ |
+| **ne101_camera component** | v2.14.10+ | Camera panel + AI processing pipeline | ✅ (from the component marketplace) |
+| **Local LLM** | Ollama, etc. | AI Chat backend | Optional |
 
 ---
 
@@ -78,7 +80,7 @@ Go to the **Extensions** page, open the marketplace, search for **paddle-ocr-v6*
 
 ![Download and install the paddle-ocr-v6 package](https://resources.camthink.ai/wiki/img/ai-application/neomind/camera-ocr/03-install-extension.png)
 
-paddle-ocr-v6 offers four inference tiers, switchable in the extension config or the component panel:
+paddle-ocr-v6 offers four inference tiers, switchable in the extension config or the component panel (they map to the `tier` parameter of the extension's `switch_tier` command: `tiny` / `small` / `medium` / `auto`, default `auto`):
 
 | Tier | Size | Use case |
 |------|------|------|
@@ -86,6 +88,8 @@ paddle-ocr-v6 offers four inference tiers, switchable in the extension config or
 | `small` | ~18MB (lazy download) | CoreML or CUDA available, higher accuracy |
 | `medium` | ~132MB (lazy download) | CUDA with ≥16GB RAM, highest accuracy |
 | `auto` | — | Default; auto-selects by host capability |
+
+> Switching tiers means calling the `switch_tier` command (or changing the extension config); the `small` / `medium` models are downloaded on first switch and work offline afterwards. Run the `health` command to see the currently active tier.
 
 ### 4.2 Confirm the ne101_camera component is available
 
@@ -236,9 +240,17 @@ List the product-label SKUs recognized today.
 - **Object detection**: tune the confidence and NMS thresholds and tighten `processingCategories`; for proprietary targets, swap in a custom ONNX model.
 - **Open-vocabulary grounding**: refine the `processingPhrase` wording and the NMS threshold to improve recall.
 
-### 9.2 Relationship to the General OCR Solution
+### 9.2 OCR Extension Selection Cheat Sheet
 
-The [General OCR Solution](./2-ocr-text-extraction.md) uses a basic OCR panel for one-off recognition of a manual capture — "snap one, read one". This guide is a continuous-recognition / detection solution: always-on camera, automated pipeline, ROI overlay. Both build on the NeoMind extension system; pick by scenario.
+NeoMind ships three OCR extensions, and all of them plug into the same `processingExtensionId` pipeline from this guide (just change the drop-down in step 5.3). Choose by deployment constraints and document complexity:
+
+| Extension | Deployment | Best at | See |
+|------|------|------|------|
+| `ocr-device-inference` | Local SVTR ONNX, tens of MB, CPU-friendly | General text-line recognition (single Chinese/English) | [General OCR Solution](./2-ocr-text-extraction.md) |
+| `paddle-ocr-v6` (this guide) | Local ONNX, four tiers, edge-runnable | Simple printed text, meter readings, low-latency offline | This guide |
+| `paddle-ocr-vl` | Remote GPU inference service | Complex layouts, table reconstruction, key-information extraction | [PaddleOCR-VL Document Understanding](./5-paddle-ocr-vl.md) |
+
+The [General OCR Solution](./2-ocr-text-extraction.md)'s basic OCR panel suits the manual "snap one, read one" scenario; this guide is the continuous-recognition setup — always-on camera, automated pipeline, ROI overlay. When unsure: get it running at the edge with v6 first, then switch to paddle-ocr-vl for tables / receipts / warped documents.
 
 ---
 
@@ -261,4 +273,4 @@ The [General OCR Solution](./2-ocr-text-extraction.md) uses a basic OCR panel fo
 
 ---
 
-*Last updated: 2026-07-13*
+*Last updated: 2026-09-08*

@@ -44,13 +44,15 @@ flowchart LR
 
 ## 2. 物料清单（BOM）
 
-| 物料 | 型号/规格 | 数量 | 用途 | 必需 |
-|------|----------|------|------|------|
-| **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | ✅ |
-| **paddle-ocr-v6 扩展** | v2.7.8+ | 1 | 本地 OCR 推理引擎 | ✅ |
-| **ne101_camera 组件** | v2.14.10+ | 1 | 摄像头面板 + AI 处理流水线 | ✅（随组件市场提供）|
-| **本地 LLM** | Ollama 等 | 1 | AI Chat 后端 | 可选 |
+这条流水线全部推理都在 NeoMind 主机本地完成：paddle-ocr-v6 的 `tiny` 档模型随扩展内置，无需 GPU、无需外网（`small` / `medium` 档首次切换时才需联网下载）。
+
+| 物料 | 型号/规格 | 用途 | 必需 |
+|------|----------|------|------|
+| **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 边缘 AI 管理 | ✅ |
+| **paddle-ocr-v6 扩展** | v2.7.8+ | 本地 OCR 推理引擎 | ✅ |
+| **ne101_camera 组件** | v2.14.10+ | 摄像头面板 + AI 处理流水线 | ✅（随组件市场提供）|
+| **本地 LLM** | Ollama 等 | AI Chat 后端 | 可选 |
 
 ---
 
@@ -78,7 +80,7 @@ flowchart LR
 
 ![下载并安装 paddle-ocr-v6 扩展包](https://resources.camthink.ai/wiki/img/ai-application/neomind/camera-ocr/03-install-extension.png)
 
-paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换：
+paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换（对应扩展命令 `switch_tier` 的 `tier` 参数：`tiny` / `small` / `medium` / `auto`，默认 `auto`）：
 
 | 档位 | 体积 | 适用 |
 |------|------|------|
@@ -86,6 +88,8 @@ paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换
 | `small` | ~18MB（按需下载）| 有 CoreML 或 CUDA，精度更高 |
 | `medium` | ~132MB（按需下载）| CUDA 加 ≥16GB 内存，最高精度 |
 | `auto` | — | 默认，按主机能力自动选择 |
+
+> 切换档位即调 `switch_tier` 命令（或改扩展配置）；`small` / `medium` 首次切换时按需下载模型，之后离线可用。执行 `health` 命令可查看当前生效档位。
 
 ### 4.2 确认 ne101_camera 组件可用
 
@@ -236,9 +240,17 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 - **目标检测**：调整置信度与 NMS 阈值、收窄 `processingCategories`；专属目标替换自定义 ONNX 模型。
 - **开放词表定位**：调整 `processingPhrase` 措辞与 NMS 阈值，提升匹配召回。
 
-### 9.2 与通用 OCR 方案的关系
+### 9.2 OCR 扩展选型速查
 
-[通用 OCR 方案](./2-ocr-text-extraction.md) 用基础 OCR 面板对手动抓拍做一次性识别，适合「拍一张、认一下」；本篇是相机常驻、自动流水线、ROI 叠加的持续识别 / 检测方案。两者底层都走 NeoMind 扩展体系，可按场景选用。
+NeoMind 共有三个 OCR 扩展，都能接入本篇同一条 `processingExtensionId` 流水线（第 5.3 步换下拉选项即可），按部署条件与文档复杂度选择：
+
+| 扩展 | 部署 | 擅长 | 详见 |
+|------|------|------|------|
+| `ocr-device-inference` | 本地 SVTR ONNX，几十 MB，CPU 友好 | 通用文字行识别（中 / 英单语种） | [通用 OCR 方案](./2-ocr-text-extraction.md) |
+| `paddle-ocr-v6`（本篇） | 本地 ONNX，四档模型，边缘可跑 | 简单印刷体、仪表读数、低延迟离线 | 本篇 |
+| `paddle-ocr-vl` | 远端 GPU 推理服务 | 复杂版面、表格还原、关键信息抽取 | [PaddleOCR-VL 文档理解](./5-paddle-ocr-vl.md) |
+
+[通用 OCR 方案](./2-ocr-text-extraction.md) 的基础 OCR 面板适合「拍一张、认一下」的手动场景；本篇是相机常驻、自动流水线、ROI 叠加的持续识别方案。拿不准时：先在边缘用 v6 跑通，遇到表格 / 票据 / 扭曲文档再切 paddle-ocr-vl。
 
 ---
 
@@ -261,4 +273,4 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ---
 
-*最后更新: 2026-07-13*
+*最后更新: 2026-09-08*

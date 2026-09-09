@@ -48,12 +48,14 @@ flowchart LR
 
 ## 2. Bill of Materials (BOM)
 
-| Item | Model/Spec | Qty | Purpose | Required |
-|------|-----------|-----|---------|----------|
-| **Smart Camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind Platform** | v0.9.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
-| **Face Recognition Extension** | face-recognition 2.7.x | 1 | Face detection and identity recognition | ✅ |
-| **Local LLM** | Ollama | 1 | AI Chat backend | Optional |
+Beyond a camera and the platform, all face-recognition inference (detection + feature matching + gallery storage) runs locally on the NeoMind host — no extra server needed. A local LLM is only required if you want AI Chat queries.
+
+| Item | Specification | Purpose | Required |
+|------|------|------|------|
+| **Smart Camera** | NE101 or NE301 | Image capture | ✅ |
+| **NeoMind Platform** | v0.9.0+ ([Download](https://github.com/camthink-ai/NeoMind/releases/latest)) | Edge AI management | ✅ |
+| **Face Recognition Extension** | face-recognition 2.7.x | Face detection and identity recognition | ✅ |
+| **Local LLM** | Ollama | AI Chat backend | Optional |
 
 ---
 
@@ -148,11 +150,48 @@ Before using the identification feature, you need to register faces to the face 
 
 > For best recognition accuracy, use clear, well-lit frontal photos for face registration.
 
-You can also register via the `register_face` command (parameters `name` + `image`, where `image` is a base64-encoded photo), and manage the gallery with `list_faces` and `delete_face` (parameter `face_id`). The face gallery is persisted, so re-registration is not needed after an extension restart.
+You can also register via the `register_face` command. `name` is required (up to 100 characters; duplicate names return a `DUPLICATE_NAME` error) and `image` is a base64-encoded photo (data URI prefix accepted, max 10MB after decoding). Run it in the extension detail page **Commands** tab, or via REST `POST /api/extensions/:id/command`:
+
+```json
+{
+  "command": "register_face",
+  "args": {
+    "name": "Zhang San",
+    "image": "/9j/4AAQSkZJRg… (base64-encoded face photo)"
+  }
+}
+```
+
+The extension first detects faces using the detection threshold (`confidence_threshold`, default 0.5) — registration fails if no face is found. On success it aligns a 112×112 face crop, extracts a 512-dim feature vector with ArcFace, and persists it together with a thumbnail into the face gallery:
+
+```json
+{
+  "success": true,
+  "face_id": "9f8b7c6d-5a4e-4f3b-2c1d-0e9f8a7b6c5d",
+  "name": "Zhang San",
+  "registered_at": 1788912000,
+  "message": "Face 'Zhang San' registered successfully"
+}
+```
+
+`face_id` is the input for `delete_face` later; `registered_at` is a Unix timestamp (seconds). Right after registering, run `list_faces` to confirm the gallery — `count` should increase by one and `faces` contains the new entry's summary (`id` / `name` / `registered_at` / `thumbnail`, where `thumbnail` is the aligned 112×112 face thumbnail as a data URI):
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "faces": [
+    { "id": "9f8b7c6d-5a4e-…", "name": "Zhang San", "registered_at": 1788912000, "thumbnail": "data:image/jpeg;base64,…" },
+    { "id": "2e4a1b3c-7d8e-…", "name": "Li Si", "registered_at": 1788912120, "thumbnail": "data:image/jpeg;base64,…" }
+  ]
+}
+```
+
+Two gallery maintenance notes: registering beyond the `max_faces` limit (default 10) returns `MAX_FACES_EXCEEDED` — delete a face first to free a slot. The gallery is persisted as `faces.json` in the extension data directory, so re-registration is not needed after an extension restart.
 
 ### 5.4 Test Recognition
 
-Once faces are registered, the extension will automatically detect and identify faces when the device captures images. View real-time recognition results on the dashboard:
+Once faces are registered, the extension will automatically detect and identify faces when the device captures images. A full recognition pass works like this: the device captures a frame → **SCRFD** detects faces using the detection threshold (`confidence_threshold`, default 0.5) → each face is aligned and its 512-dim feature vector extracted with **ArcFace** → cosine similarity is computed against every gallery entry → the best match wins if its similarity ≥ `recognition_threshold` (default 0.45), otherwise the face is labeled `unknown`. Results are written to the `virtual.face_recognition.*` metrics and overlaid on the widget with face boxes and identity labels. View real-time recognition results on the dashboard:
 
 ![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
 
@@ -175,6 +214,32 @@ Recognition thresholds and capacity can be adjusted at runtime via the `configur
 | `recognition_threshold` | `0.45` | Similarity threshold for identity matching; higher is stricter (fewer false matches, more misses), lower is looser |
 | `max_faces` | `10` | Maximum number of faces processed per frame |
 | `confidence_threshold` | `0.5` | Face detection confidence threshold |
+
+**Tuning example: too many false positives (strangers identified as registered people)**
+
+If passers-by keep being identified as "Zhang San" on site, matching is too loose. ArcFace matching uses cosine similarity, and a higher `recognition_threshold` means stricter matching. Raise the threshold from the default `0.45` to `0.6`:
+
+```json
+{ "command": "configure", "args": { "config": { "recognition_threshold": 0.6 } } }
+```
+
+The response echoes the full effective configuration — first confirm `recognition_threshold` is now `0.6`:
+
+```json
+{
+  "success": true,
+  "message": "Configuration updated",
+  "config": {
+    "confidence_threshold": 0.5,
+    "recognition_threshold": 0.6,
+    "max_faces": 10,
+    "auto_detect": true,
+    "bindings": []
+  }
+}
+```
+
+Then validate with the live scene, watching two counters on the **Metrics** tab: a rising `total_unknown` means previously misidentified strangers are now correctly rejected (the expected effect); if registered employees also start being labeled `unknown` (`total_recognized` stops growing), you overshot — back off to 0.5–0.55. Threshold changes take effect immediately and are persisted; no extension restart is needed. Adding registration photos from more angles further widens the similarity gap.
 
 ### 5.5 View History
 

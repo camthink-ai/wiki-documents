@@ -98,7 +98,7 @@ sidebar_position: 7.75
 | **Backoff (secs)** | 初始退避秒数 | 5 |
 | **Max Backoff (secs)** | 最大退避秒数 | 300 |
 
-> 重试使用指数退避策略：第 1 次重试等 5s，第 2 次等 10s，第 3 次等 20s……直到达到 Max Backoff 上限。
+> 重试使用指数退避策略：第 1 次重试等 5s，第 2 次等 10s，第 3 次等 20s……直到达到 Max Backoff 上限。注意 `Max Retries: 3` 指的是**重试**次数——加上首次发送，一条数据最多尝试 4 次。如果目标端返回 **429/503**（限流），NeoMind 会改用更长的固定退避并优先遵循响应头里的 `Retry-After`（未携带时默认等 60 秒），避免把已经过载的对端打垮。
 
 **批量配置（Batch Config）**：
 
@@ -107,7 +107,120 @@ sidebar_position: 7.75
 | **Batch Size** | 每批最大数据条数（默认 `1`，即不批量、逐条立即推送） |
 | **Batch Interval (ms)** | 批量发送间隔（毫秒，默认 `2000`） |
 
+开启批量（`batch_size > 1`）后，多条数据会攒成一次请求发出，payload 结构为 `{ "batch": […], "count": N, "items": [{"source_id", "value", "timestamp"}, …] }`（`format: "flat"` 默认形态；`format: "nested"` 则按数据源类型/ID/字段嵌套组织）。
+
 配置完成后点击 **Save** 保存。
+
+## 完整生命周期示例：Webhook 从创建到验证
+
+用真实请求/响应走一遍全流程：把 sensor-01 的数据推送到本地接收端。
+
+**第 1 步 · 创建推送目标**
+
+```bash
+curl -X POST http://localhost:9375/api/data-push \
+  -H "Authorization: Bearer <JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Temperature to Local Receiver",
+    "target_type": "webhook",
+    "config": {"url": "http://192.168.1.50:9999/ingest", "method": "POST"},
+    "schedule": {"type": "event_driven", "event_types": ["device_metric"]},
+    "data_filter": {"source_patterns": ["device:sensor-01:*"], "only_changes": false},
+    "enabled": true
+  }'
+```
+
+真实响应：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "f95bd869-0acb-41d2-a75a-a8c879d53f99",
+    "name": "Temperature to Local Receiver",
+    "target_type": "webhook",
+    "enabled": true
+  }
+}
+```
+
+注意：事件驱动调度**必须**带 `event_types`（如 `device_metric` 设备数据、`extension_output` 扩展输出）；间隔调度则用 `{"type": "interval", "interval_secs": 60}`。
+
+**第 2 步 · 启动并发送测试数据**
+
+```bash
+# 启动
+curl -X POST http://localhost:9375/api/data-push/<id>/start
+
+# 发送一条样例数据验证链路
+curl -X POST http://localhost:9375/api/data-push/<id>/test
+```
+
+**第 3 步 · 确认对端收到什么**
+
+`test` 会让 NeoMind 真正向目标 URL 发一条样例数据。在接收端实际收到的 HTTP 请求：
+
+```text
+POST /ingest
+Content-Type: application/json
+
+{"source_id":"test:sample:value","value":{"test":true,"value":42},"timestamp":1788930335}
+```
+
+即**默认 payload 固定为三个字段**：`source_id`（数据源 ID）、`value`（指标值，可能是标量或对象）、`timestamp`（Unix 秒）。真实设备数据到达时，`source_id` 是匹配到的数据源（如 `device:sensor-01:temperature`），`value` 是指标值。
+
+如果对端需要别的格式，用目标的 `template` 字段写 Handlebars 模板改写 payload，可用变量为 `source_id` / `value` / `timestamp`，并提供 `{{json value}}`（序列化为 JSON 字符串）、`{{timestamp_format …}}`（时间格式化）两个助手：
+
+```json
+{ "template": "{ \"device\": \"{{source_id}}\", \"reading\": {{json value}}, \"time\": {{timestamp}} }" }
+```
+
+**第 4 步 · 查看投递日志确认状态**
+
+```bash
+curl http://localhost:9375/api/data-push/<id>/logs
+```
+
+一条真实的投递日志（`test` 产生的）：
+
+```json
+{
+  "id": "d9c8122f-2419-42a2-a45c-66eea410ec43",
+  "target_id": "f95bd869-0acb-41d2-a75a-a8c879d53f99",
+  "status": "success",
+  "data_source_id": "test:sample:value",
+  "payload_sent": "{\"source_id\":\"test:sample:value\",\"value\":{\"test\":true,\"value\":42},\"timestamp\":1788930335}",
+  "response": null,
+  "attempts": 1,
+  "created_at": 1788930335,
+  "completed_at": 1788930335,
+  "error": null
+}
+```
+
+字段说明见[投递日志](#投递日志)一节。
+
+**第 5 步 · 看整体统计**
+
+```bash
+curl http://localhost:9375/api/data-push/stats
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "total_targets": 1,
+    "active_targets": 1,
+    "total_deliveries": 0,
+    "successful_deliveries": 0,
+    "failed_deliveries": 0
+  }
+}
+```
+
+`total_deliveries` 及成败计数随真实数据推送持续累计——如果 `failed_deliveries` 在涨，去[投递日志](#投递日志)里看 `error` 字段定位原因。
 
 ## 推送目标操作
 
@@ -123,16 +236,21 @@ sidebar_position: 7.75
 
 ## 投递日志
 
-点击推送目标的 **Logs** 查看投递历史：
+点击推送目标的 **Logs**（或 `GET /api/data-push/<id>/logs`）查看投递历史。每条日志的字段：
 
-每条日志记录：
-- **状态**：Pending / Success / Failed / Retrying
-- **数据源**：推送的数据源 ID
-- **发送内容**：实际发送的 payload
-- **响应**：目标返回的响应（成功时）
-- **尝试次数**：当前是第几次重试
-- **错误信息**：失败时的错误详情
-- **时间**：发送时间与完成时间
+| 字段 | 说明 |
+|------|------|
+| `id` | 日志条目 ID |
+| `target_id` | 所属推送目标 |
+| `status` | `pending` / `success` / `failed` / `retrying` |
+| `data_source_id` | 本条推送的数据源 ID（如 `device:sensor-01:temperature`） |
+| `payload_sent` | 实际发送的 payload 原文（经过 template 渲染后的最终内容） |
+| `response` | 目标端返回的响应体（截断保存，成功时用于核对对端处理结果） |
+| `attempts` | 实际尝试次数——`1` 表示一次成功，`>1` 说明经历过重试 |
+| `created_at` / `completed_at` | 开始投递与最终完成（或放弃）的 Unix 时间戳 |
+| `error` | 失败原因（对端 5xx、连接超时、TLS 错误等） |
+
+排查套路：`status: failed` 先看 `error`；`attempts` 大说明目标端不稳定，结合 `created_at`/`completed_at` 的差值可以算出重试耗时；`payload_sent` 用来和接收端日志逐字节比对「发了什么」。
 
 ## CLI 管理
 
@@ -189,6 +307,23 @@ curl http://localhost:9375/api/data-push/<id>/logs
 # 查看统计
 curl http://localhost:9375/api/data-push/stats
 ```
+
+## MQTT 目标的差异点
+
+选 `MQTT` 类型时，目标配置、投递行为与 Webhook 有以下不同：
+
+| 维度 | Webhook | MQTT |
+|------|---------|------|
+| **目标配置** | `url` + `method` + `headers` | `broker`（主机名）+ `port`（独立字段，默认 `1883`）+ `topic`（发布主题）+ 可选 `username` / `password` |
+| **额外参数** | — | `qos`（默认 1）、`client_id`（默认 `neomind-push`） |
+| **投递方式** | 每次 HTTP POST 请求 | 向指定 topic 发布一条消息，payload 与 Webhook 相同（默认 `{"source_id", "value", "timestamp"}`，同样支持 template） |
+| **连接模型** | 无状态，发完即断 | 与 Broker 保持长连接；Broker 不可达时按重试策略重连重发 |
+| **测试** | Test 会真实 POST 一次 | Test 会真实向 topic 发布一次（用 `mosquitto_sub -t '<topic>'` 之类的客户端即可验证） |
+| **适用场景** | REST 业务系统、数据平台 ingest 接口 | 已有 MQTT 基础设施的平台（如 ThingsBoard、EMQX）对接 |
+
+:::note 嵌入式 Broker
+NeoMind 自带嵌入式 MQTT Broker（默认端口 1883），设备数据本来就是从它进来的。把推送目标也指到本地 Broker 的另一个 topic，可以实现「数据回流」——让只订阅 MQTT 的外部程序拿到与内部一致的数据流。
+:::
 
 ## 典型场景
 

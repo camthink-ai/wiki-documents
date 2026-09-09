@@ -72,7 +72,30 @@ python3 server.py        # → http://0.0.0.0:8000
 
 > **GPU 服务器注意**：服务端 `PADDLE_DEVICE` 默认为 `cpu`，GPU 机器需显式以 `PADDLE_DEVICE=gpu python3 server.py` 启动，否则 VLM 回落到 CPU 推理（极慢）。
 
-> 没有 GPU、或想先验证接线，可跑 `python3 mock_server.py`（返回固定响应，只需 `pip install fastapi uvicorn`）。
+> 没有 GPU、或想先验证接线，可跑 **mock 服务**：它实现与真实服务完全相同的 HTTP 接口，返回固定示例响应，只依赖 `fastapi` + `uvicorn`，一台普通笔记本就能跑：
+
+```bash
+cd extensions/paddle-ocr-vl/server
+pip install fastapi uvicorn
+python3 mock_server.py     # → http://127.0.0.1:8000
+```
+
+mock 服务对 KIE 请求返回如下固定示例（`/health` 恒为 `{"status": "ok", "version": "1.6-mock", "model_loaded": true}`）：
+
+```json
+{
+  "fields": {
+    "invoice_no": "INV-2026-0001",
+    "date": "2026-07-06",
+    "total": "$86.50",
+    "vendor": "Acme Corp",
+    "customer": "NeoMind"
+  },
+  "processing_time_ms": 30.0
+}
+```
+
+mock 只用于打通「扩展 → 服务 → 卡片渲染」链路，不能评估识别精度；验证通过后把 `endpoint` 指向真实服务地址即可（扩展默认 `endpoint` 就指向 `127.0.0.1:8000`，本机联调时无需修改）。
 
 服务就绪后，在扩展详情页执行 `health` 命令：返回 `status: ok` 即服务在线。`model_loaded` 在**首次推理后**才变为 `true`（`/health` 探活不会主动加载模型）；若返回 `status: degraded`，看响应里的 `load_error` 字段定位加载失败原因。
 
@@ -136,16 +159,70 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 > 图片二选一：`image_base64`（Base64 字节，推荐）或 `image_url`（由推理服务端拉取）。`recognize` / `recognize_table` / `extract_keys` 均要求二者必填其一，否则返回参数错误。
 
+一次完整的多语种 OCR 调用（`recognize`，命令级参数覆盖配置默认值）：
+
+```bash
+curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"command":"recognize","args":{"image_base64":"/9j/4AAQSkZJRg…","image_width":1920,"image_height":1080,"language":"ch","use_doc_orientation_classify":true,"use_doc_unwarping":true}}' \
+     http://localhost:9375/api/extensions/paddle-ocr-vl/command
+```
+
+返回的 `text_blocks` 每个元素对应一个文字块，`bbox` 为 0–1 归一化坐标（与 NE101 摄像头组件的叠加渲染兼容）：
+
+```json
+{
+  "text_blocks": [
+    { "text": "发票号码 INVOICE NO.", "confidence": 0.985,
+      "bbox": { "x": 0.05, "y": 0.10, "width": 0.30, "height": 0.04 } },
+    { "text": "INV-2026-0001", "confidence": 0.972,
+      "bbox": { "x": 0.68, "y": 0.10, "width": 0.24, "height": 0.04 } }
+  ],
+  "full_text": "发票号码 INVOICE NO.\nINV-2026-0001",
+  "processing_time_ms": 423.5,
+  "language": "ch"
+}
+```
+
+**直接调用推理服务的 HTTP 接口**（跳过扩展，用于服务侧独立排障或第三方系统集成）。服务监听 `0.0.0.0:8000`，接口与扩展命令一一对应：`POST /ocr` ↔ `recognize`、`POST /table` ↔ `recognize_table`、`POST /kie` ↔ `extract_keys`、`GET /health` ↔ `health`。请求体即 `args` 内容本身，例如：
+
+```bash
+curl -X POST http://<GPU服务器IP>:8000/ocr \
+     -H "Content-Type: application/json" \
+     -d '{"image_base64":"/9j/4AAQSkZJRg…","language":"ch","use_doc_orientation_classify":false,"use_doc_unwarping":false}'
+```
+
+```json
+{
+  "results": [
+    { "rec_text": "Hello", "rec_score": 0.982,
+      "dt_polynomial": [[96.0, 108.0], [1056.0, 108.0], [1056.0, 194.4], [96.0, 194.4]] }
+  ],
+  "full_text": "Hello",
+  "processing_time_ms": 420.5,
+  "image_width": 1920,
+  "image_height": 1080
+}
+```
+
+注意服务原始返回与扩展命令返回的两处差异：服务端是 `results`（`rec_text` / `rec_score` / 四点多边形 `dt_polynomial`，像素坐标），扩展已归一化为 `text_blocks`（`text` / `confidence` / 矩形 `bbox`）并补齐 `language` 字段。`POST /kie` 的服务端请求体为 `{"image_base64":"…","schema":{"fields":["invoice_no","date","total"]}}`，返回 `{"fields":{…},"processing_time_ms":…}`，与命令返回一致。
+
 ---
 
 ## 6. 典型场景
 
 ### 6.1 发票 / 票据结构化抽取（KIE）
 
-用 `extract_keys` + schema 把票据字段化：
+用 `extract_keys` + schema 把票据字段化（图片二选一，这里用 base64）：
 
 ```json
-{ "image_base64": "...", "schema": { "fields": ["invoice_no", "date", "total", "seller"] } }
+{
+  "command": "extract_keys",
+  "args": {
+    "image_base64": "<发票照片的 base64 字节>",
+    "schema": { "fields": ["invoice_no", "date", "total", "seller"] }
+  }
+}
 ```
 
 返回形如：
@@ -172,7 +249,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 财务报表、检测报告、规格表里的表格，用 `recognize_table` 转成 HTML：
 
 ```json
-{ "image_base64": "<base64-bytes>" }
+{ "command": "recognize_table", "args": { "image_base64": "<base64-bytes>" } }
 ```
 
 返回形如：
@@ -190,16 +267,19 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 ### 6.3 文档数字化（复杂版面 / 拍摄扭曲文档）
 
-多栏、图文混排的纸质文档，或手机拍摄的弯曲 / 倾斜页面，用 `recognize` 一步转成可检索文本：
+多栏、图文混排的纸质文档，或手机拍摄的弯曲 / 倾斜页面，用 `recognize` 一步转成可检索文本（拍摄歪斜的文档建议同时开启方向分类与去扭曲）：
 
 ```json
 {
-  "image_base64": "<base64-bytes>",
-  "image_width": 1920,
-  "image_height": 1080,
-  "language": "ch",
-  "use_doc_orientation_classify": true,
-  "use_doc_unwarping": true
+  "command": "recognize",
+  "args": {
+    "image_base64": "<base64-bytes>",
+    "image_width": 1920,
+    "image_height": 1080,
+    "language": "ch",
+    "use_doc_orientation_classify": true,
+    "use_doc_unwarping": true
+  }
 }
 ```
 

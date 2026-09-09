@@ -90,6 +90,138 @@ Each Agent can bind an independent LLM backend. Decoupled from the Chat model �
 
 Click **Save** at the bottom to save the Agent.
 
+### Worked Example: Creating the "Temperature Patrol" Agent
+
+Let's tie the fields together with a concrete goal: "check all temperature sensors once an hour; notify ops above 35°C". Fill in each field:
+
+| Field | Value | Notes |
+|-------|-------|-------|
+| **Name** | `Temperature Patrol` | 1–100 characters, required |
+| **Description** | `Hourly temperature patrol with automatic over-temperature alerts` | Optional, ≤500 characters |
+| **User Prompt** | See below | 1–10000 characters, required |
+| **Execution Mode** | `Focused` | Works only within the bound sensors — saves tokens and can't touch other devices |
+| **Resources** | Bind the `temperature` metric of 2 temperature sensors | Focused mode requires at least one bound resource, otherwise saving is rejected |
+| **Schedule** | `Cron`, expression `0 0 * * * *` | 6-field format (with seconds) — every hour on the hour |
+| **LLM Backend** | `qwen3.5:4b` (or a stronger model) | A local small model is fine for simple patrols |
+
+User Prompt example (copy and adapt):
+
+```text
+You are a temperature patrol officer. Read the latest values of all bound temperature sensors:
+1. All below 35°C: report in one sentence — "Patrol OK, max temperature XX°C";
+2. Any above 35°C: send an alert message (title includes device name and current
+   temperature) and state in your reply that the alert was sent;
+3. If the journal shows the same alert was already sent for the same device in the
+   previous round, do not send it again.
+```
+
+After clicking **Save**, the Agent appears in the list immediately with status **Active** and starts following the cron schedule.
+
+#### Creating the Same Agent via the API
+
+Every Web UI field maps to a field in the `POST /api/agents` request body. The request equivalent to the table above:
+
+```bash
+curl -X POST http://localhost:9375/api/agents \
+  -H "Authorization: Bearer <JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Temperature Patrol",
+    "description": "Hourly temperature patrol with automatic over-temperature alerts",
+    "user_prompt": "Read the latest values of all bound temperature sensors; send an alert above 35°C, otherwise report briefly.",
+    "execution_mode": "focused",
+    "resources": [
+      { "resource_id": "device:sensor-01:temperature", "resource_type": "metric", "name": "Machine Room 1 Temperature" },
+      { "resource_id": "device:sensor-02:temperature", "resource_type": "metric", "name": "Machine Room 2 Temperature" }
+    ],
+    "schedule": { "schedule_type": "cron", "cron_expression": "0 0 * * * *" },
+    "llm_backend_id": "default"
+  }'
+```
+
+Successful response (`id` is used for later queries and triggers):
+
+```json
+{
+  "success": true,
+  "data": { "id": "8f3a…", "name": "Temperature Patrol", "status": "active" }
+}
+```
+
+Key request body constraints (identical to the Web UI validation):
+
+| Field | Constraint |
+|-------|-----------|
+| `name` | Required, 1–100 characters |
+| `user_prompt` | Required, 1–10000 characters |
+| `description` | Optional, ≤500 characters |
+| `system_prompt` | Optional, ≤4000 characters, overrides the default identity |
+| `execution_mode` | `focused` / `free`; `focused` requires at least one `resources` entry |
+| `schedule.schedule_type` | `interval` / `cron` / `event`; `interval` needs `interval_seconds` ≥ 10 (`0` = fully manual); `cron` needs a valid 6-field `cron_expression` |
+| `resources[].resource_type` | `device` / `metric` / `command` / `extension_metric` / `extension_tool` / `data_stream` |
+| `max_chain_depth` | 1–30, default 3 (tool-call round cap for Focused+ mode) |
+
+## Running It Once and Reading the Results
+
+No need to wait for the cron tick — verify the Agent works as expected right after saving:
+
+**Step 1 · Trigger an execution**: click **Execute Now** at the top right of the detail page, or call the API:
+
+```bash
+curl -X POST http://localhost:9375/api/agents/<agent_id>/execute \
+  -H "Authorization: Bearer <JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{ "trigger_type": "manual", "input": "Run one patrol" }'
+```
+
+**Step 2 · Poll the execution status**: an execution usually takes tens of seconds (collect data → LLM analysis → actions). The status badge changes in real time (Executing → Active); you can also poll the API:
+
+```bash
+curl http://localhost:9375/api/agents/<agent_id>/executions
+```
+
+Fields of an execution record (illustrative):
+
+```json
+{
+  "executions": [{
+    "id": "exec-9c1f…",
+    "agent_id": "8f3a…",
+    "timestamp": "2026-09-09T14:00:00Z",
+    "trigger_type": "manual",
+    "status": "Completed",
+    "duration_ms": 21340
+  }]
+}
+```
+
+`status` values: `Running` / `Completed` / `Failed` / `Partial` (some actions failed). On `Failed`, check the `error` field.
+
+**Step 3 · Read the execution detail (decision process)**: append the execution `id` to the detail endpoint to see the Agent's full reasoning chain — which data was collected, each reasoning step, every decision, and the final conclusion:
+
+```bash
+curl http://localhost:9375/api/agents/<agent_id>/executions/<execution_id>
+```
+
+The detail is organized in two blocks: `decision_process` (`situation_analysis` → `data_collected` → `reasoning_steps` → `decisions` → `conclusion`) and `result` (`actions_executed`, `notifications_sent`, `summary`). This is the primary place to debug "why didn't the Agent alert" / "why did it alert twice". In the Web UI, clicking an entry in the execution history shows exactly this content.
+
+**Step 4 · See what the journal recorded**: after the execution finishes, the memory system appends a journal entry (visible in the detail page's **Memory** panel). The structure of a journal entry:
+
+```json
+{
+  "timestamp": 1788930400,
+  "execution_id": "exec-9c1f…",
+  "outcome": "Patrol OK: 2 sensors at 26.4°C / 27.1°C, below the 35°C threshold, no alert needed",
+  "action_taken": "Read latest temperature of sensor-01; Read latest temperature of sensor-02; Report patrol result",
+  "success": true,
+  "stop_reason": "completed"
+}
+```
+
+- `outcome` is the LLM's conclusion summary (truncated to 300 characters)
+- `action_taken` is the list of executed actions (max 5 entries, each truncated to 150 characters)
+- The journal is FIFO with only the most recent N entries kept; the Agent reads these before each execution — which is what makes "don't repeat the alert from last round" in the example prompt actually work.
+
 ## Agent Detail
 
 Click any Agent card to open the detail panel:
@@ -121,18 +253,42 @@ Each execution writes a journal entry recording:
 - Actions taken (`action_taken`)
 - Success / failure status
 
-On the next execution, the Agent reads recent journal entries to learn from historical patterns (avoid repeating failed actions, adjust thresholds, skip already-sent alerts).
+For a full example of one entry's fields, see [Running It Once and Reading the Results — Step 4](#running-it-once-and-reading-the-results). On the next execution, the Agent reads recent journal entries to learn from historical patterns (avoid repeating failed actions, adjust thresholds, skip already-sent alerts).
 
 ### Knowledge Files
 
-The Agent's persistent knowledge in Markdown format. Each Agent automatically gets a single **task-understanding.md** file containing four sections:
+The Agent's persistent knowledge in Markdown format, stored under `data/memory/agents/<agent_id>/` (up to 20 files). **When the Agent is created**, a **task-understanding.md** file is automatically initialized, solidifying what you entered in the form into the Agent's self-image. For a "Temperature Patrol" agent, the actual content looks like this:
 
-- **Role** — Agent identity and responsibilities (from the system prompt)
-- **Mission** — Task objectives (from the User Prompt)
-- **Resources** — Bound resource descriptions
-- **Schedule** — Execution plan
+```markdown
+# Task Understanding
 
-This file is auto-initialized when the Agent is created. You can manually edit it to fine-tune Agent behavior (Agent detail → Memory panel); the Agent also appends discovered thresholds, device quirks, and patterns as it runs.
+## Identity & Role
+You are an intelligent IoT agent named 'Temperature Patrol' monitoring edge devices.
+
+## Mission
+Read the latest values of all bound temperature sensors; send an alert above 35°C,
+otherwise report briefly.
+
+## Bound Resources
+- Machine Room 1 Temperature (device:sensor-01:temperature)
+- Machine Room 2 Temperature (device:sensor-02:temperature)
+
+## Schedule
+Cron: 0 0 * * * *
+
+## Status
+- Execution mode: Focused
+- Created: 2026-09-09 14:00 UTC
+
+## Memory Commands
+- Read this file: `memory(action='read', target='custom:task-understanding')`
+- Update this file: `memory(action='add', target='custom:task-understanding', ...)`
+
+## Notes
+This file was auto-created when the agent was created.
+```
+
+The four core sections map one-to-one onto the creation form: **Identity & Role** (identity, from the System Prompt; a default template is used when unset), **Mission** (from the User Prompt), **Bound Resources** (the bound resources), **Schedule** (the execution plan). You can manually edit the file to fine-tune Agent behavior (Agent detail → Memory panel); the Agent also **appends** discovered thresholds, device quirks, and patterns as it runs — for example, after a few rounds you may find it added "sensor-02 consistently reads ~2°C higher than sensor-01 on summer afternoons". The content is injected into the prompt of every execution, bounded by the context length of the Agent's bound LLM.
 
 ### User Messages (Feedback)
 
@@ -249,6 +405,15 @@ If concurrency is full, the scheduler skips the current execution (retries on ne
 <img src="https://resources.camthink.ai/NeoMind/v0923/agents-mobile.png" alt="Agent management on mobile — card list adapts to single column" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column card list, supporting status viewing, manual execution, and pause/activate toggling.
+
+## Common Pitfalls
+
+- **Focused save rejected**: `Focused` mode requires at least one bound resource (device / metric / extension tool); creating with no resources returns `Focused mode requires at least one resource binding`. Use `Free` if you just want free exploration.
+- **Cron expression not firing**: Agent cron uses the **6-field** format (`sec min hour day month weekday`). Pasting a familiar 5-field expression like `0 9 * * *` shifts every field (e.g. "every minute on Mondays") — add the seconds field: `0 0 9 * * *`.
+- **Interval too small gets rejected**: `interval_seconds` must be at least 10; setting `0` means "fully manual" (on-demand) — it never auto-schedules and only runs via Execute Now.
+- **Changed the User Prompt but behavior didn't change**: check task-understanding.md — it solidified the task description at creation time, and the Agent keeps appending experience to it. Behavior is driven by that file together with the User Prompt; edit the file in the Memory panel when needed.
+- **"Why did it forget last week?"**: the journal is a FIFO ring that keeps only the most recent N entries. Rules the Agent must remember long-term belong in the User Prompt, task-understanding.md, or User Messages — not the journal.
+- **Judging too early**: a single execution can take up to 5 minutes. While the status is Executing, wait for the WebSocket updates or poll the executions endpoint instead of assuming failure.
 
 ## Next Steps
 

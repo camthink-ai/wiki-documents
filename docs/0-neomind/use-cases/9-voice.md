@@ -33,7 +33,7 @@ flowchart LR
     ORCH -.->|"ws://127.0.0.1:9375"| LLM["NeoMind LLM 端点"]
 ```
 
-ASR 与 TTS 既能被 voice-assistant 编排，也能单独调用（语音输入、语音播报）。
+ASR 与 TTS 既能被 voice-assistant 编排，也能单独调用（语音输入、语音播报）。本文按"**为什么 → 怎么做 → 真实请求/响应 → 怎么确认 → 常见坑**"展开每条能力，协议报文与返回结构均摘自扩展源码（`voice-assistant/service/ws_protocol.py`、`server.py`、`orchestrator.py` 等），没有抽象化改写。
 
 ---
 
@@ -57,7 +57,7 @@ ASR 与 TTS 既能被 voice-assistant 编排，也能单独调用（语音输入
 |------|------------|----------|
 | 实时语音助手（完整听说链路）| **voice-assistant** | Python 编排服务（见 [4.1](#41-部署-python-编排服务)）|
 | 仅语音输入 / 录音转写 | **sensevoice-asr** | ASR Python 推理服务（见 [5.1](#51-部署推理服务)）|
-| 仅语音播报 / 音色克隆 | **moss-tts-nano** / **cosyvoice-3** / **voice-edge-tts** 三选一 | 对应 TTS Python 推理服务（见 [6.3](#63-部署与配置)）|
+| 仅语音播报 / 音色克隆 | **moss-tts-nano** / **cosyvoice-3** / **voice-edge-tts** 三选一 | 对应 TTS Python 推理服务（见 [6.5](#65-部署与配置)）|
 
 安装步骤：
 
@@ -70,6 +70,8 @@ ASR 与 TTS 既能被 voice-assistant 编排，也能单独调用（语音输入
 ---
 
 ## 4. 语音助手（voice-assistant）
+
+**为什么这样设计**：实时语音对话的难点不在单个模型，而在衔接——什么时候算"说完了"？机器开口时怎么避免被自己的声音打断？用户插话时如何立刻闭嘴？voice-assistant 把这些全部收进一个 Python 编排服务：浏览器只负责采集与播放 PCM，VAD 断句、ASR、LLM、TTS、回声抑制、打断清理都在编排服务里完成，卡片与编排服务之间只跑一条极简的 WebSocket 协议（二进制 = 音频，文本 = JSON 控制帧）。
 
 ### 4.1 部署 Python 编排服务
 
@@ -124,9 +126,104 @@ NeoMind API Token 可用环境变量 `export NEOMIND_TOKEN=nmk_xxx` 设置，也
 | `showMetrics` | boolean | 是否显示延迟面板 |
 | `directMode` | boolean | **Direct Python WS Mode** 复选框。默认关：前端连宿主 `/api/extensions/voice-assistant/stream` 端点，LLM 经宿主 ChatStream 能力调用（免 token）；开启后直连 `ws://127.0.0.1:9384/ws`，由编排服务持 token 调 LLM。切换后需关闭重开卡片 |
 
-> 两种模式的取舍：默认 stream 模式下宿主能看到每次 LLM 调用（审计 / 治理），token 不出宿主进程；direct 模式用于单独调试 Python 编排服务。
+> 两种模式的取舍：默认 stream 模式下宿主能看到每次 LLM 调用（审计 / 治理），token 不出宿主进程；direct 模式用于单独调试 Python 编排服务。两种模式下卡片与编排服务之间的**帧格式完全一致**，下文协议对两种模式同样适用。
 
-### 4.3 使用步骤
+### 4.3 会话状态机：一次对话的生命周期
+
+编排服务内部维护一台显式状态机（`orchestrator.py` 的 `StateMachine`），卡片上的状态徽标 / Orb 动画就是它的镜像。理解状态迁移，就理解了"卡片现在为什么是这个颜色"：
+
+```mermaid
+stateDiagram-v2
+    [*] --> LISTENING : start 握手完成
+    LISTENING --> THINKING : VAD 判定说完（静音≥500ms）→ asr_start
+    THINKING --> SPEAKING : 首句 TTS 首个 PCM 下发 → tts_start
+    SPEAKING --> LISTENING : 播完（tts_end + stop）或打断清理完成
+    THINKING --> BARGED : 用户插话
+    SPEAKING --> BARGED : 用户插话
+    BARGED --> LISTENING : 三路清理完成（→barge_in 帧）
+```
+
+| 状态 | 卡片显示 | 进入条件（触发帧）| 编排服务在做什么 |
+|------|---------|------------------|-----------------|
+| **IDLE / STANDBY** | STANDBY | WS 连接建立、`ready` 收到 | 会话空闲，VAD 持续监听麦克风 |
+| **LISTENING** | LISTENING | 开麦即进入；打断清理后回到这里 | 麦克风 PCM 流式喂给 VAD，等待完整语句 |
+| **THINKING** | THINKING | VAD 判定语句结束，ASR 开始（下行 `asr_start`）| 整段 PCM → ASR 转写 → LLM 流式生成；卡片在收到 `asr_start` 时立即变 THINKING，不用等转写结果 |
+| **SPEAKING** | SPEAKING | 首句合成的第一个 PCM 块下发（下行 `tts_start`）| 边生成边播：LLM 后续句子与 TTS 播放并行（bi-streaming）|
+| **BARGED** | （瞬时，用户无感）| THINKING / SPEAKING 期间检测到用户语音 | 并行执行三路清理：① 通知浏览器停止播放（`barge_in` 帧，前端约 8ms 淡出）② 取消在途 LLM 请求 ③ 清空待合成句队列；可选补一句"好的"类应答音，随后回 LISTENING |
+
+两个细节值得知道：
+
+- **免提模式的断句节奏**由 `vad_silence_ms`（默认 500ms）决定——说完停顿约半秒才判定结束进入 THINKING，这是正常现象而非卡顿；
+- **THINKING / SPEAKING 期间 VAD 阈值被临时抬高约 30 倍**，防止扬声器回声触发"自打断"。代价是打断需要用正常音量说话，气声 / 极轻声可能无法触发 barge-in。
+
+### 4.4 WebSocket 消息协议（卡片 ↔ 编排服务）
+
+协议的单一事实来源是 `service/ws_protocol.py` + `server.py` 模块头注释。要点：**二进制帧 = 16kHz 单声道 int16 LE PCM**（上行是麦克风音频，下行是待播放音频），**文本帧 = 一行 JSON**，每行都有 `type` 字段。
+
+**上行（卡片/扩展 → 编排服务，`ws://127.0.0.1:9384/ws?session_id=…`）：**
+
+| 帧 | JSON 形状 | 说明 |
+|----|-----------|------|
+| `start` | `{"type":"start","session_id":"va-7f3a","sample_rate":16000}` | 连接后发一次，触发握手 |
+| `ping` | `{"type":"ping"}` | 健康探针，回 `pong` |
+| `stop` | `{"type":"stop"}` | 客户端主动结束当前轮（等同打断）|
+| 二进制 | （原始 int16 LE PCM）| 麦克风音频，按 ~32ms 块持续上行 |
+
+**下行（编排服务 → 卡片/扩展）：**
+
+| 帧 | JSON 形状 | 说明 |
+|----|-----------|------|
+| `ready` | `{"type":"ready","session_id":"va-7f3a","asr_url":"(in-proc)","tts_url":"(in-proc)","voice":"中文女","vad_silence_ms":500,"vad_min_speech_ms":300,"vad_energy_threshold":0.015}` | `start` 的应答，携带生效的 VAD 参数与音色 |
+| `pong` | `{"type":"pong"}` | `ping` 的应答 |
+| `greeting` | `{"type":"greeting","text":"你好，我在。"}` | 会话开始播报的欢迎语（其后紧跟一段二进制欢迎语 PCM；不伴随 tts_start/tts_end）|
+| `asr_start` | `{"type":"asr_start","bytes":96000}` | VAD 断句完成，N 字节 PCM 进入 ASR；卡片据此立刻转 THINKING |
+| `partial_transcript` | `{"type":"partial_transcript","text":"查一下三号仓"}` | 流式 ASR 的实时部分转写（字幕覆盖显示；`transcript` 到达后清空）|
+| `transcript` | `{"type":"transcript","text":"查一下三号仓库的温度。","language":"auto","elapsed_ms":183.4}` | 最终转写：文本 + 语言提示 + ASR 耗时 |
+| `llm_sentence` | `{"type":"llm_sentence","seq":0,"text":"好的，三号仓库当前温度 26.5 摄氏度。"}` | 每完成一句 LLM 句子推一帧，用于渐进字幕；可忽略不影响播放 |
+| `skip` | `{"type":"skip","reason":"empty_transcript"}` | 本轮跳过，不调 LLM/TTS。reason 还有 `noise_transcript`（噪声幻觉过滤）、`empty_llm_output`、`empty_tts_output` |
+| `tts_start` | `{"type":"tts_start","text":"(voice reply)","mode":"full_synthesize"}` | 首个 TTS PCM 下发前发出；卡片据此转 SPEAKING |
+| `tts_end` | `{"type":"tts_end","total_ms":742.6,"tts_first_chunk_ms":88.0,"asr_ms":183.4}` | 一轮播报结束，携带延迟指标（见 4.5）|
+| `stop` | `{"type":"stop"}` | 一轮对话正常结束的收尾帧 |
+| `barge_in` | `{"type":"barge_in"}` | 打断控制帧：浏览器立即清空播放队列（约 8ms 淡出）|
+| `error` | `{"type":"error","phase":"asr","message":"…"}` | 阶段级错误；phase 取 `asr` / `tts` / `pipeline` 等，握手失败时为无 phase 的 `{"type":"error","message":"…"}` |
+| 二进制 | （原始 int16 LE PCM）| 待播放音频（TTS 输出已降混/重采样到 16kHz 单声道）|
+
+> `neomind-capability` profile（默认）下还有一组 `chat_chunk` / `chat_stream_started` / `chat_stream_end` / `chat_stream_error` 帧——那是宿主 ChatStream 能力产生的 LLM 事件，经同一条 WS 进入编排服务后由 LLM 后端消费，客户端无需处理。
+
+**一轮完整对话的帧序（示例值，实测数量级）：**
+
+```text
+→ {"type":"start","session_id":"va-7f3a","sample_rate":16000}
+← {"type":"ready","session_id":"va-7f3a","asr_url":"(in-proc)","tts_url":"(in-proc)",
+   "voice":"中文女","vad_silence_ms":500,"vad_min_speech_ms":300,"vad_energy_threshold":0.015}
+← {"type":"greeting","text":"你好，我在。"}      ← 紧跟一帧二进制欢迎语 PCM
+   （用户开始说话，麦克风 PCM 二进制帧持续上行）
+← {"type":"asr_start","bytes":96000}            ← 说完（静音≥500ms），3 秒音频 ≈ 96000 字节
+← {"type":"partial_transcript","text":"查一下三号仓"}
+← {"type":"transcript","text":"查一下三号仓库的温度。","language":"auto","elapsed_ms":183.4}
+← {"type":"llm_sentence","seq":0,"text":"好的，三号仓库当前温度 26.5 摄氏度。"}
+← {"type":"tts_start","text":"(voice reply)","mode":"full_synthesize"}
+← （二进制 PCM 帧连续下发，扬声器开始出声）
+← {"type":"tts_end","total_ms":742.6,"tts_first_chunk_ms":88.0,"asr_ms":183.4}
+← {"type":"stop"}                               ← 本轮结束，回到 LISTENING 继续听
+```
+
+**打断（barge-in）帧序：** SPEAKING 期间用户开口 → VAD 检出语音 → 编排服务先并行执行三路清理，再下行 `{"type":"barge_in"}`（前端淡出停播），随后回到 LISTENING——用户无需等上一轮播完。若 `stop` 由客户端主动发出（如再点一次麦克风），编排服务执行同样的清理流程。
+
+### 4.5 延迟面板：数字是怎么来的
+
+卡片头部的 ASR / LLM / TTS / Total 四个数字来自 `tts_end` 帧，各列与字段的对应关系：
+
+| 面板列 | `tts_end` 字段 | 含义 | PoC 实测参考 |
+|--------|---------------|------|-------------|
+| **ASR** | `asr_ms` | VAD 断句完成 → 转写完成 | 10 秒录音约 155ms（RTF 0.014）|
+| **LLM** | `llm_first_sentence_ms` | LLM 流开始 → 第一句完整句子产出（新版本携带；缺省时该列不显示）| 约 106–172ms |
+| **TTS** | `tts_first_chunk_ms` | TTS 开始 → 首个 PCM 块下发 | 约 88ms（moss 首块实测均值 71ms）|
+| **Total** | `total_ms` | 本轮起点 → 播报结束 | 随回复长度线性增长 |
+
+用户真正关心的"说完到听到首段音频"，PoC 实测约 **195–200ms**（ASR 完成 → 首句字幕 106ms + 首句 → 首块音频 89ms）。能做到这么低，靠的是 **bi-streaming**：LLM 生产者与 TTS 消费者经一个有界队列（容量 4）并发——第一句 LLM 句子一产出就立刻送去 TTS，后续句子的生成与前面句子的播放重叠进行。首音频延迟从"全部 LLM + 全部 TTS 之和"压缩为"首句 LLM + 首句 TTS 首块"。端到端基准（`measure_bi_stream_e2e.py`）实测 ASR 完成 → 首音频平均 163ms、最差 202ms。
+
+### 4.6 使用步骤
 
 1. 确认编排服务已启动：`curl http://127.0.0.1:9384/config` 应返回当前配置与可用 profile 列表；
 2. 在 Dashboard 添加 **VoiceAssistantCard**；
@@ -138,9 +235,9 @@ NeoMind API Token 可用环境变量 `export NEOMIND_TOKEN=nmk_xxx` 设置，也
 
 > 📷 待补截图｜语音助手卡片 · 建议路径 `…/neomind/voice/01-assistant-card.png`
 
-### 4.4 验证
+### 4.7 怎么确认
 
-逐项核对：
+逐项核对（结合 4.4 帧序理解每条对应的协议帧）：
 
 - [ ] 卡片底部显示 **Connected**；
 - [ ] 点麦克风后状态徽标从 STANDBY 变为 **LISTENING**，Orb 随说话幅度起伏；
@@ -148,11 +245,19 @@ NeoMind API Token 可用环境变量 `export NEOMIND_TOKEN=nmk_xxx` 设置，也
 - [ ] 头部延迟面板出现 **ASR / LLM / TTS / Total** 数字——PoC 实测从 ASR 完成到听到首段音频约 200ms；
 - [ ] 播报中插话能立即打断（barge-in）。
 
+**常见坑**：
+
+- 切换 `directMode` 后画面不变——必须**关闭并重开卡片**才按新模式重连；
+- 免提模式下"幻影转写"或播报被自己声音打断——扬声器回声漏进麦克风，见 §8 的 AEC 条目；
+- 轻声插话打不断——THINKING/SPEAKING 期间 VAD 阈值抬高约 30 倍防自打断，用正常音量说话即可；
+- 一直卡 THINKING——多为页面 JWT 过期或能力事件未路由，刷新页面重连；
+- 说完立刻闭嘴会被截断尾字——VAD 需 500ms 静音才断句，属于设计行为，可用 `VOICE_ASSISTANT_VAD_SILENCE_MS` 调整。
+
 ---
 
 ## 5. 语音转文字（sensevoice-asr）
 
-SenseVoice-Small（234M 参数 INT8，`sherpa-onnx` ONNX CPU 后端），支持中、英、日、韩、粤 5 语种。可单独用于语音输入转 Agent、录音转写等。
+**为什么单独提供**：不是所有场景都需要"对话"。工单口述、录音转写、给 Agent 的语音入口，只需要"一段音频 → 一段文字"这一个确定性动作。sensevoice-asr 就是这个动作：SenseVoice-Small（234M 参数 INT8，`sherpa-onnx` ONNX CPU 后端），支持中、英、日、韩、粤 5 语种，CPU 上实时率（RTF）约 0.017——10 秒录音零点几秒出结果，不需要 GPU。
 
 ### 5.1 部署推理服务
 
@@ -162,10 +267,14 @@ pip install -r requirements.txt
 ./start.sh        # 监听 http://127.0.0.1:9383
 ```
 
-首次运行下载约 230MB ONNX 权重到 `~/.cache/sherpa-onnx/`。冒烟验证：
+首次运行下载约 230MB ONNX 权重到 `~/.cache/sherpa-onnx/`。冒烟验证（两个只读端点的真实响应）：
 
 ```bash
 curl http://127.0.0.1:9383/health
+# {"status":"ok"}          ← 权重加载完成；加载中返回 {"status":"loading"}
+
+curl http://127.0.0.1:9383/languages
+# {"languages":["auto","zh","en","ja","ko","yue"]}
 ```
 
 服务端环境变量：`SENSEVOICE_ASR_SERVICE_URL`（扩展侧服务地址，默认 `http://127.0.0.1:9383`）、`SENSEVOICE_ASR_LANGUAGE`（默认语言提示，`auto`）、`SENSEVOICE_ASR_MODEL_DIR`（权重目录）、`SENSEVOICE_ASR_CPU_THREADS`（ONNX Runtime 线程数，默认 2）。
@@ -185,38 +294,69 @@ curl http://127.0.0.1:9383/health
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `audio_path` | string | 二选一 | 本地音频路径（wav/mp3/m4a/flac），与 `audio_base64` 互斥 |
-| `audio_base64` | string | 二选一 | base64 编码的 WAV 字节（如浏览器录音），与 `audio_path` 互斥 |
+| `audio_path` | string | 二选一 | **宿主机**本地音频路径（wav/mp3/m4a/flac），与 `audio_base64` 互斥 |
+| `audio_base64` | string | 二选一 | base64 编码的 **16-bit PCM WAV** 字节（如浏览器录音），与 `audio_path` 互斥 |
 | `language` | string | 否 | 语种提示：`auto`（默认，混合语可用）/ `zh` / `en` / `ja` / `ko` / `yue` |
 | `use_itn` | boolean | 否 | 逆文本正则化（口语数字转写为阿拉伯数字等），默认 `true` |
 
-**`transcribe_file` 参数**：`path`（string，必填，本地音频路径）、`language`（同上）。
+**`transcribe_file` 参数**：`path`（string，必填，宿主机本地音频路径）、`language`（同上）。
 
-### 5.3 调用示例
+`health` 与 `languages` 的返回：`{"ok":true,"service_url":"http://127.0.0.1:9383"}`、`{"languages":["auto","zh","en","ja","ko","yue"]}`。
 
-在扩展详情页 **Commands** 标签展开 `transcribe`、填参执行；也可经 REST API 供 AI Agent / 自动化规则调用（**没有** `neomind extension invoke` 这类 CLI）：
+### 5.3 完整转写示例（transcribe）
+
+**输入**：`/tmp/meeting-clip.wav`——16kHz / 16-bit / 单声道 WAV，时长 5.2 秒，内容为普通话"今天下午三点开产线例会，三号仓温度正常。"（其余采样率 / 声道会自动重采样、降混；`audio_path` 走 soundfile 解码，mp3/m4a/flac 均可）。
+
+**调用方式一**：扩展详情页 **Commands** 标签展开 `transcribe`，填 `audio_path=/tmp/meeting-clip.wav`、`language=auto`，执行。
+
+**调用方式二**：REST API（供 AI Agent / 自动化规则调用；**没有** `neomind extension invoke` 这类 CLI）：
 
 ```bash
 curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"command":"transcribe","args":{"audio_path":"/tmp/recording.wav","language":"auto"}}' \
+     -d '{"command":"transcribe","args":{"audio_path":"/tmp/meeting-clip.wav","language":"auto"}}' \
      http://localhost:9375/api/extensions/sensevoice-asr/command
 ```
 
-期望输出结构：
+**响应**（扩展把推理服务 `/asr` 的 JSON 原样返回；数值为**示例**，随机器与音频而异）：
 
 ```json
-{ "text": "你好，今天天气怎么样？", "language": "auto",
-  "elapsed_seconds": 0.21, "duration_seconds": 12.5, "rtf": 0.017 }
+{
+  "text": "今天下午3点开产线例会，三号仓温度正常。",
+  "language": "auto",
+  "elapsed_seconds": 0.11,
+  "duration_seconds": 5.2,
+  "rtf": 0.021
+}
 ```
 
-`rtf`（实时率）约 0.017（M2 / 2 线程实测）：10 秒录音约 0.2 秒完成转写。
+| 字段 | 含义 | 备注 |
+|------|------|------|
+| `text` | 转写文本 | 注意"三点"被 ITN（`use_itn: true` 默认开）转成了"3点" |
+| `language` | 回显请求的语种提示 | 传 `auto` 就返回 `"auto"`，不是检测出的语种 |
+| `elapsed_seconds` | 纯推理耗时 | 不含音频解码 |
+| `duration_seconds` | 音频时长（重采样到 16kHz 后）| |
+| `rtf` | 实时率 = elapsed / duration | 越小越快；M2 / 2 线程实测约 0.017，即 10 秒录音约 0.2 秒完成 |
+
+推理服务同一响应还携带 `X-Elapsed-Seconds` / `X-Duration-Seconds` / `X-RTF` 三个 HTTP 头（扩展据此更新 `rtf` 指标）。浏览器录音场景把 `audio_path` 换成 `audio_base64`（WAV 字节直接 base64）即可，其余不变。
 
 > 📷 待补截图｜transcribe 命令 · 建议路径 `…/neomind/voice/02-asr.png`
+
+**怎么确认**：`health` 返回 `ok:true` → 执行 5.3 示例 → `text` 与录音内容一致、`rtf` 小于 0.1。
+
+**常见坑**：
+
+- `audio_path` 是**运行扩展宿主的机器**上的路径，不是你浏览器所在电脑的路径；远程 / 浏览器场景一律用 `audio_base64`；
+- `audio_base64` 只接受 **16-bit PCM WAV**（`sampwidth=2`），其他位宽直接报错；mp3/m4a/flac 请走 `audio_path`；
+- SenseVoice 是离线（整段）模型：超长录音耗时随时长线性增长（RTF 恒定），流式场景请用 voice-assistant 的 VAD 断句把长音频切成句；
+- 环境噪声可能产生单字符 / 短英文"幻觉转写"——voice-assistant 内置噪声过滤（`skip: noise_transcript`），单独调用时建议业务侧按最短长度过滤；
+- 想保留"三点"这样的汉字数字，传 `use_itn: false`。
 
 ---
 
 ## 6. 文字转语音（TTS，三选一）
+
+**为什么三个扩展一个接口**：TTS 的需求随硬件千差万别——GPU 服务器要质量，Mac / ARM 边缘盒要能跑，全平台 CPU 要多语种。NeoMind 把三个后端做成**同一条命令、同一个 `/tts/stream` NDJSON 协议**，应用代码（含 voice-assistant）零改动，换一个环境变量即换引擎。
 
 ### 6.1 选型
 
@@ -230,16 +370,17 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 | 体积 | ~200MB | ~1GB（首次下载约 2GB）| ~150MB |
 | 语种 | 20+ | 中英 | 中英 |
 | 内置音色 | 18 个（Junhao、Ava、Saki 等）| 7 个（中文女/中文男/英文女/英文男/日语男/粤语女/韩国女）| 中文女（可换参考音频定制）|
+| 输出 | 48kHz 立体声 | 24kHz 单声道 | 24kHz 单声道 |
 
 > 选型：要最高质量且有 GPU → cosyvoice-3；Mac/ARM 边缘设备 → voice-edge-tts；要多语种 + 克隆 + 全平台 CPU → moss-tts-nano。
 
-### 6.2 统一命令与 `/tts/stream` 契约
+### 6.2 统一命令与参数
 
 三者命令一致：
 
 | 命令 | 说明 |
 |------|------|
-| `speak` | 合成并直接在**主机音频设备**播放 |
+| `speak` | 合成并直接在**主机音频设备**播放（流式：边合成边播）|
 | `synthesize` | 合成返回 base64 WAV（不播放）|
 | `stop_speaking` | 立即停止当前播放并清空缓冲 |
 | `list_voices` | 列出服务端可用音色 |
@@ -253,21 +394,74 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 | `voice` | string | 否 | 内置音色名，覆盖各扩展的默认音色（MOSS 默认 `Junhao`，cosyvoice/edge 默认 `中文女`）|
 | `prompt_audio_path` | string | 否 | 参考音频 wav 路径，用于音色克隆，设置后覆盖 `voice` |
 | `prompt_text` | string | 仅 cosyvoice-3 | 参考音频的转写文本，zero-shot 克隆必需 |
-| `sample_mode` | string | 否 | `greedy`（默认，确定性输出，Agent 播报推荐）/ `fixed` / `full` |
+| `sample_mode` | string | 否 | `greedy`（确定性输出，Agent 播报推荐）/ `fixed` / `full`（各扩展默认值不同，MOSS 服务端默认 `fixed`）|
 | `blocking` | boolean | 仅 `speak` | 默认 `true`（播完才返回）；`false` 后台播放、立即返回 |
 
-`synthesize` 返回结构：`{ "audio_base64": "...", "format": "wav", "sample_rate": 48000, "duration_ms": 1834, "size_bytes": 351232 }`（`sample_rate` 随后端不同：cosyvoice-3 / voice-edge-tts 为 24000，moss-tts-nano 为 48000 双声道）。
+### 6.3 完整示例：speak 与 synthesize
 
-`/tts/stream` NDJSON 契约（三者一致，编排服务按行解析 PCM 流）：
+**示例一：`speak` 后台播报**（自动化规则 / Agent 最常用——立即返回，不阻塞规则执行）：
 
+```bash
+curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"command":"speak","args":{"text":"警告：3 号仓温度 31.2 摄氏度，已超限。","voice":"中文女","blocking":false}}' \
+     http://localhost:9375/api/extensions/moss-tts-nano/command
 ```
-POST /tts/stream
-Body: {"text": "...", "voice": "...", ...}
-响应（每行一个 PCM 块）:
-  {"seq": 0, "data": "<base64 int16 LE PCM>", "sample_rate": 24000, "channels": 1, "is_pause": false}
+
+返回（后台播放；数值为**示例**）：
+
+```json
+{ "played": true, "finished": false, "background": true, "frames": 23, "samples": 168960 }
 ```
 
-### 6.3 部署与配置
+`blocking: true`（默认）时改为播完才返回：`{ "played": true, "finished": true, "frames": 23, "samples": 168960, "duration_ms": 1760 }`。扩展内部走 `/tts/stream` 边收 PCM 块边推给 rodio 音频线程，所以首声不等整句合成完。
+
+**示例二：`synthesize` 拿 WAV 自己处理**（写文件、进 Web 前端、接 PA 广播系统等）：
+
+```bash
+curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"command":"synthesize","args":{"text":"今天巡检完成，共 12 台设备，全部正常。","voice":"Junhao"}}' \
+     http://localhost:9375/api/extensions/moss-tts-nano/command
+```
+
+返回（`audio_base64` 已截断；数值为**示例**）：
+
+```json
+{
+  "audio_base64": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==...",
+  "format": "wav",
+  "sample_rate": 48000,
+  "duration_ms": 1834,
+  "size_bytes": 351232
+}
+```
+
+`sample_rate` / 声道随后端不同：cosyvoice-3 与 voice-edge-tts 为 24000 单声道，moss-tts-nano 为 48000 立体声——下游解码时注意。
+
+**辅助命令返回**：`stop_speaking` → `{"stopped":true}`；`list_voices` → `{"voices":["Junhao","Ava","Saki",…]}`（实际列表随后端）；`health` → `{"ok":true,"service_url":"http://127.0.0.1:9382"}`。
+
+### 6.4 `/tts/stream` NDJSON 事件序
+
+`POST /tts/stream` 是三个后端共同的流式接口（也是 voice-assistant 编排服务消费的路径）。请求体即 `speak`/`synthesize` 的同名字段（`text` 必填，`voice` / `prompt_audio_path` / `sample_mode` 等可选）。响应是 NDJSON 流——**每行一个 JSON 事件，行内字段**：
+
+```text
+{"seq": 0, "data": "<base64 int16 LE PCM>", "sample_rate": 48000, "channels": 2, "is_pause": false}
+{"seq": 1, "data": "<base64 ...>", "sample_rate": 48000, "channels": 2, "is_pause": false}
+{"seq": 2, "data": "<base64 ...>", "sample_rate": 48000, "channels": 2, "is_pause": true}    ← 克隆多段文本时的句间静音块
+...                                                                                          
+{"seq": N, "data": "<base64 ...>", ..., "is_pause": false}                                   ← 最后一行
+（连接关闭 = 合成结束；没有额外的 done/finish 帧）
+```
+
+事件序要点（源自 `moss-tts-nano/service/server.py` / `cosyvoice-3/service/server.py`）：
+
+1. `seq` 从 0 单调递增；`data` 是无 WAV 头的裸 int16 LE PCM，按 `sample_rate` / `channels` 解释；
+2. `is_pause: true` 的行是**静音填充**（克隆长文本分段时的句间停顿），播放器照常写队列即可；
+3. 出错时流内终止：最后一行变为 `{"error": "..."}`，随后连接关闭——客户端按行解析时务必检查 `error` 键；
+4. **首包很快**：MOSS 采用逐帧流式解码（自适应批大小 1→2→4→8），首块实测平均 71ms、最差 73ms（对比整段合成要等 10 秒+）；cosyvoice-3 目标首包 <200ms、30 字句子合成 <500ms。
+
+### 6.5 部署与配置
 
 #### moss-tts-nano（CPU 全平台）
 
@@ -316,14 +510,71 @@ export MOSS_TTS_URL=http://127.0.0.1:9385          # 例：切到 cosyvoice-3
 export VOICE_ASSISTANT_VOICE=中文女
 ```
 
+**怎么确认**：`curl /health` 返回 `status:"ok"` → `list_voices` 能列出音色 → 跑 6.3 示例一，主机音箱出声且立即返回 → 跑示例二，`duration_ms` 与文本长度量级吻合。
+
+**常见坑**：
+
+- `speak` 报音频设备错误 / 无声——主机无可用输出设备、被独占或 Linux 缺 ALSA，改 `synthesize` 自行播放即可绕开；
+- moss 的流式接口**同时只服务一个请求**（单请求串行），并发播报需业务侧排队；
+- cosyvoice-3 在 Mac 上仅 MPS/CPU 兜底（RTF ~2.5×），不是"慢一点"而是不可用，别硬调；
+- 克隆时 `prompt_text` 与参考音频内容不一致 → 克隆音色明显劣化；参考音频务必 5–10 秒干净 16kHz 单声道人声；
+- `sample_mode` 不传时 MOSS 服务端默认 `fixed`（非确定性）；Agent 播报要每次一致，显式传 `greedy`。
+
+> 📷 待补截图｜TTS speak / stream 调用 · 建议路径 `…/neomind/voice/03-tts.png`
+
 ---
 
 ## 7. 典型场景
 
-- **实时语音助手**：voice-assistant 端到端对话（PoC，后续接 Agent 做设备控制 / 信息查询）。免提模式适合展厅接待 / 信息亭；嘈杂产线建议 `noisy-env` profile 或按住说话。
-- **语音输入转 Agent**：sensevoice-asr 把语音转文字，喂给 [AI Agent](../user-guide/6-ai-agent.md) 或 AI Chat 执行——如现场口述工单：浏览器录音 → `transcribe(audio_base64=…)` → 文本进 Agent 生成工单。
-- **语音播报**：TTS 把告警、读数、Agent 回复合成语音播报，用于展厅、产线广播、无障碍。**规则联动**：[自动化规则](../user-guide/7-automation-rules.md) 支持调用扩展命令，可在规则动作里调用 TTS 的 `speak`（`blocking: false` 后台播放）——例如温度越限规则触发 → `speak {"text":"警告：3 号仓温度超限","blocking":false}` 由边缘主机音箱播报。
-- **音色克隆**：用 moss-tts / cosyvoice / voice-edge 的 zero-shot 克隆定制音色——准备目标人声参考 wav（cosyvoice 还需其转写文本 `prompt_text`），调 `speak` 时传 `prompt_audio_path` 即得以该音色播报；voice-edge 可直接替换默认提示音频打包成长期音色。
+### 7.1 实时语音助手
+
+voice-assistant 端到端对话（PoC，后续接 Agent 做设备控制 / 信息查询）。免提模式适合展厅接待 / 信息亭；嘈杂产线建议 `noisy-env` profile 或按住说话。
+
+流程：
+
+1. `cd extensions/voice-assistant/service && ./start.sh` 启动编排服务（9384），`curl http://127.0.0.1:9384/config` 确认就绪；
+2. Extensions 页安装 **voice-assistant**，确认 Running；
+3. Dashboard 添加 **VoiceAssistantCard**，配置 `wsUrl` / `language` / `voice`，保存；
+4. 点麦克风授权 → 卡片经 `start`/`ready` 握手进入 LISTENING（可直接听到 greeting 欢迎语）；
+5. 说话 → VAD 断句 → `asr_start`/`transcript` → `llm_sentence` → `tts_start` + PCM 播报 → `tts_end`/`stop`（完整帧序见 4.4）；
+6. 播报中直接开口验证 barge-in；
+7. 看延迟面板数字是否在 4.5 的参考范围内。
+
+### 7.2 语音输入转 Agent
+
+sensevoice-asr 把语音转文字，喂给 [AI Agent](../user-guide/6-ai-agent.md) 或 AI Chat 执行——如现场口述工单。
+
+流程：
+
+1. Extensions 装 **sensevoice-asr**，`./start.sh` 起推理服务（9383），`curl /health` 确认 `{"status":"ok"}`；
+2. 前端（或采集脚本）用浏览器 MediaRecorder 采集录音，封装为 16-bit WAV 并 base64 编码；
+3. 调扩展命令：`POST /api/extensions/sensevoice-asr/command`，body `{"command":"transcribe","args":{"audio_base64":"…","language":"auto"}}`；
+4. 从响应取 `text`（建议按业务最短长度过滤噪声转写）；
+5. 把 `text` 作为输入交给 AI Agent（Agent 应用 / 自动化规则触发）生成工单，全程无键盘参与。
+
+### 7.3 语音播报（规则联动）
+
+TTS 把告警、读数、Agent 回复合成语音播报，用于展厅、产线广播、无障碍。[自动化规则](../user-guide/7-automation-rules.md) 支持调用扩展命令，可在规则动作里调用 TTS 的 `speak`。
+
+流程：
+
+1. 按平台装 TTS 三选一并起服务（如 moss 9382），`curl /health` + `list_voices` 确认可用；
+2. 在自动化规则中创建触发条件（如"3 号仓温度 > 30℃"）；
+3. 规则动作选"调用扩展命令"，目标 `moss-tts-nano`（或所选 TTS），命令 `speak`，参数 `{"text":"警告：3 号仓温度超限","blocking":false}`——`blocking:false` 让规则立即返回、播报后台进行；
+4. 手动触发一次规则验证：主机音箱出声、规则执行记录无阻塞；
+5. 长期运行建议显式传 `sample_mode:"greedy"`，保证同一告警每次播报一致。
+
+### 7.4 音色克隆
+
+用 moss-tts / cosyvoice / voice-edge 的 zero-shot 克隆定制音色——展厅讲解员、品牌语音等。
+
+流程：
+
+1. 准备参考音频：目标人声 5–10 秒、干净、16kHz 单声道 wav（如 `/tmp/ref.wav`）；cosyvoice-3 还需其**一字不差**的转写文本；
+2. 调 `speak` 时传 `prompt_audio_path`（覆盖 `voice`）：`POST /api/extensions/cosyvoice-3/command`，body `{"command":"speak","args":{"text":"欢迎来到展厅。","prompt_audio_path":"/tmp/ref.wav","prompt_text":"参考音频的转写文本。","blocking":false}}`（moss / voice-edge 免 `prompt_text`）；
+3. 试听确认音色相似度；不满意换更干净的参考音频重试；
+4. 要把音色固化成默认（voice-edge 专属）：直接替换 `service/assets/default_prompt.wav` 与同名 `.txt`，重启服务后所有不传 `prompt_audio_path` 的调用都用该音色；
+5. 批量预生成播报可用 `synthesize` 拿 WAV 落盘，避免每次实时合成。
 
 ---
 
@@ -354,4 +605,4 @@ export VOICE_ASSISTANT_VOICE=中文女
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-09*

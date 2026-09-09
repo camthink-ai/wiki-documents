@@ -29,7 +29,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | 云端 | MiniMax | `MiniMax-M2` | 需 API Key |
 | 云端 | 自定义网关 | 任意 | OpenAI 兼容端点（类型选 OpenAI，填自定义 endpoint） |
 
-> **推荐**：本地用 Ollama + `qwen3.5:4b`（4B 参数，平衡速度与效果，8GB 内存可流畅运行）。需要更强能力或多模态时再接入云端。
+> **推荐**：本地首选内置模型 **MiniCPM5-2B**（Q4_K_M，1.5GB，2026-09 修正版评测工具命中率 81%、与云端 deepseek-v4-flash 同档；Apache-2.0 可分发）。Ollama 路线用 `qwen3.5:4b`（4B，平衡之选）。需要更强能力或多模态时再接入云端。
 
 
 ## 内置本地模型（零配置）

@@ -100,6 +100,18 @@ return {
 | `input_raw` | 完整的输入数据对象（不做自动解包） |
 | `extensions.invoke(ext_id, command, params)` | 调用扩展命令，返回扩展执行结果 |
 
+**`input` 自动解包规则**——写代码前先搞清楚拿到的是什么，这是转换代码「跑通还是报错」的最大变量：
+
+| 设备数据形态 | `input` 的值 | `input_raw` 的值 | 代码写法 |
+|-------------|-------------|------------------|---------|
+| 标量（如 `25`） | `25` | `25` | `input * 9/5 + 32` |
+| 单键对象 `{"temperature": 25}` | `25`（自动解包） | `{"temperature": 25}` | 直接 `input * 9/5 + 32`；要键名时用 `input_raw.temperature` |
+| 多键对象 `{"temperature": 25, "humidity": 60}` | 原样对象 | 同 `input` | `input.temperature * 9/5 + 32` |
+
+:::warning 单键 vs 多键，代码不通用
+同一段 `input * 9/5 + 32`，在 `{"temperature": 25}`（单键，自动解包）下正常，在 `{"temperature": 25, "humidity": 60}`（多键）下会得到 `NaN`。如果转换要跨设备类型复用、输入形态不确定，防御性写法是：`return { temp_f: (input_raw.temperature ?? input) * 9/5 + 32 }`。写完务必用[测试栏](#步骤-5测试转换)分别验证两种输入。
+:::
+
 **变量面板**：左侧的变量面板可插入设备指标和扩展数据源。选择设备类型后，该类型的所有指标会列出，点击即可插入代码。也可从扩展面板选择扩展命令生成调用代码。
 
 ### 步骤 5：测试转换
@@ -175,7 +187,25 @@ return {
 }
 ```
 
-### 5. 数值区间分类
+### 5. 调用扩展查询外部数据（extensions.invoke）
+
+`extensions.invoke(扩展ID, 命令, 参数)` 不限于图像——任何已安装扩展的命令都能调。比如用天气扩展给温度数据补充外部上下文：
+
+```javascript
+// 拉取上海当前天气（扩展 ID 与命令名以扩展管理页为准）
+const weather = extensions.invoke('weather.ext', 'get_current', { location: 'Beijing' })
+
+return {
+  temp_f: input * 9/5 + 32,
+  outdoor_temp: weather.temp_f || 0
+}
+```
+
+:::note 执行机制
+转换引擎会在运行你的代码**之前**扫描代码中的 `extensions.invoke(...)` 调用、先异步执行扩展命令，再把结果注入代码上下文——所以上面写法是同步取值，无需 await。扩展不存在或执行失败会记录在执行记录的 `warnings` 里（见[完整生命周期示例](#完整生命周期示例从创建到仪表板)第 3 步的 `output.warning_count`）。
+:::
+
+### 6. 数值区间分类
 
 ```javascript
 let level = 'normal'
@@ -188,6 +218,87 @@ return {
   level_value: { normal: 0, notice: 1, warning: 2, critical: 3 }[level]
 }
 ```
+
+## 完整生命周期示例：从创建到仪表板
+
+下面用一个真实场景把所有环节串起来：设备上报摄氏温度，我们生成华氏度派生指标并放到仪表板上。
+
+**第 1 步 · 用 CLI 创建转换**
+
+```bash
+# （可选）先验证代码逻辑，不落库
+neomind transform test-code \
+  --code 'return { temp_f: input * 9/5 + 32 }' \
+  --input '{"temperature": 25}'
+
+# 创建并启用
+neomind transform create \
+  --name "Fahrenheit Converter" \
+  --scope global \
+  --code 'return { temp_f: input * 9/5 + 32 }' \
+  --output-prefix converted \
+  --enabled true
+```
+
+创建成功后，`neomind transform list` 能看到它（含 ID、作用域、输出前缀）。`--scope` 支持 `global`（全部设备）、`device_type:TH Sensor`（指定类型）、`device:sensor-01`（指定设备）三种写法。
+
+**第 2 步 · 设备数据到达，转换自动执行**
+
+无需任何手动触发——当 sensor-01 发布 `{"temperature": 25}` 时，转换引擎按作用域匹配、毫秒级执行代码，输出派生指标 `converted.temp_f = 77` 并写入时序库。派生指标的完整标识是 `transform:<transform_id>:converted.temp_f`。
+
+**第 3 步 · 确认执行结果**
+
+```bash
+neomind transform executions <transform_id> --limit 20
+```
+
+一条真实执行记录长这样（`status: "completed"` 即成功）：
+
+```json
+{
+  "id": "7c44cb8f-…",
+  "automation_id": "f010c73c-…",
+  "automation_type": "transform",
+  "started_at": 1788930297329,
+  "ended_at": 1788930297338,
+  "status": "completed",
+  "error": null,
+  "output": { "metric_count": 1, "warning_count": 0 }
+}
+```
+
+想看生成的指标值本身，可以给转换发一条测试数据并观察输出指标：
+
+```bash
+curl -X POST http://localhost:9375/api/automations/transforms/<transform_id>/test \
+  -H "Authorization: Bearer <JWT>" -H "Content-Type: application/json" \
+  -d '{ "device_id": "sensor-01", "data": {"temperature": 25} }'
+```
+
+响应里的 `metrics` 数组就是转换产出的派生指标（与真实数据到达时写入时序库的内容一致）：
+
+```json
+{
+  "success": true,
+  "data": {
+    "transform_id": "f010c73c-…",
+    "metrics": [{
+      "device_id": "sensor-01",
+      "transform_id": "f010c73c-…",
+      "metric": "converted.temp_f",
+      "value": 77.0,
+      "timestamp": 1788930297,
+      "quality": 1.0
+    }],
+    "count": 1,
+    "warnings": []
+  }
+}
+```
+
+**第 4 步 · 绑定到仪表板**
+
+进入 [仪表板](./4-use-dashboard.md) 编辑器，添加组件（如 Chart / Value）→ 在数据源选择器中找到 **Transform** 分组 → 选中 `converted.temp_f`（完整 ID 形如 `transform:f010c73c-…:converted.temp_f`）→ 保存。此后每条设备数据到达，仪表板上的派生指标都会随之实时更新。同样地，规则条件里也能引用这个指标（如 `converted.temp_f > 170` 触发告警）。
 
 ## CLI 管理
 

@@ -48,12 +48,14 @@ flowchart LR
 
 ## 2. 物料清单（BOM）
 
-| 物料 | 型号/规格 | 数量 | 用途 | 必需 |
-|------|----------|------|------|------|
-| **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
-| **Face Recognition 扩展** | face-recognition 2.7.x | 1 | 人脸检测与身份识别 | ✅ |
-| **本地 LLM** | Ollama | 1 | AI Chat 后端 | 可选 |
+除了相机与平台，人脸识别的所有推理（检测 + 特征比对 + 人脸库存储）都在 NeoMind 本机完成，不需要额外服务器；只有要用 AI Chat 查询时才需要准备一个 LLM 后端。
+
+| 物料 | 规格 | 用途 | 必需 |
+|------|------|------|------|
+| **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
+| **NeoMind 平台** | v0.9.0+（[下载](https://github.com/camthink-ai/NeoMind/releases/latest)） | 边缘 AI 管理 | ✅ |
+| **Face Recognition 扩展** | face-recognition 2.7.x | 人脸检测与身份识别 | ✅ |
+| **本地 LLM** | Ollama | AI Chat 后端 | 可选 |
 
 ---
 
@@ -148,11 +150,48 @@ neomind extension market-install face-recognition --version 2.7.8
 
 > 注册的人脸照片建议正面清晰、光线充足，以提高识别准确率。
 
-也可通过 `register_face` 命令注册（参数 `name` + `image`，`image` 为 base64 编码照片），并用 `list_faces` 查看人脸库、`delete_face`（参数 `face_id`）删除。人脸库持久化保存，扩展重启后无需重新注册。
+也可通过 `register_face` 命令注册。`name` 必填（≤100 字符，重名会返回 `DUPLICATE_NAME` 错误），`image` 为 base64 编码照片（支持 data URI 前缀，解码后最大 10MB）。在扩展详情页 **命令（Commands）** 标签填参执行，或经 REST `POST /api/extensions/:id/command` 调用：
+
+```json
+{
+  "command": "register_face",
+  "args": {
+    "name": "张三",
+    "image": "/9j/4AAQSkZJRg…（base64 编码的面部照片）"
+  }
+}
+```
+
+扩展会先按检测阈值（`confidence_threshold`，默认 0.5）在照片中找人脸——检测不到人脸会直接注册失败；找到后对齐出 112×112 标准人脸图，用 ArcFace 提取 512 维特征向量，连同缩略图一起写入人脸库并持久化。成功返回：
+
+```json
+{
+  "success": true,
+  "face_id": "9f8b7c6d-5a4e-4f3b-2c1d-0e9f8a7b6c5d",
+  "name": "张三",
+  "registered_at": 1788912000,
+  "message": "Face '张三' registered successfully"
+}
+```
+
+`face_id` 是之后 `delete_face` 的入参；`registered_at` 为 Unix 时间戳（秒）。注册后立即用 `list_faces` 确认入库——`count` 应加一，`faces` 里是新条目的摘要（`id` / `name` / `registered_at` / `thumbnail`，`thumbnail` 为对齐后的 112×112 人脸缩略图 data URI）：
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "faces": [
+    { "id": "9f8b7c6d-5a4e-…", "name": "张三", "registered_at": 1788912000, "thumbnail": "data:image/jpeg;base64,…" },
+    { "id": "2e4a1b3c-7d8e-…", "name": "李四", "registered_at": 1788912120, "thumbnail": "data:image/jpeg;base64,…" }
+  ]
+}
+```
+
+两个人脸库运维要点：达到 `max_faces` 上限（默认 10）再注册会返回 `MAX_FACES_EXCEEDED`，需先 `delete_face` 腾位；人脸库持久化保存在扩展数据目录的 `faces.json` 中，扩展重启后无需重新注册。
 
 ### 5.4 测试识别效果
 
-人脸注册完成后，设备采集到图像时，扩展会自动进行人脸检测和身份识别。在仪表板中可以查看实时识别结果：
+人脸注册完成后，设备采集到图像时，扩展会自动进行人脸检测和身份识别。一次完整的识别流程是：设备抓拍 → **SCRFD** 按检测阈值（`confidence_threshold`，默认 0.5）找出画面中的人脸 → 对齐后用 **ArcFace** 提取 512 维特征 → 与人脸库逐一生成余弦相似度 → 最高相似度 ≥ `recognition_threshold`（默认 0.45）即判定为该身份，否则标记 `unknown`。结果写入 `virtual.face_recognition.*` 指标并在组件上叠加人脸框与身份标签。在仪表板中可以查看实时识别结果：
 
 ![](https://resources.camthink.ai/wiki/img/ai-application/neomind/face-recognition/dashboard-6.png)
 
@@ -175,6 +214,32 @@ neomind extension market-install face-recognition --version 2.7.8
 | `recognition_threshold` | `0.45` | 身份比对相似度阈值，越高越严格（误认少但漏认多），越低越宽松 |
 | `max_faces` | `10` | 单帧最多处理的人脸数量 |
 | `confidence_threshold` | `0.5` | 人脸检测置信度阈值 |
+
+**调参示例：误报多（陌生人被认成已注册人员）**
+
+现场把路过的访客误识别成「张三」，说明比对过于宽松。ArcFace 比对用的是余弦相似度，`recognition_threshold` 越高判定越严格。把阈值从默认 `0.45` 提到 `0.6`：
+
+```json
+{ "command": "configure", "args": { "config": { "recognition_threshold": 0.6 } } }
+```
+
+返回会带上生效后的完整配置，先确认 `recognition_threshold` 已变为 `0.6`：
+
+```json
+{
+  "success": true,
+  "message": "Configuration updated",
+  "config": {
+    "confidence_threshold": 0.5,
+    "recognition_threshold": 0.6,
+    "max_faces": 10,
+    "auto_detect": true,
+    "bindings": []
+  }
+}
+```
+
+然后用现场画面验证调整效果，重点观察 **指标** 标签两个计数的变化：`total_unknown` 上升，说明之前被误认的陌生人现在被正确拒绝了（预期效果）；若已注册员工也开始被标为 `unknown`（`total_recognized` 不再增长），说明调得过头，往回收至 0.5–0.55 即可。阈值修改即时生效并持久化，无需重启扩展；配合补充多角度注册照可以进一步拉开相似度差距。
 
 ### 5.5 查看历史识别记录
 

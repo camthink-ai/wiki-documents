@@ -47,11 +47,13 @@ flowchart LR
 
 ## 2. Bill of Materials (BOM)
 
-| Item | Specification | Qty | Purpose | Required |
-|------|----------|------|------|------|
-| **Smart Camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind Platform** | v0.9.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
-| **OCR Extension** | ocr-device-inference 2.7.x | 1 | Text recognition inference | ✅ |
+Before starting, confirm you have: a smart camera that can capture images, a NeoMind platform, and the OCR extension — no GPU or extra hardware required.
+
+| Item | Specification | Purpose | Required |
+|------|------|------|------|
+| **Smart Camera** | NE101 or NE301 | Image capture | ✅ |
+| **NeoMind Platform** | v0.9.0+ ([Download](https://github.com/camthink-ai/NeoMind/releases/latest)) | Edge AI management | ✅ |
+| **OCR Extension** | ocr-device-inference 2.7.x | Text recognition inference | ✅ |
 
 > Inference hardware is auto-detected: CoreML on macOS, CUDA on Linux with an NVIDIA GPU, CPU fallback otherwise — no manual configuration needed.
 
@@ -147,7 +149,7 @@ The OCR widget also supports **one-shot recognition by uploading an image** and 
 
 ### 5.3 Command-Based Binding and Management (Optional)
 
-Besides the dashboard widget, you can bind via the `bind_device` command in the extension detail page **Commands** tab (or via REST):
+The dashboard widget works well for configuring a single device; if you need to bind multiple devices via scripts / APIs, use the command channel instead. Bind via the `bind_device` command in the extension detail page **Commands** tab (or via REST):
 
 ```json
 {
@@ -160,6 +162,14 @@ Besides the dashboard widget, you can bind via the `bind_device` command in the 
   }
 }
 ```
+
+A successful execution returns:
+
+```json
+{ "success": true, "device_id": "ne301-new" }
+```
+
+`device_id` is required; omitted parameters fall back to defaults (`image_metric: image`, `draw_boxes: true`, `language: chinese`). Bindings are persisted to the extension configuration and restored automatically after an extension restart — no need to re-bind. A successful bind is only the first step; confirm recognition is actually running per [5.4](#54-verify-the-binding).
 
 | Command | Key Parameters | Description |
 |------|----------|------|
@@ -182,13 +192,43 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 ### 5.4 Verify the Binding
 
+A `success: true` response from `bind_device` only means the arguments were accepted. The real acceptance criteria are three things: metrics start growing, `get_status` shows an active binding, and result metrics start being written.
+
 - Extension detail page **Metrics** tab: `bound_devices` ≥ 1; after the device captures images, `total_inferences` keeps growing and `total_errors` stays flat.
-- Run `get_bindings` in the **Commands** tab and confirm the binding is active.
+- Run `get_bindings` in the **Commands** tab and confirm the binding is active; or run `get_status` to get the model state, cumulative statistics, and per-binding status in one call:
+
+```json
+{ "command": "get_status", "args": {} }
+```
+
+Response (fields can be asserted directly, no transformation needed):
+
+```json
+{
+  "success": true,
+  "data": {
+    "model_loaded": true,
+    "model_error": null,
+    "total_inferences": 128,
+    "total_text_blocks": 342,
+    "total_errors": 0,
+    "bindings_count": 1,
+    "bindings": [
+      { "device_id": "ne301-new", "active": true, "total_inferences": 128 }
+    ]
+  }
+}
+```
+
+How to read it: `model_loaded: false` is normal before the first inference (models load lazily), but if `model_error` also has a value, model loading failed — troubleshoot per section 10. In `bindings`, the target device should show `"active": true` with its `total_inferences` growing as captures come in.
+
 - Each recognition writes `virtual.ocr.*` result metrics to the device, with DataSourceIds such as:
   - `device:ne301-new:virtual.ocr.full_text` (recognized full text)
   - `device:ne301-new:virtual.ocr.count` (text block count)
   - `device:ne301-new:virtual.ocr.confidence` (average confidence, 0.0–1.0)
   - `device:ne301-new:virtual.ocr.annotated_image` (annotated image with bounding boxes)
+
+About the annotated image: when `draw_boxes: true` (the default), the extension draws every recognized text box onto the original image, encodes it as **JPEG**, and writes it to `virtual.ocr.annotated_image` as a `data:image/jpeg;base64,…` data URI. Bind this metric to a dashboard image widget to see boxes follow the text — the most direct way to verify recognition positions and ROI regions.
 
 ---
 

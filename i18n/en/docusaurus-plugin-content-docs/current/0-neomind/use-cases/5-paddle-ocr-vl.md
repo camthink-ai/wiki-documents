@@ -72,7 +72,30 @@ python3 server.py        # → http://0.0.0.0:8000
 
 > **GPU server note**: the server-side `PADDLE_DEVICE` defaults to `cpu`. On a GPU machine, start the service explicitly with `PADDLE_DEVICE=gpu python3 server.py`, otherwise the VLM falls back to CPU inference (very slow).
 
-> No GPU, or want to verify the wiring first? Run `python3 mock_server.py` (returns canned responses; only needs `pip install fastapi uvicorn`).
+> No GPU, or want to verify the wiring first? Run the **mock service**: it implements the exact same HTTP interface as the real service and returns canned example responses. It only needs `fastapi` + `uvicorn`, so an ordinary laptop will do:
+
+```bash
+cd extensions/paddle-ocr-vl/server
+pip install fastapi uvicorn
+python3 mock_server.py     # → http://127.0.0.1:8000
+```
+
+The mock service returns this fixed example for KIE requests (`/health` always reports `{"status": "ok", "version": "1.6-mock", "model_loaded": true}`):
+
+```json
+{
+  "fields": {
+    "invoice_no": "INV-2026-0001",
+    "date": "2026-07-06",
+    "total": "$86.50",
+    "vendor": "Acme Corp",
+    "customer": "NeoMind"
+  },
+  "processing_time_ms": 30.0
+}
+```
+
+The mock only verifies the "extension → service → card rendering" chain; it cannot assess recognition accuracy. Once the wiring works, point `endpoint` at the real service (the extension's default `endpoint` already targets `127.0.0.1:8000`, so no change is needed for local testing).
 
 Once the service is up, run the `health` command on the extension detail page: `status: ok` means the service is online. `model_loaded` only becomes `true` **after the first inference** (the `/health` probe does not load the model on demand); if it returns `status: degraded`, check the `load_error` field in the response to find the load failure cause.
 
@@ -136,16 +159,70 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 
 > Image is either-or: `image_base64` (Base64 bytes, preferred) or `image_url` (fetched by the inference service). `recognize` / `recognize_table` / `extract_keys` all require exactly one of the two, otherwise a parameter error is returned.
 
+A complete multilingual OCR call (`recognize`, with command-level parameters overriding the configured defaults):
+
+```bash
+curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"command":"recognize","args":{"image_base64":"/9j/4AAQSkZJRg…","image_width":1920,"image_height":1080,"language":"ch","use_doc_orientation_classify":true,"use_doc_unwarping":true}}' \
+     http://localhost:9375/api/extensions/paddle-ocr-vl/command
+```
+
+Each element of the returned `text_blocks` corresponds to one text region; `bbox` uses normalized 0–1 coordinates (compatible with the NE101 camera component's overlay rendering):
+
+```json
+{
+  "text_blocks": [
+    { "text": "INVOICE NO.", "confidence": 0.985,
+      "bbox": { "x": 0.05, "y": 0.10, "width": 0.30, "height": 0.04 } },
+    { "text": "INV-2026-0001", "confidence": 0.972,
+      "bbox": { "x": 0.68, "y": 0.10, "width": 0.24, "height": 0.04 } }
+  ],
+  "full_text": "INVOICE NO.\nINV-2026-0001",
+  "processing_time_ms": 423.5,
+  "language": "ch"
+}
+```
+
+**Calling the inference service's HTTP API directly** (bypassing the extension — useful for service-side troubleshooting or third-party integration). The service listens on `0.0.0.0:8000`, and its endpoints map one-to-one to the extension commands: `POST /ocr` ↔ `recognize`, `POST /table` ↔ `recognize_table`, `POST /kie` ↔ `extract_keys`, `GET /health` ↔ `health`. The request body is the `args` content itself, e.g.:
+
+```bash
+curl -X POST http://<gpu-server-ip>:8000/ocr \
+     -H "Content-Type: application/json" \
+     -d '{"image_base64":"/9j/4AAQSkZJRg…","language":"ch","use_doc_orientation_classify":false,"use_doc_unwarping":false}'
+```
+
+```json
+{
+  "results": [
+    { "rec_text": "Hello", "rec_score": 0.982,
+      "dt_polynomial": [[96.0, 108.0], [1056.0, 108.0], [1056.0, 194.4], [96.0, 194.4]] }
+  ],
+  "full_text": "Hello",
+  "processing_time_ms": 420.5,
+  "image_width": 1920,
+  "image_height": 1080
+}
+```
+
+Note the two differences between the raw service response and the extension command response: the service returns `results` (`rec_text` / `rec_score` / a four-point polygon `dt_polynomial` in pixel coordinates), while the extension normalizes it into `text_blocks` (`text` / `confidence` / rectangular `bbox`) and fills in `language`. The `POST /kie` request body is `{"image_base64":"…","schema":{"fields":["invoice_no","date","total"]}}` and it returns `{"fields":{…},"processing_time_ms":…}`, identical to the command response.
+
 ---
 
 ## 6. Typical Scenarios
 
 ### 6.1 Invoice / receipt structured extraction (KIE)
 
-Use `extract_keys` + a schema to turn a receipt into fields:
+Use `extract_keys` + a schema to turn a receipt into fields (either-or image; base64 shown here):
 
 ```json
-{ "image_base64": "...", "schema": { "fields": ["invoice_no", "date", "total", "seller"] } }
+{
+  "command": "extract_keys",
+  "args": {
+    "image_base64": "<base64 bytes of the receipt photo>",
+    "schema": { "fields": ["invoice_no", "date", "total", "seller"] }
+  }
+}
 ```
 
 Returns something like:
@@ -172,7 +249,7 @@ Returns something like:
 For tables in financial statements, inspection reports, and spec sheets, use `recognize_table` to convert them into HTML:
 
 ```json
-{ "image_base64": "<base64-bytes>" }
+{ "command": "recognize_table", "args": { "image_base64": "<base64-bytes>" } }
 ```
 
 Returns something like:
@@ -190,16 +267,19 @@ The service returns the HTML of the **largest table** found in the layout. Rende
 
 ### 6.3 Document digitization (complex layouts / warped photographed documents)
 
-For multi-column, image-text mixed paper documents, or curved / skewed pages photographed by phone, use `recognize` to turn them into searchable text in one step:
+For multi-column, image-text mixed paper documents, or curved / skewed pages photographed by phone, use `recognize` to turn them into searchable text in one step (for skewed photographed documents, enable both orientation classification and dewarping):
 
 ```json
 {
-  "image_base64": "<base64-bytes>",
-  "image_width": 1920,
-  "image_height": 1080,
-  "language": "ch",
-  "use_doc_orientation_classify": true,
-  "use_doc_unwarping": true
+  "command": "recognize",
+  "args": {
+    "image_base64": "<base64-bytes>",
+    "image_width": 1920,
+    "image_height": 1080,
+    "language": "ch",
+    "use_doc_orientation_classify": true,
+    "use_doc_unwarping": true
+  }
 }
 ```
 
