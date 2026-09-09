@@ -252,6 +252,55 @@ systemctl status neomind.service
 
 完整的获取、配置与验证流程见 **[CLI 与 API Key](./11-cli-api-keys.md)**。
 
+## 环境变量参考
+
+运行时常用环境变量（按用途分组，全部经源码核实）：
+
+**核心路径与服务**
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_DATA_DIR` | 数据目录（redb、扩展、备份等；默认 `./data` 或平台数据目录） |
+| `NEOMIND_PORT` / `--port` | HTTP API 端口（默认 9375） |
+| `NEOMIND_HOST` | 监听地址（默认 0.0.0.0） |
+| `NEOMIND_WEB_DIR` | 前端静态文件目录（默认 `/var/www/neomind`） |
+| `NEOMIND_LOG_JSON` / `RUST_LOG` | 日志格式与级别 |
+
+**HTTPS 内置加密代理（0.9.21+）**
+
+不部署 nginx 时，可让 NeoMind 自带 rustls TLS 前置代理（转发到明文监听）：
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_TLS_PORT` | HTTPS 监听端口（默认 9376） |
+| `NEOMIND_TLS_CERT` / `NEOMIND_TLS_KEY` | PEM 证书与私钥路径 |
+
+:::note 与 nginx 的取舍
+内置代理适合单机快速启用 HTTPS；但所有客户端共享同一个限流桶，且上游假设默认端口。生产环境多客户端建议仍用 nginx 并做按客户端限流。
+:::
+
+**LLM 与模型**
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_BUILTIN_LLM` / `NEOMIND_BUILTIN_MODEL_PATH` / `NEOMIND_BUILTIN_MODEL_NGL` | 内置 llama.cpp 运行时与模型控制 |
+| `NEOMIND_BUILTIN_LLM_CTX` / `NEOMIND_BUILTIN_LLM_PORT` | 上下文长度与监听端口 |
+| `NEOMIND_CATALOG_URL` | 内置模型目录地址（默认 camthink-ai/NeoMind-Runtimes） |
+| `NEOMIND_MAX_CONTEXT` | 覆盖默认上下文长度 |
+| `NEOMIND_TOOL_CONCURRENCY` | 工具调用并发数 |
+
+**扩展与安全**
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | 扩展市场源覆盖 |
+| `NEOMIND_STRICT_PACKAGE_SHA256` | 设为 1 时拒绝无校验和的扩展包 |
+| `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | 扩展进程工作线程与 FFI 超时 |
+| `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | 会话签名与静态加密密钥（默认自动生成于 data/） |
+| `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | 备份计划初始值（设置页保存后以设置为准） |
+
+> 完整清单以源码为准（`grep -r 'env::var' crates/`）；上表为部署运维常用子集。
+
 ## 生产部署检查清单
 
 从试用走向生产时，按此清单逐项确认：
@@ -263,6 +312,7 @@ systemctl status neomind.service
 - **[扩展市场源](./9-extensions.md)** — 国内网络切换镜像地址
 - **[在线升级](#升级)** — 确认 install.sh 的辅助 systemd 单元已安装（老安装重跑一次脚本）
 - **时区** — 确认系统时区正确，规则 cron 与数据时间戳都依赖它（设置 → Preferences）
+- **监控** — 接入 Prometheus 抓取 `http://your-server:9375/metrics`（HTTP 请求计数、uptime、事件总线丢弃计数），别等出事才看日志
 
 ## 下一步
 

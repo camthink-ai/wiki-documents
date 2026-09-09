@@ -252,6 +252,55 @@ For common issues (port conflicts, LLM connection failures, MQTT unreachable), s
 
 For the full retrieval, configuration, and verification walkthrough see **[CLI & API Keys](./11-cli-api-keys.md)**.
 
+## Environment Variable Reference
+
+Commonly used runtime variables (grouped by purpose, all verified against source):
+
+**Core paths & service**
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_DATA_DIR` | Data directory (redb, extensions, backups; default `./data` or the platform data dir) |
+| `NEOMIND_PORT` / `--port` | HTTP API port (default 9375) |
+| `NEOMIND_HOST` | Bind address (default 0.0.0.0) |
+| `NEOMIND_WEB_DIR` | Frontend static directory (default `/var/www/neomind`) |
+| `NEOMIND_LOG_JSON` / `RUST_LOG` | Log format and level |
+
+**Built-in HTTPS proxy (0.9.21+)**
+
+Without nginx, NeoMind ships a rustls TLS front proxy that forwards to the plaintext listener:
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_TLS_PORT` | HTTPS listen port (default 9376) |
+| `NEOMIND_TLS_CERT` / `NEOMIND_TLS_KEY` | PEM certificate and key paths |
+
+:::note vs nginx
+The built-in proxy suits single-box HTTPS enablement; all clients share one rate-limit bucket and the upstream assumes the default port. For multi-client production, prefer nginx with per-client limits.
+:::
+
+**LLM & models**
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_BUILTIN_LLM` / `NEOMIND_BUILTIN_MODEL_PATH` / `NEOMIND_BUILTIN_MODEL_NGL` | Built-in llama.cpp runtime and model control |
+| `NEOMIND_BUILTIN_LLM_CTX` / `NEOMIND_BUILTIN_LLM_PORT` | Context length and listen port |
+| `NEOMIND_CATALOG_URL` | Built-in model catalog URL (default camthink-ai/NeoMind-Runtimes) |
+| `NEOMIND_MAX_CONTEXT` | Override the default context length |
+| `NEOMIND_TOOL_CONCURRENCY` | Tool-call concurrency |
+
+**Extensions & security**
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | Marketplace source override |
+| `NEOMIND_STRICT_PACKAGE_SHA256` | Set to 1 to reject packages without a checksum |
+| `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | Extension process workers and FFI timeout |
+| `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | Session signing and at-rest encryption keys (auto-generated under data/ by default) |
+| `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | Backup schedule seeds (settings win once saved) |
+
+> The full list is authoritative in the source (`grep -r 'env::var' crates/`); the table above is the operations-relevant subset.
+
 ## Production Checklist
 
 Before moving from trial to production, walk through:
@@ -263,6 +312,7 @@ Before moving from trial to production, walk through:
 - **[Marketplace source](./9-extensions.md)** — switch to a mirror if your network needs it
 - **[Online upgrade](#upgrade)** — make sure install.sh's helper systemd units are installed (older installs: rerun the script once)
 - **Timezone** — verify the system timezone; rule cron schedules and data timestamps depend on it (Settings → Preferences)
+- **Monitoring** — point Prometheus at `http://your-server:9375/metrics` (HTTP request counters, uptime, event-bus drop counters) instead of waiting for incidents
 
 ## Next Steps
 

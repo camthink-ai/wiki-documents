@@ -233,6 +233,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 |------|------|------|
 | GET | `/settings/*` | 系统设置（保留策略等） |
 | GET | `/system/network-info` | 网络信息（MQTT / webhook 地址） |
+| GET | `/metrics` | Prometheus 文本指标（公开）：HTTP 请求计数、uptime、事件总线丢弃计数等 |
 
 ## 实时 API
 

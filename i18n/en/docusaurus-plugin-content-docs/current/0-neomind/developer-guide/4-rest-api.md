@@ -232,6 +232,7 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 |--------|------|-------------|
 | GET | `/settings/*` | System settings (retention policy, etc.) |
 | GET | `/system/network-info` | Network info (MQTT / webhook endpoints) |
+| GET | `/metrics` | Prometheus text metrics (public): HTTP request counters, uptime, event-bus drop counters |
 
 ## Realtime API
 
