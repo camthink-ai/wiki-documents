@@ -7,6 +7,14 @@ sidebar_label: "metric card"
 
 # metric card：入门仪表板组件
 
+:::note
+
+本案例剖析基于组件 **v1.7.0**，行号以 audit 时点为准，以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card)为准。commit `19af1e9`（2026-06-25）已将毛玻璃容器替换为纯色卡片表面，正文「毛玻璃容器设计（OKLCH + CSS 变量）」一节对应的 `mc-shimmer` 动画与 `blur(16px)` 样式已不在当前 bundle.js 中。
+
+:::
+
+> **阅读提示**：全篇约 590 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。
+
 ## 案例背景
 
 **metric_card** 是 NeoMind 仪表板组件市场中最简单的「有意义的组件」——它把一个或多个数值（温度、电池电量、推理延迟、检测到的目标数）渲染成一张毛玻璃卡片，带标签、单位、小数位精度。整个组件 352 行手写 IIFE JavaScript，不依赖任何构建步骤，是新手理解「一个 NeoMind 组件由哪些部分组成」的最短路径。
@@ -578,7 +586,7 @@ metric_card 的 git 历史记录了 `extractValue` 函数从「只处理数字�
 
 - [工程标准附录](./appendix-standards.md) —— manifest schema、尺寸约束、STYLE_GUIDE 规则的集中参考。
 - [案例集总览](./0-overview.md) —— 7 个案例的版本对齐表和阅读路径。
-- [1 weather-forecast-v2](./1-weather-forecast.md) —— 配对的扩展案例。weather-forecast 产出指标，metric_card 消费指标，两者构成完整的「扩展 → 组件」数据链路。
+- [1 weather-forecast](./1-weather-forecast.md) —— 配对的扩展案例。weather-forecast 产出指标，metric_card 消费指标，两者构成完整的「扩展 → 组件」数据链路。
 - [7 ne101_camera](./7-ne101-camera-component/index.md) —— 旗舰组件案例（下一级难度）。在 metric_card 的基础上增加设备绑定、图像画布、AI 处理流水线。
 - [组件 API 通用参考](../8-dashboard-component-dev.md) —— Dashboard 组件 schema、数据源绑定、渲染管线的 API 文档。
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card) —— `bundle.js` + `manifest.json`。
@@ -586,4 +594,4 @@ metric_card 的 git 历史记录了 `extractValue` 函数从「只处理数字�
 
 ---
 
-*最后更新: 2026-06-22 · 源码版本: metric_card v1.7.0*
+*源仓库版本: metric_card v1.7.0 | 最后 audit: 2026-06-22*

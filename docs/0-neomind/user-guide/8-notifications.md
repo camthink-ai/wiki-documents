@@ -1,5 +1,5 @@
 ---
-description: "NeoMind 通知与消息完整指南：配置 9 个消息渠道（含 Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书），渠道过滤器、消息生命周期、CLI 与 REST API。"
+description: "NeoMind 通知与消息完整指南：配置 7 个消息渠道（Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书），渠道过滤器、消息生命周期、CLI 与 REST API。"
 keywords: [NeoMind, 通知, 消息, 消息渠道, webhook, 邮件, telegram, 钉钉, 飞书, 企业微信, slack, 渠道过滤]
 tags: [NeoMind, 用户指南]
 sidebar_label: "Notifications & Messages"
@@ -8,7 +8,7 @@ sidebar_position: 8
 
 # 通知与消息
 
-NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析结果、系统事件统一推送到你配置的渠道。支持 **9 个消息渠道**（2 个内置 + 7 个外部），可同时多渠道分发，并对每个渠道单独配置消息过滤规则。
+NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析结果、系统事件统一推送到你配置的渠道。所有消息都会先进入**应用内消息中心**，再转发到启用的外部渠道。支持 **7 个外部消息渠道**（Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书），可同时多渠道分发，并对每个渠道单独配置消息过滤规则。
 
 > 消息系统位于左侧导航的 **Messages**（铃铛图标）。两个页签：**Messages**（消息中心，浏览历史告警）和 **Channels**（渠道配置）。
 
@@ -16,9 +16,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 | 渠道 | 类型 | 用途 | 鉴权方式 | 可禁用 |
 |------|------|------|---------|--------|
-| **Console（控制台）** | 内置 | 打印到服务端日志，调试用 | 无 | 否（内置） |
-| **Memory（记忆）** | 内置 | 写入 AI Agent 长期记忆，让 Agent 学习告警 | 无 | 否（内置） |
-| **Webhook** | 通用 HTTP | 转发到任意 HTTP 端点（自建系统、IFTTT、n8n、AlertManager） | URL + 5 种鉴权 | 是 |
+| **Webhook** | 通用 HTTP | 转发到任意 HTTP 端点（自建系统、IFTTT、n8n、AlertManager），UI 支持为端点配置鉴权头 | URL + 5 种鉴权（UI 侧配置，转为请求头） | 是 |
 | **Email（邮件）** | SMTP | 标准邮件通知 | SMTP 用户名 / 密码 | 是 |
 | **Telegram** | Bot API | 海外团队即时通知 | Bot Token | 是 |
 | **企业微信（WeCom）** | 群机器人 | 国内企业协作 | 群机器人 Webhook Key | 是 |
@@ -26,7 +24,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Slack** | Incoming Webhook | 国际团队协作 | Webhook URL | 是 |
 | **飞书（Feishu）** | 自定义机器人 | 国内企业协作 | Hook ID + 加签 | 是 |
 
-> NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道对接第三方短信网关（如 Twilio、阿里云短信）。
+:::note
+NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道对接第三方短信网关（如 Twilio、阿里云短信）。
+:::
 
 ## 界面概览
 
@@ -34,7 +34,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 进入 **Messages** 页面，默认显示消息中心：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每条消息包含：
 
@@ -45,7 +45,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **正文** | 消息内容（点击行展开查看完整内容） |
 | **分类（Category）** | `alert`（告警）/ `system`（系统）/ `business`（业务）/ `notification`（通知）+ 后端可扩展任意分类 |
 | **来源（Source）** | 触发来源：`device` / `rule` / `telemetry` / `schedule` / `llm` / `system` |
-| **状态（Status）** | `active` / `acknowledged` / `resolved` / `archived` / `false_positive` |
+| **状态（Status）** | `active` / `acknowledged` / `resolved` / `archived` |
 | **时间** | 创建时间与最后更新时间 |
 | **操作** | Acknowledge / Resolve / Archive / Delete |
 
@@ -55,7 +55,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 切换到 **Channels** 页签查看所有渠道：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面顶部显示统计卡片（总渠道数 / 启用数 / 渠道类型数），下方是渠道列表。每个渠道卡片显示：
 
@@ -68,13 +68,13 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 点击 **Create** 按钮打开全屏渠道编辑器：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 编辑器采用**左右分栏**布局：
-- **左侧边栏**：列出 7 种外部渠道类型，点击切换
+- **左侧边栏**：列出 7 种渠道类型，点击切换
 - **右侧表单**：显示当前选中类型的配置字段
 
-> 内置渠道（Console、Memory）无需配置，也不支持禁用 / 删除。
+> 渠道只负责**外部转发**；无论是否配置渠道，所有消息都会保存在应用内消息中心（Messages 页签），可在 Web UI 右上角铃铛查看。
 
 ### 通用字段
 
@@ -93,13 +93,12 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
-| **URL** | 接收消息的 HTTP(S) 端点 | `https://api.example.com/alerts` |
-| **Method** | HTTP 方法（默认 `POST`） | `POST` / `PUT` |
+| **URL** | 接收消息的 HTTP(S) 端点，NeoMind 以 `POST` 方式推送 | `https://api.example.com/alerts` |
 | **Authentication** | 鉴权类型：`none` / `bearer` / `basic` / `apikey` / `custom` | 见下表 |
 | **Headers** | 自定义请求头（`custom` 鉴权下使用） | `{"X-Tenant": "factory1"}` |
 | **Timeout（secs）** | HTTP 超时，默认 30，最大 300 | `30` |
 
-**鉴权类型详解**：
+**鉴权类型详解**（UI 侧的配置项，保存时统一转换为 HTTP 请求头）：
 
 | 类型 | 附加字段 | 适用场景 |
 |------|---------|---------|
@@ -111,7 +110,7 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### Email 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
@@ -121,11 +120,13 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Password** | SMTP 登录密码或应用专用密码 | `••••••••` |
 | **From Address** | 发件人地址（一般同 Username） | `alert@example.com` |
 
-> **收件人（Recipients）单独管理**：Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收件人列表。这样无需重新打开渠道编辑器即可增删收件人。
+:::tip 收件人（Recipients）单独管理
+Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收件人列表。这样无需重新打开渠道编辑器即可增删收件人。
+:::
 
 ### Telegram 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 获取方式 |
 |------|------|---------|
@@ -149,7 +150,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Access Token** | 群机器人 Webhook URL 的 access_token | 群设置 → 智能群助手 → 添加自定义机器人 → 复制 Webhook URL，取 `access_token=` 后的值 |
 | **Secret**（可选） | 加签密钥 | 机器人安全设置选「加签」，复制 Secret 填入。**强烈建议启用加签**，否则机器人可能被恶意调用 |
 
-> 启用加签后，NeoMind 使用 HMAC-SHA256 计算签名，按钉钉协议追加 `timestamp` 和 `sign` 到 URL。
+:::note
+启用加签后，NeoMind 使用 HMAC-SHA256 计算签名，按钉钉协议追加 `timestamp` 和 `sign` 到 URL。
+:::
 
 ### Slack 渠道
 
@@ -166,7 +169,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 | **Hook ID** | 群机器人 Webhook URL 的 hook_id 部分（**不是完整 URL**） | 群设置 → 群机器人 → 添加自定义机器人 → 复制 Webhook URL，取 `open.feishu.cn/open-apis/bot/v2/hook/` 之后的 UUID |
 | **Secret**（可选） | 加签密钥 | 机器人安全设置选「签名校验」，复制 Secret |
 
-> 启用签名后，NeoMind 按飞书协议计算 `timestamp` 和 `sign` 字段并加入请求体。
+:::note
+启用签名后，NeoMind 按飞书协议计算 `timestamp` 和 `sign` 字段并加入请求体。
+:::
 
 ### 测试渠道
 
@@ -228,7 +233,9 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 - 飞书 / 钉钉群：最低 `critical`（只接收重要告警）
 - Webhook → 监控大盘：全部（保留完整数据）
 
-> **未配置过滤器 = 接收所有消息**。新创建的规则通知默认会进所有启用渠道，需要用过滤器做分级路由。
+:::warning 未配置过滤器 = 接收所有消息
+新创建的规则通知默认会进所有启用渠道，需要用过滤器做分级路由。
+:::
 
 ## 触发通知的方式
 
@@ -239,29 +246,10 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 在 [自动化规则](./7-automation-rules.md) 中配置 `notify` 动作：
 
 ```json
-{
-  "name": "AlertHighTemp",
-  "condition": {
-    "type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": ">",
-    "value": 30
-  },
-  "actions": [
-    {
-      "type": "notify",
-      "config": {
-        "title": "高温告警",
-        "message": "sensor-01 温度 {{value}}°C 已超过阈值 30°C",
-        "severity": "critical",
-        "category": "alert"
-      }
-    }
-  ],
-  "trigger": "state_change",
-  "cooldown": 60
-}
+{ "type": "notify", "message": "sensor-01 温度 {value}°C 已超过阈值 30°C", "severity": "critical" }
 ```
+
+完整规则结构见 [自动化规则](./7-automation-rules.md)。
 
 `notify` 动作生成的消息**会进所有启用渠道**，由每个渠道的过滤器决定是否转发。所以创建规则后，记得配置关键渠道的过滤器。
 
@@ -278,16 +266,14 @@ NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析�
 
 ### 4. 系统事件
 
-部分系统级事件（设备掉线、扩展崩溃、存储空间不足）会自动进消息中心。可在 Settings 中开关是否转发到外部渠道。
+部分系统级事件（设备掉线、扩展崩溃停止自启、存储空间不足）会自动进消息中心，并按各渠道过滤器转发。
 
 ## 消息生命周期
 
-消息有 5 个状态，构成完整的处置工作流：
+消息有 4 个状态，构成完整的处置工作流：
 
 ```
 active → acknowledged → resolved → archived
-   ↓            ↓            ↓
-   └──────── false_positive ────┘
 ```
 
 | 状态 | 说明 | 操作 |
@@ -296,77 +282,59 @@ active → acknowledged → resolved → archived
 | **Acknowledged（已确认）** | 运维人员已知悉，正在处理 | 点 **Acknowledge** |
 | **Resolved（已解决）** | 问题已修复 | 点 **Resolve** |
 | **Archived（已归档）** | 归档保留，不再活跃 | 点 **Archive** |
-| **False Positive（误报）** | 标记为误报，用于训练规则 / Agent | 点 **Mark as False Positive** |
 
 **操作**：
 - 单条：在消息行直接点对应按钮
 - 批量：用筛选器过滤出一批消息后批量操作
 - 删除：Delete 会从数据库移除（不可恢复，归档更安全）
 
-> **误报标记的价值**：归档为 false_positive 的消息会被规则引擎和 Agent 学习参考，有助于减少未来同类误报。
-
 ## CLI 管理
 
 NeoMind CLI 提供 `message` 子命令管理消息和渠道：
 
 ```bash
-# 列出最近 20 条消息
+# 列出最近 20 条消息（--severity / --status 过滤）
 neomind message list --limit 20
 
-# 创建一条消息（用于测试渠道）
-neomind message create --json '{
-  "title": "测试告警",
-  "content": "手动创建的测试消息",
-  "severity": "warning",
-  "category": "alert",
-  "source_type": "system"
-}'
+# 查看消息详情
+neomind message get <message_id>
+
+# 发送一条系统消息（用于测试投递链路）
+neomind message send --title "测试告警" --body "手动创建的测试消息" --severity warning
+
+# 确认（标记已读）/ 删除消息
+neomind message read <message_id>
+neomind message delete <message_id>
 
 # 列出所有渠道
-neomind message channels
+neomind message channel-list
 
-# 创建渠道
-neomind message channel create --json '{
-  "name": "ops-feishu",
-  "channel_type": "feishu",
-  "config": {
-    "hook_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "secret": "secxxxxxxxx"
-  },
-  "enabled": true
-}'
+# 查看渠道类型及各类型的配置字段
+neomind message channel-types
+neomind message channel-type-schema feishu
 
-# 启用 / 禁用渠道
-neomind message channel enable ops-feishu
-neomind message channel disable ops-feishu
+# 创建渠道（--config 传完整 JSON，或用可重复的 --param k=v）
+neomind message channel-create --name ops-feishu --type feishu \
+  --config '{"hook_id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","secret":"secxxxxxxxx"}'
+
+# 更新渠道（修改配置 / 启用禁用等）
+neomind message channel-update --name ops-feishu --config '{"enabled":false}'
 
 # 测试渠道（发送测试消息）
-neomind message channel test ops-feishu
-
-# 配置渠道过滤器
-neomind message channel filter ops-feishu --json '{
-  "source_types": ["rule", "device"],
-  "categories": ["alert"],
-  "min_severity": "critical"
-}'
-
-# 管理邮件收件人
-neomind message channel recipients ops-email --add "ops@example.com,oncall@example.com"
-neomind message channel recipients ops-email --list
-neomind message channel recipients ops-email --remove "ops@example.com"
-
-# 确认 / 解决 / 归档消息
-neomind message acknowledge <message_id>
-neomind message resolve <message_id>
-neomind message archive <message_id>
+neomind message channel-test ops-feishu
 
 # 删除渠道
-neomind message channel delete ops-feishu
+neomind message channel-delete ops-feishu
 ```
+
+> 消息模板支持 `{value}`、`{source_id}` 插值；渠道过滤（按来源 / 类别 / 最低级别）在 Web UI 的渠道编辑面板中配置。
 
 ## REST API
 
 所有功能均可通过 HTTP API 调用（默认端口 9375）：
+
+<details>
+<summary>REST API 完整示例</summary>
 
 ```bash
 # 列出消息
@@ -379,7 +347,7 @@ curl -X POST http://localhost:9375/api/messages \
   -H "Content-Type: application/json" \
   -d '{
     "title": "高温告警",
-    "content": "sensor-01 温度 35°C 超阈值",
+    "message": "sensor-01 温度 35°C 超阈值",
     "severity": "critical",
     "category": "alert",
     "source_type": "rule"
@@ -389,35 +357,34 @@ curl -X POST http://localhost:9375/api/messages \
 curl http://localhost:9375/api/messages/channels \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
-# 创建渠道
+# 创建渠道（name + channel_type + 配置字段平铺在同一层）
 curl -X POST http://localhost:9375/api/messages/channels \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "ops-webhook",
     "channel_type": "webhook",
-    "config": {
-      "url": "https://api.example.com/alerts",
-      "method": "POST",
-      "_authType": "bearer",
-      "bearer_token": "xxx"
-    },
+    "url": "https://api.example.com/alerts",
+    "headers": {"Authorization": "Bearer xxx"},
+    "timeout_secs": 30,
     "enabled": true
   }'
 
-# 更新渠道
+# 更新渠道（修改配置 / 启用禁用等）
 curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"enabled": false}'
+  -d '{"config": {"url": "https://api.example.com/alerts", "enabled": false}}'
 
 # 测试渠道
 curl -X POST http://localhost:9375/api/messages/channels/ops-webhook/test \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
 # 启用 / 禁用
-curl -X POST http://localhost:9375/api/messages/channels/ops-webhook/enable \
-  -H "X-API-Key: $NEOMIND_API_KEY"
+curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/enabled \
+  -H "X-API-Key: $NEOMIND_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
 
 # 配置过滤器
 curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/filter \
@@ -433,13 +400,17 @@ curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/filter \
 curl http://localhost:9375/api/messages/channels/ops-webhook/filter \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
-# 邮件收件人管理
+# 邮件收件人管理（每次添加一个收件人）
 curl -X POST http://localhost:9375/api/messages/channels/ops-email/recipients \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"recipients": ["ops@example.com", "oncall@example.com"]}'
+  -d '{"email": "ops@example.com"}'
 
 curl http://localhost:9375/api/messages/channels/ops-email/recipients \
+  -H "X-API-Key: $NEOMIND_API_KEY"
+
+# 删除收件人
+curl -X DELETE http://localhost:9375/api/messages/channels/ops-email/recipients/ops@example.com \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
 # 消息状态变更
@@ -451,19 +422,15 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY"
 ```
 
-## 投递跟踪与重试
+</details>
 
-NeoMind 记录每条消息在每个渠道的投递状态：
+## 发送与去重
 
-- **Pending（待发）**：进入队列
-- **Sent（已发送）**：渠道已接收
-- **Delivered（已投递）**：渠道返回成功
-- **Failed（失败）**：渠道返回错误或超时
+消息创建后即固定保存在消息中心；随后对**每个启用的渠道**发送一次（先过该渠道的过滤器）：
 
-**重试与去重**：
-- **指数退避重试**：失败自动重试，最多 5 次（间隔 1s → 2s → 4s → 8s → 16s）
-- **去重窗口**：同一 (channel, title, content) 在默认 60 秒内只发一次，防止规则高频触发引发通知风暴
-- **批量合并**：多条同质告警可合并为摘要（高级配置）
+- **无自动重试**：某条渠道发送失败（超时、鉴权失败、目标返回错误）只记录日志，**不会自动重试**。可在渠道上点 **Test** 验证连通性。需要重试语义的数据转发请用[数据推送](./7c-data-push.md)（带指数退避重试与投递历史）。
+- **去重窗口**：同一 (标题, 来源, 严重度) 的消息在 **60 秒**内只向渠道发送一次，防止规则高频触发引发通知风暴；消息本身仍会进消息中心。
+- **语义错误检测**：渠道测试会检查目标返回体（如飞书 / 钉钉的 `code != 0`、Telegram 的 `ok: false`），HTTP 200 但语义失败同样判为失败。
 
 ## 典型场景
 
@@ -496,8 +463,7 @@ NeoMind 记录每条消息在每个渠道的投递状态：
 - **关键告警多渠道冗余**：同时配邮件 + 飞书 / 钉钉，避免单点失败
 - **分级过滤**：用渠道过滤器做严重度路由，Info 只进应用内，Critical 才发邮件 / 群通知
 - **启用加签**：钉钉、飞书机器人务必启用加签，防止机器人 URL 泄露被恶意调用
-- **合理去重**：规则里设置 `cooldown` 防止传感器抖动刷屏；高优先级告警可缩短去重窗口
-- **标记误报**：将误报消息标为 `false_positive`，帮助规则引擎和 Agent 学习
+- **合理去重**：规则里设置 `cooldown` 防止传感器抖动刷屏；消息系统自带 60 秒去重窗口兜底
 - **收件人独立管理**：Email 渠道用 Manage Recipients 增删收件人，无需重新打开渠道编辑器
 - **Webhook 对接统一告警平台**：用 Webhook 渠道对接 AlertManager、Home Assistant、n8n 等平台，由平台负责二次路由和静默规则
 
@@ -511,13 +477,6 @@ NeoMind 记录每条消息在每个渠道的投递状态：
 | [扩展管理](./9-extensions.md) | 扩展崩溃等系统事件进消息中心 |
 | [数据推送](./7c-data-push.md) | 数据推送负责数据流；消息系统负责告警流 |
 
-## 下一步
-
-- [自动化规则](./7-automation-rules.md) — 规则触发 `notify` 动作路由到通知渠道
-- [AI Agent](./6-ai-agent.md) — Agent 分析后决定是否发通知
-- [数据推送](./7c-data-push.md) — 推送数据到外部系统（与消息系统的区别）
-- [扩展管理](./9-extensions.md) — 用 Webhook 渠道对接外部系统
-
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

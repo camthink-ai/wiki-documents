@@ -28,22 +28,31 @@ mindmap
     Device
       Device
       Device Type
+      Auto-Discovery
       Draft
       Metric
       Command
     AI
       LLM Backend
+      GGUF
       AI Chat
+      IM Bridge
       Agent
       Tool
       Memory
+      MemorySnapshot
+      Journal
+      Knowledge Files
+      Think-Act-Observe
       Skill
       Multimodal
+      VLM
     Data Pipeline
       Transform
       DataSourceId
     Automation
       Rule
+      Rule Engine
       Cooldown
       Message Channel
       Data Push
@@ -53,8 +62,12 @@ mindmap
       FFI
       .nep
       neomind_export!
+      Process Isolation
+      Lazy Load
     Infrastructure
+      EventBus
       MQTT Broker
+      mTLS
       Telemetry
       redb
       Webhook
@@ -112,6 +125,18 @@ Device Type 是硬件与平台之间的**契约**，在业务系统中承担三�
 3. **驱动下游配置** — 仪表板组件、自动化规则、数据推送配置都通过名称引用 metric，这些名称来自 Device Type 定义。
    :::
 
+### 自动发现（Auto-Discovery）
+
+NeoMind 对未知设备的自动识别机制：一台**未注册**的设备通过 MQTT 约定主题（或 Webhook）上报数据时，NeoMind 自动解析出它的类型与指标，并让它进入 Web UI 的 **Pending Devices（待审批）列表**——不会直接上线。
+
+**例**：新买的传感器第一次上报 `temperature`，打开 **Devices → Pending Devices** 就能看到它的草稿卡片，审批后正式成为设备。
+
+:::tip 与 Draft 的关系
+自动发现是"过程"，[Draft](#draft设备草稿) 是"结果"——发现未知设备后先生成草稿，等管理员审批。测试环境可用 `neomind device drafts config --auto-approve true` 跳过人工审批。
+:::
+
+> 详见 [接入设备](../user-guide/3-onboard-device.md)。
+
 ### Draft（设备草稿）
 
 当 NeoMind 通过 MQTT 或 Webhook 自动发现一个未知设备时，不会立即创建设备，而是生成一个"草稿"。管理员审批后草稿才转为正式设备。
@@ -119,6 +144,10 @@ Device Type 是硬件与平台之间的**契约**，在业务系统中承担三�
 :::warning 为什么不自动接入？
 这是安全机制——防止未授权设备自动接入你的系统。自动发现的设备只进草稿队列，你确认后才能正式上线。
 :::
+
+**例**：传感器第一次上报后，Web UI → **Devices → Pending Devices** 里出现草稿卡片，执行 `neomind device drafts approve <DRAFT_ID> --name "客厅传感器" --type temp_sensor` 审批后正式上线。
+
+> 详见 [接入设备](../user-guide/3-onboard-device.md)。
 
 ### Metric（遥测指标）
 
@@ -146,7 +175,7 @@ NeoMind 中引用任意数据点的统一格式：`{type}:{id}:{field}`
 | type | 含义 | 示例 |
 |------|------|------|
 | `device` | 设备遥测 | `device:sensor-01:temperature` |
-| `extension` | 扩展指标 | `extension:weather:temp` |
+| `extension` | 扩展指标 | `extension:weather-forecast:temperature` |
 | `agent` | Agent 状态 | `agent:guard:status` |
 
 :::tip 这是你最常碰到的格式
@@ -179,6 +208,14 @@ NeoMind 连接的大语言模型实例。支持多种后端：**Ollama**（本�
 
 > 详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 
+### GGUF
+
+llama.cpp 使用的单文件模型格式（`.gguf`），把权重、分词器、上下文与量化信息打包在一起，本地推理即拖即用。NeoMind 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径，平台自动解析名称 / 上下文 / 量化信息并以 SHA-256 校验落盘；导入模型与精选模型同等参与切换（上下文上限 128K）。
+
+**例**：把从 Hugging Face 下载的 `model-q4_k_m.gguf` 拖进向导，稍等片刻它就出现在 LLM Backend 的模型列表里，全程数据不出本机。
+
+> 详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
+
 ### Agent（AI 智能体）
 
 NeoMind 的核心智能单元。Agent 接收自然语言输入（或定时触发），通过 LLM 理解意图，调用工具（CLI 命令、设备控制、扩展命令）执行操作，并从执行结果中学习。
@@ -193,6 +230,22 @@ Agent 不只是聊天——它能**执行操作**。你问"温度超 30 度通�
 
 Agent 的**交互模式**——用户在对话框输入消息，AI 实时调用工具并流式回复。支持上传图片做多模态分析。使用对话历史 + MemorySnapshot 记忆。
 
+**例**：在对话框输入"统计这张车间照片里的人数"，Agent 当场调用视觉工具分析图片并流式给出答案。
+
+> 详见 [AI Chat](../user-guide/5-ai-chat.md)；在 Telegram / 飞书里对话同一个 Agent 见 [IM 桥接](#im-桥接im-bridge)。
+
+### IM 桥接（IM Bridge）
+
+在 **Telegram / 飞书** 里直接和同一个 Agent 双向对话的接入方式（0.9.14+）——像网页端 AI Chat 一样发消息、传图片、收流式回复，而不只是接收告警。
+
+:::info IM 桥接 ≠ 通知渠道
+[消息渠道](#message-channel消息渠道)里的 Telegram / 飞书是**单向告警推送**；IM 桥接是**双向对话**。两者相互独立，可同时使用。
+:::
+
+**例**：出差时在 Telegram 里给 Agent 发"看一下仓库现在温湿度"，Agent 调用工具查询后把结果回在聊天里。
+
+> 详见 [AI Chat](../user-guide/5-ai-chat.md)。
+
 ### Memory（记忆）
 
 跨执行/会话积累的经验，按模式分两套：
@@ -204,17 +257,43 @@ Agent 的**交互模式**——用户在对话框输入消息，AI 实时调用�
 
 **Journal** 是每次 Agent 执行的结果摘要（做了什么、成功/失败、学到了什么）。**Knowledge Files** 是长期知识（设备身份、任务使命、资源清单、巡检规律）。
 
+### MemorySnapshot / Journal / Knowledge Files（记忆内部结构）
+
+[Memory](#memory记忆) 两套记忆体系的具体载体：
+
+| 结构 | 属于哪套模式 | 是什么 |
+|------|------------|--------|
+| **MemorySnapshot** | AI Chat | 对话记忆快照，落盘为 `user.md`（用户偏好）与 `knowledge.md`（关键事实），新会话开始时恢复上下文 |
+| **Journal** | AI Agent | 执行日志：每次执行追加一条记录（触发方式、数据摘要、LLM 结论、动作、成功/失败），下次执行读取最近 N 条学习历史模式 |
+| **Knowledge Files** | AI Agent | 长期知识文件（Markdown）：首次成功执行后自动初始化一份 `task-understanding`（含角色 / 使命 / 资源 / 计划四节），Agent 之后可通过 memory 工具自行创建更多知识文件，可在 Agent 详情 → Memory 面板手动编辑 |
+
+**例**：Agent 对同一设备重复发送了两次告警，Journal 里留下失败记录后，下次执行会跳过已发送的告警并调整阈值——这就是"读 Journal → 改行为"的闭环。
+
+> 详见 [AI Agent](../user-guide/6-ai-agent.md)。
+
 ### Think-Act-Observe（思考-执行-观察循环）
 
 Agent 的核心执行模式：LLM 分析当前状态（**思考**）→ 调用工具（**执行**）→ 读取结果（**观察**）→ 循环直到任务完成或达到轮数上限（默认 30 轮，全局超时 5 分钟）。
 
 ### Skill（技能）
 
-为 Agent 提供场景化指导的 Markdown 文件（存储在 `data/skills/`）。Skill 定义了特定场景下的操作步骤、常见错误和最佳实践，LLM 在执行时自动参考相关 Skill。
+为 Agent 提供场景化指导的知识文件（YAML 元数据 + Markdown 正文，存储在 `data/skills/`）。Skill 定义了特定场景下的操作步骤、常见错误和最佳实践，Agent 按描述自动匹配相关 Skill（内置技能只读，用户技能可增删改）。
+
+**例**：Agent 领到"巡检相机"任务时，按描述自动匹配相机巡检类 Skill，照着里面的步骤调用命令、避开文档里记录的常见错误；也可以在 Agent 编辑器里手动固定（pin）某个技能。
+
+> 详见 [AI Agent](../user-guide/6-ai-agent.md)。
 
 ### Multimodal（多模态）
 
-LLM 处理图像输入的能力。取决于模型——Ollama 拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`）或使用云端视觉模型（`gpt-4o` / `claude-3-5-sonnet` / `gemini-1.5-flash`）后，AI Chat 支持上传图片进行视觉分析。
+LLM 处理图像输入的能力。取决于模型——Ollama 拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`）或使用云端视觉模型（`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`）后，AI Chat 支持上传图片进行视觉分析。
+
+### VLM（Vision-Language Model，视觉语言模型）
+
+同时理解图像（视频）与文本的多模态模型，能对画面输出自然语言描述而非只有结构化坐标。NeoMind 中两处用到：仪表板的 **VLM 视觉组件**（图像 + AI 标注），以及 `video-vlm`（实时视频流 VLM 语义理解，板载 LFM2.5-VL）与 `vision-hub`（统一视觉管线：检测 / OCR / 人脸 / 定位 / VLM）扩展。
+
+**例**：`video-vlm` 扩展接上 RTSP 摄像头后，VLM 输出"一名工人正在进入危险区域"这样的语义事件，可直接触发规则与通知。
+
+> 详见 [使用仪表板](../user-guide/4-use-dashboard.md) 和 [扩展管理](../user-guide/9-extensions.md)。
 
 ### Tool（工具）
 
@@ -280,7 +359,7 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 
 ### Message Channel（消息渠道）
 
-规则触发通知时的投递通道。支持 7 种外部渠道 + 应用内消息：
+规则触发通知时的投递通道。共 **7 种渠道类型**——Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书，需自行创建并配置。所有通知同时沉淀在应用内消息中心（Messages 页面），无需配置。
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#ffe6cc', border: '1px solid #d79b00', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Rule 触发</span>
@@ -292,7 +371,8 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>钉钉</span>
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>Slack</span>
   <span style={{background: '#dae8fc', border: '1px solid #6c8ebf', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>飞书</span>
-  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em'}}>应用内消息</span>
+  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Console（控制台 · 内置）</span>
+  <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Memory（记忆 · 内置）</span>
 </div>
 
 > 详见 [消息通知](../user-guide/8-notifications.md)。
@@ -305,6 +385,10 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 - **Data Push** — 无条件推送原始数据（"每 10 秒把温度推给外部系统"）
 - **Rule** — 条件触发动作（"温度超 30 度时发通知"）
   :::
+
+**例**：把 `device:sensor-01:temperature` 每 10 秒推给运维平台的 HTTP 端点，供外部工单系统消费。
+
+> 详见 [数据推送](../user-guide/7c-data-push.md)。
 
 ---
 
@@ -342,7 +426,7 @@ NeoMind 内置的自动化评估引擎。在数据写入 Telemetry 时**立即**
 
 ### Capability（能力）
 
-扩展启动时必须声明的能力权限。未声明的能力调用会被拒绝。体现**最小权限原则**。14 个内置能力覆盖设备读写、设备控制、存储查询、事件订阅、触发器等：
+扩展启动时必须声明的能力权限。未声明的能力调用会被拒绝。体现**最小权限原则**。20 种内置能力（含 chat 流式系列）覆盖设备读写、设备控制、存储查询、事件订阅、触发器等，完整清单见 [扩展 SDK](../developer-guide/3-extension-sdk.md)：
 
 | 类别 | Capability | 含义 |
 |------|-----------|------|
@@ -393,6 +477,21 @@ YOLOv8n 模型约 12MB，加载需要 1-2 秒。如果扩展启动就加载，�
 
 ## 基础设施相关
 
+### 事件总线（EventBus）
+
+NeoMind 的发布/订阅（pub/sub）骨干，由 `neomind-core::event_bus` 实现。设备、规则引擎、数据转换、仪表板、通知等模块互不直接调用，全部通过事件解耦——多订阅者并行触发，单订阅者内串行处理。
+
+| 事件源 | 事件 | 订阅者 |
+|--------|------|--------|
+| 设备数据写入（含 MQTT / Webhook / 扩展虚拟指标） | `DeviceMetric` | 规则引擎、数据推送、仪表板 WS |
+| 规则触发 | `RuleTriggered` | 消息通知、Agent |
+| Agent 完成 | `AgentExecutionCompleted` | 记忆系统、消息通知 |
+| 扩展输出 | `ExtensionOutput` | 存储、仪表板 |
+
+**例**：一条 MQTT 上报同时"点亮"仪表板曲线、命中高温规则、驱动数据推送——三类订阅者互不知晓，全靠事件总线扇出。
+
+> 详见 [产品架构](../developer-guide/2-architecture.md) 中的"事件总线"一节。
+
 ### MQTT Broker
 
 NeoMind 内置的消息代理（端口 `1883`）。设备通过 MQTT 协议连接、上报遥测、接收命令。
@@ -401,9 +500,21 @@ NeoMind 内置的消息代理（端口 `1883`）。设备通过 MQTT 协议连�
 无需安装外部 Broker（如 Mosquitto）——NeoMind 自带一个完整的 MQTT 实现。启动即可用，设备直连 `localhost:1883`。
 :::
 
+### mTLS（双向 TLS）
+
+MQTT 传输层的安全选项：设备与服务端互相校验 X.509 证书（CA 证书 + 客户端证书），既加密传输防窃听，也拦截伪造设备。NeoMind 内置 Broker 支持 mTLS 与 CA 证书（TLS 加密通常走 `8883` 端口）。
+
+**例**：产线设备烧录客户端证书后才能连上 Broker——没有证书的仿冒设备在 TLS 握手阶段就被拒绝，根本到不了待审批那一步。
+
+> 详见 [接入设备](../user-guide/3-onboard-device.md)。
+
 ### Telemetry（遥测存储）
 
 NeoMind 的时序数据库，基于 redb 实现，存储在 `data/telemetry.redb`。所有 metric 值都写入这里，仪表板和规则引擎从中读取。
+
+**例**：传感器每 10 秒上报一次 `temperature`，数据落进 telemetry.redb 后，仪表板曲线、规则条件、Agent 查询读的都是同一份。
+
+> 详见 [接入设备](../user-guide/3-onboard-device.md)。
 
 ### redb
 
@@ -427,9 +538,17 @@ sequenceDiagram
     Note over N: 触发仪表板更新 + 规则检查
 ```
 
+**例**：没有 MQTT 客户端的小型单片机，直接向设备 webhook URL `POST` 一段 JSON 就能完成上报。
+
+> 详见 [REST API 参考](../developer-guide/4-rest-api.md)。
+
 ### SSE（Server-Sent Events）
 
 HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备数据更新——数据写入 Telemetry 后立即推送到已打开的仪表板，无需前端轮询。AI Chat 的流式回复也走 SSE。
+
+**例**：仪表板页面打开期间，新遥测数据毫秒级刷新曲线；AI Chat 的回答逐字出现——两条链路都走 SSE。
+
+> 详见 [REST API 参考](../developer-guide/4-rest-api.md)。
 
 ---
 
@@ -452,7 +571,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 | **VLM 视觉** | 图像 + AI 标注 | 目标检测结果 |
 | **流播放器** | 实时视频流 | 摄像头画面 |
 
-也支持扩展提供的自定义组件。
+以上为常用内置类型，完整组件类型清单见[仪表板使用指南](../user-guide/4-use-dashboard.md)；也支持扩展提供的自定义组件与社区组件市场。
 
 > 详见 [使用仪表板](../user-guide/4-use-dashboard.md)。
 
@@ -460,7 +579,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 
 ## 概念关系图
 
-这些概念如何协作？下图展示从设备到可视化的完整数据流：
+这些概念如何协作？下图展示从设备到可视化的完整数据流（原始数据写入后可先经 Transform 加工为派生指标，再被下游消费）：
 
 <div style={{overflowX: 'auto', margin: '16px 0'}}>
   <table style={{borderCollapse: 'separate', borderSpacing: '4px', width: '100%', fontSize: '0.9em'}}>
@@ -469,6 +588,7 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
         <th style={{background: '#f8cecc', color: '#6b1a1a', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #b85450'}}>数据来源</th>
         <th style={{background: '#ffe6cc', color: '#6b3d00', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #d79b00'}}>接入层</th>
         <th style={{background: '#d5e8d4', color: '#1f4d1f', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '2.5px solid #82b366', fontSize: '1.05em'}}>遥测存储</th>
+        <th style={{background: '#fff2cc', color: '#5c4400', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #d6b656'}}>数据加工</th>
         <th style={{background: '#dae8fc', color: '#1a3d6b', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #6c8ebf'}}>消费者</th>
         <th style={{background: '#dae8fc', color: '#1a3d6b', padding: '10px 12px', textAlign: 'center', borderRadius: '8px', border: '1px solid #6c8ebf'}}>输出</th>
       </tr>
@@ -486,6 +606,9 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
           <strong>redb</strong><br/><code style={{fontSize: '0.85em'}}>data/telemetry.redb</code><br/><br/><span style={{fontSize: '0.8em', fontWeight: 'normal', color: '#666'}}>一次写入<br/>多路消费</span>
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
+          <strong>Transform</strong><br/><span style={{fontSize: '0.85em', color: '#666'}}>JavaScript 管道<br/>原始指标 → 派生指标<br/><code>transform:*</code></span>
+        </td>
+        <td style={{textAlign: 'center', padding: '10px 8px'}}>
           <strong>Dashboard</strong> / Widget<br/><br/>规则引擎<br/><br/>Agent (LLM)
         </td>
         <td style={{textAlign: 'center', padding: '10px 8px'}}>
@@ -497,9 +620,9 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 </div>
 
 <div style={{display: 'flex', justifyContent: 'center', gap: '4px', alignItems: 'center', fontSize: '1.5em', color: '#999', margin: '4px 0 16px'}}>
-  <span>→</span><span>→</span><span>→</span><span>→</span><span>→</span>
+  <span>→</span><span>→</span><span>→</span><span>→</span><span>→</span><span>→</span>
 </div>
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-09*

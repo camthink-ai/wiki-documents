@@ -34,12 +34,11 @@ name = "neomind_extension_counter"        # prefix MUST be neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.3"
+neomind-extension-sdk = "0.6.6"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-semver = "1"
 
 [profile.release]
 panic = "unwind"     # REQUIRED — runner catches panics via unwind
@@ -75,18 +74,15 @@ impl CounterExtension {
 impl Extension for CounterExtension {
     fn metadata(&self) -> &ExtensionMetadata {
         static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
-        META.get_or_init(|| ExtensionMetadata {
-            id: "counter".into(),
-            name: "Counter".into(),
-            version: semver::Version::parse("1.0.0").unwrap(),
-            description: Some("A minimal counter extension".into()),
-            author: Some("You".into()),
-            license: Some("MIT".into()),
-            ..Default::default()
+        META.get_or_init(|| {
+            ExtensionMetadata::new("counter", "Counter", "1.0.0") // version is a String
+                .with_description("A minimal counter extension")
+                .with_author("You")
+                .with_license("MIT")
         })
     }
 
-    fn metrics(&self) -> &[MetricDescriptor] {
+    fn metrics(&self) -> Vec<MetricDescriptor> {
         static METRICS: std::sync::OnceLock<Vec<MetricDescriptor>> = std::sync::OnceLock::new();
         METRICS.get_or_init(|| vec![
             MetricDescriptor {
@@ -96,21 +92,20 @@ impl Extension for CounterExtension {
                 unit: String::new(),
                 min: None, max: None, required: false,
             },
-        ])
+        ]).clone()
     }
 
-    fn commands(&self) -> &[ExtensionCommand] {
+    fn commands(&self) -> Vec<ExtensionCommand> {
         static COMMANDS: std::sync::OnceLock<Vec<ExtensionCommand>> = std::sync::OnceLock::new();
         COMMANDS.get_or_init(|| vec![
-            ExtensionCommand {
+            ExtensionCommand { // alias of CommandDescriptor
                 name: "increment".into(),
                 display_name: "Increment".into(),
-                description: "Increment the counter".into(),
+                description: "Increment the counter value".into(), // also serves as the LLM hint
                 parameters: vec![/* amount: Integer, default 1 */],
-                llm_hints: "Increment the counter value".into(),
                 ..Default::default()
             },
-        ])
+        ]).clone()
     }
 
     async fn execute_command(
@@ -163,17 +158,22 @@ Artifact path:
 
 ## Step 5: Install into NeoMind
 
-Copy the artifact into NeoMind's extension directory (default `~/.neomind/extensions/<id>/`, or `/var/lib/neomind/extensions/<id>/` for server deployments):
+Compile and package the extension directory into a `.nep` with the NeoMind CLI, then install it:
 
 ```bash
-mkdir -p ~/.neomind/extensions/counter
-cp target/release/libneomind_extension_counter.* ~/.neomind/extensions/counter/
+# Compile the extension directory (release build that also produces the .nep)
+neomind extension build ./counter-extension
+neomind extension validate dist/counter-1.0.0.nep
 
-# Trigger scan
-curl -X POST http://localhost:9375/api/extensions/discover
+# Install (or click Upload Extension on the Web UI Extensions page to upload the .nep)
+neomind extension install dist/counter-1.0.0.nep
 ```
 
-Or even simpler — in the Web UI **Extensions** page click **Install from file** and upload the `.dylib` / `.so` / `.dll`.
+Alternatively, drop the `.nep` into the server data directory's `extensions/` folder and trigger a scan:
+
+```bash
+curl -X POST http://localhost:9375/api/extensions/sync
+```
 
 ## Step 6: Verify
 
@@ -182,9 +182,9 @@ Or even simpler — in the Web UI **Extensions** page click **Install from file*
 curl http://localhost:9375/api/extensions
 
 # Call the command
-curl -X POST http://localhost:9375/api/extensions/counter/commands/increment \
+curl -X POST http://localhost:9375/api/extensions/counter/command \
   -H 'Content-Type: application/json' \
-  -d '{"amount": 5}'
+  -d '{"command":"increment","args":{"amount": 5}}'
 # → {"success": true, "data": {"counter": 5}}
 ```
 
@@ -204,12 +204,14 @@ cross build --release --target x86_64-pc-windows-msvc
 # Apple Silicon macOS (arm64)
 cross build --release --target aarch64-apple-darwin
 
-# Package into .nep (a zip archive)
-mkdir -p nep/{linux-x64,linux-arm64,windows-x64,darwin-arm64}
-cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux-x64/
+# Package into .nep (a zip archive; platform dirs use underscores)
+mkdir -p nep/{linux_amd64,linux_arm64,windows_amd64,darwin_aarch64}
+cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux_amd64/
 # ... other platforms
-cat > nep/metadata.json <<EOF
-{ "id": "counter", "version": "1.0.0", "platforms": { ... } }
+cat > nep/manifest.json <<EOF
+{ "format": "neomind-extension-package", "format_version": "2.0", "abi_version": 3,
+  "id": "counter", "version": "1.0.0", "type": "native",
+  "binaries": { "linux_amd64": "binaries/linux_amd64/libneomind_extension_counter.so", ... } }
 EOF
 cd nep && zip -r ../counter-1.0.0.nep .
 ```
@@ -226,7 +228,7 @@ A weather extension is the canonical network extension — fetches an external A
 
 ```rust
 use neomind_extension_sdk::prelude::*;
-use neomind_extension_sdk::capability::CapabilityContext;
+use neomind_extension_sdk::capabilities::CapabilityContext;
 
 pub struct WeatherExtension {
     config: std::sync::Mutex<WeatherConfig>,
@@ -241,27 +243,24 @@ struct WeatherConfig {
 impl Extension for WeatherExtension {
     fn metadata(&self) -> &ExtensionMetadata {
         static META: OnceLock<ExtensionMetadata> = OnceLock::new();
-        META.get_or_init(|| ExtensionMetadata {
-            id: "weather".into(),
-            name: "Weather".into(),
-            version: Version::parse("1.0.0").unwrap(),
-            config_parameters: Some(vec![
-                ParameterDefinition {
-                    name: "api_key".into(),
-                    display_name: "API Key".into(),
-                    description: "OpenWeatherMap API key".into(),
-                    param_type: MetricDataType::String,
-                    required: true,
-                    ..Default::default()
-                },
-            ]),
-            ..Default::default()
+        META.get_or_init(|| {
+            ExtensionMetadata::new("weather", "Weather", "1.0.0")
+                .with_config_parameters(vec![
+                    ParameterDefinition {
+                        name: "api_key".into(),
+                        display_name: "API Key".into(),
+                        description: "OpenWeatherMap API key".into(),
+                        param_type: MetricDataType::String,
+                        required: true,
+                        ..Default::default()
+                    },
+                ])
         })
     }
 
-    fn metrics(&self) -> &[MetricDescriptor] {
+    fn metrics(&self) -> Vec<MetricDescriptor> {
         // temperature, humidity, pressure
-        // DataSourceId: extension:weather:temperature etc.
+        // DataSourceId: extension:weather-forecast:temperature etc.
     }
 
     async fn configure(&mut self, config: &Value) -> Result<()> {
@@ -272,14 +271,16 @@ impl Extension for WeatherExtension {
     async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
         match cmd {
             "fetch" => {
+                // HTTP goes through the sync `ureq` crate directly (same as the
+                // official weather-forecast extension — there is no "network"
+                // capability; network access bypasses the capability system)
+                let resp: Value = ureq::get(&format!(
+                    "https://api.openweathermap.org/data/2.5/weather?q={}&appid={}",
+                    cfg.city, cfg.api_key
+                )).call()?.into_json()?;
+
+                // Write virtual device metrics via the device_metrics_write capability
                 let ctx = CapabilityContext::default();
-                // HTTP request via network capability
-                let resp = ctx.invoke_capability("network", &json!({
-                    "method": "GET",
-                    "url": format!("https://api.openweathermap.org/data/2.5/weather?q={}&appid={}",
-                        cfg.city, cfg.api_key)
-                }));
-                // Parse response, write virtual device metrics
                 ctx.invoke_capability("device_metrics_write", &json!({
                     "device_id": "virtual-weather",
                     "metric": "temperature",
@@ -310,9 +311,14 @@ pub struct YoloVideoExtension {
 impl Extension for YoloVideoExtension {
     fn stream_capability(&self) -> Option<StreamCapability> {
         Some(StreamCapability {
+            supported_data_types: vec![StreamDataType::Binary],
+            max_chunk_size: 64 * 1024,
+            preferred_chunk_size: 16 * 1024,
+            max_concurrent_sessions: 5,
             mode: StreamMode::Stateless, // stateless: each frame independent
-            input_format: "image/jpeg".into(),
-            output_format: "application/json".into(),
+            direction: StreamDirection::Download,
+            flow_control: FlowControl::default(),
+            config_schema: None,
         })
     }
 
@@ -320,10 +326,15 @@ impl Extension for YoloVideoExtension {
         let model = self.model.get_or_try_init(|| YoloModel::load("yolov8n.onnx"))?;
         let detections = model.infer(&chunk.data)?;
 
-        Ok(StreamResult {
-            output: serde_json::to_value(&detections)?,
-            metadata: Some(json!({"frame_id": chunk.sequence})),
-        })
+        // data is a byte stream (JSON-serialized), extras ride in metadata
+        let mut result = StreamResult::json(
+            Some(chunk.sequence),
+            chunk.sequence + 1,
+            serde_json::to_value(&detections)?,
+            0.0,
+        )?;
+        result.metadata = Some(json!({"frame_id": chunk.sequence}));
+        Ok(result)
     }
 
     // ... other methods
@@ -348,20 +359,27 @@ impl Extension for SensorPushExtension {
         *self.sender.lock().unwrap() = Some(sender);
     }
 
-    async fn start_push(&self, _session_id: &str) -> Result<()> {
+    async fn start_push(&self, session_id: &str) -> Result<()> {
         let sender = self.sender.lock().unwrap().clone()
             .ok_or(ExtensionError::ExecutionFailed("no sender".into()))?;
 
-        // Start background collection task
+        // Start background collection task; PushOutputMessage.data is a byte
+        // stream (data_type declares the MIME type)
+        let session_id = session_id.to_string();
         tokio::spawn(async move {
+            let mut sequence = 0u64;
             loop {
                 let value = read_sensor(); // your collection logic
                 let msg = PushOutputMessage {
-                    metric: "temperature".into(),
-                    value: json!(value),
+                    session_id: session_id.clone(),
+                    sequence,
+                    data: serde_json::to_vec(&json!({ "temperature": value })).unwrap_or_default(),
+                    data_type: "application/json".into(),
                     timestamp: chrono::Utc::now().timestamp(),
+                    metadata: None,
                 };
                 if sender.send(msg).await.is_err() { break; }
+                sequence += 1;
                 tokio::time::sleep(Duration::from_secs(5)).await;
             }
         });
@@ -392,7 +410,7 @@ fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
             // Initialize when a device comes online...
         }
         "rule.triggered" => {
-            // Rule-triggered联动 logic...
+            // Rule-triggered integration logic...
         }
         _ => {}
     }
@@ -429,34 +447,37 @@ A complete `.nep` package is a ZIP archive containing multi-platform binaries + 
 
 ```
 my-extension-1.0.0.nep (ZIP)
-├── metadata.json               ← extension metadata + platform mapping
-├── darwin-arm64/
-│   └── libneomind_extension_my_extension.dylib
-├── darwin-x86_64/
-│   └── libneomind_extension_my_extension.dylib
-├── linux-x86_64/
-│   └── libneomind_extension_my_extension.so
-├── linux-arm64/
-│   └── libneomind_extension_my_extension.so
-├── windows-x86_64/
-│   └── neomind_extension_my_extension.dll
+├── manifest.json               ← extension metadata + binaries platform mapping
+├── binaries/
+│   ├── darwin_aarch64/
+│   │   └── extension.dylib
+│   ├── linux_x86_64/
+│   │   └── extension.so
+│   ├── linux_aarch64/
+│   │   └── extension.so
+│   └── windows_x86_64/
+│       └── extension.dll
+├── frontend/                   ← (optional) dashboard component bundle (ships with a frontend.json when bundled)
 └── models/                     ← (optional) ML model files
     └── yolov8n.onnx
 ```
 
-**metadata.json** example:
+**manifest.json** example (excerpt, matching real packages):
 
 ```json
 {
+  "format": "neomind-extension-package",
+  "format_version": "2.0",
+  "abi_version": 3,
   "id": "my-extension",
   "name": "My Extension",
   "version": "1.0.0",
-  "sdk_version": "0.6.3",
-  "abi_version": 3,
-  "platforms": {
-    "darwin-arm64": "darwin-arm64/libneomind_extension_my_extension.dylib",
-    "linux-x86_64": "linux-x86_64/libneomind_extension_my_extension.so",
-    "windows-x86_64": "windows-x86_64/neomind_extension_my_extension.dll"
+  "sdk_version": "2.0.0",
+  "type": "native",
+  "binaries": {
+    "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
+    "linux_x86_64": "binaries/linux_x86_64/extension.so",
+    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
   }
 }
 ```
@@ -467,9 +488,9 @@ The runner automatically selects the binary matching the current platform on loa
 
 The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repo has complete working examples for every pattern:
 
-- `weather-forecast-v2` — a simple network extension (no ML model)
-- `image-analyzer-v2` — ML-model lazy-load pattern (YOLOv11)
-- `yolo-video-v2` — streaming video processing
+- `weather-forecast` — a simple network extension (no ML model)
+- `image-analyzer` — ML-model lazy-load pattern (YOLOv11)
+- `yolo-video` — streaming video processing
 - `yolo-device-inference` — integration with NE301/NE101 cameras
 - `home-assistant-bridge` — third-party system integration
 
@@ -482,9 +503,9 @@ Reading one of these is more illuminating than any doc.
 | Load error "symbol not found" | lib name prefix is not `neomind_extension_` |
 | Extension panic permanently disables it | `panic = "abort"` (must be `unwind`) |
 | Command call returns "permission denied" | Missing the matching capability declaration |
-| Agent can't see your command | `commands()` not implemented, or `llm_hints` is empty (affects LLM discovery) |
+| Agent can't see your command | `commands()` not implemented, or `description` is empty (the LLM relies on it to understand the command) |
 | Dashboard can't find your metric | `metrics()` not implemented, or the name is misspelled vs the DataSourceId |
-| Cross-platform distribution fails | Missing some target platform binary, or `metadata.json` platforms field is incomplete |
+| Cross-platform distribution fails | Missing some target platform binary, or the `binaries` field in the `.nep`'s manifest.json is incomplete |
 
 ## Next Steps
 
@@ -498,12 +519,12 @@ Reading one of these is more illuminating than any doc.
 This page is the API reference. To see **how these APIs are used in real engineering, and why designs were chosen**, read:
 
 - [Case Studies Overview](./case-studies/0-overview.md)
-- [#1 weather-forecast-v2](./case-studies/1-weather-forecast.md) — Starter data extension
+- [#1 weather-forecast](./case-studies/1-weather-forecast.md) — Starter data extension
 - [#2 yolo-device-inference](./case-studies/2-yolo-device-inference.md) — AI inference extension
-- [#3 yolo-video-v2](./case-studies/3-yolo-video-v2.md) — Streaming extension
+- [#3 yolo-video](./case-studies/3-yolo-video-v2.md) — Streaming extension
 - [#4 onvif-bridge](./case-studies/4-onvif-bridge.md) — Standard protocol bridge
 - [#5 uink-rms-bridge](./case-studies/5-uink-rms-bridge.md) — Production-verified bridge
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

@@ -24,13 +24,13 @@ The two schemas overlap heavily, but **extensions uniquely have `builds` / `fron
 
 | Field | Type | Required | Description | Example |
 |-------|------|----------|-------------|---------|
-| `id` | string | yes | Unique artifact identifier, globally unique. **Extensions use kebab-case** (hyphens, e.g. `weather-forecast-v2`); **components use snake_case** (underscores, e.g. `ne101_camera`) | `weather-forecast-v2` / `ne101_camera` |
+| `id` | string | yes | Unique artifact identifier, globally unique. **Extensions use kebab-case** (hyphens, e.g. `weather-forecast`); **components use snake_case** (underscores, e.g. `ne101_camera`) | `weather-forecast` / `ne101_camera` |
 | `name` | string \| object | yes | Display name. Components support `{ "en": "...", "zh": "..." }` i18n object | `"weather forecast"` / `{ "en": "NE101 Camera Panel", "zh": "NE101 感知摄像头面板" }` |
 | `version` | string (semver) | yes | Three-segment semantic version. Extensions read automatically from `Cargo.toml`; components hand-written | `"2.7.6"` / `"2.14.9"` |
 | `description` | string \| object | yes | One-line description; components support i18n | `"Real-time weather forecast..."` |
 | `author` | string | yes | Author or team name | `"NeoMind Team"` / `"CamThink Team"` |
 | `license` | string | ext required | SPDX license identifier | `"Apache-2.0"` / `"MIT"` |
-| `homepage` | string (URL) | no | Source code or documentation URL | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast-v2"` |
+| `homepage` | string (URL) | no | Source code or documentation URL | `"https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast"` |
 | `icon` | string | no (common in components) | Icon identifier, maps to NeoMind icon library | `"Camera"` |
 
 ### Type & Categorization
@@ -48,16 +48,16 @@ The `builds` field is **extension-only** and lists download URLs for 5 cross-pla
 ```json
 {
   "builds": {
-    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-v2-2.7.6-darwin_aarch64.nep" },
-    "darwin-x86_64":  { "url": ".../weather-forecast-v2-2.7.6-darwin_x86_64.nep" },
-    "linux-x86_64":   { "url": ".../weather-forecast-v2-2.7.6-linux_amd64.nep" },
-    "linux-aarch64":  { "url": ".../weather-forecast-v2-2.7.6-linux_arm64.nep" },
-    "windows-x86_64": { "url": ".../weather-forecast-v2-2.7.6-windows_amd64.nep" }
+    "darwin-aarch64": { "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/weather-forecast-2.7.6-darwin_aarch64.nep" },
+    "darwin-x86_64":  { "url": ".../weather-forecast-2.7.6-darwin_x86_64.nep" },
+    "linux-x86_64":   { "url": ".../weather-forecast-2.7.6-linux_amd64.nep" },
+    "linux-aarch64":  { "url": ".../weather-forecast-2.7.6-linux_arm64.nep" },
+    "windows-x86_64": { "url": ".../weather-forecast-2.7.6-windows_amd64.nep" }
   }
 }
 ```
 
-The full list of 5 targets is described in [Cross-Platform Build Target Matrix](#cross-platform-build-target-matrix).
+The full list of platform targets is described in [Cross-Platform Build Target Matrix](#cross-platform-build-target-matrix).
 
 ### Frontend Declaration (Extension-only)
 
@@ -66,7 +66,7 @@ Extensions with React frontend must declare the `frontend` object:
 | Field | Type | Required | Description | Example |
 |-------|------|----------|-------------|---------|
 | `frontend.components` | string[] | yes | Component name array, **plain strings** not objects | `["WeatherCard"]` |
-| `frontend.entrypoint` | string | yes | UMD entry filename, must match `frontend.json`'s `entrypoint` | `"weather-forecast-v2-components.umd.cjs"` |
+| `frontend.entrypoint` | string | yes | UMD entry filename, must match `frontend.json`'s `entrypoint` | `"weather-forecast-components.umd.cjs"` |
 
 > Common mistake: writing `components` as an object array `[{ "name": "WeatherCard", ... }]`. The marketplace parser will reject it.
 
@@ -76,13 +76,13 @@ Extensions with React frontend must declare the `frontend` object:
 |-------|------|----------|-------------|---------|
 | `size_constraints` | object | yes | Grid size constraints (unit: grid cells) | `{ "min_w": 2, "min_h": 2, "default_w": 3, "default_h": 3, "max_w": 6, "max_h": 6 }` |
 | `has_data_source` | boolean | yes | Whether Data Source tab is supported | `false` |
-| `has_device_binding` | boolean | yes | Whether device binding is supported (affects `deviceContext` prop injection) | `true` |
+| `has_device_binding` | boolean | no (recommended) | Whether device binding is supported (affects `deviceContext` prop injection; omitted means `false` — 3 of the 6 official components omit it) | `true` |
 | `device_type_filter` | string[] | no | Restricts bindable device types; empty means unrestricted | `["ne101_camera"]` |
 | `has_display_config` | boolean | yes | Whether Display Config tab is shown | `false` |
 | `has_actions` | boolean | yes | Whether Actions tab is shown (buttons, commands) | `false` |
 | `default_config` | object | yes | Default config object used when user has not customized | see code block below |
 | `global_name` | string | yes | Global variable name that `bundle.js` mounts onto `window` | `"NE101CameraPanel"` |
-| `export_name` | string | yes | IIFE default export name, usually same as `global_name` | `"NE101CameraPanel"` |
+| `export_name` | string | yes | IIFE export name (resolution order: `global[export_name]` → `global.default` → the global itself if it's a function); usually the component function name (e.g. `MetricCard`), not necessarily the same as `global_name` | `"NE101CameraPanel"` |
 | `max_data_sources` | integer | Optional | Limits the number of bindable data sources when has_data_source is true | 12 |
 
 `default_config` example (excerpted from `ne101_camera`):
@@ -107,12 +107,12 @@ NeoMind implements fine-grained access control for extensions to platform featur
 
 ### Complete Capability Enumeration
 
-The table below lists all variants of SDK `ExtensionCapability` (source: `neomind-extension-sdk`):
+The table below lists all variants of SDK `ExtensionCapability` — **20 named variants + `Custom`** (source: the `define_capabilities!` macro in `neomind-extension-sdk`'s `host.rs`):
 
 | Capability Identifier | Meaning | Typical Extensions |
 |-----------------------|---------|---------------------|
 | `device_metrics_read` | Read device metrics | Dashboard-type extensions |
-| `device_metrics_write` | Write device metrics (including virtual metrics) | weather-forecast-v2, all bridge extensions |
+| `device_metrics_write` | Write device metrics (including virtual metrics) | weather-forecast, all bridge extensions |
 | `device_control` | Send commands to devices | homeassistant-bridge, modbus-bridge |
 | `storage_query` | Query time-series storage | Data analysis extensions |
 | `event_publish` | Publish events | Automation trigger extensions |
@@ -121,11 +121,17 @@ The table below lists all variants of SDK `ExtensionCapability` (source: `neomin
 | `metrics_aggregate` | Aggregate device metrics | Reporting extensions |
 | `extension_call` | Call other extensions | Orchestration extensions |
 | `agent_trigger` | Trigger AI Agent | LLM-linked extensions |
+| `chat_stream` | Streaming AI chat (SessionManager, token-level events) | Chat integration extensions |
+| `chat_stream_cancel` | Cancel an in-flight streaming chat | Chat integration extensions |
+| `chat_session_open` | Open a persistent chat session subscription | Multi-turn chat extensions |
+| `chat_session_send` | Send a message to an open chat session | Multi-turn chat extensions |
+| `chat_session_close` | Close a chat session subscription | Multi-turn chat extensions |
+| `chat_stream_cancel_turn` | Cancel a single turn within a session | Multi-turn chat extensions |
 | `rule_trigger` | Trigger automation rules | Automation extensions |
 | `device_template_register` | Register device type templates | lorawan-bridge, modbus-bridge, onvif-bridge, bacnet-bridge, opcua-bridge, uink-rms-bridge |
 | `device_register` | Register device instances | All bridge extensions |
 | `device_unregister` | Unregister device instances | Bridge extension cleanup logic |
-| `Custom(String)` | Custom capability | Project-specific scenarios |
+| `Custom(String)` | Custom capability (any string not matching a named variant becomes Custom) | Project-specific scenarios |
 
 ### Real-world Usage Patterns
 
@@ -149,10 +155,18 @@ let result = ctx.invoke_capability("device_template_register", &template_json);
 let result = ctx.invoke_capability("device_register", &device_json);
 ```
 
-### Sync vs Async Invocation
+### Invocation: a Synchronous API
 
-- **Async context** (e.g., `execute_command`): use `ctx.invoke_capability(name, params).await`
-- **Sync context** (e.g., `produce_metrics` / `handle_event`): extensions internally wrap an `invoke_capability_sync()` method, bridged via `CapabilityContext::default()`
+`CapabilityContext::invoke_capability(name, params)` is a **synchronous method** that returns `serde_json::Value` directly (internally bridging to async providers via `block_on_sync`, or via the native capability bridge FFI). The return value is always a JSON object shaped like `{"success": ..., "error"?...}`. So it is called the same way from `execute_command`, `produce_metrics`, `handle_event`, and any other context:
+
+```rust
+let result = ctx.invoke_capability("device_metrics_write", &json!({ ... }));
+if result["success"].as_bool() != Some(true) {
+    // handle result["error"]
+}
+```
+
+Some extensions (e.g. yolo-device-inference, face-recognition) wrap an internal `invoke_capability_sync()` helper for error handling — same pattern.
 
 ## Three-Segment Version Consistency
 
@@ -169,7 +183,7 @@ The NeoMind-Extensions repository has **three tiers of version numbers** that **
 
 **Only updating `VERSION` and `index.json`, but forgetting to update each extension's `Cargo.toml`.** Consequences:
 
-- Package filename uses old version: `weather-forecast-v2-2.6.0-darwin_aarch64.nep`
+- Package filename uses old version: `weather-forecast-2.6.0-darwin_aarch64.nep`
 - GitHub Release title says v2.7.0, but the packages inside are 2.6.0
 - `index.json` `builds` URLs point to `2.7.0` asset names, but actual filenames are `2.6.0` → 404
 - User experience confusion, marketplace install failure
@@ -188,24 +202,27 @@ Use `./scripts/update-versions.sh` to sync in one step:
 
 ## Cross-Platform Build Target Matrix
 
-NeoMind extensions support **5** targets (not 6 — there is no `windows-aarch64`):
+The extensions CI (`build-nep-packages.yml` / `build-extension.yml`) and `build.sh` together support **6** platform targets (there is no `windows-aarch64`):
 
-| Target Key | Rust Target Triple | Artifact Suffix | Use Case |
+| Platform Identifier (`.nep` filename / in-package dir, underscores) | Rust Target Triple | Artifact Suffix | Use Case |
 |------------|-------------------|-----------------|----------|
-| `darwin-aarch64` | `aarch64-apple-darwin` | `.dylib` | Apple Silicon macOS (M1/M2/M3/M4) |
-| `darwin-x86_64` | `x86_64-apple-darwin` | `.dylib` | Intel macOS |
-| `linux-x86_64` | `x86_64-unknown-linux-gnu` | `.so` | General-purpose Linux servers |
-| `linux-aarch64` | `aarch64-unknown-linux-gnu` | `.so` | ARM Linux (Raspberry Pi 4/5, ARM servers) |
-| `windows-x86_64` | `x86_64-pc-windows-msvc` | `.dll` | Windows 10/11 |
+| `darwin_aarch64` | `aarch64-apple-darwin` | `.dylib` | Apple Silicon macOS (M1/M2/M3/M4) |
+| `darwin_x86_64` | `x86_64-apple-darwin` | `.dylib` | Intel macOS |
+| `linux_amd64` | `x86_64-unknown-linux-gnu` | `.so` | General-purpose Linux servers |
+| `linux_arm64` | `aarch64-unknown-linux-gnu` | `.so` | ARM Linux (Raspberry Pi 4/5, ARM servers; jetson/cuda hardware variants also exist) |
+| `windows_amd64` | `x86_64-pc-windows-msvc` | `.dll` | Windows 10/11 (64-bit) |
+| `windows_x86` | `i686-pc-windows-msvc` | `.dll` | Windows (32-bit) |
+
+> Note the two naming schemes: the `builds` download map in `metadata.json` uses **hyphenated** keys (`darwin-aarch64` etc., see above) and usually lists only the 5 main targets (32-bit `windows_x86` excluded); `.nep` filenames and the in-package `binaries/` directories use **underscored** platform names (`darwin_aarch64`).
 
 ### Build Command
 
 ```bash
-# Build .nep packages for all 5 targets in one shot
+# Build .nep packages for all platform targets in one shot
 ./build.sh --release 2.7.0
 
 # Build a single extension only
-./build.sh --single weather-forecast-v2 --release 2.7.0
+./build.sh --single weather-forecast --release 2.7.0
 ```
 
 `build.sh` internally uses [cross](https://github.com/cross-rs/cross) (Docker-based) or the local toolchain for cross-compilation. Developers who have the corresponding Rust target toolchains installed locally can skip Docker and compile directly.
@@ -213,13 +230,14 @@ NeoMind extensions support **5** targets (not 6 — there is no `windows-aarch64
 ### .nep Package Structure
 
 ```
-weather-forecast-v2-2.7.6-darwin_aarch64.nep   (ZIP format)
-├── manifest.json           # Install manifest (converted from metadata.json)
+weather-forecast-2.7.6-darwin_aarch64.nep   (ZIP format)
+├── manifest.json           # Install manifest (generated from metadata.json at build time)
+├── frontend.json           # Present when a frontend exists: component declarations (entrypoint, export_name, etc.)
 ├── binaries/
 │   └── darwin_aarch64/
-│       └── libneomind_extension_weather_forecast_v2.dylib
+│       └── extension.dylib # Fixed name (extension.dll on Windows, extension.so on Linux)
 ├── frontend/
-│   └── weather-forecast-v2-components.umd.cjs
+│   └── weather-forecast-components.umd.cjs
 └── models/                 # Optional: ONNX models
     └── model.onnx
 ```
@@ -232,8 +250,8 @@ The NeoMind ecosystem has explicit testing requirements — **extensions that fa
 
 | Test Type | Location | Requirement | Reference |
 |-----------|----------|-------------|-----------|
-| Unit tests | `src/lib.rs` inside `#[cfg(test)] mod tests` | At least cover happy path of core commands | `weather-forecast-v2/src/lib.rs` |
-| Integration tests | `tests/` directory | At least 1 integration test file | `weather-forecast-v2/tests/` |
+| Unit tests | `src/lib.rs` inside `#[cfg(test)] mod tests` | At least cover happy path of core commands | `weather-forecast/src/lib.rs` |
+| Integration tests | `tests/` directory | At least 1 integration test file | `weather-forecast/tests/` |
 
 Minimal example:
 
@@ -260,7 +278,7 @@ NeoMind-Dashboard-Components uses hand-written IIFE as the distribution format; 
 
 | Test Type | Location | Requirement | Reference |
 |-----------|----------|-------------|-----------|
-| Bundle test | `<component>/test_bundle.js` | Every component must have one | `ne101_camera/test_bundle.js` |
+| Bundle test | `<component>/test_bundle.js` | Mocks the `window` global to verify the IIFE export; `ne101_camera/test_bundle.js` is the reference implementation | `ne101_camera/test_bundle.js` |
 
 Typical `test_bundle.js` structure:
 
@@ -285,9 +303,8 @@ console.log('✓ bundle.js export test passed');
 
 ### CI Requirements
 
-- Extensions repo: `cargo test --workspace` must be green to release
-- Components repo: every component's `test_bundle.js` must pass when run with `node`
-- Both repos have GitHub Actions that automatically run tests on PRs
+- Extensions repo: CI (GitHub Actions) builds the `.nep` packages on push to main and runs `cargo test` for some extensions during the build; make sure `cargo test --workspace` is green locally before releasing
+- Components repo: currently has no GitHub Actions; component tests are the in-repo `test_bundle.js` scripts (run directly with `node`)
 
 ## Release Checklist
 
@@ -297,10 +314,10 @@ Before releasing a new version, **confirm each item**:
 - [ ] `extensions/index.json` version field updated
 - [ ] `VERSION` file updated
 - [ ] `cargo test --workspace` is green
-- [ ] `./build.sh --release $VERSION` produces `.nep` packages for all 5 targets
+- [ ] `./build.sh --release $VERSION` produces `.nep` packages for all platform targets
 - [ ] Verify `dist/*.nep` filenames have consistent version (`ls dist/*.nep`)
 - [ ] Components: `bundle.js` + `manifest.json` synced to NeoMind-Dashboard-Components repo
-- [ ] GitHub Release created, 5 `.nep` files uploaded to release assets
+- [ ] GitHub Release created, all `.nep` files uploaded to release assets
 - [ ] Case studies `0-overview.md` [version alignment table](./0-overview.md#version-alignment-table) audit date updated
 
 ### Full Release Workflow

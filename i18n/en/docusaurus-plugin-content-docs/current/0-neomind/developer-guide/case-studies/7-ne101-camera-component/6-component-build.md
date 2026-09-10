@@ -306,7 +306,9 @@ The comment `// ROI hooks — MUST be called unconditionally, before any conditi
 The IIFE pattern has no ESLint (no `.eslintrc` config, no build step), so this rule relies entirely on developer discipline — once neglected, the error surfaces only at runtime (the instant the user toggles the ROI switch). This is the hidden cost of the "zero-build" paradigm, and why ne101_camera maintains `test_bundle.js` for logic testing.
 
 :::tip Engineering Lesson
-**Why this pitfall is IIFE-specific**: in a normal ESM + Vite + ESLint project, the `react-hooks/rules-of-hooks` plugin scans all hook calls **at build time** and flags "useState inside an if block" as a lint error — the code cannot even be committed. The IIFE pattern has no ESLint, so this rule relies entirely on developer discipline. This is the hidden cost of the "zero-build" paradigm, and the reason `test_bundle.js` exists for logic testing.
+
+In an ESM + Vite + ESLint project, `react-hooks/rules-of-hooks` catches a `useState` inside an `if` block at build time. IIFE has no ESLint, so the same mistake only surfaces at runtime — which is why ne101_camera maintains `test_bundle.js` for logic tests.
+
 :::
 
 **Design decision: unconditional top-level hooks vs conditional hooks with guards**
@@ -402,7 +404,7 @@ This function is only 5 lines, returning an empty `<div>`. The reason is in the 
 
 **AdvancedPanel: the heavy-logic Advanced tab**. See source start: [`bundle.js` L1363-L1448](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L1363-L1448).
 
-`AdvancedPanel` is the second-longest function in the entire bundle (523 lines, behind only the main component's 861), carrying all of ne101_camera's "configuration complexity": AI processing master switch (`SwitchControl`), extension selector (`ExtDropdown`), template/mode picker, category filter input (`imeInput`), phrase input, class color filter, ROI toggle + polygon editor (drag-and-drop points on a Canvas), ROI overlap threshold slider (commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)), NMS IoU threshold passthrough to `locate-anything-v2` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
+`AdvancedPanel` is the second-longest function in the entire bundle (523 lines, behind only the main component's 861), carrying all of ne101_camera's "configuration complexity": AI processing master switch (`SwitchControl`), extension selector (`ExtDropdown`), template/mode picker, category filter input (`imeInput`), phrase input, class color filter, ROI toggle + polygon editor (drag-and-drop points on a Canvas), ROI overlap threshold slider (commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)), NMS IoU threshold passthrough to `locate-anything` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
 
 ```js
 // bundle.js L1363-L1448 (AdvancedPanel region start: ROI_ACTIONS + ExtDropdown)
@@ -560,7 +562,9 @@ The IIFE pattern trades away tree-shaking, type checking, and linting for an ult
 This engineering philosophy of "returning to browser primitives" is the fundamental reason the NeoMind component marketplace can sustain "6 components, zero build steps, single-file deployment."
 
 :::tip Core Principle
-**Under the "zero-build" constraint, choose the simplest approach that works.** The IIFE pattern trades away tree-shaking, type checking, and linting for an ultra-minimal deployment model (one `.js` file + one `.json` manifest). Every engineering decision seeks a path that "works correctly without build tools" — function hoisting substitutes for module resolution, closures substitute for import/export, className replica substitutes for a component library, uncontrolled input substitutes for controlled state. This "return to browser primitives" philosophy is the fundamental reason NeoMind's component marketplace can sustain "6 components, zero build steps, single-file deployment."
+
+**Choose the simplest approach under the zero-build constraint**: giving up tree-shaking, type checking and linting buys a single-file deployment. Every decision favors what works without build tools — function hoisting over module resolution, closures over import/export, className re-creation over component libraries, uncontrolled inputs over controlled state. This is how the marketplace sustains "zero build steps, single-file deployment".
+
 :::
 
 ### Key commit index
@@ -571,7 +575,7 @@ This engineering philosophy of "returning to browser primitives" is the fundamen
 | [`44f1fa5`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/44f1fa5) | fix | input fields frozen — use local state instead of shared composingRef | 6.5 |
 | [`b060a25`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b060a25) | fix | React error #310 — use defaultValue instead of hooks in imeInput | 6.5 |
 | [`a8c1212`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/a8c1212) | revert | remove auto hash bump, preserve user transform edits | 6.3 (template engine evolution) |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 6.6 (AdvancedPanel slider) |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 6.6 (AdvancedPanel slider) |
 | [`c276c23`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/c276c23) | feat | per-class detection colors via golden-angle HSV rotation | 6.3 (Helper layer classColor) |
 
 ### Cross-references

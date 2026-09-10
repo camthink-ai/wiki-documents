@@ -9,6 +9,13 @@ sidebar_label: "NE101 Camera Flagship"
 
 > **一句话定位**：把 CamThink NE101 感知摄像头接入 Dashboard 的旗舰组件——它是 NeoMind 组件市场里第一个「设备绑定 + 图像画布 + AI 处理流水线 + ROI 叠加」四合一的组件，把入门级 metric_card 的「数值展示」扩展到了「设备 → 推理 → 视觉叠加」全链路。
 
+> :::note
+> 本案例源码剖析钉在组件版本 **v2.14.9**。当前市场版本已演进（v2.14.12+），文中的 `AI_EXT_IDS` 白名单与 bundle.js 行号可能随之变化；阅读时以设计思想与契约为主，具体行号请对照[当前源码](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/ne101_camera)。
+>
+> 注 1：当前版本 `AI_EXT_IDS`/`EXT_MODES` 已扩到 6 个扩展——`locate-anything`、`image-analyzer` 已分别更名为 `locate-anything-v2`、`image-analyzer-v2`，并新增 `paddle-ocr-v6` 与 `paddle-ocr-vl`（NMS 透传条件随之改为 `locate-anything-v2`）。
+> 注 2：WS/REST 合并顺序已反转为「REST 基底 → WS 覆盖 → 仅合并 `virtual` 子树」（见当前 bundle.js 约 L657 的注释），正文 4.7 / 7.6 描述的「WS 基底 → REST 覆盖」为 audit 时点行为。
+> :::
+
 本案例是 NeoMind 组件市场的「旗舰深度案例」——前面 6 个案例（[6 metric_card](../6-metric-card-component.md) 是直接前置）教你「怎么写一个组件」，本案例 8 节内容回答「怎么写一个把硬件 + AI + 视觉效果全部串起来的复杂组件」。读完本案例，你会理解为什么 NeoMind 用「IIFE + `window.React` 注入」而非 ESM 打包能撑住 1972 行的手写代码，以及为什么 manifest 里 `has_data_source: false` + `has_device_binding: true` 这个组合是设备绑定组件的典型范式。
 
 ---
@@ -66,7 +73,7 @@ sidebar_label: "NE101 Camera Flagship"
 
 2. **1972 行 IIFE 如何保持可维护**——`bundle.js` 没有任何打包步骤，全是手写 IIFE。我们会拆解它的模块分层（helper / template / sub-component / main / export），并解释为什么 NeoMind 选择这种范式而非 ESM。详见 [6 组件构建](./6-component-build.md)（v1.1）。
 
-3. **`processingExtensionId` 通用 AI 处理契约**——这是本案例最核心的设计创新：组件不自己跑 AI，而是通过 `processingExtensionId: ""` 字段把图像「外包」给用户选择的扩展（object_detection / ocr / describe / 任意 `locate-anything-v2` 兼容扩展）。这种「组件 + 可插拔扩展」的契约是 NeoMind 生态复用 AI 能力的范本。详见 [3 扩展侧](./3-extension-side.md)（v1.1）。
+3. **`processingExtensionId` 通用 AI 处理契约**——这是本案例最核心的设计创新：组件不自己跑 AI，而是通过 `processingExtensionId: ""` 字段把图像「外包」给用户选择的扩展（object_detection / ocr / describe / 任意 `locate-anything` 兼容扩展）。这种「组件 + 可插拔扩展」的契约是 NeoMind 生态复用 AI 能力的范本。详见 [3 扩展侧](./3-extension-side.md)（v1.1）。
 
 4. **ROI 叠加渲染的工程细节**——从单矩形 ROI（`processingRoiX/Y/W/H`，归一化 0-1）到多 ROI 数组（`processingRois: []`），从中心点判定（已被废弃）到 `processingRoiOverlap: 0.6` 的 IoU 阈值判定。这块涉及 Canvas 坐标映射、`object-cover` 的非线性缩放、ResizeObserver 异步建立等坑点。详见 [5 前端消费](./5-frontend-consume.md) + [7 集成测试](./7-integration-test.md)。
 
@@ -137,4 +144,4 @@ graph LR
 
 ---
 
-*最后更新: 2026-06-23*
+*最后更新: 2026-09-08*

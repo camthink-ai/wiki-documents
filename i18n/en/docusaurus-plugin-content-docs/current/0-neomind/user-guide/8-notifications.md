@@ -1,5 +1,5 @@
 ---
-description: "NeoMind notifications and messages complete guide: configure 9 message channels (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu), channel filters, message lifecycle, CLI and REST API."
+description: "NeoMind notifications and messages complete guide: configure 7 message channels (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu), channel filters, message lifecycle, CLI and REST API."
 keywords: [NeoMind, notification, message, message channel, webhook, email, telegram, dingtalk, feishu, wecom, slack, channel filter]
 tags: [NeoMind, User Guide]
 sidebar_label: "Notifications & Messages"
@@ -8,7 +8,7 @@ sidebar_position: 8
 
 # Notifications & Messages
 
-NeoMind's **message system** routes device alerts, rule triggers, AI Agent analysis results, and system events to the channels you configure. It supports **9 message channels** (2 built-in + 7 external) with simultaneous multi-channel fan-out and per-channel message filtering.
+NeoMind's **message system** routes device alerts, rule triggers, AI Agent analysis results, and system events to the channels you configure. Every message lands in the **in-app notification center** first, then fans out to your enabled external channels. It supports **7 external message channels** (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu) with simultaneous multi-channel fan-out and per-channel message filtering.
 
 > The message system lives under **Messages** (bell icon) in the left nav. Two tabs: **Messages** (notification center, browse alert history) and **Channels** (channel configuration).
 
@@ -16,9 +16,7 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 
 | Channel | Type | Use Case | Auth | Disable |
 |---------|------|----------|------|---------|
-| **Console** | Built-in | Print to server log, debugging | None | No (built-in) |
-| **Memory** | Built-in | Write to AI Agent long-term memory, lets Agent learn from alerts | None | No (built-in) |
-| **Webhook** | Generic HTTP | Forward to any HTTP endpoint (custom systems, IFTTT, n8n, AlertManager) | URL + 5 auth types | Yes |
+| **Webhook** | Generic HTTP | Forward to any HTTP endpoint (custom systems, IFTTT, n8n, AlertManager); the UI can configure auth headers for the endpoint | URL + 5 auth types (configured in UI, converted to headers) | Yes |
 | **Email** | SMTP | Standard email notifications | SMTP username / password | Yes |
 | **Telegram** | Bot API | Real-time alerts for global teams | Bot Token | Yes |
 | **WeCom** | Group Bot | China enterprise collaboration | Group Bot Webhook Key | Yes |
@@ -26,7 +24,9 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 | **Slack** | Incoming Webhook | International team collaboration | Webhook URL | Yes |
 | **Feishu** | Custom Bot | China enterprise collaboration | Hook ID + signing | Yes |
 
-> NeoMind **does not support SMS**. For SMS alerts, use a Webhook channel to bridge to a third-party SMS gateway (e.g. Twilio, Alibaba Cloud SMS).
+:::note
+NeoMind **does not support SMS**. For SMS alerts, use a Webhook channel to bridge to a third-party SMS gateway (e.g. Twilio, Alibaba Cloud SMS).
+:::
 
 ## Interface Overview
 
@@ -34,7 +34,7 @@ NeoMind's **message system** routes device alerts, rule triggers, AI Agent analy
 
 Open the **Messages** page — the default view is the notification center:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each message contains:
 
@@ -45,7 +45,7 @@ Each message contains:
 | **Body** | Message content (click row to expand full content) |
 | **Category** | `alert` / `system` / `business` / `notification` + backend-extensible arbitrary categories |
 | **Source** | Triggering source: `device` / `rule` / `telemetry` / `schedule` / `llm` / `system` |
-| **Status** | `active` / `acknowledged` / `resolved` / `archived` / `false_positive` |
+| **Status** | `active` / `acknowledged` / `resolved` / `archived` |
 | **Time** | Created and last-updated timestamps |
 | **Actions** | Acknowledge / Resolve / Archive / Delete |
 
@@ -55,7 +55,7 @@ Each message contains:
 
 Switch to the **Channels** tab to see all channels:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The top shows summary cards (Total channels / Enabled / Channel type count). Below is the channel list. Each channel card shows:
 
@@ -68,13 +68,13 @@ The top shows summary cards (Total channels / Enabled / Channel type count). Bel
 
 Click **Create** to open the full-screen channel editor:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The editor uses a **split-pane** layout:
-- **Left sidebar**: Lists the 7 external channel types; click to switch
+- **Left sidebar**: Lists the 7 channel types; click to switch
 - **Right form**: Shows config fields for the selected type
 
-> Built-in channels (Console, Memory) require no configuration and cannot be disabled or deleted.
+> Channels only handle **external forwarding**. Regardless of channels, every message is kept in the in-app notification center (Messages tab), viewable via the top-right bell icon in the Web UI.
 
 ### Common Fields
 
@@ -93,13 +93,12 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 | Field | Description | Example |
 |------|-------------|---------|
-| **URL** | HTTP(S) endpoint receiving messages | `https://api.example.com/alerts` |
-| **Method** | HTTP method (default `POST`) | `POST` / `PUT` |
+| **URL** | HTTP(S) endpoint receiving messages; NeoMind pushes via `POST` | `https://api.example.com/alerts` |
 | **Authentication** | Auth type: `none` / `bearer` / `basic` / `apikey` / `custom` | See table below |
 | **Headers** | Custom request headers (used with `custom` auth) | `{"X-Tenant": "factory1"}` |
 | **Timeout (secs)** | HTTP timeout, default 30, max 300 | `30` |
 
-**Auth types in detail**:
+**Auth types in detail** (UI-level settings, converted to HTTP headers on save):
 
 | Type | Extra Fields | Use Case |
 |------|--------------|----------|
@@ -111,7 +110,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Email Channel
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | Example |
 |------|-------------|---------|
@@ -121,11 +120,13 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Password** | SMTP password or app-specific password | `••••••••` |
 | **From Address** | Sender address (usually same as Username) | `alert@example.com` |
 
-> **Recipients are managed separately**: After saving the Email channel, use **Manage Recipients** in the channel action menu to add/remove recipient addresses — no need to reopen the channel editor.
+:::tip Recipients are managed separately
+After saving the Email channel, use **Manage Recipients** in the channel action menu to add/remove recipient addresses — no need to reopen the channel editor.
+:::
 
 ### Telegram Channel
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | How to Get |
 |------|-------------|------------|
@@ -149,7 +150,9 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Access Token** | The `access_token` portion of the group bot Webhook URL | Group Settings → Smart Group Assistant → Add Custom Bot → copy Webhook URL, take the value after `access_token=` |
 | **Secret** (optional) | Signing secret | Bot security settings → choose "Sign" → copy the Secret. **Strongly recommended** — otherwise the bot can be invoked maliciously |
 
-> When signing is enabled, NeoMind computes an HMAC-SHA256 signature and appends `timestamp` and `sign` to the URL per DingTalk protocol.
+:::note
+When signing is enabled, NeoMind computes an HMAC-SHA256 signature and appends `timestamp` and `sign` to the URL per DingTalk protocol.
+:::
 
 ### Slack Channel
 
@@ -166,7 +169,9 @@ The most flexible channel — bridges to any HTTP endpoint.
 | **Hook ID** | The `hook_id` portion of the bot Webhook URL (**not the full URL**) | Group Settings → Group Bots → Add Custom Bot → copy Webhook URL, take the UUID after `open.feishu.cn/open-apis/bot/v2/hook/` |
 | **Secret** (optional) | Signing secret | Bot security settings → choose "Signature Verification" → copy the Secret |
 
-> When signing is enabled, NeoMind computes `timestamp` and `sign` fields per Feishu protocol and includes them in the request body.
+:::note
+When signing is enabled, NeoMind computes `timestamp` and `sign` fields per Feishu protocol and includes them in the request body.
+:::
 
 ### Testing a Channel
 
@@ -228,7 +233,9 @@ Single-select dropdown, filtering out messages below the chosen level:
 - Feishu / DingTalk group: min `critical` (only important alerts)
 - Webhook → monitoring dashboard: All (preserve full data)
 
-> **No filter configured = receive all messages**. Newly created rule notifications enter all enabled channels by default; use filters for tiered routing.
+:::warning No filter configured = receive all messages
+Newly created rule notifications enter all enabled channels by default; use filters for tiered routing.
+:::
 
 ## Triggering Notifications
 
@@ -239,29 +246,10 @@ Messages don't appear in isolation — they are triggered by other modules:
 Configure a `notify` action in an [Automation Rule](./7-automation-rules.md):
 
 ```json
-{
-  "name": "AlertHighTemp",
-  "condition": {
-    "type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": ">",
-    "value": 30
-  },
-  "actions": [
-    {
-      "type": "notify",
-      "config": {
-        "title": "High Temperature Alert",
-        "message": "sensor-01 temperature {{value}}°C exceeded threshold 30°C",
-        "severity": "critical",
-        "category": "alert"
-      }
-    }
-  ],
-  "trigger": "state_change",
-  "cooldown": 60
-}
+{ "type": "notify", "message": "sensor-01 temperature {value}°C exceeded threshold 30°C", "severity": "critical" }
 ```
+
+For the complete rule structure, see [Automation Rules](./7-automation-rules.md).
 
 A `notify` action generates a message that **enters all enabled channels** — each channel's filter then decides whether to forward. So after creating a rule, make sure to configure filters on the channels that should carry it.
 
@@ -278,16 +266,14 @@ Just say in Chat: "Send a Feishu message to the group telling them device 3 is o
 
 ### 4. System Events
 
-Some system events (device offline, extension crash, low storage) automatically enter the notification center. You can toggle whether to forward them to external channels in Settings.
+Some system events (device offline, extension crash-loop stop, low storage) automatically enter the notification center and are forwarded per each channel's filter.
 
 ## Message Lifecycle
 
-Messages have 5 statuses forming a complete handling workflow:
+Messages have 4 statuses forming a complete handling workflow:
 
 ```
 active → acknowledged → resolved → archived
-   ↓            ↓            ↓
-   └──────── false_positive ────┘
 ```
 
 | Status | Description | Action |
@@ -296,77 +282,59 @@ active → acknowledged → resolved → archived
 | **Acknowledged** | Ops staff have seen it and are working on it | Click **Acknowledge** |
 | **Resolved** | Issue fixed | Click **Resolve** |
 | **Archived** | Archived, no longer active | Click **Archive** |
-| **False Positive** | Marked as a false alarm, used to train rules / Agents | Click **Mark as False Positive** |
 
 **Actions**:
 - Single message: click the corresponding button on the message row
 - Bulk: filter a batch via the filter Popover, then bulk-act
 - Delete: Delete removes from the database (irreversible — prefer Archive)
 
-> **Value of false-positive marking**: Messages archived as `false_positive` are referenced by the rule engine and Agents for learning, helping reduce similar future false alarms.
-
 ## CLI Management
 
 The NeoMind CLI provides `message` subcommands for managing messages and channels:
 
 ```bash
-# List the last 20 messages
+# List the last 20 messages (filter with --severity / --status)
 neomind message list --limit 20
 
-# Create a message (for testing channels)
-neomind message create --json '{
-  "title": "Test Alert",
-  "content": "Manually created test message",
-  "severity": "warning",
-  "category": "alert",
-  "source_type": "system"
-}'
+# View message details
+neomind message get <message_id>
+
+# Send a system message (for testing the delivery pipeline)
+neomind message send --title "Test Alert" --body "Manually created test message" --severity warning
+
+# Acknowledge (mark as read) / delete messages
+neomind message read <message_id>
+neomind message delete <message_id>
 
 # List all channels
-neomind message channels
+neomind message channel-list
 
-# Create a channel
-neomind message channel create --json '{
-  "name": "ops-feishu",
-  "channel_type": "feishu",
-  "config": {
-    "hook_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "secret": "secxxxxxxxx"
-  },
-  "enabled": true
-}'
+# View channel types and each type's config fields
+neomind message channel-types
+neomind message channel-type-schema feishu
 
-# Enable / disable a channel
-neomind message channel enable ops-feishu
-neomind message channel disable ops-feishu
+# Create a channel (--config takes the full JSON, or use repeatable --param k=v)
+neomind message channel-create --name ops-feishu --type feishu \
+  --config '{"hook_id":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","secret":"secxxxxxxxx"}'
+
+# Update a channel (modify config / enable-disable, etc.)
+neomind message channel-update --name ops-feishu --config '{"enabled":false}'
 
 # Test a channel (send a test message)
-neomind message channel test ops-feishu
-
-# Configure channel filter
-neomind message channel filter ops-feishu --json '{
-  "source_types": ["rule", "device"],
-  "categories": ["alert"],
-  "min_severity": "critical"
-}'
-
-# Manage email recipients
-neomind message channel recipients ops-email --add "ops@example.com,oncall@example.com"
-neomind message channel recipients ops-email --list
-neomind message channel recipients ops-email --remove "ops@example.com"
-
-# Acknowledge / resolve / archive a message
-neomind message acknowledge <message_id>
-neomind message resolve <message_id>
-neomind message archive <message_id>
+neomind message channel-test ops-feishu
 
 # Delete a channel
-neomind message channel delete ops-feishu
+neomind message channel-delete ops-feishu
 ```
+
+> Message templates support `{value}` and `{source_id}` interpolation; channel filters (by source / category / minimum severity) are configured in the channel edit panel of the Web UI.
 
 ## REST API
 
 All features are accessible via HTTP API (default port 9375):
+
+<details>
+<summary>Full REST API example</summary>
 
 ```bash
 # List messages
@@ -379,7 +347,7 @@ curl -X POST http://localhost:9375/api/messages \
   -H "Content-Type: application/json" \
   -d '{
     "title": "High Temperature Alert",
-    "content": "sensor-01 temperature 35°C exceeds threshold",
+    "message": "sensor-01 temperature 35°C exceeds threshold",
     "severity": "critical",
     "category": "alert",
     "source_type": "rule"
@@ -389,19 +357,16 @@ curl -X POST http://localhost:9375/api/messages \
 curl http://localhost:9375/api/messages/channels \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
-# Create a channel
+# Create a channel (name + channel_type + config fields, all flat in one object)
 curl -X POST http://localhost:9375/api/messages/channels \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "ops-webhook",
     "channel_type": "webhook",
-    "config": {
-      "url": "https://api.example.com/alerts",
-      "method": "POST",
-      "_authType": "bearer",
-      "bearer_token": "xxx"
-    },
+    "url": "https://api.example.com/alerts",
+    "headers": {"Authorization": "Bearer xxx"},
+    "timeout_secs": 30,
     "enabled": true
   }'
 
@@ -409,15 +374,17 @@ curl -X POST http://localhost:9375/api/messages/channels \
 curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"enabled": false}'
+  -d '{"config": {"url": "https://api.example.com/alerts", "enabled": false}}'
 
 # Test a channel
 curl -X POST http://localhost:9375/api/messages/channels/ops-webhook/test \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
 # Enable / disable
-curl -X POST http://localhost:9375/api/messages/channels/ops-webhook/enable \
-  -H "X-API-Key: $NEOMIND_API_KEY"
+curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/enabled \
+  -H "X-API-Key: $NEOMIND_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
 
 # Configure filter
 curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/filter \
@@ -433,13 +400,17 @@ curl -X PUT http://localhost:9375/api/messages/channels/ops-webhook/filter \
 curl http://localhost:9375/api/messages/channels/ops-webhook/filter \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
-# Email recipients management
+# Email recipients management (one recipient per call)
 curl -X POST http://localhost:9375/api/messages/channels/ops-email/recipients \
   -H "X-API-Key: $NEOMIND_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"recipients": ["ops@example.com", "oncall@example.com"]}'
+  -d '{"email": "ops@example.com"}'
 
 curl http://localhost:9375/api/messages/channels/ops-email/recipients \
+  -H "X-API-Key: $NEOMIND_API_KEY"
+
+# Remove a recipient
+curl -X DELETE http://localhost:9375/api/messages/channels/ops-email/recipients/ops@example.com \
   -H "X-API-Key: $NEOMIND_API_KEY"
 
 # Change message status
@@ -451,19 +422,15 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
   -H "X-API-Key: $NEOMIND_API_KEY"
 ```
 
-## Delivery Tracking & Retry
+</details>
 
-NeoMind records the delivery status of each message on each channel:
+## Sending & Dedup
 
-- **Pending**: Queued
-- **Sent**: Accepted by the channel
-- **Delivered**: Channel returned success
-- **Failed**: Channel returned an error or timed out
+Once created, a message is permanently stored in the notification center; it is then sent **once to each enabled channel** (after passing that channel's filter):
 
-**Retry & dedup**:
-- **Exponential backoff retry**: up to 5 attempts on failure (1s → 2s → 4s → 8s → 16s)
-- **Dedup window**: the same (channel, title, content) is sent at most once within the default 60-second window, preventing notification storms from high-frequency rule triggers
-- **Batch merging**: multiple similar alerts can be merged into a digest (advanced)
+- **No automatic retry**: A channel send failure (timeout, auth failure, target error) is only logged and **not retried automatically**. Use **Test** on the channel to verify connectivity. For data forwarding with retry semantics, use [Data Push](./7c-data-push.md) (exponential-backoff retries and delivery history).
+- **Dedup window**: Messages with the same (title, source, severity) are sent to channels at most once per **60-second** window, preventing notification storms from high-frequency rule triggers; the message itself still appears in the notification center.
+- **Semantic error detection**: Channel tests inspect the response body (e.g. Feishu/DingTalk `code != 0`, Telegram `ok: false`) — HTTP 200 with a semantic failure counts as a failure.
 
 ## Typical Scenarios
 
@@ -496,8 +463,7 @@ When a critical alert fires, all three channels receive it — no missed alerts 
 - **Multi-channel redundancy for critical alerts**: Configure both email + Feishu / DingTalk to avoid single-point failure
 - **Tiered filtering**: Use channel filters for severity-based routing — Info goes only to in-app, Critical fans out to email / group notifications
 - **Enable signing**: DingTalk and Feishu bots should always enable signing to prevent malicious calls if the URL leaks
-- **Sensible dedup**: Set `cooldown` in rules to prevent sensor jitter storms; high-priority alerts may use a shorter dedup window
-- **Mark false positives**: Tag false alarms as `false_positive` to help rules and Agents learn
+- **Sensible dedup**: Set `cooldown` in rules to prevent sensor jitter storms; the message system's built-in 60-second dedup window provides a safety net
 - **Manage recipients separately**: Use Manage Recipients for Email channel add/remove — no need to reopen the channel editor
 - **Bridge via Webhook for unified alerting**: Point a Webhook channel at AlertManager, Home Assistant, n8n, etc., and let the platform handle secondary routing and silencing rules
 
@@ -511,13 +477,6 @@ When a critical alert fires, all three channels receive it — no missed alerts 
 | [Extensions](./9-extensions.md) | Extension crashes and other system events enter the notification center |
 | [Data Push](./7c-data-push.md) | Data Push handles data streams; the message system handles alert streams |
 
-## Next Steps
-
-- [Automation Rules](./7-automation-rules.md) — Rule `notify` action routed to notification channels
-- [AI Agent](./6-ai-agent.md) — Agent decides whether to notify after analysis
-- [Data Push](./7c-data-push.md) — Push data to external systems (vs. the message system)
-- [Extensions](./9-extensions.md) — Bridge to external systems via the Webhook channel
-
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

@@ -35,12 +35,11 @@ name = "neomind_extension_counter"        # 前缀必须是 neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.3"
+neomind-extension-sdk = "0.6.6"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-semver = "1"
 
 [profile.release]
 panic = "unwind"     # 必须！runner 靠 unwind 捕获 panic
@@ -76,18 +75,15 @@ impl CounterExtension {
 impl Extension for CounterExtension {
     fn metadata(&self) -> &ExtensionMetadata {
         static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
-        META.get_or_init(|| ExtensionMetadata {
-            id: "counter".into(),
-            name: "Counter".into(),
-            version: semver::Version::parse("1.0.0").unwrap(),
-            description: Some("A minimal counter extension".into()),
-            author: Some("You".into()),
-            license: Some("MIT".into()),
-            ..Default::default()
+        META.get_or_init(|| {
+            ExtensionMetadata::new("counter", "Counter", "1.0.0") // version 是 String
+                .with_description("A minimal counter extension")
+                .with_author("You")
+                .with_license("MIT")
         })
     }
 
-    fn metrics(&self) -> &[MetricDescriptor] {
+    fn metrics(&self) -> Vec<MetricDescriptor> {
         static METRICS: std::sync::OnceLock<Vec<MetricDescriptor>> = std::sync::OnceLock::new();
         METRICS.get_or_init(|| vec![
             MetricDescriptor {
@@ -97,21 +93,20 @@ impl Extension for CounterExtension {
                 unit: String::new(),
                 min: None, max: None, required: false,
             },
-        ])
+        ]).clone()
     }
 
-    fn commands(&self) -> &[ExtensionCommand] {
+    fn commands(&self) -> Vec<ExtensionCommand> {
         static COMMANDS: std::sync::OnceLock<Vec<ExtensionCommand>> = std::sync::OnceLock::new();
         COMMANDS.get_or_init(|| vec![
-            ExtensionCommand {
+            ExtensionCommand { // CommandDescriptor 的别名
                 name: "increment".into(),
                 display_name: "Increment".into(),
-                description: "Increment the counter".into(),
+                description: "Increment the counter value".into(), // 同时作为 LLM 提示
                 parameters: vec![/* amount: Integer, default 1 */],
-                llm_hints: "Increment the counter value".into(),
                 ..Default::default()
             },
-        ])
+        ]).clone()
     }
 
     async fn execute_command(
@@ -164,17 +159,22 @@ cargo build --release
 
 ## Step 5：安装到 NeoMind
 
-把产物放到 NeoMind 的扩展目录（默认 `~/.neomind/extensions/<id>/` 或服务器部署的 `/var/lib/neomind/extensions/<id>/`）：
+用 NeoMind CLI 把扩展目录编译打包成 `.nep` 并安装：
 
 ```bash
-mkdir -p ~/.neomind/extensions/counter
-cp target/release/libneomind_extension_counter.* ~/.neomind/extensions/counter/
+# 编译扩展目录（release 模式编译并产出 .nep 包）
+neomind extension build ./counter-extension
+neomind extension validate dist/counter-1.0.0.nep
 
-# 触发扫描
-curl -X POST http://localhost:9375/api/extensions/discover
+# 安装（或直接在 Web UI 的 Extensions 页点 Upload Extension 上传 .nep）
+neomind extension install dist/counter-1.0.0.nep
 ```
 
-或者更简单 —— 在 Web UI 的 **Extensions** 页点 **Install from file**，上传 `.dylib` / `.so` / `.dll`。
+也可以把 `.nep` 放到服务器数据目录的 `extensions/` 下，再触发扫描：
+
+```bash
+curl -X POST http://localhost:9375/api/extensions/sync
+```
 
 ## Step 6：验证
 
@@ -183,9 +183,9 @@ curl -X POST http://localhost:9375/api/extensions/discover
 curl http://localhost:9375/api/extensions
 
 # 调用命令
-curl -X POST http://localhost:9375/api/extensions/counter/commands/increment \
+curl -X POST http://localhost:9375/api/extensions/counter/command \
   -H 'Content-Type: application/json' \
-  -d '{"amount": 5}'
+  -d '{"command":"increment","args":{"amount": 5}}'
 # → {"success": true, "data": {"counter": 5}}
 ```
 
@@ -205,12 +205,14 @@ cross build --release --target x86_64-pc-windows-msvc
 # Apple Silicon macOS（arm64）
 cross build --release --target aarch64-apple-darwin
 
-# 打包成 .nep（一个 zip 归档）
-mkdir -p nep/{linux-x64,linux-arm64,windows-x64,darwin-arm64}
-cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux-x64/
+# 打包成 .nep（一个 zip 归档；平台目录用下划线命名）
+mkdir -p nep/{linux_amd64,linux_arm64,windows_amd64,darwin_aarch64}
+cp target/x86_64-unknown-linux-gnu/release/libneomind_extension_counter.so nep/linux_amd64/
 # ... 其他平台
-cat > nep/metadata.json <<EOF
-{ "id": "counter", "version": "1.0.0", "platforms": { ... } }
+cat > nep/manifest.json <<EOF
+{ "format": "neomind-extension-package", "format_version": "2.0", "abi_version": 3,
+  "id": "counter", "version": "1.0.0", "type": "native",
+  "binaries": { "linux_amd64": "binaries/linux_amd64/libneomind_extension_counter.so", ... } }
 EOF
 cd nep && zip -r ../counter-1.0.0.nep .
 ```
@@ -227,7 +229,7 @@ cd nep && zip -r ../counter-1.0.0.nep .
 
 ```rust
 use neomind_extension_sdk::prelude::*;
-use neomind_extension_sdk::capability::CapabilityContext;
+use neomind_extension_sdk::capabilities::CapabilityContext;
 
 pub struct WeatherExtension {
     config: std::sync::Mutex<WeatherConfig>,
@@ -242,27 +244,24 @@ struct WeatherConfig {
 impl Extension for WeatherExtension {
     fn metadata(&self) -> &ExtensionMetadata {
         static META: OnceLock<ExtensionMetadata> = OnceLock::new();
-        META.get_or_init(|| ExtensionMetadata {
-            id: "weather".into(),
-            name: "Weather".into(),
-            version: Version::parse("1.0.0").unwrap(),
-            config_parameters: Some(vec![
-                ParameterDefinition {
-                    name: "api_key".into(),
-                    display_name: "API Key".into(),
-                    description: "OpenWeatherMap API key".into(),
-                    param_type: MetricDataType::String,
-                    required: true,
-                    ..Default::default()
-                },
-            ]),
-            ..Default::default()
+        META.get_or_init(|| {
+            ExtensionMetadata::new("weather", "Weather", "1.0.0")
+                .with_config_parameters(vec![
+                    ParameterDefinition {
+                        name: "api_key".into(),
+                        display_name: "API Key".into(),
+                        description: "OpenWeatherMap API key".into(),
+                        param_type: MetricDataType::String,
+                        required: true,
+                        ..Default::default()
+                    },
+                ])
         })
     }
 
-    fn metrics(&self) -> &[MetricDescriptor] {
+    fn metrics(&self) -> Vec<MetricDescriptor> {
         // 温度、湿度、气压
-        // DataSourceId: extension:weather:temperature 等
+        // DataSourceId: extension:weather-forecast:temperature 等
     }
 
     async fn configure(&mut self, config: &Value) -> Result<()> {
@@ -273,14 +272,15 @@ impl Extension for WeatherExtension {
     async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
         match cmd {
             "fetch" => {
+                // HTTP 直接用同步库 ureq（与官方 weather-forecast 一致，
+                // 平台没有 "network" capability —— 网络访问不走 capability 系统）
+                let resp: Value = ureq::get(&format!(
+                    "https://api.openweathermap.org/data/2.5/weather?q={}&appid={}",
+                    cfg.city, cfg.api_key
+                )).call()?.into_json()?;
+
+                // 通过 device_metrics_write capability 写入虚拟设备指标
                 let ctx = CapabilityContext::default();
-                // 通过 network capability 发起 HTTP 请求
-                let resp = ctx.invoke_capability("network", &json!({
-                    "method": "GET",
-                    "url": format!("https://api.openweathermap.org/data/2.5/weather?q={}&appid={}",
-                        cfg.city, cfg.api_key)
-                }));
-                // 解析响应，写入虚拟设备指标
                 ctx.invoke_capability("device_metrics_write", &json!({
                     "device_id": "virtual-weather",
                     "metric": "temperature",
@@ -311,9 +311,14 @@ pub struct YoloVideoExtension {
 impl Extension for YoloVideoExtension {
     fn stream_capability(&self) -> Option<StreamCapability> {
         Some(StreamCapability {
+            supported_data_types: vec![StreamDataType::Binary],
+            max_chunk_size: 64 * 1024,
+            preferred_chunk_size: 16 * 1024,
+            max_concurrent_sessions: 5,
             mode: StreamMode::Stateless, // 无状态：每帧独立处理
-            input_format: "image/jpeg".into(),
-            output_format: "application/json".into(),
+            direction: StreamDirection::Download,
+            flow_control: FlowControl::default(),
+            config_schema: None,
         })
     }
 
@@ -321,10 +326,15 @@ impl Extension for YoloVideoExtension {
         let model = self.model.get_or_try_init(|| YoloModel::load("yolov8n.onnx"))?;
         let detections = model.infer(&chunk.data)?;
 
-        Ok(StreamResult {
-            output: serde_json::to_value(&detections)?,
-            metadata: Some(json!({"frame_id": chunk.sequence})),
-        })
+        // data 是字节流（JSON 序列化后写入），元数据随 metadata 附加
+        let mut result = StreamResult::json(
+            Some(chunk.sequence),
+            chunk.sequence + 1,
+            serde_json::to_value(&detections)?,
+            0.0,
+        )?;
+        result.metadata = Some(json!({"frame_id": chunk.sequence}));
+        Ok(result)
     }
 
     // ... 其他方法
@@ -349,20 +359,26 @@ impl Extension for SensorPushExtension {
         *self.sender.lock().unwrap() = Some(sender);
     }
 
-    async fn start_push(&self, _session_id: &str) -> Result<()> {
+    async fn start_push(&self, session_id: &str) -> Result<()> {
         let sender = self.sender.lock().unwrap().clone()
             .ok_or(ExtensionError::ExecutionFailed("no sender".into()))?;
 
-        // 启动后台采集任务
+        // 启动后台采集任务；PushOutputMessage.data 是字节流（data_type 声明 MIME）
+        let session_id = session_id.to_string();
         tokio::spawn(async move {
+            let mut sequence = 0u64;
             loop {
                 let value = read_sensor(); // 你的采集逻辑
                 let msg = PushOutputMessage {
-                    metric: "temperature".into(),
-                    value: json!(value),
+                    session_id: session_id.clone(),
+                    sequence,
+                    data: serde_json::to_vec(&json!({ "temperature": value })).unwrap_or_default(),
+                    data_type: "application/json".into(),
                     timestamp: chrono::Utc::now().timestamp(),
+                    metadata: None,
                 };
                 if sender.send(msg).await.is_err() { break; }
+                sequence += 1;
                 tokio::time::sleep(Duration::from_secs(5)).await;
             }
         });
@@ -430,34 +446,37 @@ async fn configure(&mut self, config: &Value) -> Result<()> {
 
 ```
 my-extension-1.0.0.nep (ZIP)
-├── metadata.json               ← 扩展元数据 + 平台映射
-├── darwin-arm64/
-│   └── libneomind_extension_my_extension.dylib
-├── darwin-x86_64/
-│   └── libneomind_extension_my_extension.dylib
-├── linux-x86_64/
-│   └── libneomind_extension_my_extension.so
-├── linux-arm64/
-│   └── libneomind_extension_my_extension.so
-├── windows-x86_64/
-│   └── neomind_extension_my_extension.dll
+├── manifest.json               ← 扩展元数据 + binaries 平台映射
+├── binaries/
+│   ├── darwin_aarch64/
+│   │   └── extension.dylib
+│   ├── linux_x86_64/
+│   │   └── extension.so
+│   ├── linux_aarch64/
+│   │   └── extension.so
+│   └── windows_x86_64/
+│       └── extension.dll
+├── frontend/                   ← （可选）仪表板组件 bundle（随包分发时另有 frontend.json）
 └── models/                     ← （可选）ML 模型文件
     └── yolov8n.onnx
 ```
 
-**metadata.json** 示例：
+**manifest.json** 示例（节选，与真实包一致）：
 
 ```json
 {
+  "format": "neomind-extension-package",
+  "format_version": "2.0",
+  "abi_version": 3,
   "id": "my-extension",
   "name": "My Extension",
   "version": "1.0.0",
-  "sdk_version": "0.6.3",
-  "abi_version": 3,
-  "platforms": {
-    "darwin-arm64": "darwin-arm64/libneomind_extension_my_extension.dylib",
-    "linux-x86_64": "linux-x86_64/libneomind_extension_my_extension.so",
-    "windows-x86_64": "windows-x86_64/neomind_extension_my_extension.dll"
+  "sdk_version": "2.0.0",
+  "type": "native",
+  "binaries": {
+    "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
+    "linux_x86_64": "binaries/linux_x86_64/extension.so",
+    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
   }
 }
 ```
@@ -468,9 +487,9 @@ runner 加载时会根据当前平台自动选择对应的二进制路径。
 
 [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库的每个扩展都是完整范本：
 
-- `weather-forecast-v2` —— 简单网络扩展（无 ML 模型）
-- `image-analyzer-v2` —— ML 模型 lazy-load 范本（YOLOv11）
-- `yolo-video-v2` —— 流式视频处理
+- `weather-forecast` —— 简单网络扩展（无 ML 模型）
+- `image-analyzer` —— ML 模型 lazy-load 范本（YOLOv11）
+- `yolo-video` —— 流式视频处理
 - `yolo-device-inference` —— 与 NE301/NE101 相机集成
 - `home-assistant-bridge` —— 第三方系统集成
 
@@ -483,9 +502,9 @@ runner 加载时会根据当前平台自动选择对应的二进制路径。
 | 加载报 "symbol not found" | lib 名前缀不是 `neomind_extension_` |
 | 扩展 panic 后被永久禁用 | `panic = "abort"`（必须 `unwind`） |
 | 命令调用报 "permission denied" | 缺少对应 capability 声明 |
-| Agent 看不到我的命令 | `commands()` 没实现，或 `llm_hints` 字段为空（影响 LLM 发现） |
+| Agent 看不到我的命令 | `commands()` 没实现，或 `description` 字段为空（LLM 靠它理解命令用途） |
 | 仪表板选不到我的 metric | `metrics()` 没实现，或 name 拼写与 DataSourceId 不一致 |
-| 跨平台分发报错 | 漏了某个目标平台的二进制；`.nep` 里 metadata.json 的 platforms 字段不全 |
+| 跨平台分发报错 | 漏了某个目标平台的二进制；`.nep` 里 manifest.json 的 binaries 字段不全 |
 
 ## 下一步
 
@@ -499,12 +518,12 @@ runner 加载时会根据当前平台自动选择对应的二进制路径。
 本篇是 API 通用参考。如果你想看**真实工程里怎么用、为什么这么设计**，阅读：
 
 - [工程实践案例集 · 总览](./case-studies/0-overview.md)
-- [#1 weather-forecast-v2](./case-studies/1-weather-forecast.md) — 入门型数据扩展
+- [#1 weather-forecast](./case-studies/1-weather-forecast.md) — 入门型数据扩展
 - [#2 yolo-device-inference](./case-studies/2-yolo-device-inference.md) — AI 推理扩展
-- [#3 yolo-video-v2](./case-studies/3-yolo-video-v2.md) — 流式扩展
+- [#3 yolo-video](./case-studies/3-yolo-video-v2.md) — 流式扩展
 - [#4 onvif-bridge](./case-studies/4-onvif-bridge.md) — 标准协议桥接
 - [#5 uink-rms-bridge](./case-studies/5-uink-rms-bridge.md) — 生产验证桥接
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-09*

@@ -1,5 +1,5 @@
 ---
-description: "ne101_camera 集成测试：端到端测试矩阵（test_bundle.js 35KB）、ROI 叠加验证（Sutherland-Hodgman 裁剪 + object-cover 映射）、多扩展切换测试（locate-anything-v2 / image-analyzer-v2 / yolo-device-inference / ocr-device-inference）、source_ts 对齐验证、WS+REST 双通道测试"
+description: "ne101_camera 集成测试：端到端测试矩阵（test_bundle.js 35KB）、ROI 叠加验证（Sutherland-Hodgman 裁剪 + object-cover 映射）、多扩展切换测试（locate-anything / image-analyzer / yolo-device-inference / ocr-device-inference）、source_ts 对齐验证、WS+REST 双通道测试"
 keywords: [ne101_camera, 集成测试, test_bundle.js, ROI 验证, 多扩展切换, 测试矩阵]
 tags: [NeoMind, 案例]
 sidebar_label: "Integration Test"
@@ -20,7 +20,9 @@ ne101_camera 的 `components/ne101_camera/` 目录里**同时**发布两份 JS�
 这种「**组件自带测试**」的纪律是 NeoMind 市场对上架组件的软性要求，也是 ne101_camera 区别于其它 5 个案例的显著特征。
 
 :::tip 工程教训
-IIFE 范式没有模块入口，无法被 Jest/Vitest 直接 `import`。ne101_camera 的解法是「正则提取 + 沙箱 eval」——用括号计数定位内部函数源码，再用 `new Function(...)` 在隔离作用域求值。这套范式只测纯函数的数学正确性，把几何运算从运行时观察转为离线断言，是零依赖测试的最佳实践。
+
+IIFE 产物无法被 Jest/Vitest 直接 `import`。ne101_camera 的解法是「正则提取 + 沙箱 eval」：括号计数定位函数源码，`new Function(...)` 隔离求值——把几何运算从运行时观察转为离线断言，实现零依赖测试。
+
 :::
 
 **测试哲学的第一性原理来自 IIFE 范式**：`bundle.js` 是一个 `var NE101CameraPanel = (function(){ ... })()` 形式的立即调用表达式，没有 `module.exports`、没有 `export`、没有可被 Jest/Vitest `import` 的入口。**直接 `require('bundle.js')` 会报 `NE101CameraPanel is not defined`**（因为 `window` 在 Node.js 里不存在）。
@@ -279,7 +281,7 @@ graph LR
 `AI_EXT_IDS`（[`bundle.js` L144`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)）硬编码了 4 个白名单扩展，每个扩展有不同的 `responseType` 契约——也就是 AI 推理结果的 JSON 形状不同。
 
 ```js
-  var AI_EXT_IDS = ['locate-anything-v2', 'image-analyzer-v2', 'yolo-device-inference', 'ocr-device-inference'];
+  var AI_EXT_IDS = ['locate-anything', 'image-analyzer', 'yolo-device-inference', 'ocr-device-inference'];
 ```
 
 Source: [`bundle.js` L144`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)
@@ -345,22 +347,22 @@ Source: [`bundle.js` L277-L278`](https://github.com/camthink-ai/NeoMind-Dashboar
 2. Transform 被重建（`_configHash` 变化触发 Tier 2/3 更新）
 3. 用新扩展的 `responseType` 喂入模拟响应，归一化器输出的检测数组结构正确。
 
-**最关键的回归断言**是 commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) 引入的：**只有 `locate-anything-v2` 在 Transform JS 里硬编码了 `nms_iou_threshold: 0.5`**（[L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)），其它三个扩展不传这个参数。
+**最关键的回归断言**是 commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) 引入的：**只有 `locate-anything` 在 Transform JS 里硬编码了 `nms_iou_threshold: 0.5`**（[L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)），其它三个扩展不传这个参数。
 
 ```js
-    // Pass NMS threshold to locate-anything-v2 — extension postprocess_args reads it from args
-    if (extensionId === 'locate-anything-v2') L.push(',  nms_iou_threshold: 0.5');
+    // Pass NMS threshold to locate-anything — extension postprocess_args reads it from args
+    if (extensionId === 'locate-anything') L.push(',  nms_iou_threshold: 0.5');
 ```
 
 Source: [`bundle.js` L281-L282`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L281-L282)
 
-测试矩阵验证「切换到 locate-anything-v2 时生成的 JS 包含 `nms_iou_threshold`、切换离开时这个字段消失」。
+测试矩阵验证「切换到 locate-anything 时生成的 JS 包含 `nms_iou_threshold`、切换离开时这个字段消失」。
 
-这能防止 NMS 参数泄漏到不支持它的扩展（会导致 `image-analyzer-v2` 报「未知参数」错误）。
+这能防止 NMS 参数泄漏到不支持它的扩展（会导致 `image-analyzer` 报「未知参数」错误）。
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LA2: locate-anything-v2
+    [*] --> LA2: locate-anything
     LA2 --> IA2: 切换<br/>boxes_x1y1x2y2 → objects_bbox
     IA2 --> YDI: 切换<br/>objects_bbox → detections_bbox
     YDI --> ODI: 切换<br/>detections_bbox → ocr_text_blocks
@@ -368,7 +370,7 @@ stateDiagram-v2
     LA2 --> LA2: 自环（mode 切换）<br/>NMS 阈值必须保留
 
     note right of LA2
-        locate-anything-v2 独有：
+        locate-anything 独有：
         nms_iou_threshold: 0.5
         (commit 8656148)
     end note
@@ -377,7 +379,7 @@ stateDiagram-v2
 **设计决策：穷举有向完全图 vs pairwise 测试**
 
 - **选择**：4×4 = 16 种切换路径的穷举有向完全图（含自环）。
-- **备选方案 A**：pairwise testing——用正交表挑 6-8 条「代表性」切换路径。否决理由：NMS 阈值泄漏这种 bug 是「特定源 → 特定目标」的组合问题，pairwise 会随机跳过某些组合，可能漏掉「locate-anything-v2 → ocr-device-inference」这种关键回归路径。
+- **备选方案 A**：pairwise testing——用正交表挑 6-8 条「代表性」切换路径。否决理由：NMS 阈值泄漏这种 bug 是「特定源 → 特定目标」的组合问题，pairwise 会随机跳过某些组合，可能漏掉「locate-anything → ocr-device-inference」这种关键回归路径。
 - **备选方案 B**：只测「切换到每个扩展」4 条路径（不动起点的源扩展）。否决理由：不能捕获「从 A 切到 B 再切到 C」的累积副作用（如配置脏字段未清理）。
 - **理由**：4 个扩展的有向完全图只有 16 条边，穷举成本完全可接受，且每次新增扩展只需扩展矩阵（不需要重设计）。穷举的另一个价值是它**自动覆盖了 mode 自切换**（同一扩展内切换 `object_detection` → `grounding` → `point` 等 mode），这是 6.6 AdvancedPanel 模板下拉框的常见用户路径。
 - **代价**：测试矩阵的运行时间随扩展数平方增长，但目前白名单只有 4 个扩展，远未触及瓶颈。
@@ -534,7 +536,9 @@ graph LR
 - **代价**：如果某条流的数据有错（如 WS 推了一个错误的 `ts`），错误的字段会通过固定顺序传播到合并结果。这要求每条流的「自洁」逻辑（如 WS 的 ts 必须是数字、REST 的 imageUrl 必须是字符串）在进入 `Object.assign` 之前完成，不能依赖合并后的守卫。
 
 :::tip 最佳实践
-多通道数据合并时，固定 `Object.assign` 顺序（而非 last-writer-wins）让合并结果成为输入的确定性函数。每条流在进入合并前必须完成自洁（类型校验、字段过滤），不能依赖合并后的守卫。commit `b0be12b` + `0eedd27` 的经验表明：任何「谁先到先用谁」的优化都会引入难以复现的时序 bug。
+
+多通道合并时固定 `Object.assign` 顺序（而非 last-writer-wins），让结果成为输入的确定性函数；每条流进合并前先自洁（类型校验、字段过滤）。教训来自 commit `b0be12b`：「谁先到先用谁」的优化会引入难以复现的时序 bug。
+
 :::
 
 ---
@@ -559,7 +563,9 @@ graph LR
 这种工程哲学与 IIFE 范式本身的「零构建、零依赖、零隐藏行为」原则一脉相承——在没有任何运行时工具（type checker、linter、bundler）兜底的场景下，确定性是唯一的防线。
 
 :::tip 工程教训
-在没有 type checker、linter、bundler 兜底的 IIFE 范式下，「确定性」是唯一的防线。6 个设计决策的共同模式：用「可预测、可复现、可枚举」替换「灵活但易错」——shape assertion 只验形状、参数化矩阵覆盖所有边界、穷举有向完全图不漏组合、严格时间戳匹配拒绝鬼影、固定合并顺序消除竞态。
+
+没有 type checker、linter、bundler 兜底时，「确定性」是唯一防线：shape assertion 只验形状、参数化矩阵覆盖边界、穷举有向完全图不漏组合、严格时间戳匹配拒绝鬼影、固定合并顺序消除竞态——共同点是用「可预测、可复现」替换「灵活但易错」。
+
 :::
 
 ### 关键 commit 索引
@@ -568,7 +574,7 @@ graph LR
 |--------|------|------------|----------|
 | [`2109c45`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/2109c45) | feat | overlap-based ROI detection instead of center point | 7.3 |
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | 7.3 |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 7.4 |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 7.4 |
 | [`e3a70be`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/e3a70be) | fix | parse JSON string detections from backend virtual metrics | 7.5 |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | 7.6 |
 | [`0eedd27`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/0eedd27) | fix | update virtual data on WS-triggered REST fetch | 7.6 |

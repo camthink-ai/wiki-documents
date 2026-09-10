@@ -1,4 +1,4 @@
----
+sidebar_label: "Extension SDK"
 description: "neomind-extension-sdk 参考：Extension trait、ExtensionMetadata、MetricDescriptor、neomind_export! FFI 宏、capability 声明、ML 模型生命周期（lazy-load + keep-loaded）、跨平台打包（cdylib + panic=unwind）。"
 keywords: [NeoMind, Extension SDK, neomind_export, FFI, capability, ML 模型, 打包]
 tags: [NeoMind, 开发指南]
@@ -6,7 +6,7 @@ tags: [NeoMind, 开发指南]
 
 # Extension SDK
 
-`neomind-extension-sdk`（最新 v0.6.3）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
+`neomind-extension-sdk`（最新 v0.6.6）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
 
 > 本文聚焦 SDK 本身。端到端的实战流程见 [扩展开发实战](./7-extension-development.md)。
 
@@ -42,7 +42,7 @@ name = "neomind_extension_my_extension"   # 前缀必须是 neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.3"   # 或 path 指向本地 SDK
+neomind-extension-sdk = "0.6.6"   # 或 path 指向本地 SDK
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -70,23 +70,30 @@ use async_trait::async_trait;
 use neomind_extension_sdk::prelude::*;
 
 #[async_trait]
-pub trait Extension: Send + Sync + 'static {
+pub trait Extension: Send + Sync {
     // ===== 必填 =====
     fn metadata(&self) -> &ExtensionMetadata;
-    async fn execute_command(&self, command: &str, args: &serde_json::Value)
-        -> Result<serde_json::Value>;
+    async fn execute_command(&self, command_name: &str, args: &serde_json::Value)
+        -> Result<serde_json::Value>;   // 有默认实现（返回 CommandNotFound），命令型扩展必须覆盖
+    fn as_any(&self) -> &dyn std::any::Any;
 
     // ===== 选填：声明与生命周期 =====
-    fn metrics(&self) -> &[MetricDescriptor] { &[] }
-    fn commands(&self) -> &[ExtensionCommand] { &[] }
+    fn init(&mut self) -> Result<()> { Ok(()) }
+    fn start(&mut self) -> Result<()> { Ok(()) }
+    fn stop(&mut self) -> Result<()> { Ok(()) }
+    fn status(&self) -> String { /* ... */ }
+    fn descriptor(&self) -> Option<ExtensionDescriptor> { None }
+    fn metrics(&self) -> Vec<MetricDescriptor> { vec![] }
+    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // CommandDescriptor 即 ExtensionCommand 别名
     fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
     fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
     async fn health_check(&self) -> Result<bool> { Ok(true) }
     async fn configure(&mut self, _config: &serde_json::Value) -> Result<()> { Ok(()) }
+    async fn on_unload(&self) -> Result<()> { Ok(()) }
 
     // ===== 选填：事件订阅 =====
     fn event_subscriptions(&self) -> &[&str] { &[] }
-    fn handle_event(&self, _ty: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
+    fn handle_event(&self, _event_type: &str, _payload: &serde_json::Value) -> Result<()> { Ok(()) }
 
     // ===== 选填：流式处理（视频等）=====
     fn stream_capability(&self) -> Option<StreamCapability> { None }
@@ -97,11 +104,9 @@ pub trait Extension: Send + Sync + 'static {
 
     // ===== 选填：推送模式（传感器等）=====
     fn set_output_sender(&self, _sender: Arc<mpsc::Sender<PushOutputMessage>>) { }
+    fn latest_output(&self) -> Option<PushOutputMessage> { None }
     async fn start_push(&self, _session_id: &str) -> Result<()> { /* ... */ }
     async fn stop_push(&self, _session_id: &str) -> Result<()> { Ok(()) }
-
-    // ===== 必填：类型擦除支持 =====
-    fn as_any(&self) -> &dyn std::any::Any;
 }
 ```
 
@@ -134,6 +139,14 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 | `set_output_sender()` | 推送模式启动 | 保存输出通道，后续主动推送数据 |
 | `start_push()` / `stop_push()` | 推送开始/停止 | 启动/停止后台推送任务 |
 
+> **推送帧格式（0.9.23+）**：Push 扩展的输出经 `/api/extensions/:id/stream` WS 端点送达前端。客户端在 `init` 配置传入 `{"binary": true}` 并得到 `session_created.binary` 确认后，`send_push_output` 的二进制负载（JPEG/PCM 等）改以 WS Binary 帧直传（`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`），省去 base64；未协商时自动回退旧版 Text + base64，扩展代码无需任何改动——协商完全由宿主与前端处理。
+
+## 延伸阅读
+
+- [附录：工程标准](./case-studies/appendix-standards.md) — Capability 使用场景对照、跨平台构建矩阵、`.nep` 包结构
+- [案例研究总览](./case-studies/0-overview.md) — 5 个扩展案例逐一剖析 SDK 用法
+- [扩展开发实战](./7-extension-development.md) — 从零到 `.nep` 的完整教程
+
 ## Metadata / Metric / Command
 
 **ExtensionMetadata** 完整结构（在 `metadata()` 返回）：
@@ -142,7 +155,7 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 pub struct ExtensionMetadata {
     pub id: String,                              // 全局唯一 ID
     pub name: String,                            // 显示名
-    pub version: semver::Version,                // 语义版本
+    pub version: String,                         // 语义版本字符串
     pub description: Option<String>,             // 描述
     pub author: Option<String>,                  // 作者
     pub homepage: Option<String>,                // 主页 URL
@@ -216,28 +229,52 @@ neomind_extension_sdk::neomind_export!(MyExtension);
 
 扩展运行在隔离进程里，启动时**必须声明所需能力**。runner 按声明授权，未声明的能力调用会被拒。
 
-扩展通过 `CapabilityContext` 调用平台能力。以下是 SDK 内置的完整 capability 常量列表：
+扩展通过 `CapabilityContext` 调用平台能力。以下是 SDK 的**规范 capability 清单**（与 `neomind-extension-sdk` 的 `ExtensionCapability` 枚举一一对应，共 **20 种内置**）：
+
+**设备与指令**
 
 | Capability 常量 | 含义 |
 |-----------------|------|
 | `device_metrics_read` | 读取设备指标 |
 | `device_metrics_write` | 写入设备指标（虚拟设备） |
 | `device_control` | 向设备发送命令 |
+| `device_template_register` | 注册设备类型模板（bridge 类扩展用，如 lorawan-bridge / modbus-bridge / onvif-bridge） |
+| `device_register` / `device_unregister` | 注册 / 注销设备实例（bridge 扩展把外部设备接入 NeoMind 设备模型） |
+
+**存储与聚合**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
 | `storage_query` | 查询时序数据库 |
-| `event_publish` | 发布事件 |
-| `event_subscribe` | 订阅事件 |
 | `telemetry_history` | 查询遥测历史 |
 | `metrics_aggregate` | 指标聚合查询 |
+
+**事件**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
+| `event_publish` | 发布事件 |
+| `event_subscribe` | 订阅事件 |
+
+**扩展协作与自动化**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
 | `extension_call` | 调用其他扩展的命令 |
 | `agent_trigger` | 触发 Agent 执行 |
 | `rule_trigger` | 触发规则 |
-| `network` | 出站网络访问（HTTP / MQTT 客户端等） |
-| `filesystem:read` / `filesystem:write` | 文件读写（限定路径范围） |
-| `ml-model` | 加载 / 运行 ML 模型 |
-| `camera` | 访问相机 |
-| `serial` | 串口访问 |
 
-> Capability 是**最小权限原则**的体现：只声明你真正需要的。`network` + `ml-model` 是视觉类扩展的典型组合；只读数据扩展可能只需 `network` + `device_metrics_write`。
+**Agent 对话流（6 个）**
+
+| Capability 常量 | 含义 |
+|-----------------|------|
+| `chat_stream` | 流式对话（token 级事件经 EventPush 推送） |
+| `chat_stream_cancel` / `chat_stream_cancel_turn` | 取消进行中的流式会话 / 会话内指定回合 |
+| `chat_session_open` / `chat_session_send` / `chat_session_close` | 打开持久会话订阅 / 发消息（返回 turn_id）/ 关闭会话 |
+
+> 除内置 20 种外，SDK 允许以 `Custom(String)` 声明任意自定义能力名（生态惯例如 `network`、`ml-model`、`camera`、`serial`、`filesystem:read/write`），运行时按声明字符串校验。
+
+> Capability 是**最小权限原则**的体现：只声明你真正需要的。完整能力-使用场景对照与跨平台构建矩阵见 [附录：工程标准](./case-studies/appendix-standards.md)；实际用法可参考[案例研究](./case-studies/0-overview.md)中的真实扩展。
 
 ### 调用 Capability
 
@@ -334,4 +371,4 @@ curl -X POST http://localhost:9375/api/extensions/discover
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

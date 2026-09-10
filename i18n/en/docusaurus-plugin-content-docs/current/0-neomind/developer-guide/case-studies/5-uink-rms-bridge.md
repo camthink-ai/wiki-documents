@@ -7,6 +7,12 @@ sidebar_label: "uink-rms-bridge"
 
 # uink-rms-bridge: Production-Verified Vendor Bridge
 
+:::note
+This source-code audit was completed at market version **v2.7.6**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge).
+:::
+
+> **Reading tip**: This article is about 760 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
+
 ## Case Background
 
 **uink-rms-bridge** is the **production-verified vendor-proprietary protocol bridge** case in the NeoMind ecosystem. Uink-RMS is a cloud management platform for e-paper (electronic paper / e-ink) display devices: devices connect to the vendor cloud over LPWAN / cellular networks, and the cloud exposes a REST API for third-party integration. uink-rms-bridge enables NeoMind to do three things:
@@ -15,7 +21,7 @@ sidebar_label: "uink-rms-bridge"
 2. Periodically pull device telemetry (battery percentage, signal strength in dBm, temperature, refresh count)
 3. Convert user-edited Markdown / plain text / images to JPEG and push them to the e-paper screen for display refresh
 
-The current version is `2.7.6`, with the core implementation concentrated in a single [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) file totaling 2250 lines, plus the [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) React + TypeScript frontend component (entrypoint `uink-rms-bridge-components.umd.cjs`).
+The audit version is `2.7.6`, with the core implementation concentrated in a single [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) file totaling 2250 lines, plus the [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) React + TypeScript frontend component (entrypoint `uink-rms-bridge-components.umd.cjs`).
 
 **Contrast with [Case 4 onvif-bridge](./4-onvif-bridge.md) (the core narrative axis of this case)**: onvif-bridge is a **standard protocol bridge** (ONVIF is an open specification, universal for any Profile S camera), while uink-rms-bridge is a **vendor-proprietary protocol bridge** (the Uink-RMS cloud API is a closed private interface, only usable with Uink's own devices).
 
@@ -674,11 +680,9 @@ uink-rms-bridge's `src/` directory contains **only `lib.rs`, totaling 2250 lines
 Contrast with [Case 4 onvif-bridge](./4-onvif-bridge.md) which splits the protocol into 5 files (lib.rs 1646 lines + discovery.rs 211 lines + soap_client.rs 516 lines + ptz.rs 214 lines + types.rs 78 lines), each with single responsibility and manageable line count.
 
 :::tip Engineering lesson
-**When to split? When is a single file acceptable?** uink-rms-bridge's rationale for a single file: all its logic revolves around a **single vendor cloud API** (Uink-RMS v1.0.1), where auth / device / image / display are just different endpoints of the same API, highly cohesive, and splitting would increase cross-file navigation cost.
 
-While onvif-bridge is **multiple independent protocol stacks** (WS-Discovery is UDP multicast, SOAP is HTTP, PTZ is command encapsulation), naturally separable.
+Whether to split depends on coupling: uink-rms-bridge's auth / device / image are all endpoints of **one vendor cloud API** — highly cohesive, so a single file is fine (sectioned with `// ===` comments, see [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40) and the other markers); onvif-bridge's stacks are independent protocol families (WS-Discovery / SOAP / PTZ share little state), so splitting is natural.
 
-Rule of thumb: if modules share little state and few types (like WS-Discovery and SOAP), split; if all modules revolve around the same external API's different endpoints (like uink's auth + device + image), a single file is acceptable, but use `// ===` comment dividers (this extension does, see [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40), [L161](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L161), [L231](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L231), etc.).
 :::
 
 ### Troubleshooting Table
@@ -746,10 +750,15 @@ uink-rms-bridge is the **only full-stack vendor-proprietary bridge extension** i
 
 Its engineering lesson: 2250 lines in a single file is the boundary of readability, and if more RMS endpoints are added in the future (like alerts / logs), splitting should be considered.
 
+### Related Documentation
+
+- For the full capability table, cross-platform build matrix, and .nep package structure standards, see [Appendix: Engineering Standards](./appendix-standards.md)
+- For the SDK capability system, see [Extension SDK](../3-extension-sdk.md)
+
 ### Source Repository
 
 - [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge) — `src/lib.rs` (all source deep-links in this article point to this file)
 
 ---
 
-*Last updated: 2026-06-23*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-06-23*

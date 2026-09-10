@@ -20,8 +20,8 @@ NeoMind 的 **NE101 摄像头组件（`ne101_camera`）** 不只是画面展示�
 | AI 能力 | 选用扩展 | 典型场景 |
 |------|------|------|
 | **OCR 文字识别** | paddle-ocr-v6 / paddle-ocr-vl | 仪表读数（水表、电表、燃气表）、商品与价签标签、数显仪表、铭牌序列号、文档表单 |
-| **目标检测** | yolo-device-inference / image-analyzer-v2 | 人流计数、车辆检测、区域入侵告警 |
-| **开放词表定位** | locate-anything-v2 | 用自然语言「找 / 数」任意物体、缺陷定位、零样本计数 |
+| **目标检测** | yolo-device-inference / image-analyzer | 人流计数、车辆检测、区域入侵告警 |
+| **开放词表定位** | locate-anything | 用自然语言「找 / 数」任意物体、缺陷定位、零样本计数 |
 
 > 除结构化流水线外，还可用 **AI Agent + 视觉大模型** 对画面做开放式场景理解（描述、推理、告警），见第 7 节。
 
@@ -44,13 +44,15 @@ flowchart LR
 
 ## 2. 物料清单（BOM）
 
-| 物料 | 型号/规格 | 数量 | 用途 | 必需 |
-|------|----------|------|------|------|
-| **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | ✅ |
-| **paddle-ocr-v6 扩展** | v2.7.8+ | 1 | 本地 OCR 推理引擎 | ✅ |
-| **ne101_camera 组件** | v2.14.10+ | 1 | 摄像头面板 + AI 处理流水线 | ✅（随组件市场提供）|
-| **本地 LLM** | Ollama 等 | 1 | AI Chat 后端 | 可选 |
+这条流水线全部推理都在 NeoMind 主机本地完成：paddle-ocr-v6 的 `tiny` 档模型随扩展内置，无需 GPU、无需外网（`small` / `medium` 档首次切换时才需联网下载）。
+
+| 物料 | 型号/规格 | 用途 | 必需 |
+|------|----------|------|------|
+| **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 边缘 AI 管理 | ✅ |
+| **paddle-ocr-v6 扩展** | v2.7.8+ | 本地 OCR 推理引擎 | ✅ |
+| **ne101_camera 组件** | v2.14.10+ | 摄像头面板 + AI 处理流水线 | ✅（随组件市场提供）|
+| **本地 LLM** | Ollama 等 | AI Chat 后端 | 可选 |
 
 ---
 
@@ -78,7 +80,7 @@ flowchart LR
 
 ![下载并安装 paddle-ocr-v6 扩展包](https://resources.camthink.ai/wiki/img/ai-application/neomind/camera-ocr/03-install-extension.png)
 
-paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换：
+paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换（对应扩展命令 `switch_tier` 的 `tier` 参数：`tiny` / `small` / `medium` / `auto`，默认 `auto`）：
 
 | 档位 | 体积 | 适用 |
 |------|------|------|
@@ -86,6 +88,8 @@ paddle-ocr-v6 提供四档推理模型，可在扩展配置或组件面板切换
 | `small` | ~18MB（按需下载）| 有 CoreML 或 CUDA，精度更高 |
 | `medium` | ~132MB（按需下载）| CUDA 加 ≥16GB 内存，最高精度 |
 | `auto` | — | 默认，按主机能力自动选择 |
+
+> 切换档位即调 `switch_tier` 命令（或改扩展配置）；`small` / `medium` 首次切换时按需下载模型，之后离线可用。执行 `health` 命令可查看当前生效档位。
 
 ### 4.2 确认 ne101_camera 组件可用
 
@@ -152,8 +156,8 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 | AI 能力 | 选用扩展 | 模板 | 关键参数 |
 |---|---|---|---|
 | OCR 文字识别 | paddle-ocr-v6 / paddle-ocr-vl | `text_detection` | — |
-| 目标检测 | yolo-device-inference / image-analyzer-v2 / locate-anything-v2 | `object_detection` | `processingCategories`（如 `person,car`）|
-| 开放词表定位 | locate-anything-v2 | `grounding` | `processingPhrase`（自然语言描述）|
+| 目标检测 | yolo-device-inference / image-analyzer / locate-anything | `object_detection` | `processingCategories`（如 `person,car`）|
+| 开放词表定位 | locate-anything | `grounding` | `processingPhrase`（自然语言描述）|
 
 ### 6.1 OCR 文字识别
 
@@ -167,7 +171,7 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ### 6.2 目标检测
 
-选 `yolo-device-inference`（或 `image-analyzer-v2`），模板自动切换为 `object_detection`，在 `processingCategories` 填关注的类别（如 `person,car`）。抓拍后画面叠加检测框并标注类别，结果写入虚拟指标，可供计数、统计与告警。
+选 `yolo-device-inference`（或 `image-analyzer`），模板自动切换为 `object_detection`，在 `processingCategories` 填关注的类别（如 `person,car`）。抓拍后画面叠加检测框并标注类别，结果写入虚拟指标，可供计数、统计与告警。
 
 - **人流计数 / 车辆检测**：`processingCategories = person` 或 `car`，配合 ROI `count` 统计区域内目标数量。
 - **区域入侵告警**：ROI 圈定禁入区，`processingRoiAction = filter`，区域内出现目标即触发，结合 [自动化规则](../user-guide/7-automation-rules.md) 推送告警。
@@ -175,12 +179,12 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ### 6.3 开放词表定位
 
-选 `locate-anything-v2`，模板切换为 `grounding`，在 `processingPhrase` 用自然语言描述要找的物体。模型按描述零样本定位，画面叠加定位框并计数，适合固定检测器不认识的类别或临时需求。
+选 `locate-anything`，模板切换为 `grounding`，在 `processingPhrase` 用自然语言描述要找的物体。模型按描述零样本定位，画面叠加定位框并计数，适合固定检测器不认识的类别或临时需求。
 
 - **自然语言计数**：`processingPhrase = 穿红马甲的人`、`货架上的红色商品`、`地上的垃圾`，返回所有匹配位置与数量。
 - **缺陷 / 异物定位**：描述异常特征（如 `划痕`、`遗留工具`）辅助定位，再配合 ROI 或人工复核。
 
-> [`locate-anything-v2`](./6-locate-anything-v2.md) 还支持 `text_detection`（文字定位）、`point`（指点定位）等模板，可按需切换。
+> [`locate-anything`](./6-locate-anything-v2.md) 还支持 `text_detection`（文字定位）、`point`（指点定位）等模板，可按需切换。
 
 ---
 
@@ -236,9 +240,17 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 - **目标检测**：调整置信度与 NMS 阈值、收窄 `processingCategories`；专属目标替换自定义 ONNX 模型。
 - **开放词表定位**：调整 `processingPhrase` 措辞与 NMS 阈值，提升匹配召回。
 
-### 9.2 与通用 OCR 方案的关系
+### 9.2 OCR 扩展选型速查
 
-[通用 OCR 方案](./2-ocr-text-extraction.md) 用基础 OCR 面板对手动抓拍做一次性识别，适合「拍一张、认一下」；本篇是相机常驻、自动流水线、ROI 叠加的持续识别 / 检测方案。两者底层都走 NeoMind 扩展体系，可按场景选用。
+NeoMind 共有三个 OCR 扩展，都能接入本篇同一条 `processingExtensionId` 流水线（第 5.3 步换下拉选项即可），按部署条件与文档复杂度选择：
+
+| 扩展 | 部署 | 擅长 | 详见 |
+|------|------|------|------|
+| `ocr-device-inference` | 本地 SVTR ONNX，几十 MB，CPU 友好 | 通用文字行识别（中 / 英单语种） | [通用 OCR 方案](./2-ocr-text-extraction.md) |
+| `paddle-ocr-v6`（本篇） | 本地 ONNX，四档模型，边缘可跑 | 简单印刷体、仪表读数、低延迟离线 | 本篇 |
+| `paddle-ocr-vl` | 远端 GPU 推理服务 | 复杂版面、表格还原、关键信息抽取 | [PaddleOCR-VL 文档理解](./5-paddle-ocr-vl.md) |
+
+[通用 OCR 方案](./2-ocr-text-extraction.md) 的基础 OCR 面板适合「拍一张、认一下」的手动场景；本篇是相机常驻、自动流水线、ROI 叠加的持续识别方案。拿不准时：先在边缘用 v6 跑通，遇到表格 / 票据 / 扭曲文档再切 paddle-ocr-vl。
 
 ---
 
@@ -260,4 +272,4 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 ---
 
-*最后更新: 2026-07-13*
+*最后更新: 2026-09-08*

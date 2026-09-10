@@ -53,9 +53,9 @@ neomind widget create "Temperature Gauge" --widget-type gauge
   "name": { "en": "Temperature Gauge", "zh": "温度表" },
   "description": { "en": "Displays temperature with min/max range" },
   "icon": "thermometer",
-  "category": "indicators",
+  "category": "display",
   "global_name": "NeoMindTemperatureGauge",
-  "export_name": "default",
+  "export_name": "NeoMindTemperatureGauge",
   "version": "1.0.0",
   "size_constraints": {
     "min_w": 2, "min_h": 2,
@@ -66,21 +66,20 @@ neomind widget create "Temperature Gauge" --widget-type gauge
   "max_data_sources": 1,
   "has_display_config": true,
   "config_schema": {
-    "display": {
-      "type": "object",
-      "properties": {
-        "unit": { "type": "string", "description": "Temperature unit (°C, °F)" },
-        "minValue": { "type": "number", "description": "Minimum value on gauge" },
-        "maxValue": { "type": "number", "description": "Maximum value on gauge" }
-      }
-    },
-    "config": { "type": "object", "properties": {} }
+    "type": "object",
+    "properties": {
+      "unit": { "type": "string", "description": "Temperature unit (°C, °F)", "default": "°C" },
+      "minValue": { "type": "number", "description": "Minimum value on gauge", "default": -20 },
+      "maxValue": { "type": "number", "description": "Maximum value on gauge", "default": 50 }
+    }
   },
   "default_config": {
-    "display": { "unit": "°C", "minValue": -20, "maxValue": 50 }
+    "unit": "°C", "minValue": -20, "maxValue": 50
   }
 }
 ```
+
+> `config_schema` 是**一份扁平的 JSON Schema**：`properties` 里的字段会在组件设置面板自动生成表单，值写入组件的 `config`，并**直接展开到顶层 props**（见下文 Props API）。
 
 ### 3. 编辑 bundle.js
 
@@ -90,12 +89,21 @@ neomind widget create "Temperature Gauge" --widget-type gauge
   var React = global.React;
 
   function TemperatureGauge(props) {
-    var value = props.dataSource && props.dataSource[0]
-      ? props.dataSource[0].value : null;
-    var display = props.display || {};
-    var unit = display.unit || '°C';
-    var min = display.minValue !== undefined ? display.minValue : -20;
-    var max = display.maxValue !== undefined ? display.maxValue : 50;
+    // config_schema 里的字段直接挂在顶层 props 上（unit / minValue / maxValue）
+    var unit = props.unit || '°C';
+    var min = props.minValue !== undefined ? props.minValue : -20;
+    var max = props.maxValue !== undefined ? props.maxValue : 50;
+
+    // 数据值用 fetchData() 异步解析（dataSource prop 是绑定配置，不是解析后的数值）
+    var state = React.useState(null);
+    var value = state[0], setValue = state[1];
+    React.useEffect(function() {
+      if (!props.fetchData) return;
+      props.fetchData().then(function(r) {
+        setValue(r.value !== undefined ? r.value : null);
+      });
+    }, []);
+
     var pct = value !== null
       ? Math.max(0, Math.min(100, (value - min) / (max - min) * 100))
       : 0;
@@ -107,11 +115,11 @@ neomind widget create "Temperature Gauge" --widget-type gauge
     },
       React.createElement('div', {
         style: { fontSize: '2.5rem', fontWeight: 'bold',
-                 color: 'var(--color-text-primary)' }
-      }, value !== null ? value.toFixed(1) + unit : '--'),
+                 color: 'var(--foreground)' }
+      }, value !== null ? Number(value).toFixed(1) + unit : '--'),
       React.createElement('div', {
         style: { width: '80%', height: '6px', borderRadius: '3px',
-                 background: 'var(--color-border)' }
+                 background: 'var(--border)' }
       },
         React.createElement('div', {
           style: { width: pct + '%', height: '100%', borderRadius: '3px',
@@ -145,26 +153,28 @@ neomind widget get temperature-gauge   # 查看完整 manifest
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `id` | string | 是 | 唯一标识，小写+连字符，不能与内置组件 ID 冲突 |
+| `id` | string | 是 | 唯一标识，小写+连字符或下划线，不能与内置组件 ID 冲突 |
 | `name` | object/string | 是 | 显示名，支持 i18n：`{"en": "Name", "zh": "名称"}` |
 | `description` | object/string | 是 | 描述，支持 i18n |
 | `icon` | string | 否 | Lucide 图标名（默认 "Box"） |
-| `category` | string | 是 | 分类：`indicators` / `charts` / `controls` / `display` / `spatial` / `business` / `custom` |
-| `global_name` | string | 是 | JS 全局变量名，约定格式 `NeoMind{PascalCaseId}` |
-| `export_name` | string | 否 | 导出方式（默认 "default"） |
+| `category` | string | 否 | 自由字符串分类（默认 "custom"）。内置组件用 `indicator` / `chart` / `control` / `display` / `spatial` / `layout`，社区组件常用 `display` / `device` / `visualization` |
+| `global_name` | string | 是 | JS 全局变量名，常见格式 `NeoMind_<Name>` 或 `<Name>PascalCase`（如 `NeoMind_MetricCard`、`NE101CameraPanel`） |
+| `export_name` | string | 否 | 导出名（解析顺序：`global[export_name]` → `global.default` → global 本身是函数；默认 "default"） |
 | `version` | string | 否 | 语义版本（默认 "1.0.0"） |
 | `author` | string | 否 | 作者 |
 | `size_constraints` | object | 是 | 网格尺寸限制 |
 | `has_data_source` | boolean | 是 | 是否接受数据源绑定 |
 | `max_data_sources` | number | 否 | 最大数据源数（0 = 无，省略 = 不限） |
+| `has_device_binding` | boolean | 否 | 是否支持**设备绑定**——置 true 时组件会收到 `deviceContext` prop（设备在线状态、最新指标等），并与设备详情联动 |
+| `device_type_filter` | string[] | 否 | 与 `has_device_binding` 搭配：限定可绑定的设备类型（如 `["ne101_camera"]`） |
 | `has_display_config` | boolean | 否 | 是否有显示配置 |
 | `has_actions` | boolean | 否 | 是否发送命令（如 toggle 开关） |
-| `config_schema` | object | 否 | `display` 和 `config` 字段的 JSON Schema |
+| `config_schema` | object | 否 | 组件配置的 JSON Schema（`properties` 自动生成配置表单） |
 | `default_config` | object | 否 | 默认配置值 |
 
 ### 内置组件 ID（保留，不可使用）
 
-`value-card`、`led-indicator`、`sparkline`、`progress-bar`、`line-chart`、`area-chart`、`bar-chart`、`pie-chart`、`radar-chart`、`toggle-switch`、`markdown-display`、`image-display`、`image-history`、`web-display`、`map-display`、`video-display`、`custom-layer`、`agent-monitor-widget`、`ai-analyst`
+`value-card`、`counter`、`metric-card`、`led-indicator`、`sparkline`、`progress-bar`、`line-chart`、`area-chart`、`bar-chart`、`pie-chart`、`toggle-switch`、`markdown-display`、`image-display`、`image-history`、`web-display`、`map-display`、`video-display`、`custom-layer`，以及业务组件 `agent-monitor-widget`、`ai-analyst`
 
 ### size_constraints（网格尺寸）
 
@@ -180,10 +190,11 @@ Dashboard 使用 12 列网格。宽高以网格单元为单位：
 
 ### config_schema（配置 Schema）
 
-描述组件接受的字段：
+一份**扁平的 JSON Schema**（`type: "object"` + `properties`，可带 `ui_hints` 控制字段顺序/可见性）：
 
-- `display`——用户在 Dashboard 编辑器中设置的视觉配置（单位、颜色等）
-- `config`——内部配置（如 markdown 内容、web URL 等）
+- `properties` 里的每个字段会在组件设置面板自动生成表单控件
+- 用户填写的值写入组件实例的 `config` 对象，并**直接展开到顶层 props**（`props.unit` 而非 `props.display.unit`）
+- 若 bundle 导出了 `ConfigPanel` / `AdvancedPanel` 自定义组件，会优先使用它们渲染配置界面
 
 ## bundle.js IIFE 格式
 
@@ -219,74 +230,95 @@ Dashboard 使用 12 列网格。宽高以网格单元为单位：
 
 ## 组件 Props API
 
+渲染器（`ComponentRenderer`）传给组件的 props（以真实代码为准）：
+
 ```typescript
 interface WidgetProps {
-  config: Record<string, any>;        // 内部配置（来自 config_schema.config）
-  display: Record<string, any>;       // 显示配置（来自 config_schema.display）
-  dataSource: Array<{                 // 数据源值
-    value: number | string;           // 当前值
-    timestamp: number;                // Unix 时间戳（毫秒）
-    label?: string;                   // 数据源标签
-    values?: Array<{                  // 时间序列（图表用）
-      value: number;
-      timestamp: number;
-    }>;
-  }>;
-  id: string;                         // 组件实例 ID
-  title: string;                      // 组件标题
-  type: string;                       // 组件类型
-  actions?: {                         // 命令动作（has_actions: true 时可用）
-    sendCommand: (cmd: string, payload?: any) => void;
+  config: Record<string, any>;        // 组件配置对象（config_schema 生成的表单值）
+  // config_schema.properties 的字段还会直接展开到顶层 props：
+  // 例如 schema 里有 "unit"，则 props.unit 可直接读取
+  dataSource: object | object[];      // 数据源【绑定配置】（单对象或多对象数组）——不是解析后的数值！
+  fetchData?: (options?: {            // 解析数据源（社区/扩展组件注入）
+    timeRange?: number; limit?: number;
+  }) => Promise<FetchResult | FetchResult[]>;
+  deviceContext?: {                   // has_device_binding: true 时注入
+    device: {                         // 绑定的设备
+      id: string; name: string; deviceType: string;
+      status: 'online' | 'offline'; lastSeen: number;
+      currentValues: Record<string, any>;   // 最新指标值
+    };
+    deviceType?: {                    // 设备类型定义（指标/命令）
+      name: string; deviceType: string;
+      metrics: any[]; commands: any[];
+    };
   };
+  sendDeviceCommand?: (cmd: string,   // 设备绑定组件可用：向绑定设备发命令
+    params?: Record<string, unknown>) => Promise<any>;
+  title: string;                      // 组件标题
+  editMode: boolean;                  // 是否处于编辑模式
+  onConfigChange?: (fn: any) => void; // 持久化配置回调
+  onDataSourceChange?: (fn: any) => void;
+}
+
+interface FetchResult {               // fetchData 的返回
+  value?: unknown;                    // latest 模式：单个当前值
+  series?: Array<{ timestamp: number; value: number }>;  // timeseries 模式：时间序列
 }
 ```
 
 ## CSS 变量主题
 
-**永远不要硬编码颜色**。使用以下设计令牌：
+**永远不要硬编码颜色**。使用以下设计令牌（与 `web/src/index.css` 中的真实变量一致）：
 
 | 变量 | 用途 |
 |------|------|
-| `var(--color-text-primary)` | 主要文字 |
-| `var(--color-text-secondary)` | 次要文字 |
-| `var(--color-text-muted)` | 提示文字 |
-| `var(--color-bg-primary)` | 主背景 |
-| `var(--color-bg-secondary)` | 卡片背景 |
-| `var(--color-border)` | 边框 |
-| `var(--color-success)` | 正向/成功 |
-| `var(--color-error)` | 错误/危险 |
-| `var(--color-warning)` | 警告 |
-| `var(--color-info)` | 信息 |
-| `var(--color-accent)` | 强调/高亮 |
+| `var(--foreground)` | 主要文字 |
+| `var(--muted-foreground)` | 次要/提示文字 |
+| `var(--background)` | 主背景 |
+| `var(--card)` | 卡片背景 |
+| `var(--border)` | 边框 |
+| `var(--color-success)` / `var(--color-success-bg)` | 正向/成功 |
+| `var(--color-error)` / `var(--color-error-bg)` | 错误/危险 |
+| `var(--color-warning)` / `var(--color-warning-bg)` | 警告 |
+| `var(--color-info)` / `var(--color-info-bg)` | 信息 |
+| `var(--primary)` | 强调/主色 |
+| `var(--chart-1)` … `var(--chart-6)` | 图表配色 |
 
 ## 数据源绑定
 
-当 `has_data_source: true` 时，用户可以把指标绑定到组件。
+当 `has_data_source: true` 时，用户可以把指标绑定到组件。注意：`props.dataSource` 是**绑定配置**，实际取值要通过 `props.fetchData()`：
 
 ### 单值（指示器类）
 
 ```javascript
-var currentTemp = props.dataSource[0].value;
+// fetchData() 返回 { value: <当前值> }
+props.fetchData().then(function(result) {
+  var currentTemp = result.value;
+});
 ```
 
 ### 时间序列（图表类）
 
 ```javascript
-var history = props.dataSource[0].values || [];
-history.forEach(function(point) {
-  // point.value, point.timestamp
+// 数据源配置为 timeseries 模式时，fetchData() 返回 { series: [{timestamp, value}, ...] }
+props.fetchData({ timeRange: 24, limit: 200 }).then(function(result) {
+  (result.series || []).forEach(function(point) {
+    // point.value, point.timestamp
+  });
 });
 ```
 
 ### 多数据源（多系列图表）
 
-当 `max_data_sources > 1` 时，`dataSource` 是数组，每个元素是一个独立系列：
+当 `max_data_sources > 1` 时，`props.dataSource` 是绑定配置数组，`fetchData()` 返回对应的结果数组：
 
 ```javascript
-props.dataSource.forEach(function(ds, i) {
-  var label = ds.label || 'Series ' + (i + 1);
-  var points = ds.values || [];
-  // 渲染每个系列...
+props.fetchData().then(function(results) {
+  results.forEach(function(result, i) {
+    var binding = props.dataSource[i];        // 每个绑定的配置
+    var points = result.series || [];          // 每个绑定的数据
+    // 渲染每个系列...
+  });
 });
 ```
 
@@ -303,7 +335,7 @@ neomind widget install ../my-widget.zip
 
 ### 方式 2：Web UI
 
-在 NeoMind 的 **Extensions** 页点击 **Install Widget**，上传 ZIP 文件。
+在仪表板编辑模式打开 **Add Component → Custom** 页签，点击 **Import Component** 上传 ZIP 文件（见[仪表板使用指南](../user-guide/4-use-dashboard.md)）。
 
 ### 方式 3：卸载
 
@@ -317,8 +349,9 @@ neomind widget uninstall my-widget
 # 先查看组件的 config_schema
 neomind widget get my-widget
 
-# 添加到 Dashboard
-neomind dashboard update <DASHBOARD_ID> --components '[{
+# 添加到 Dashboard（--components 会整体替换，必须配合 --replace-all；
+# 只是追加组件则用 neomind dashboard add-components <ID> --components '[...]'
+neomind dashboard update <DASHBOARD_ID> --replace-all --components '[{
   "id": "c1",
   "type": "my-widget",
   "title": "My Widget",
@@ -328,14 +361,13 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
     "sourceId": "sensor-01",
     "property": "temperature"
   },
-  "display": {"unit": "°C"},
-  "config": {}
+  "config": {"unit": "°C"}
 }]'
 ```
 
 ## 完整示例：折线图组件
 
-以下是一个使用时间序列数据绘制简单折线图的组件：
+以下是一个使用 `fetchData` 拉取时间序列并绘制简单折线图的组件：
 
 ```javascript
 (function(global) {
@@ -343,16 +375,23 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
   var React = global.React;
 
   function SimpleLineChart(props) {
-    var ds = props.dataSource && props.dataSource[0];
-    var points = (ds && ds.values) || [];
-    var display = props.display || {};
-    var strokeColor = display.color || 'var(--color-accent)';
+    var state = React.useState([]);
+    var points = state[0], setPoints = state[1];
+    var strokeColor = props.color || 'var(--primary)';
+
+    React.useEffect(function() {
+      if (!props.fetchData) return;
+      // 数据源为 timeseries 模式时返回 { series: [{timestamp, value}, ...] }
+      props.fetchData().then(function(result) {
+        setPoints(result.series || []);
+      });
+    }, []);
 
     if (points.length < 2) {
       return React.createElement('div', {
         style: { width: '100%', height: '100%',
                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                 color: 'var(--color-text-muted)' }
+                 color: 'var(--muted-foreground)' }
       }, 'Waiting for data...');
     }
 
@@ -384,14 +423,14 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
 })(window);
 ```
 
-对应的 manifest.json：
+对应的 manifest.json（`config_schema` 是扁平 JSON Schema，`color` 字段会出现在 props 顶层）：
 
 ```json
 {
   "id": "simple-line-chart",
   "name": { "en": "Simple Line Chart", "zh": "简单折线图" },
   "description": { "en": "A minimal SVG line chart" },
-  "category": "charts",
+  "category": "chart",
   "global_name": "NeoMindSimpleLineChart",
   "size_constraints": {
     "min_w": 3, "min_h": 2,
@@ -401,11 +440,9 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
   "max_data_sources": 1,
   "has_display_config": true,
   "config_schema": {
-    "display": {
-      "type": "object",
-      "properties": {
-        "color": { "type": "string", "description": "Line color (CSS variable or hex)" }
-      }
+    "type": "object",
+    "properties": {
+      "color": { "type": "string", "description": "Line color (CSS variable or hex)" }
     }
   }
 }
@@ -445,4 +482,4 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

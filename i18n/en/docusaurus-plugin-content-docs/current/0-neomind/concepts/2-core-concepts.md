@@ -7,6 +7,8 @@ sidebar_label: "Core Concepts"
 
 # Core Concepts
 
+> **5-minute version**: devices connect via MQTT / Webhook → data lands in embedded storage (Telemetry) → transforms create derived metrics → dashboards visualize, rules alert, AI agents analyze, and notifications reach people. Extensions run as isolated processes adding vision / voice / protocol-bridge capabilities. Details below.
+
 This page explains the NeoMind system from a user's perspective. If you're writing code, see the [Developer Architecture doc](../developer-guide/2-architecture.md).
 
 > For term definitions, see the [Glossary](./1-glossary.md).
@@ -27,7 +29,7 @@ flowchart TB
         RULE["Rule Engine<br/>Event-driven · JSON"]:::core
         AGENT["AI Agent<br/>Think-Act-Observe"]:::ai
         WEBUI["Web UI<br/>Dashboard · AI Chat"]:::consumer
-        MSG["Notifications<br/>7-channel routing"]:::consumer
+        MSG["Notifications<br/>7 external channel types"]:::consumer
 
         MQTT ==> STORE
         API ==> STORE
@@ -35,7 +37,7 @@ flowchart TB
         TRANSFORM -.->|"write back"| STORE
         STORE -.-> RULE
         STORE -.-> AGENT
-        RULE -.->|"Notify"| MSG
+        RULE -.->|"notify"| MSG
         STORE -.->|"SSE push"| WEBUI
     end
 
@@ -69,8 +71,8 @@ flowchart TB
 | **Telemetry Store** | — | redb embedded | Time-series data, zero-config persistence, aggregation queries |
 | **Transform** | — | JavaScript (Boa engine) pipeline | Raw data → derived metrics (unit conversion, aggregation, custom formulas), 3 scope levels |
 | **Rule Engine** | — | Event-driven | Evaluates on data write (zero latency), pure JSON conditions + actions |
-| **AI Agent** | — | LLM + CLI toolchain | Natural language understanding, Think-Act-Observe loop, Interval/Cron/Event scheduling |
-| **Notifications** | — | 7-channel routing | Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram |
+| **AI Agent** | — | LLM + CLI toolchain | Natural language understanding, Think-Act-Observe loop, Interval/Cron/Event/Manual scheduling |
+| **Notifications** | — | 7 external channel types | Webhook · Email · Feishu · DingTalk · WeCom · Slack · Telegram (plus the in-app message center) |
 | **Extension System** | — | Process isolation + FFI | Vision AI (YOLO/OCR), device bridges (Modbus/OPC-UA), independent process won't crash main service |
 
 :::info Why no external dependencies?
@@ -115,7 +117,7 @@ Downlink topic: device/{device_type}/{device_id}/downlink
 Discovery topic: {discovery_prefix}/announce
 ```
 
-JSON published to the uplink topic is automatically parsed into telemetry data and stored. Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
+JSON published to the uplink topic is automatically parsed into telemetry data and stored (this convention applies to manually added devices; devices with a recognized type or connected via Auto-Discovery may also publish to arbitrary topics — such data first lands in the **pending approval list**, and registration completes after confirmation). Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
 
 **Webhook (stateless)** — for one-off pushes or devices that can't run an MQTT client:
 
@@ -148,26 +150,27 @@ Stored data is queried via REST API — dashboards, rules, and agents all use th
 
 ```bash
 # Query temperature data from the last 1 hour
-curl "http://localhost:9375/api/telemetry?source=device:demo-sensor:temperature&start=-1h&end=now"
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400"
 
 # Aggregate by 5-minute time buckets (avg/min/max/sum/count)
-curl "http://localhost:9375/api/telemetry/aggregate?source=device:demo-sensor:temperature&interval=5m&function=avg&start=-24h"
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400&aggregate=avg&bucketed=true"
 ```
 
 | Parameter | Description |
 |-----------|-------------|
-| `source` | DataSourceId (`{type}:{id}:{field}`) |
-| `start` / `end` | Time range — Unix ms or relative (`-1h` / `now`) |
-| `interval` | Aggregation time bucket (e.g. `5m` / `1h` / `1d`) |
-| `function` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
+| `source` | Data source (`{type}:{id}`, e.g. `device:demo-sensor`) |
+| `metric` | Metric name (required together with `source`) |
+| `start` / `end` | Time range (Unix seconds) |
+| `aggregate` | Aggregation function (`avg` / `min` / `max` / `sum` / `count`) |
+| `bucketed` | Return aggregation results in time buckets |
+| `offset` | Skip the newest N records (server-side pagination) |
 | `limit` | Max data points returned, paginated |
 
 ### Data Retention & Cleanup
 
 Telemetry is **retained indefinitely** by default, but auto-cleanup policies can be configured (Settings → System → Retention):
 
-- **By duration**: Auto-delete data older than N days (e.g. retain 90 days)
-- **By capacity**: Delete oldest data when storage exceeds a threshold
+- **By duration**: Auto-delete data older than N days (e.g. retain 90 days); regular metrics and image-like data each have their own retention period, and the cleanup interval is configurable too
 
 Policies run periodically by a background task without affecting real-time write performance.
 
@@ -203,17 +206,18 @@ flowchart LR
 ```javascript
 // Example: temperature unit conversion + dew point calculation
 // input = { temperature: 25.6, humidity: 60 }
-function transform(input) {
-  const temp = input.temperature;
-  const humidity = input.humidity;
-  // Dew point formula
-  const dewPoint = temp - (100 - humidity) / 5;
-  return {
-    temperature_f: temp * 9 / 5 + 32,   // Fahrenheit
-    dew_point: Math.round(dewPoint * 10) / 10,
-    comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
-  };
-}
+// Just write statements (use return for the result); single-key objects
+// (e.g. {"value": 42}) are auto-unwrapped — the full raw input stays
+// available as input_raw
+const temp = input.temperature;
+const humidity = input.humidity;
+// Dew point formula
+const dewPoint = temp - (100 - humidity) / 5;
+return {
+  temperature_f: temp * 9 / 5 + 32,   // Fahrenheit
+  dew_point: Math.round(dewPoint * 10) / 10,
+  comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
+};
 ```
 
 Derived metrics are written to Telemetry in `transform:{output_prefix}:{field}` format, consumable by dashboards, rules, and agents just like raw device data.
@@ -248,7 +252,7 @@ YOLO extension panics due to a model loading failure? The main service and other
 
 **2. Capability Declaration** — declared at startup, denied if undeclared
 
-Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. 14 built-in capabilities cover device read/write, storage queries, event pub/sub, agent/rule triggers, and more:
+Extensions declare required Capabilities in their metadata, validated item-by-item at runtime. There are **20 built-ins**: the 14 base capabilities in the table below plus a 6-member chat-streaming family (`chat_stream`, `chat_stream_cancel`, `chat_stream_cancel_turn`, `chat_session_open`, `chat_session_send`, `chat_session_close`). The authoritative list lives in the [Extension SDK](../developer-guide/3-extension-sdk.md): event pub/sub, agent/rule triggers, and more:
 
 | Category | Capability | Description |
 |----------|-----------|-------------|
@@ -263,7 +267,7 @@ Also supports `Custom(String)` for custom capabilities.
 
 **3. Lazy Loading** — ML models load on first call, then stay resident
 
-A 50MB YOLOv8n model doesn't occupy memory at startup — it loads into memory on the first detection command, then stays resident for subsequent calls.
+A about 12 MB YOLOv8n model doesn't occupy memory at startup — it loads into memory on the first detection command, then stays resident for subsequent calls.
 
 **4. Cross-Process Communication** — serde JSON serialization, debug-friendly
 
@@ -317,15 +321,16 @@ NeoMind's AI shares the same Think-Act-Observe loop, but runs in two modes:
 
 **AI Chat** is interactive — the user asks, the AI calls tools in real time and streams the response, with support for image uploads and multimodal analysis. **AI Agent** is autonomous — triggered on schedule or event, it runs independently in the background and logs experience to its Journal. Both share the same toolset (neomind CLI + extension commands).
 
-### Three Scheduling Modes (AI Agent only)
+### Scheduling Modes (AI Agent only)
 
-AI Agents support three scheduling triggers:
+AI Agents support three automatic scheduling triggers, plus a Manual mode:
 
 | Mode | Trigger | Typical Scenario |
 |------|---------|-----------------|
 | **Interval** | Fixed interval (e.g. every 5 min) | "Patrol device status periodically" |
-| **Cron** | Cron expression (e.g. `0 9 * * 1-5`) | "Generate daily report every weekday at 9 AM" |
+| **Cron** | Cron expression (e.g. `0 0 9 * * 1-5`) | "Generate daily report every weekday at 9 AM" |
 | **Event** | Data event (rule match / metric change) | "Analyze immediately when temperature spikes" |
+| **Manual** | Manual invocation (invoke / delegation from another agent), never auto-scheduled | "One-off analysis tasks run on demand" |
 
 ### CLI-First Architecture
 
@@ -363,7 +368,7 @@ The agent core is a **Think-Act-Observe loop**, max 30 rounds (configurable):
 
 **Safety mechanisms**:
 - Global timeout: 5 minutes (300s) forced termination
-- Tool timeouts: Shell 30s, extensions 300s, HTTP 10s
+- Tool timeouts: Shell defaults to 30s (max 600s), web requests 15s, extensions 300s
 - Concurrency: 10 global parallel executions, 2 per LLM backend
 - Context compaction: compresses history by priority when exceeding window size (system prompt never dropped)
 
@@ -382,17 +387,17 @@ The rule engine evaluates conditions **immediately** when data is written to Tel
 ```json
 {
   "name": "High Temperature Alert",
+  "trigger": { "trigger_type": "data_change" },
   "condition": {
+    "condition_type": "comparison",
     "source": "device:demo-sensor:temperature",
-    "operator": "GreaterThan",
+    "operator": "greater_than",
     "threshold": 30.0
   },
   "actions": [
-    { "type": "Notify", "message": "Temperature exceeds 30°C!", "severity": "Critical" },
-    { "type": "TriggerAgent", "agent_id": "analyzer" }
-  ],
-  "trigger": "event",
-  "cooldown": 60
+    { "type": "notify", "message": "Temperature exceeds 30°C!", "severity": "critical" },
+    { "type": "trigger_agent", "agent_id": "analyzer" }
+  ]
 }
 ```
 
@@ -476,4 +481,4 @@ NeoMind also supports cloud LLMs (OpenAI / Anthropic / GLM / DeepSeek, etc.). Th
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

@@ -45,7 +45,7 @@ flowchart LR
 
 | Item | Spec | Purpose | Required |
 |------|------|------|------|
-| **NeoMind platform** | v0.8.0+ | Runs on Mac/PC, hosts the extension | ✅ |
+| **NeoMind platform** | v0.9.0+ | Runs on Mac/PC, hosts the extension | ✅ |
 | **deepstream extension** | v2.8.0+ | Remote bridge + event routing | ✅ |
 | **NG4500** | Jetson Orin NX/Nano/AGX, JetPack 6.x, DeepStream 7.1 | Runs the DeepStream sidecar | ✅ |
 | **RTSP cameras** | 2–32 × 720p/1080p | Video sources | ✅ |
@@ -294,11 +294,11 @@ On save, the extension connects to the sidecar over TCP.
 
 Install and configure (open the marketplace → install the extension → switch to remote mode):
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/01-open-market.png)
+![Opening the marketplace](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/01-open-market.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/02-install.png)
+![Installing the deepstream extension](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/02-install.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/03-config.png)
+![Remote mode configuration](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/03-config.png)
 
 ---
 
@@ -318,9 +318,9 @@ On save, the sidecar builds the pipeline and begins inference and event emission
 
 Add the DeepStream panel and a video stream:
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/04-add-card.png)
+![Adding the DeepStream panel](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/04-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/05-add-stream.png)
+![Adding an RTSP stream](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/05-add-stream.png)
 
 ---
 

@@ -51,11 +51,11 @@ NeoMind is a Rust workspace. Each crate has a single, clear responsibility:
 | Crate | Responsibility |
 |-------|----------------|
 | **neomind-core** | Core traits and types: `EventBus`, `DataSourceId`, `LLM` trait, capability detection |
-| **neomind-api** | Axum web server, HTTP / WebSocket / SSE handlers, Swagger at `/api/docs` |
+| **neomind-api** | Axum web server, HTTP / WebSocket / SSE handlers, route definitions centralized in `src/server/router.rs` |
 | **neomind-agent** | AI agent: LLM backends, tool calling, memory system, skill system, scheduler |
 | **neomind-devices** | Device management: MQTT / webhook adapters, registration, command queue, draft approval |
 | **neomind-storage** | redb embedded storage: schema and access layer for all `*.redb` tables |
-| **neomind-messages** | Message notification: 7 channels (webhook/email/telegram/wecom/dingtalk/slack/feishu) + in-app |
+| **neomind-messages** | Message notification: 7 external channel types (webhook/email/telegram/wecom/dingtalk/slack/feishu) + the in-app message center |
 | **neomind-rules** | JSON rule engine: parse, execute, event trigger |
 | **neomind-extension-sdk** | Extension SDK: `neomind_export!` macro, capability, ML model lifecycle (public API surface) |
 | **neomind-extension-runner** | Extension process host: isolated sandbox, FFI bridge, crash-loop protection |
@@ -85,9 +85,9 @@ A single process hosting all core functionality:
 Spawned and supervised by `neomind-extension-runner`:
 
 - Each extension runs in its own OS process — full process-level isolation
-- Communicates with the main process via FFI (C ABI)
-- **A crash doesn't affect the main process**: the runner has crash-loop protection; an extension that crashes repeatedly is auto-disabled
-- Capability-gated: the extension declares required capabilities (network, filesystem, ml-model) at startup; the runner authorizes exactly those
+- The extension dynamic library (`.so` / `.dylib` / `.dll`) is loaded in-process by the runner via FFI (C ABI); the runner then talks to the main process over stdin/stdout JSON IPC
+- **A crash doesn't affect the main process**: the runner has crash-loop protection (auto-restart + max retry count + cooldown) and stops restarting once the retry limit is reached
+- Capability-gated: the extension declares required capabilities via the SDK's `ExtensionCapability` (including `Custom` names); calls to undeclared capabilities are rejected, and the runner additionally applies resource limits (memory / CPU) to the extension process
 
 ```
 ┌─────────────────────────┐
@@ -104,27 +104,75 @@ Spawned and supervised by `neomind-extension-runner`:
 
 ## Event Bus
 
-`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly:
+`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly. The `NeoMindEvent` enum (`crates/neomind-core/src/event.rs`) has **45 variants**, grouped by domain:
 
-| Source | Event | Subscribers |
-|--------|-------|-------------|
-| Device MQTT data | `DeviceDataReceived` | Rule engine, data push, dashboard WS |
-| Rule fires | `RuleTriggered` | Message notifier, agent |
-| Agent completes | `AgentExecutionCompleted` | Memory system, message notifier |
-| Extension metric | `ExtensionMetric` | Storage, dashboard |
-| System state change | `SystemEvent` | In-app message center |
+| Domain | Events (`NeoMindEvent` variants) | Typical subscribers |
+|----|------|--------|
+| Devices | `DeviceOnline` / `DeviceOffline` / `DeviceTransportOnline` / `DeviceTransportOffline` / **`DeviceMetric`** / `DeviceCommandResult` / `DeviceDiscovered` | Rule engine, data push, dashboard WS, auto-onboarding |
+| Rules | `RuleEvaluated` / `RuleTriggered` / `RuleExecuted` | Notifications, audit |
+| Alerts & messages | `AlertCreated` / `AlertAcknowledged` / `MessageCreated` / `MessageAcknowledged` / `MessageResolved` | In-app message center, notification channels, Agent |
+| IM | `ImMessageReceived` | IM bridge sessions |
+| Agent | `AgentExecutionStarted` / `AgentThinking` / `AgentDecision` / `AgentProgress` / `AgentExecutionCompleted` / `AgentMemoryUpdated` / `AgentStreamChunk` / `AgentStreamEnd` | Memory system, notifications, Chat SSE |
+| LLM decision loop | `PeriodicReviewTriggered` / `LlmDecisionProposed` / `LlmDecisionExecuted` | Agent decision execution |
+| Tools | `ToolExecutionStart` / `ToolExecutionSuccess` / `ToolExecutionFailure` | Agent process display |
+| Extensions | `ExtensionOutput` / `ExtensionLifecycle` / `ExtensionCommandStarted` / `ExtensionCommandCompleted` / `ExtensionCommandFailed` | Storage, dashboards |
+| System | `ModelDownloadProgress` / `SystemUpgradeProgress` / `DashboardUpdated` / `DataChanged` / `UserMessage` / `LlmResponse` / `Custom` | Frontend event stream (SSE/WS) |
 
-Pub/sub — multiple subscribers fire in parallel; within a single subscriber, events are processed sequentially.
+**Subscription semantics**: pub/sub — multiple subscribers fire in parallel; within a single subscriber, events are processed sequentially. A slow subscriber causes events to be dropped (observable via `neomind_eventbus_dropped_total` on `/api/metrics`) — never do slow work inside a subscriber; `spawn` first.
+
+**The one event that drives everything**: `DeviceMetric` is the primary event — every device data write (MQTT / Webhook / extension virtual metrics) publishes it, powering the rule engine, data push, and dashboard WebSockets.
+
+<details>
+<summary>Full enum definition</summary>
+
+```rust
+// crates/neomind-core/src/event.rs
+pub enum NeoMindEvent { /* 45 variants, serialized by variant name */ }
+```
+
+The variant names are authoritative: update this table when adding events.
+</details>
+
+## Lifecycle of One Data Write
+
+Take "a LoRaWAN temperature sensor reports 23.5°C" through the whole architecture:
+
+```text
+MQTT message arrives (rmqtt, :1883)
+  → neomind-devices adapter parses + matches device (unknown → draft/auto-onboard)
+  → written to neomind-storage (telemetry.redb, second-precision timestamps)
+  → publishes NeoMindEvent::DeviceMetric on the event bus
+      ├→ neomind-rules: evaluates all matching rules immediately (>30°C → notify action)
+      ├→ transforms (neomind-api automation): input unwrap → JS pipeline → derived metrics re-stored
+      ├→ neomind-data-push: matches push targets → external Webhook / MQTT
+      └→ dashboard WebSocket: pushed in real time to subscribed charts
+```
+
+Understanding this path explains most behavior: why rules evaluate "on write" (event-driven), why transforms read already-stored data, and why dashboards never poll.
+
+## Extension Load Sequence
+
+The full sequence from `.nep` to usable (`neomind-core/src/extension/loader/isolated.rs`):
+
+```text
+Install: upload/market download → unpack & validate (zip layout + ABI 3 + platform binary) → extensions/<id>/
+Start: API spawn → neomind-extension-runner child process
+  → runner dlopens the platform binary → checks neomind_extension_abi_version() == 3
+  → JSON bridge handshake (hello → capabilities → descriptor)
+  → main process registers extension metrics/commands/components → state Running
+Crash: process exit / hang (liveness Ping timeout) → auto-restart (up to 3×, 5s apart)
+  → limit reached → state Crashed, auto-restart stops, alert via notification channels
+```
 
 ## Extension ABI
 
 Extensions are written in Rust but **compile to a separate binary** from the main process, bridged by FFI:
 
-- The `neomind_export!` macro (in the SDK) auto-generates C ABI entry points (`extern "C"` functions) from your `ExtensionHandler` trait impl
-- The runner loads the extension binary → invokes the agreed entry → wraps it in an `ExtensionProxy` registered with the main process
-- Data crosses the FFI boundary as serde JSON (metrics, commands, config)
+- The `neomind_export!` macro (in the SDK) auto-generates C ABI entry points (`extern "C"` functions such as `neomind_extension_abi_version` / `neomind_extension_metadata` / `neomind_extension_execute_command_json`) from your `Extension` trait impl
+- The main process's isolated loader spawns the runner process → the runner loads the extension dynamic library and invokes the agreed entry points → the main process wraps all communication with the extension process in an `ExtensionProxy` (`neomind-core::extension::proxy`)
+- Data crosses the FFI / IPC boundary as serde JSON (metrics, commands, config)
 
-**Capability system**: the extension declares `capabilities: ["network", "filesystem:read", "ml-model"]` in its metadata; the runner opens the sandbox accordingly when spawning. Calls requiring undeclared capabilities are rejected.
+**Capability system**: the extension declares required capabilities via the SDK's `ExtensionCapability` enum (20 built-ins + `Custom(String)` names such as `network` / `filesystem:read` / `ml-model`); the platform validates every capability call at runtime and rejects undeclared ones. The runner additionally applies resource limits to the extension process (memory cap / CPU affinity / nice level, see the runner's `resource_limits.rs`).
 
 See [Extension SDK](./3-extension-sdk.md) for macro usage and lifecycle.
 
@@ -187,4 +235,4 @@ All storage access goes through `neomind-storage`'s repository pattern — no ot
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

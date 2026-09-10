@@ -72,7 +72,7 @@ pub struct DeviceTypeTemplate {
 pub struct MetricDefinition {
     pub name: String,           // metric name (supports dot notation, e.g. "values.temperature")
     pub display_name: String,   // display name
-    pub data_type: MetricDataType, // Float / Integer / Boolean / String / Binary / Enum
+    pub data_type: MetricDataType, // Float / Integer / Boolean / String / Array / Binary / Enum
     pub unit: String,           // unit (e.g. "°C", "%", "hPa")
     pub min: Option<f64>,       // range (optional)
     pub max: Option<f64>,
@@ -138,7 +138,7 @@ Device publishes to any MQTT topic
 Matches a known device type? ─── yes ──→ Device created (auto-registered)
         │ no
         ▼
-Draft created (collects 5 samples)
+Draft created (collects up to 10 samples by default, adjustable via --max-samples)
         │
         ▼
 User approves via Web UI or CLI ─── approve ──→ Registered as a device
@@ -175,13 +175,12 @@ neomind device create \
   --name "Temp/Humidity Sensor" \
   --device-type dht22_sensor \
   --adapter-type mqtt \
-  --json '{"connection_config": {"telemetry_topic": "device/dht22/living-room/uplink"}}'
+  --config '{"telemetry_topic": "device/dht22/living-room/uplink"}'
 
 # Webhook device
 neomind device create \
   --name "Webhook Device" \
-  --adapter-type webhook \
-  --json '{"connection_config": {}}'
+  --adapter-type webhook
 
 # Get webhook URL
 neomind device webhook-url <DEVICE_ID>
@@ -223,6 +222,14 @@ neomind device types create \
 # View type details
 neomind device types get <TYPE_ID>
 ```
+
+### Command Template: `payload_template` and `request_id` Auto-Injection
+
+`CommandDefinition` supports **`payload_template`** — a template (`${param}` placeholders) defining the complete structure of the downlink JSON, with placeholders replaced by actual parameters at send time, so the device receives the native message format it expects (rather than the platform's generic envelope). Parameters not present in the template are ignored.
+
+When a template references **`${request_id}`**, the platform **auto-injects a unique request ID** before sending (`req-<UUID>`; no need to declare it in `parameters`). The device only needs to echo the same value back in its response to correlate request-response, without maintaining its own sequence numbers.
+
+> For full field documentation, see the [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes). The repo currently maintains **128 device-type templates** (`types/` holds 129 files including `index.json`), of which **126 are Milesight LoRaWAN sensors**; the NE301/NE101 camera types are `mode: full` (NE301's commands carry a `payload_template`) and can be imported directly for reference.
 
 ## REST API Quick Reference
 
@@ -343,4 +350,4 @@ while True:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

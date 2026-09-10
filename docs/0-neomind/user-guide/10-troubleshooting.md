@@ -36,7 +36,9 @@ systemctl status neomind.service
 # 1. 是否设了环境变量？（设了错误值也会导致 401——auto-auth 被完全跳过）
 echo $NEOMIND_API_KEY
 
-# 2. 当前目录是否在项目根？（auto-auth 需要相对路径 data/api_keys.redb）
+# 2. CLI 能否定位到数据目录？
+#    auto-auth 依次尝试：NEOMIND_DATA_DIR 指定目录 → 平台用户数据目录
+#    （存在 api_keys.redb 时）→ 当前目录下的 data/（项目根兜底）
 ls data/api_keys.redb
 ```
 
@@ -45,16 +47,18 @@ ls data/api_keys.redb
 | 场景 | 修复 |
 |------|------|
 | 设了错误的 `NEOMIND_API_KEY`（如文档占位符） | `unset NEOMIND_API_KEY`，然后在项目根目录运行 |
-| 不在项目根目录 | `cd /path/to/neomind && neomind device list` |
+| 不在项目根目录 | `cd /path/to/neomind && neomind device list`，或设 `NEOMIND_DATA_DIR` 指向数据目录，或先 `neomind login` 保存凭据 |
 | 需要跨目录使用 | 从 Server 启动输出获取真实 Key，`export NEOMIND_API_KEY=nmk_真实Key` |
 | 远程连接另一台 Server | 从那台 Server 的启动输出取 Key |
 | auto-auth 之前能用，突然 401 | **重启 Server**：CLI 直接操作 `api_keys.redb` 可能导致 redb 锁冲突 |
 
-> ⚠ **关键**：
-> - `NEOMIND_API_KEY` 一旦设置（即使是占位符），auto-auth 就被完全跳过。先 `unset` 再试。
-> - 不要在 Server 运行时执行 `neomind api-key create`——会与 Server 的 redb 锁冲突。如需重建 Key，先停 Server，再创建，再启动。
+:::warning 关键
+`NEOMIND_API_KEY` 一旦设置（即使是占位符），auto-auth 就被完全跳过。先 `unset` 再试。
 
-> 完整 API Key 配置流程见 [安装与配置 → CLI API Key 配置](./1-install-setup.md#cli-api-key-配置)。
+不要在 Server 运行时执行 `neomind api-key create`——会与 Server 的 redb 锁冲突。如需重建 Key，先停 Server，再创建，再启动。
+:::
+
+> 完整 API Key 配置流程见 [CLI 与 API Key](./11-cli-api-keys.md)。
 
 ## 服务启动
 
@@ -73,7 +77,7 @@ netstat -ano | findstr 9375   # Windows
 **修复**：
 - 杀掉占用进程：`kill <PID>`
 - 或换端口启动：`neomind serve --port 9376`
-- 或修改 systemd 服务的 `PORT` 环境变量后 `systemctl restart neomind`
+- 一键部署换端口：重新运行安装脚本并以 `PORT=xxxx` 指定（端口写入 systemd 单元的 `--port` 参数）
 
 ### 启动报 "permission denied" 写 `data/`
 
@@ -89,6 +93,8 @@ sudo chmod -R u+rwX /var/lib/neomind
 ```
 
 ## LLM / Ollama
+
+> 相关页面：[配置 LLM 后端](./2-configure-llm.md)（后端类型、内置模型、思考力度）。
 
 ### AI Chat 不响应 / 一直转圈
 
@@ -141,9 +147,11 @@ curl http://localhost:11434/api/chat -d '{
 
 **原因**：用纯文本云端模型（如 DeepSeek-V3、Qwen 文本版）发图。NeoMind 会按能力开关决定是否发图，但若自动探测误判，仍可能出错。
 
-**修复**：在后端详情页**关闭** Multimodal 开关，或换用支持视觉的云端模型（`gpt-4o` / `claude-3-5-sonnet` / `qwen-vl` / `glm-4v`）。
+**修复**：在后端详情页**关闭** Multimodal 开关，或换用支持视觉的云端模型（`gpt-4o` / `claude-sonnet-4-6` / `qwen-vl` / `glm-4v`）。
 
 ## 设备 / MQTT
+
+> 相关页面：[设备接入](./3-onboard-device.md)（接入方式、审批流程、外部 Broker）。
 
 ### 设备发送了数据，但 NeoMind 里看不到
 
@@ -198,6 +206,8 @@ neomind system info
 
 ## 扩展
 
+> 相关页面：[扩展管理](./9-extensions.md)（安装方式、状态生命周期、扩展级故障排查表）。
+
 ### 扩展安装后状态显示 `Crashed` / 循环重启
 
 **说明**：NeoMind 有**崩溃循环保护**——扩展连续崩溃会被自动禁用，避免拖垮服务端。
@@ -206,7 +216,7 @@ neomind system info
 
 ```bash
 # 看扩展日志
-ls data/logs/                # 扩展日志在 这里
+ls data/logs/                # 服务端日志；扩展实时日志在「扩展详情页 → Logs」标签查看
 neomind extension list       # 看扩展状态
 neomind extension info <ID>   # 看具体扩展的最近错误
 ```
@@ -222,7 +232,11 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 - 扩展的 command/metric 未正确声明 → 看扩展的 manifest
 - 扩展进程在跑但没发布数据 → 查扩展日志
 
+扩展级故障排查对照表（安装失败、Crash Loop、超时等）见 [扩展管理 — 故障排查](./9-extensions.md#故障排查)。
+
 ## 仪表板 / 前端
+
+> 相关页面：[使用仪表板](./4-use-dashboard.md)（组件库、分享、移动端）。
 
 ### 仪表板组件一直转圈、不显示数据
 
@@ -239,7 +253,7 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 数据目录在哪里？
 
-默认 `/var/lib/neomind`（一键部署）、`~/.neomind`（自定义）、项目根 `data/`（开发模式）。可用 `NEOMIND_DATA_DIR` 环境变量覆盖。
+一键部署在 `/var/lib/neomind`（数据位于其 `data/` 子目录）；开发 / 手动模式默认在项目根 `data/`。可用 `NEOMIND_DATA_DIR` 环境变量覆盖为自定义目录。
 
 主要文件：
 
@@ -256,8 +270,14 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 如何备份？
 
+**内置备份（0.9.21+，推荐）**——计划与保留份数在 [系统设置 → Preferences](./12-settings.md#备份计划) 中配置；平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
+
+- **设置 → 偏好设置** 中配置备份计划（开关 / 间隔 6 小时 ~ 7 天 / 保留份数），也可点击「立即备份」
+- API：`POST /api/settings/backup`（立即备份）、`GET /api/settings/backups`（列出）
+- 恢复为手动操作：停服 → 用备份目录覆盖数据文件 → 启动
+
 ```bash
-# 简单粗暴：停服 + 复制目录
+# 无内置备份的老版本：停服 + 复制目录
 sudo systemctl stop neomind
 sudo tar czf neomind-backup-$(date +%F).tar.gz /var/lib/neomind
 sudo systemctl start neomind
@@ -292,4 +312,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

@@ -7,6 +7,8 @@ sidebar_label: "Core Concepts"
 
 # 核心概念
 
+> **5 分钟版**：设备通过 MQTT / Webhook 把数据接入 → 写入嵌入式存储（Telemetry）→ 数据转换生成派生指标 → 仪表板可视化、规则告警、AI Agent 分析，通知触达人员。扩展以独立进程提供额外能力（视觉 / 语音 / 协议桥接）。下面逐层展开。
+
 本文用面向用户的视角解释 NeoMind 的系统全貌。如果你要写代码，请看 [开发者架构文档](../developer-guide/2-architecture.md)。
 
 > 术语定义见 [术语表](./1-glossary.md)。
@@ -27,7 +29,7 @@ flowchart TB
         RULE["规则引擎<br/>事件驱动 · JSON"]:::core
         AGENT["AI Agent<br/>Think-Act-Observe"]:::ai
         WEBUI["Web UI<br/>仪表板 · AI Chat"]:::consumer
-        MSG["通知系统<br/>7 渠道路由"]:::consumer
+        MSG["通知系统<br/>7 类外部渠道"]:::consumer
 
         MQTT ==> STORE
         API ==> STORE
@@ -35,7 +37,7 @@ flowchart TB
         TRANSFORM -.->|"回写指标"| STORE
         STORE -.-> RULE
         STORE -.-> AGENT
-        RULE -.->|"Notify"| MSG
+        RULE -.->|"notify"| MSG
         STORE -.->|"SSE 推送"| WEBUI
     end
 
@@ -69,8 +71,8 @@ flowchart TB
 | **Telemetry 存储** | — | redb 嵌入式 | 时序遥测数据，零配置持久化，支持聚合查询 |
 | **数据转换 (Transform)** | — | JavaScript (Boa 引擎) 管道 | 原始数据 → 派生指标（单位换算、聚合、自定义公式），三级作用域 |
 | **规则引擎** | — | 事件驱动 | 数据写入即评估（零延迟），纯 JSON 定义条件 + 动作 |
-| **AI Agent** | — | LLM + CLI 工具链 | 自然语言理解、Think-Act-Observe 循环、定时/Cron/事件三种调度 |
-| **通知系统** | — | 7 种渠道路由 | Webhook · 邮件 · 飞书 · 钉钉 · 企业微信 · Slack · Telegram |
+| **AI Agent** | — | LLM + CLI 工具链 | 自然语言理解、Think-Act-Observe 循环、定时/Cron/事件/手动多种调度 |
+| **通知系统** | — | 7 种外部渠道路由 | Webhook · 邮件 · 飞书 · 钉钉 · 企业微信 · Slack · Telegram（另置应用内消息中心） |
 | **扩展系统 (Extension)** | — | 进程隔离 + FFI | 视觉 AI (YOLO/OCR)、设备桥接 (Modbus/OPC-UA)，独立进程不影响主服务 |
 
 :::info 为什么不用外部依赖？
@@ -115,7 +117,7 @@ flowchart LR
 发现 topic：{discovery_prefix}/announce
 ```
 
-设备发布到上行 topic 的 JSON 会被自动解析为遥测数据写入存储。支持 [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) 协议——设备发一条 announce 消息即可自动注册。
+设备发布到上行 topic 的 JSON 会被自动解析为遥测数据写入存储（手动添加设备时按此约定；已识别类型或走自动发现的设备也可以向任意 topic 发布，数据会先进入**待审批列表**，确认后完成注册）。支持 [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) 协议——设备发一条 announce 消息即可自动注册。
 
 **Webhook（无状态）** — 适合一次性推送或不方便跑 MQTT 客户端的场景：
 
@@ -147,27 +149,28 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 写入的数据可通过 REST API 查询，仪表板、规则、Agent 都走同一套查询接口：
 
 ```bash
-# 查询最近 1 小时的温度数据
-curl "http://localhost:9375/api/telemetry?source=device:demo-sensor:temperature&start=-1h&end=now"
+# 查询指定时间范围的温度数据（start/end 为 Unix 秒）
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400"
 
-# 按 5 分钟时间桶聚合（avg/min/max/sum/count）
-curl "http://localhost:9375/api/telemetry/aggregate?source=device:demo-sensor:temperature&interval=5m&function=avg&start=-24h"
+# 按时间桶聚合（aggregate=avg/min/max/sum/count，配合 bucketed）
+curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=temperature&start=1788768000&end=1788854400&aggregate=avg&bucketed=true"
 ```
 
 | 参数 | 说明 |
 |------|------|
-| `source` | DataSourceId（`{type}:{id}:{field}`） |
-| `start` / `end` | 时间范围，支持 Unix 毫秒或相对值（`-1h` / `now`） |
-| `interval` | 聚合时间桶（如 `5m` / `1h` / `1d`） |
-| `function` | 聚合函数（`avg` / `min` / `max` / `sum` / `count`） |
+| `source` | 数据源（`{type}:{id}`，如 `device:demo-sensor`） |
+| `metric` | 指标名（与 `source` 均为必填） |
+| `start` / `end` | 时间范围（Unix 秒） |
+| `aggregate` | 聚合函数（`avg` / `min` / `max` / `sum` / `count`） |
+| `bucketed` | 是否按时间桶返回聚合结果 |
+| `offset` | 跳过最新 N 条（服务端分页） |
 | `limit` | 返回点数上限，分页 |
 
 ### 数据保留与清理
 
 Telemetry 默认**永久保留**，但可配置自动清理策略（Settings → System → Retention）：
 
-- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）
-- **按容量**：存储超过阈值时删除最旧数据
+- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）；普通指标与图像类数据可分别设置保留期，清理周期亦可配置
 
 策略由后台任务定期执行，不影响实时写入性能。
 
@@ -203,17 +206,17 @@ flowchart LR
 ```javascript
 // 示例：温度单位换算 + 露点计算
 // input = { temperature: 25.6, humidity: 60 }
-function transform(input) {
-  const temp = input.temperature;
-  const humidity = input.humidity;
-  // 露点温度公式
-  const dewPoint = temp - (100 - humidity) / 5;
-  return {
-    temperature_f: temp * 9 / 5 + 32,   // 华氏温度
-    dew_point: Math.round(dewPoint * 10) / 10,
-    comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
-  };
-}
+// 直接写语句即可（用 return 返回对象）；单键对象（如 {"value": 42}）会自动解包，
+// 完整原始输入始终可通过 input_raw 访问
+const temp = input.temperature;
+const humidity = input.humidity;
+// 露点温度公式
+const dewPoint = temp - (100 - humidity) / 5;
+return {
+  temperature_f: temp * 9 / 5 + 32,   // 华氏温度
+  dew_point: Math.round(dewPoint * 10) / 10,
+  comfort: humidity < 50 ? "dry" : humidity < 70 ? "comfortable" : "humid"
+};
 ```
 
 转换后的派生指标以 `transform:{output_prefix}:{field}` 格式写入 Telemetry，和原始设备数据一样可以被仪表板、规则引擎和 Agent 消费。
@@ -248,7 +251,7 @@ YOLO 扩展因模型加载失败 panic？主服务和其他扩展完全不受影
 
 **2. 能力声明（Capability）** — 启动时声明，未声明即拒绝
 
-扩展在元数据中声明需要的 Capability，运行时由主进程逐项校验。14 种内置能力涵盖设备读写、存储查询、事件发布、Agent/规则触发等：
+扩展在元数据中声明需要的 Capability，运行时由主进程逐项校验。内置共 **20 种**：下表 14 种基础能力，外加 6 个 chat 流式系列（`chat_stream` / `chat_stream_cancel` / `chat_stream_cancel_turn` / `chat_session_open` / `chat_session_send` / `chat_session_close`）。完整说明以 [Extension SDK](../developer-guide/3-extension-sdk.md) 为准：
 
 | 类别 | Capability | 说明 |
 |------|-----------|------|
@@ -263,7 +266,7 @@ YOLO 扩展因模型加载失败 panic？主服务和其他扩展完全不受影
 
 **3. 懒加载** — ML 模型首次调用才加载，加载后常驻
 
-50MB 的 YOLOv8n 模型不在启动时占内存——第一次执行检测命令时才加载到内存，之后常驻供后续调用使用。
+约 12MB 的 YOLOv8n 模型不在启动时占内存——第一次执行检测命令时才加载到内存，之后常驻供后续调用使用。
 
 **4. 跨进程通信** — 用 serde JSON 序列化，调试友好
 
@@ -317,15 +320,16 @@ NeoMind 的 AI 共用同一个 Think-Act-Observe 循环，但有两种触发方�
 
 **AI Chat** 偏向交互——用户提问，AI 实时调用工具并流式回复，支持上传图片做多模态分析；**AI Agent** 偏向自主——按计划或事件触发，后台独立完成任务并在 Journal 记录经验。两者共享同一套工具（neomind CLI + 扩展 commands）。
 
-### 三种调度方式（仅 AI Agent）
+### 调度方式（仅 AI Agent）
 
-AI Agent 支持三种调度触发：
+AI Agent 支持三种自动调度触发，另有 Manual（手动调用）模式：
 
 | 调度方式 | 触发条件 | 典型场景 |
 |---------|---------|---------|
 | **Interval** | 固定间隔（如每 5 分钟） | "每隔一段时间巡检设备状态" |
-| **Cron** | Cron 表达式（如 `0 9 * * 1-5`） | "工作日每天早上 9 点生成日报" |
+| **Cron** | Cron 表达式（如 `0 0 9 * * 1-5`） | "工作日每天早上 9 点生成日报" |
 | **Event** | 数据事件触发（规则匹配/指标变化） | "温度骤升时立即分析原因" |
+| **Manual** | 手动调用（invoke / 被其他 Agent 委托），不参与自动调度 | "按需执行的一次性分析任务" |
 
 ### CLI 优先架构
 
@@ -363,7 +367,7 @@ Agent 的核心是一个 **Think-Act-Observe 循环**，最多 30 轮（可配�
 
 **保护机制**：
 - 全局超时：5 分钟（300 秒）强制终止
-- 工具超时：Shell 30 秒，扩展 300 秒，HTTP 10 秒
+- 工具超时：Shell 默认 30 秒（最长 600 秒），Web 请求 15 秒，扩展 300 秒
 - 并发控制：全局 10 个并行执行，每个 LLM 后端 2 个
 - 上下文压缩：超过窗口大小时按优先级压缩历史消息（系统提示永不丢弃）
 
@@ -382,17 +386,17 @@ Agent 的核心是一个 **Think-Act-Observe 循环**，最多 30 轮（可配�
 ```json
 {
   "name": "高温告警",
+  "trigger": { "trigger_type": "data_change" },
   "condition": {
+    "condition_type": "comparison",
     "source": "device:demo-sensor:temperature",
-    "operator": "GreaterThan",
+    "operator": "greater_than",
     "threshold": 30.0
   },
   "actions": [
-    { "type": "Notify", "message": "温度超过 30°C！", "severity": "Critical" },
-    { "type": "TriggerAgent", "agent_id": "analyzer" }
-  ],
-  "trigger": "event",
-  "cooldown": 60
+    { "type": "notify", "message": "温度超过 30°C！", "severity": "critical" },
+    { "type": "trigger_agent", "agent_id": "analyzer" }
+  ]
 }
 ```
 
@@ -476,4 +480,4 @@ NeoMind 也支持云端 LLM（OpenAI / Anthropic / GLM / DeepSeek 等）。核�
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

@@ -16,11 +16,11 @@ Three core surfaces of NeoMind — manage your devices, visualize your data, and
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="https://resources.camthink.ai/NeoMind/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 
@@ -34,7 +34,7 @@ NeoMind uses a **single-process, multi-layer** architecture — all core capabil
 flowchart TB
     CLIENT["Web · Desktop · CLI"]
     CHAT["Chat & Agents"]
-    LLM["LLM Backends<br/>Ollama · OpenAI · Claude · GLM"]
+    LLM["LLM Backends<br/>Built-in Models · Ollama · OpenAI · Claude · GLM"]
     MEM["Memory & Skills"]
 
     API["REST API :9375"]
@@ -99,10 +99,11 @@ flowchart TB
 ## Core Capabilities
 
 ### AI Intelligence
+- **Built-in local AI, zero setup** — one-click curated model download in the wizard (Qwen 3.5 / Gemma 4 etc.), no API key, no Ollama; GGUF import supported
 - **Natural Language Chat** — Conversational interface to query and control all connected devices
 - **Autonomous Agents** — Scheduled or event-driven AI agents that monitor, analyze, and act on device data independently
-- **10+ LLM Backends** — Ollama, OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
-- **Memory System** — Multi-tier memory (Profile / Knowledge / Tasks / Evolution) with automatic extraction and compression
+- **10+ LLM Backends** — Ollama, llama.cpp (with the platform's built-in local models, one-click download and ready to use), OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
+- **Memory System** — Cross-session memory (user profile / knowledge base + execution journals), auto-extracted and persisted after each conversation
 - **Skill System** — YAML + Markdown skill files that guide agent behavior for specific scenarios
 - **Multimodal** — Image upload and visual analysis support
 
@@ -127,10 +128,21 @@ flowchart TB
 - **Dashboard Sharing** — Public links with expiration
 - **Custom Components** — Build and publish your own dashboard widgets
 
+### Voice & Multimodal
+- **Real-time voice assistant** — mic → VAD → ASR → LLM → TTS, fully local end-to-end
+- **ASR / TTS** — SenseVoice 5-language ASR; three interchangeable TTS engines incl. voice cloning
+- **Vision AI extensions** — object detection, OCR, face recognition, visual grounding, video VLM
+
+### Industry & Protocol Integrations
+- **Industrial protocols** — Modbus / OPC-UA / BACnet bridges for PLCs, meters, and BACnet controllers
+- **LoRaWAN** — ChirpStack / TTN sensor auto-discovery with downlink control
+- **Home Assistant** — two-way sync with 3000+ smart-home entities
+
 ### Notification & Data Push
-- **7 Notification Channels** — Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu
+- **7 Notification Channels** — Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu, plus the in-app notification center
+- **IM Bridges** — Chat with AI agents directly in Telegram / Feishu (independent from the notification channels)
 - **Data Push** — Forward telemetry data to external systems via Webhook or MQTT
-- **Delivery Tracking** — Exponential backoff retry, delivery history, and log management
+- **Delivery Tracking** (Data Push) — Exponential backoff retry, delivery history, and log management
 - **Message Deduplication** — Prevent notification storms from high-frequency triggers
 
 ### Platform
@@ -177,4 +189,6 @@ NeoMind is a modular ecosystem with specialized repositories for each concern:
 
 ---
 
-*Last updated: 2026-06-15*
+*Applies to: v0.9.x (Sep 2026)*
+
+*Last updated: 2026-09-08*

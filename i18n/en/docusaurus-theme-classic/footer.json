@@ -30,9 +30,5 @@
   "link.item.label.GitHub": {
     "message": "GitHub",
     "description": "The label of footer link with label=GitHub linking to https://github.com/camthink-ai"
-  },
-  "copyright": {
-    "message": "Copyright © 2025 CamThink Technology Co., Ltd",
-    "description": "The footer copyright"
   }
 }

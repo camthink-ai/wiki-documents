@@ -41,14 +41,14 @@ xattr -cr /Applications/NeoMind.app
 
 ### 首次启动向导
 
-安装后首次启动，NeoMind 会进入**配置向导**，仅需两步：
+安装后首次启动，NeoMind 会进入**配置向导**，共四步（可随时跳过，稍后在设置中补配）：
 
-1. **创建管理员账号** — 设置用户名与密码，时区自动检测
-2. **完成** — 进入主界面，页面上会给出快速上手指引（聊天、配置 LLM、浏览功能）
+1. **欢迎** — 平台简介与文档入口
+2. **LLM 后端** — 配置 AI 模型：支持**内置模型一键下载**（无需自备 API Key）、接入自定义后端（OpenAI/Ollama 等）或 CLI 快速配置
+3. **设备连接** — 连接/审批设备
+4. **完成** — 进入主界面
 
-> LLM 后端配置已**延后**——当你首次使用 AI Chat 或创建 Agent 时，系统会引导你前往「设置」页面配置。详见 [配置 LLM 后端](./2-configure-llm.md)。
-
-向导完成后即进入主界面。
+> 跳过 LLM 配置也没关系——首次使用 AI Chat 或创建 Agent 时，系统会再次引导。内置本地模型的详细说明见 [配置 LLM 后端](./2-configure-llm.md)。
 
 ## 服务器一键部署（Linux / macOS）
 
@@ -71,7 +71,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `VERSION` | 最新版 | 指定版本，如 `0.8.0` |
+| `VERSION` | 最新版 | 指定版本，如 `0.9.23` |
 | `INSTALL_DIR` | `/usr/local/bin` | 二进制安装目录 |
 | `DATA_DIR` | `/var/lib/neomind` | 数据目录（redb 文件、日志等） |
 | `WEB_DIR` | `/var/www/neomind` | 前端静态文件目录 |
@@ -84,7 +84,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 ```bash
 # 指定版本
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.8.0 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
 
 # 自定义目录
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -95,22 +95,46 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
   | USE_NGINX=true sh
 ```
 
+### 升级
+
+- **在线升级（推荐）**：`设置 → 关于` 会自动检查新版本（每 24 小时一次，有更新时右上角出现提示图标），点击即可在线升级——系统自动下载、校验、备份并重启，全程无需 SSH（需要 install.sh 部署的辅助 systemd 单元，老安装重新运行一次安装脚本即可获得）。
+- **重新运行安装脚本**：`VERSION=0.9.23 sh install.sh` 指定版本重装。
+- **Docker**：`docker compose pull && docker compose up -d`。
+
+数据目录自动备份见 [故障排查](./10-troubleshooting.md)。
+
 ## Docker 部署
 
+官方发布多架构编译镜像（amd64 + arm64，每次发版自动构建），**无需克隆仓库、无需 Rust 工具链**：
+
 ```bash
-git clone https://github.com/camthink-ai/NeoMind.git
-cd NeoMind
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+或使用 Docker Compose（自动拉取 `camthink/neomind:latest`）：
+
+```bash
+mkdir neomind && cd neomind
+curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-compose.yml
 docker compose up -d
 ```
 
-单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。
+单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。镜像内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM。
+
+| 镜像 | 说明 |
+|------|------|
+| `camthink/neomind:latest` | 跟随最新发布 |
+| `camthink/neomind:<版本>` | 锁定版本，如 `camthink/neomind:0.9.22` |
 
 | 端口 | 用途 |
 |------|------|
 | `9375` | HTTP API + Web UI + WebSocket |
 | `1883` | MQTT Broker（设备接入） |
 
-可通过 `.env` 自定义端口与其他参数（复制 `.env.example` 开始）：
+可通过 `.env` 自定义端口与其他参数（从[仓库](https://github.com/camthink-ai/NeoMind/blob/main/.env.example)复制 `.env.example` 开始）：
 
 ```bash
 cp .env.example .env
@@ -125,14 +149,14 @@ docker compose up -d
 适用于无法运行一键脚本的环境（如离线服务器、特殊目录结构）：
 
 ```bash
-VERSION=0.8.0  # 替换为目标版本号
+VERSION=0.9.23  # 替换为目标版本号
 
 # 按平台选择（amd64 或 arm64）
 ARCH=amd64  # Linux x86_64；arm64 设备改为 arm64
 
 # 下载
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}.tar.gz
-wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web-${VERSION}.tar.gz
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web.tar.gz
 
 # 安装二进制
 tar xzf neomind-server-linux-${ARCH}.tar.gz
@@ -141,7 +165,7 @@ sudo install -m 755 neomind-extension-runner /usr/local/bin/
 
 # 部署前端
 sudo mkdir -p /var/www/neomind
-sudo tar xzf neomind-web-${VERSION}.tar.gz -C /var/www/neomind
+sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 
 # 启动
 ./neomind serve
@@ -195,20 +219,21 @@ cd web && npm run tauri:build
 
 ## 首次配置（所有部署方式）
 
-无论哪种安装方式，首次访问 Web UI 只需一步：
+无论哪种安装方式，首次访问 Web UI 的流程一致：**创建管理员账号**（首个用户自动成为管理员，时区自动检测）→ 进入[四步配置向导](#首次启动向导)（欢迎 → LLM 后端 → 设备连接 → 完成，每一步都可跳过）。
 
-1. **创建管理员账号** — 首次启动会进入设置向导，创建的第一个账号即管理员，时区自动检测
+跳过的项目随时补配：[配置 LLM 后端](./2-configure-llm.md)、[接入设备](./3-onboard-device.md)。完成后即可用 [AI Chat](./5-ai-chat.md) 对话、搭 [仪表板](./4-use-dashboard.md)、建自动化规则。
 
 :::note 自助注册默认关闭
 `POST /api/auth/register` 出于安全考虑默认关闭（服务器默认监听 `0.0.0.0`，开放的注册意味着局域网内任何设备都能创建账号）。添加用户请由管理员在 **Settings → Users** 中创建（或调用 `POST /api/users`）；如确需开放自助注册，管理员可调用 `PUT /api/settings/registration` 开启。
 :::
 
-创建完成后即进入主界面。LLM 后端配置和设备接入已延后——你可以在需要时随时进行：
+## 用户与角色
 
-- **[配置 LLM 后端](./2-configure-llm.md)** — 使用 AI Chat 前需配置
-- **[接入设备](./3-onboard-device.md)** — 通过 onboarding 向导连接相机或传感器
-
-完成后即可使用 [AI Chat](./5-ai-chat.md) 与设备对话、搭建 [仪表板](./4-use-dashboard.md) 或创建自动化规则。
+- **首个管理员**来自首次启动向导，拥有全部权限
+- **自注册默认关闭**（安全设计）：新用户由管理员通过 API 创建（`POST /api/users`，仅管理员可调用）；如需开放自助注册，可调用 `PUT /api/settings/registration` 开启
+- **角色**：admin（全部权限）/ user（日常操作）/ viewer（只读）
+- **离线修复**：管理员账号角色异常时，可在服务器上执行 `neomind user set-role <用户名> admin` 恢复（无需 API 在线）
+- 改密码 / 删除用户会**立即吊销**该用户的所有会话
 
 ## 验证安装
 
@@ -216,8 +241,8 @@ cd web && npm run tauri:build
 # 检查后端进程与端口
 curl http://localhost:9375/api/health
 
-# 查看 API 文档（Swagger）
-# 浏览器打开 http://localhost:9375/api/docs
+# 验证 API 可达
+# 浏览器打开 http://localhost:9375 可看到 Web UI
 
 # systemd 状态（一键部署）
 systemctl status neomind.service
@@ -241,87 +266,71 @@ NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可�
 
 ## CLI API Key 配置
 
-NeoMind Server 首次启动时会**自动生成一个默认 API Key**（格式 `nmk_xxx`），用于 CLI 和外部系统认证。所有 `neomind` CLI 命令都需要有效 Key 才能调用 Server API。
+`neomind` CLI 与外部系统调用 Server API 需要有效的 API Key（首次启动自动生成，格式 `nmk_xxx`）。本地开发在项目根目录运行 CLI 可免配置（auto-auth）。
 
-:::tip 本地开发：无需任何配置
-在**项目根目录**（即 `data/` 所在目录）运行 CLI 时，CLI 会自动从 `data/api_keys.redb` 读取 Key（auto-auth），无需手动获取或设置任何变量。
+完整的获取、配置与验证流程见 **[CLI 与 API Key](./11-cli-api-keys.md)**。
 
-```bash
-cd /path/to/neomind    # 切到项目根目录
-neomind device list     # 直接可用
-```
+## 环境变量参考
 
-> 注意：auto-auth 读取的是**相对路径** `data/api_keys.redb`，因此必须在项目根目录执行。`NEOMIND_DATA_DIR` 环境变量**不影响** auto-auth 的路径解析。
+运行时常用环境变量（按用途分组，全部经源码核实）：
+
+**核心路径与服务**
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_DATA_DIR` | 数据目录（redb、扩展、备份等；默认 `./data` 或平台数据目录） |
+| `NEOMIND_PORT` / `--port` | HTTP API 端口（默认 9375） |
+| `NEOMIND_HOST` | 监听地址（默认 0.0.0.0） |
+| `NEOMIND_WEB_DIR` | 前端静态文件目录（默认 `/var/www/neomind`） |
+| `NEOMIND_LOG_JSON` / `RUST_LOG` | 日志格式与级别 |
+
+**HTTPS 内置加密代理（0.9.21+）**
+
+不部署 nginx 时，可让 NeoMind 自带 rustls TLS 前置代理（转发到明文监听）：
+
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_TLS_PORT` | HTTPS 监听端口（默认 9376） |
+| `NEOMIND_TLS_CERT` / `NEOMIND_TLS_KEY` | PEM 证书与私钥路径 |
+
+:::note 与 nginx 的取舍
+内置代理适合单机快速启用 HTTPS；但所有客户端共享同一个限流桶，且上游假设默认端口。生产环境多客户端建议仍用 nginx 并做按客户端限流。
 :::
 
-### 何时需要手动配置 Key
+**LLM 与模型**
 
-| 场景 | 是否需要手动 Key |
-|------|-----------------|
-| 本地开发，从项目根运行 CLI | ❌ 不需要（auto-auth） |
-| 从 `web/`、`/tmp` 等其他目录运行 CLI | ✅ 需要 |
-| 远程连接另一台机器上的 Server | ✅ 需要 |
-| 桌面应用内嵌 CLI | ❌ 不需要（自动配置） |
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_BUILTIN_LLM` / `NEOMIND_BUILTIN_MODEL_PATH` / `NEOMIND_BUILTIN_MODEL_NGL` | 内置 llama.cpp 运行时与模型控制 |
+| `NEOMIND_BUILTIN_LLM_CTX` / `NEOMIND_BUILTIN_LLM_PORT` | 上下文长度与监听端口 |
+| `NEOMIND_CATALOG_URL` | 内置模型目录地址（默认 camthink-ai/NeoMind-Runtimes） |
+| `NEOMIND_MAX_CONTEXT` | 覆盖默认上下文长度 |
+| `NEOMIND_TOOL_CONCURRENCY` | 工具调用并发数 |
 
-### 获取真实 API Key
+**扩展与安全**
 
-:::warning 文档中的 Key 是占位符
-本文所有 `nmk_xxx` 均为**示例占位符**，不可直接使用。你的真实 Key **仅在 Server 启动时输出到 stdout（终端标准输出）**，不会写入日志文件。`neomind api-key list` 只显示遮蔽值（`nmk_****`），无法获取完整 Key。
-:::
+| 变量 | 说明 |
+|------|------|
+| `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | 扩展市场源覆盖 |
+| `NEOMIND_STRICT_PACKAGE_SHA256` | 设为 1 时拒绝无校验和的扩展包 |
+| `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | 扩展进程工作线程与 FFI 超时 |
+| `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | 会话签名与静态加密密钥（默认自动生成于 data/） |
+| `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | 备份计划初始值（设置页保存后以设置为准） |
 
-Server 启动时在终端打印包含 Key 的 banner：
+> 完整清单以源码为准（`grep -r 'env::var' crates/`）；上表为部署运维常用子集。
 
-```
-╔═══════════════════════════════════════════════╗
-║ ⚠ DEFAULT API KEY GENERATED                    ║
-╠═══════════════════════════════════════════════╣
-║ Key: nmk_a1b2c3d4....（你的真实 Key）         ║
-║ Name: Default API Key                          ║
-╚═══════════════════════════════════════════════╝
-```
+## 生产部署检查清单
 
-错过了启动输出？按部署方式找回：
+从试用走向生产时，按此清单逐项确认：
 
-| 部署方式 | 查找方法 |
-|---------|---------|
-| **开发模式**（`neomind serve`） | 在启动 Server 的终端窗口往上滚动 |
-| **Linux systemd** | `journalctl -u neomind.service \| grep 'nmk_'` |
-| **Docker** | `docker logs neomind 2>&1 \| grep 'nmk_'` |
-| **手动 / nohup** | `grep 'nmk_' /path/to/neomind.log`（需启动时重定向了 stdout） |
-| **找不到** | 重启 Server 并观察终端输出：`neomind serve 2>&1 \| head -30` |
-
-### 设置环境变量
-
-获取真实 Key 后，设为环境变量即可在任意目录使用 CLI：
-
-```bash
-# 临时（当前终端会话）
-export NEOMIND_API_KEY=nmk_你的真实Key
-
-# 永久（写入 shell 配置）
-echo 'export NEOMIND_API_KEY=nmk_你的真实Key' >> ~/.zshrc   # macOS
-source ~/.zshrc
-```
-
-:::warning 设错比不设更糟
-`NEOMIND_API_KEY` 一旦设置（即使是错误值），CLI 就**不再尝试 auto-auth**。如果之前设了错误的值，必须先清除：
-
-```bash
-unset NEOMIND_API_KEY    # 清除后，回到项目根目录即可恢复 auto-auth
-```
-:::
-
-### 验证
-
-```bash
-# 本地：在项目根目录直接运行
-neomind device list
-
-# 跨目录：设了正确的 NEOMIND_API_KEY 后
-neomind dashboard list
-```
-
-如果报 401，见 [故障排查 → CLI 报 401](./10-troubleshooting.md#cli-命令报-401-unauthorized)。
+- **[备份](./10-troubleshooting.md#如何备份)** — 开启自动备份计划（设置 → Preferences），确认保留份数
+- **[数据保留](./12-settings.md#设备默认值与数据保留)** — 按业务需要设置遥测保留时长（默认永久，磁盘会持续增长）
+- **[用户与角色](#用户与角色)** — 自注册保持关闭，为运维/业务人员分别创建 user / viewer 账号
+- **HTTPS** — 前置 nginx 反向代理，只对外暴露 80/443（9375/1883 留在内网）
+- **[扩展市场源](./9-extensions.md)** — 国内网络切换镜像地址
+- **[在线升级](#升级)** — 确认 install.sh 的辅助 systemd 单元已安装（老安装重跑一次脚本）
+- **时区** — 确认系统时区正确，规则 cron 与数据时间戳都依赖它（设置 → Preferences）
+- **监控** — 接入 Prometheus 抓取 `http://your-server:9375/metrics`（HTTP 请求计数、uptime、事件总线丢弃计数），别等出事才看日志
 
 ## 下一步
 
@@ -334,4 +343,4 @@ NeoMind 已跑起来了？接下来按顺序：
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

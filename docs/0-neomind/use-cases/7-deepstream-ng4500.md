@@ -45,7 +45,7 @@ flowchart LR
 
 | 物料 | 规格 | 用途 | 必需 |
 |------|------|------|------|
-| **NeoMind 平台** | v0.8.0+ | 运行在 Mac/PC，托管扩展 | ✅ |
+| **NeoMind 平台** | v0.9.0+ | 运行在 Mac/PC，托管扩展 | ✅ |
 | **deepstream 扩展** | v2.8.0+ | 远程桥接 + 事件路由 | ✅ |
 | **NG4500** | Jetson Orin NX/Nano/AGX，JetPack 6.x，DeepStream 7.1 | 跑 DeepStream sidecar | ✅ |
 | **RTSP 相机** | 2–32 路 720p/1080p | 视频源 | ✅ |
@@ -293,11 +293,11 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 安装与配置过程（打开扩展市场 → 安装扩展 → 切远程模式）：
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/01-open-market.png)
+![打开扩展市场](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/01-open-market.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/02-install.png)
+![安装 deepstream 扩展](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/02-install.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/03-config.png)
+![远程模式配置](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/03-config.png)
 
 ---
 
@@ -317,9 +317,9 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 添加 DeepStream 面板与视频流：
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/04-add-card.png)
+![添加 DeepStream 面板](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/04-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/05-add-stream.png)
+![添加 RTSP 视频流](https://resources.camthink.ai/wiki/img/neomind/use-cases/deepstream-ng4500/05-add-stream.png)
 
 ---
 
@@ -335,6 +335,8 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 ## 8. 典型场景
 
+### 场景一：园区周界入侵检测
+
 - **人流 / 车流统计**：多路出入口相机，实时计数与时段分布。
 - **越线计数**：在闸机 / 门口画越线，双向计数（进 / 出）。
 - **区域入侵告警**：ROI 圈定禁入区，目标进入即事件 → 自动化推送。
@@ -342,7 +344,22 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 ---
 
-## 9. 附录
+## 9. 故障排查
+
+### 故障排查速查
+
+部署与运行中最常踩的坑（均来自实战）：
+
+| 现象 | 原因 | 解决 |
+|------|------|------|
+| `nvinfer` 启动即 OOM | Orin 上运行时现编 INT8 引擎，tactic 选择阶段内存爆 | 用 `trtexec` **事先**编好 FP16 引擎，运行时只反序列化 |
+| sidecar 配置不生效 | `models_dir` 以 `/` 结尾，破坏 `os.path.dirname()` 解析 | 去掉尾斜杠 |
+| RTSP 拉流 UDP 花屏/无流 | 网络不允许 UDP | 强制 RTSP over TCP（`rtsp_transport: tcp`） |
+| sidecar 起不来 | iptable_raw 模块缺失 | 加载模块或按发行版说明启用 |
+| 扩展连不上 sidecar | WS 地址/端口不对 | 用 `hello` 握手报文确认 `rtsp_port`/`snapshot_port` |
+
+
+## 10. 附录
 
 ### 相关文档
 
@@ -355,4 +372,4 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 
 ---
 
-*最后更新: 2026-07-24*
+*最后更新: 2026-09-09*

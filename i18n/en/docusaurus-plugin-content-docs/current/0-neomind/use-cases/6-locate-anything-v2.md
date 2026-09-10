@@ -13,7 +13,7 @@ sidebar_label: "LocateAnything Grounding"
 
 ## 1. Solution Overview
 
-locate-anything-v2 is an **HTTP bridge extension**: the extension is a lightweight client, while the LocateAnything-3B model runs in a separate Python inference service (NVIDIA GPU recommended). The extension handles result post-processing (NMS, area filtering).
+locate-anything is an **HTTP bridge extension**: the extension is a lightweight client, while the LocateAnything-3B model runs in a separate Python inference service (NVIDIA GPU recommended). The extension handles result post-processing (NMS, area filtering).
 
 "Open-vocabulary" is its core: unlike YOLO, which only recognizes its pre-trained 80 classes, you describe what to find in any natural language and the model locates it zero-shot.
 
@@ -31,7 +31,7 @@ locate-anything-v2 is an **HTTP bridge extension**: the extension is a lightweig
 
 ```mermaid
 flowchart LR
-    IMG["Image + text description"] --> EXT["locate-anything-v2 extension<br/>HTTP client + NMS / area filter"]
+    IMG["Image + text description"] --> EXT["locate-anything extension<br/>HTTP client + NMS / area filter"]
     EXT -->|"HTTP"| SVC["LocateAnything-3B service<br/>NVIDIA GPU"]
     SVC -->|"boxes / points"| OUT["Overlay boxes / count / virtual metrics"]
 ```
@@ -42,8 +42,8 @@ flowchart LR
 
 | Item | Spec | Purpose | Required |
 |------|------|------|------|
-| **NeoMind platform** | v0.8.0+ | Extension host | ✅ |
-| **locate-anything-v2 extension** | v2.7.7+ | HTTP bridge + post-processing | ✅ |
+| **NeoMind platform** | v0.9.0+ | Extension host | ✅ |
+| **locate-anything extension** | v2.7.7+ | HTTP bridge + post-processing | ✅ |
 | **GPU inference server** | NVIDIA GPU | Run the LocateAnything Python service | ✅ |
 | **Local LLM** | Ollama, etc. | AI Chat backend | Optional |
 
@@ -140,13 +140,13 @@ curl http://127.0.0.1:9380/health
 
 Back on the NeoMind extension detail page, run **`check_status`** to confirm the model is loaded.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/01-status.png)
+![check_status confirming the model is loaded](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/01-status.png)
 
 ---
 
 ## 4. Install and Configure the Extension
 
-Go to the **Extensions** page, install **locate-anything-v2** from the marketplace, and in **Configuration** point `service_url` at the inference service (e.g. `http://<gpu-server-ip>:9380`).
+Go to the **Extensions** page, install **locate-anything** from the marketplace, and in **Configuration** point `service_url` at the inference service (e.g. `http://<gpu-server-ip>:9380`).
 
 | Parameter | Default | Description |
 |--------|------|------|
@@ -159,7 +159,7 @@ Go to the **Extensions** page, install **locate-anything-v2** from the marketpla
 
 > NMS and area filtering apply to `detect` / `ground` / `ground_gui`; `detect_text` and `point` are returned as-is. All three can be overridden per command via args.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/02-install-config.png)
+![Extension installation and configuration](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/02-install-config.png)
 
 ---
 
@@ -176,13 +176,13 @@ The extension ships a frontend component, **LocateCard** — add it to the Dashb
 
 > Under the hood it calls the same extension commands; the card just wraps image upload, parameters, and result visualization.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/03-add-card.png)
+![Adding the LocateAnything card](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/03-add-card.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/04-card-upload.png)
+![Uploading an image to the card](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/04-card-upload.png)
 
 ### 5.2 Integrate with the NE101 camera component
 
-In the [NE101 camera component](./4-camera-ocr.md), set `processingExtensionId` to **`locate-anything-v2`**:
+In the [NE101 camera component](./4-camera-ocr.md), set `processingExtensionId` to **`locate-anything`**:
 
 - Template `object_detection` → `detect` command (by `processingCategories`).
 - Template `grounding` → `ground` command (locate via `processingPhrase`).
@@ -207,13 +207,13 @@ Use `ground` + `phrase` to find / count anything, no training needed:
 
 Returns all matching locations and a count; pair with [Automation Rules](../user-guide/7-automation-rules.md) to trigger alerts.
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/05-result-1.png)
+![Grounding results](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/05-result-1.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/06-result-2.png)
+![Grounding results (2)](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/06-result-2.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/07-result-3.png)
+![Grounding results (3)](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/07-result-3.png)
 
-![](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything-v2/08-result-4.png)
+![Grounding results (4)](https://resources.camthink.ai/wiki/img/neomind/use-cases/locate-anything/08-result-4.png)
 
 ### 6.2 Defect / foreign-object localization
 
@@ -228,7 +228,7 @@ Describe the anomaly (e.g. `scratch`, `leftover tool`, `foreign object`); after 
 
 ## 7. Selection: locate-anything vs yolo-device-inference
 
-| Dimension | yolo-device-inference | locate-anything-v2 |
+| Dimension | yolo-device-inference | locate-anything |
 |------|----------------------|--------------------|
 | Classes | Fixed (COCO 80 / custom model) | Open-vocabulary (natural language, zero-shot) |
 | Latency | Milliseconds | Seconds (VLM) |

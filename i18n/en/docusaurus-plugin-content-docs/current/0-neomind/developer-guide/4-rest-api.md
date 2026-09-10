@@ -1,20 +1,20 @@
 ---
-description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), Swagger entry, error format."
-keywords: [NeoMind, REST API, HTTP, Swagger, JWT, API Key]
+description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
+keywords: [NeoMind, REST API, HTTP, JWT, API Key]
 tags: [NeoMind, Developer Guide]
 ---
 
 # REST API Reference
 
-The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. For the full interactive reference, see Swagger UI.
+The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. The authoritative endpoint list lives in `crates/neomind-api/src/server/router.rs`.
 
 ## Entry Points
 
 | Item | Value |
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| Swagger UI (interactive) | `http://<SERVER_IP>:9375/api/docs` |
-| Default port | 9375 (override with `--port` or the `PORT` env var) |
+| Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
+| Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
 
 > **Every endpoint path starts with `/api`.** The endpoint lists below omit the `/api` prefix.
 
@@ -94,6 +94,8 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 
 > **Important gotcha**: the backend returns **snake_case** (e.g. `data_source`), the frontend uses **camelCase** (e.g. `dataSource`). The frontend converts every API response via `web/src/store/persistence/types.ts::fromDashboardDTO()`. When you parse the JSON yourself as an integrator, trust the backend's snake_case.
 
+> This page targets integrators and script authors. UI-level operations live in the [User Guide](../user-guide/1-install-setup.md).
+
 ## Main Endpoint Groups
 
 ### Auth
@@ -101,7 +103,7 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/auth/login` | Login, get JWT |
-| POST | `/auth/register` | Register (first user becomes admin) |
+| POST | `/auth/register` | Self-service registration (disabled by default; an admin can enable it in settings. Registrants get the regular user role — the first admin is created via `/setup/initialize`) |
 | GET | `/auth/status` | Current auth status |
 | GET | `/auth/verify` | Verify JWT validity |
 
@@ -112,13 +114,15 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | GET | `/devices` | List devices |
 | POST | `/devices` | Create device (requires `connection_config: {}` even if empty) |
 | GET | `/devices/:id` | Device detail (metrics + commands) |
+| GET | `/devices/:id/current` | Current values for all device metrics |
 | PUT | `/devices/:id` | Update device |
 | DELETE | `/devices/:id` | Delete device |
-| GET | `/devices/:id/history` | Telemetry history (`?metric=&time_range=`) |
-| POST | `/devices/:id/control` | Send command (`{"command": "...", "params": {...}}`) |
+| GET | `/devices/:id/telemetry` | Device telemetry history (`?metric=&start=&end=`) |
+| GET | `/telemetry` | Cross-device telemetry query (`?source=&metric=&start=&end=&limit=&offset=`; `offset` skips the newest N items for server-side pagination; the response carries an exact `total_count`) |
+| POST | `/devices/:id/command/:command` | Send command (body is the params object, e.g. `{"offset": 1}`) |
 | POST | `/devices/:id/webhook` | Push data via webhook (no auth) |
-| GET | `/devices/types` | List device types |
-| POST | `/devices/types` | Create device type |
+| GET | `/device-types` | List device types |
+| POST | `/device-types` | Create device type |
 | GET | `/devices/drafts` | Pending drafts (auto-discovered) |
 | POST | `/devices/drafts/:id/approve` | Approve a draft |
 
@@ -132,7 +136,7 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | PUT | `/dashboards/:id` | Update dashboard (including layout) |
 | DELETE | `/dashboards/:id` | Delete dashboard |
 | POST | `/dashboards/:id/share` | Generate a share link (with expiration) |
-| GET | `/dashboards/shared/:token` | Access a shared dashboard (no auth) |
+| GET | `/share/:token` | Access a shared dashboard (no auth) |
 
 ### Rules
 
@@ -190,10 +194,10 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | GET | `/messages` | Message list |
 | GET | `/messages/channels` | List notification channels |
 | POST | `/messages/channels` | Add a channel (webhook/email/telegram/wecom/dingtalk/slack/feishu) |
-| PUT | `/messages/channels/:id` | Update channel |
-| DELETE | `/messages/channels/:id` | Delete channel |
-| POST | `/messages/channels/:id/test` | Test channel delivery |
-| POST | `/messages/send` | Send a message manually |
+| PUT | `/messages/channels/:name` | Update channel |
+| DELETE | `/messages/channels/:name` | Delete channel |
+| POST | `/messages/channels/:name/test` | Test channel delivery |
+| POST | `/messages` | Send a message manually |
 
 ### Extensions
 
@@ -201,12 +205,13 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 |--------|------|-------------|
 | GET | `/extensions` | List installed extensions |
 | GET | `/extensions/types` | Enumerate extension types |
-| POST | `/extensions/discover` | Scan the extensions directory |
+| POST | `/extensions/sync` | Scan the extensions directory and install (sync) |
 | GET | `/extensions/:id` | Extension detail |
 | GET | `/extensions/:id/health` | Health check |
 | GET | `/extensions/:id/commands` | List extension commands |
-| POST | `/extensions/:id/commands/:cmd` | Execute an extension command |
+| POST | `/extensions/:id/command` | Execute an extension command |
 | GET | `/extensions/:id/components` | Dashboard components provided by the extension |
+| GET / WS | `/extensions/:id/stream` | Extension stream session (Push-mode real-time frames; see [Realtime API](#realtime-api)) |
 
 ### Data Push
 
@@ -227,16 +232,30 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/settings/*` | System settings (retention policy, etc.) |
-| GET | `/system/info` | System info (MQTT / network / webhook) |
-| GET | `/system/network-info` | Network info |
+| GET | `/system/network-info` | Network info (MQTT / webhook endpoints) |
+| GET | `/metrics` | Prometheus text metrics (public): HTTP request counters, uptime, event-bus drop counters |
 
 ## Realtime API
 
 In addition to REST, NeoMind exposes:
 
-- **WebSocket**: `ws://<host>:9375/api/events` — dashboard live data, device state changes
-- **SSE**: `GET /api/events` (Server-Sent Events) — same event stream over plain HTTP
+- **WebSocket**: `ws://<host>:9375/api/events/ws` — dashboard live data, device state changes
+- **SSE**: `GET /api/events/stream` (Server-Sent Events) — same event stream over plain HTTP
 - **MQTT**: connect directly to `mqtt://<host>:1883` and subscribe to device topics
+
+### Extension Stream (`/api/extensions/:id/stream`)
+
+Push-mode extensions (video/audio and other continuous-frame outputs) establish a stream session through this WebSocket endpoint. Since **0.9.23**, optional **binary push frames** are supported:
+
+1. The client opts in by sending `{"binary": true}` in the `init` config
+2. The server confirms via `session_created.binary`; if unconfirmed, the legacy Text (JSON + base64) format is kept
+3. Once enabled, `push_output` frames travel as WS Binary frames, avoiding double base64 encoding overhead. Frame format:
+
+```
+[kind u8=1][version u8=1][sequence u64 BE][meta_len u32 BE][meta JSON][payload bytes]
+```
+
+`meta` mirrors the Text envelope fields (minus `data`/`sequence`); control messages (`session_created`, `error`, etc.) always travel on Text frames — the WS frame type is the first-level discriminator. Any combination of old/new frontends and old/new servers degrades safely.
 
 The canonical reference for the realtime protocol (WebSocket / SSE) is the frontend implementation: `web/src/lib/events.ts` and `web/src/lib/websocket.ts`.
 
@@ -260,10 +279,10 @@ else:
 
 ## Next Steps
 
-- **Full interactive docs**: `/api/docs` (Swagger) — every endpoint + parameter schema + live try-it
+- **Full endpoint list**: `crates/neomind-api/src/server/router.rs` — the authoritative route definitions (public / protected / admin)
 - Adding a new endpoint → add a handler under `crates/neomind-api/src/`, follow the existing per-module pattern
 - Realtime push → WebSocket / SSE (see `web/src/lib/websocket.ts`)
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

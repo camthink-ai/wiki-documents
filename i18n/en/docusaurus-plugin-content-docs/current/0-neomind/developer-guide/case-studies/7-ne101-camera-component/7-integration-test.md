@@ -1,5 +1,5 @@
 ---
-description: "ne101_camera integration tests: end-to-end test matrix (test_bundle.js 35KB), ROI overlay verification (Sutherland-Hodgman clipping + object-cover mapping), multi-extension switching tests (locate-anything-v2 / image-analyzer-v2 / yolo-device-inference / ocr-device-inference), source_ts alignment verification, WS+REST dual-channel tests"
+description: "ne101_camera integration tests: end-to-end test matrix (test_bundle.js 35KB), ROI overlay verification (Sutherland-Hodgman clipping + object-cover mapping), multi-extension switching tests (locate-anything / image-analyzer / yolo-device-inference / ocr-device-inference), source_ts alignment verification, WS+REST dual-channel tests"
 keywords: [ne101_camera, integration test, test_bundle.js, ROI verification, multi-extension switching, test matrix]
 tags: [NeoMind, Case Study]
 sidebar_label: "Integration Test"
@@ -20,7 +20,9 @@ The test file is not an afterthought scaffolding — it is a registered executab
 This "**component ships its own tests**" discipline is a soft requirement of the NeoMind marketplace and a distinguishing feature of ne101_camera versus the other 5 case studies.
 
 :::tip Engineering Lesson
-The IIFE pattern has no module entry point and cannot be directly `import`ed by Jest/Vitest. ne101_camera's solution is "regex extraction + sandbox eval" — using bracket counting to locate internal function source code, then `new Function(...)` to evaluate it in an isolated scope. This pattern only tests pure-function mathematical correctness, turning geometric operations from runtime observations into offline assertions — a best practice for zero-dependency testing.
+
+IIFE bundles cannot be `import`ed by Jest/Vitest. ne101_camera's answer is "regex extraction + sandboxed eval": bracket counting locates the function source, `new Function(...)` evaluates it in isolation — turning geometry from runtime observation into offline assertions, a zero-dependency testing practice.
+
 :::
 
 **The first principle of the testing philosophy comes from the IIFE pattern**: `bundle.js` is a `var NE101CameraPanel = (function(){ ... })()` immediately-invoked expression with no `module.exports`, no `export`, and no entry point that Jest or Vitest can `import`. **A direct `require('bundle.js')` throws `NE101CameraPanel is not defined`** (because `window` does not exist in Node.js).
@@ -265,7 +267,7 @@ graph LR
 `AI_EXT_IDS` ([`bundle.js` L144](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)) hardcodes 4 whitelisted extensions, each with a different `responseType` contract — the JSON shape of the AI inference result.
 
 ```js
-  var AI_EXT_IDS = ['locate-anything-v2', 'image-analyzer-v2', 'yolo-device-inference', 'ocr-device-inference'];
+  var AI_EXT_IDS = ['locate-anything', 'image-analyzer', 'yolo-device-inference', 'ocr-device-inference'];
 ```
 
 Source: [`bundle.js` L144`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L144-L144)
@@ -327,20 +329,20 @@ The test matrix covers the **directed complete graph** of the 4 extensions — e
 2. the Transform is rebuilt (the `_configHash` change triggers a Tier 2/3 update)
 3. feeding a mock response with the new extension's `responseType` produces a normalized detection array with the correct structure.
 
-The most critical regression assertion was introduced by commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148): **only `locate-anything-v2` hardcodes `nms_iou_threshold: 0.5` in the Transform JS** ([L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)); the other three extensions do not pass this parameter.
+The most critical regression assertion was introduced by commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148): **only `locate-anything` hardcodes `nms_iou_threshold: 0.5` in the Transform JS** ([L282](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L282-L282)); the other three extensions do not pass this parameter.
 
 ```js
-    // Pass NMS threshold to locate-anything-v2 — extension postprocess_args reads it from args
-    if (extensionId === 'locate-anything-v2') L.push(',  nms_iou_threshold: 0.5');
+    // Pass NMS threshold to locate-anything — extension postprocess_args reads it from args
+    if (extensionId === 'locate-anything') L.push(',  nms_iou_threshold: 0.5');
 ```
 
 Source: [`bundle.js` L281-L282`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L281-L282)
 
-The matrix verifies "the JS generated when switching to locate-anything-v2 contains `nms_iou_threshold`; switching away makes this field disappear", preventing the NMS parameter from leaking into extensions that don't support it (which would cause `image-analyzer-v2` to error with "unknown parameter").
+The matrix verifies "the JS generated when switching to locate-anything contains `nms_iou_threshold`; switching away makes this field disappear", preventing the NMS parameter from leaking into extensions that don't support it (which would cause `image-analyzer` to error with "unknown parameter").
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LA2: locate-anything-v2
+    [*] --> LA2: locate-anything
     LA2 --> IA2: switch<br/>boxes_x1y1x2y2 → objects_bbox
     IA2 --> YDI: switch<br/>objects_bbox → detections_bbox
     YDI --> ODI: switch<br/>detections_bbox → ocr_text_blocks
@@ -348,7 +350,7 @@ stateDiagram-v2
     LA2 --> LA2: self-loop (mode switch)<br/>NMS threshold must persist
 
     note right of LA2
-        locate-anything-v2 exclusive:
+        locate-anything exclusive:
         nms_iou_threshold: 0.5
         (commit 8656148)
     end note
@@ -357,7 +359,7 @@ stateDiagram-v2
 **Design decision: exhaustive directed complete graph vs pairwise testing**
 
 - **Choice**: exhaustive 4×4 = 16 switching paths including self-loops.
-- **Alternative A**: pairwise testing — use an orthogonal table to pick 6-8 "representative" paths. Rejected because the NMS leak bug is a "specific source → specific target" combination problem; pairwise randomly skips combinations and may miss the critical "locate-anything-v2 → ocr-device-inference" regression path.
+- **Alternative A**: pairwise testing — use an orthogonal table to pick 6-8 "representative" paths. Rejected because the NMS leak bug is a "specific source → specific target" combination problem; pairwise randomly skips combinations and may miss the critical "locate-anything → ocr-device-inference" regression path.
 - **Alternative B**: test only 4 "switch to each extension" paths (without exercising the source extension). Rejected because it cannot capture cumulative side effects of "A → B → C" switching (e.g., dirty config fields not cleaned).
 - **Rationale**: the directed complete graph of 4 extensions has only 16 edges — exhaustive cost is fully acceptable, and adding a new extension only extends the matrix (no redesign needed). Exhaustive testing also **automatically covers mode self-switching** (switching `object_detection` → `grounding` → `point` within the same extension), a common user path through the AdvancedPanel template dropdown (6.6).
 - **Cost**: matrix runtime grows quadratically with extension count, but the whitelist currently has only 4 extensions — far from any bottleneck.
@@ -514,7 +516,9 @@ graph LR
 - **Cost**: if a stream's data is wrong (e.g., WS pushes an incorrect `ts`), the wrong field propagates through the fixed order to the merge result. This requires each stream's "self-cleaning" logic (WS's ts must be a number, REST's imageUrl must be a string) to complete before entering `Object.assign`, not relying on post-merge guards.
 
 :::tip Best Practice
-For multi-channel data merging, a fixed `Object.assign` order (rather than last-writer-wins) makes the merge result a deterministic function of inputs. Each stream must complete its self-cleaning (type validation, field filtering) before entering the merge, not relying on post-merge guards. The experience from commits `b0be12b` + `0eedd27` shows: any "whoever arrives first wins" optimization introduces hard-to-reproduce timing bugs.
+
+When merging multi-channel data, fix the `Object.assign` order (instead of last-writer-wins) so the result is a deterministic function of the inputs; each stream must self-clean (type checks, field filtering) before merging. Lesson from commit `b0be12b`: "first-come-first-served" optimizations introduce hard-to-reproduce timing bugs.
+
 :::
 
 ---
@@ -537,7 +541,9 @@ The common theme across these 6 decisions is "**determinism first**". Whether it
 This engineering philosophy is continuous with the IIFE pattern's own "zero-build, zero-dependency, zero-hidden-behavior" principle — without any runtime tools (type checker, linter, bundler) as a safety net, determinism is the only line of defense.
 
 :::tip Engineering Lesson
-Under the IIFE pattern with no type checker, linter, or bundler as a safety net, "determinism" is the only line of defense. The common pattern across 6 design decisions: replacing "flexible but error-prone" with "predictable, reproducible, enumerable" — shape assertion verifies shape only, parametric matrix covers all boundaries, exhaustive directed complete graph misses no combinations, strict timestamp matching rejects ghosts, fixed merge order eliminates races.
+
+With no type checker, linter or bundler as a safety net, **determinism is the only line of defense**: shape assertions verify shape only, parameterized matrices cover edge cases, exhaustive directed graphs miss no combination, strict timestamp matching rejects ghosts, fixed merge order eliminates races — predictability and reproducibility over flexibility.
+
 :::
 
 ### Key commit index
@@ -546,7 +552,7 @@ Under the IIFE pattern with no type checker, linter, or bundler as a safety net,
 |--------|------|----------------------|---------|
 | [`2109c45`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/2109c45) | feat | overlap-based ROI detection instead of center point | 7.3 |
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | 7.3 |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 7.4 |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 7.4 |
 | [`e3a70be`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/e3a70be) | fix | parse JSON string detections from backend virtual metrics | 7.5 |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | 7.6 |
 | [`0eedd27`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/0eedd27) | fix | update virtual data on WS-triggered REST fetch | 7.6 |

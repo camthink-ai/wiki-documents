@@ -7,6 +7,12 @@ sidebar_label: "uink-rms-bridge"
 
 # uink-rms-bridge：生产验证的厂商专有桥接
 
+:::note
+本案例源码剖析完成于市场 **v2.7.6** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge)为准。
+:::
+
+> **阅读提示**：全篇约 810 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。
+
 ## 案例背景
 
 **uink-rms-bridge** 是 NeoMind 生态中**生产验证的厂商专有协议桥接**案例。Uink-RMS 是一个面向 e-paper（电子纸 / 电子墨水屏）显示设备的云管理平台：设备通过 LPWAN / 蜂窝网络连入厂商云，云端提供 REST API 供第三方集成。uink-rms-bridge 让 NeoMind 能够完成三件事：
@@ -15,7 +21,7 @@ sidebar_label: "uink-rms-bridge"
 2. 周期性拉取设备遥测（电量百分比、信号强度 dBm、温度、刷新计数）
 3. 把用户编辑的 Markdown / 纯文本 / 图像转换为 JPEG 并推送到 e-paper 屏幕上刷新显示
 
-当前版本 `2.7.6`，核心实现集中在单个 [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) 文件共 2250 行，外加 React + TypeScript 编写的 [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) 前端组件（entrypoint `uink-rms-bridge-components.umd.cjs`）。
+audit 版本 `2.7.6`，核心实现集中在单个 [`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs) 文件共 2250 行，外加 React + TypeScript 编写的 [`DisplayEditorCard`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/frontend/) 前端组件（entrypoint `uink-rms-bridge-components.umd.cjs`）。
 
 **与 [案例 4 onvif-bridge](./4-onvif-bridge.md) 的对比（本案例核心叙事轴）**：onvif-bridge 是**标准协议桥接**（ONVIF 是开放规范，任何 Profile S 摄像头通用），uink-rms-bridge 是**厂商专有协议桥接**（Uink-RMS 云 API 是封闭的私有接口，仅 Uink 自家设备可用）。
 
@@ -723,11 +729,9 @@ uink-rms-bridge 的 `src/` 目录**只有 `lib.rs` 一个文件，共 2250 行**
 对比 [案例 4 onvif-bridge](./4-onvif-bridge.md) 把协议拆成 5 个文件（lib.rs 1646 行 + discovery.rs 211 行 + soap_client.rs 516 行 + ptz.rs 214 行 + types.rs 78 行），每个文件职责单一、行数可控。
 
 :::tip 工程教训
-**何时该拆分？何时单文件可接受？** uink-rms-bridge 选择单文件的理由是：它的所有逻辑围绕**单一厂商云 API**展开（Uink-RMS v1.0.1），auth / device / image / display 都是这个 API 的不同 endpoint，逻辑高度内聚，拆开反而增加跨文件跳转成本。
 
-而 onvif-bridge 是**多个独立协议栈**（WS-Discovery 是 UDP 多播、SOAP 是 HTTP、PTZ 是命令封装），天然分离。
+**拆分与否取决于模块间耦合**：uink-rms-bridge 的 auth / device / image 都是**同一厂商 API** 的不同 endpoint，高度内聚，单文件即可——用 `// ===` 注释分区（见 [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40) 等分区标记）；而 onvif-bridge 是多个独立协议栈（WS-Discovery / SOAP / PTZ 几乎不共享状态），天然该拆。
 
-经验法则：如果模块之间共享很少的状态和类型（如 WS-Discovery 和 SOAP），拆分；如果所有模块都围绕同一个外部 API 的不同 endpoint（如 uink 的 auth + device + image），单文件可接受，但建议用 `// ===` 注释分区（本扩展确实这样做了，见 [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40)、[L161](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L161)、[L231](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L231) 等）。
 :::
 
 ### 排障表
@@ -797,10 +801,15 @@ uink-rms-bridge 是 NeoMind 生态中**唯一一个前后端一体的厂商专�
 
 它的工程教训在于：2250 行单文件是可读性的边界，未来如果新增更多 RMS endpoint（如告警 / 日志），应该考虑拆分。
 
+### 相关文档
+
+- Capability 全表、跨平台构建矩阵与 .nep 包结构标准见 [附录：工程标准](./appendix-standards.md)
+- SDK 能力系统详见 [Extension SDK](../3-extension-sdk.md)
+
 ### 源码仓库
 
 - [源码仓库](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/uink-rms-bridge) —— `src/lib.rs`（本文所有源码深链指向此文件）
 
 ---
 
-*最后更新: 2026-06-23*
+*源仓库版本: v2.7.6 | SDK: 0.6 | 最后 audit: 2026-06-23*

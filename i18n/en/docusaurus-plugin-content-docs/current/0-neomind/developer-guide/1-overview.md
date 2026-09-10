@@ -9,7 +9,7 @@ tags: [NeoMind, Developer Guide]
 NeoMind is a modular ecosystem split into four independent repositories organized by **development goal**. This page helps you pick the right repo to start from and points to the deeper doc for each path.
 
 :::tip Recommended: AI-Assisted Development
-The NeoMind codebase is purpose-built for AI coding tools like **Claude Code** — the project ships with a `CLAUDE.md` context file, a 33-section frontend design spec, and 16 reference extension implementations. **Whether you're building extensions, components, or contributing to the main project, we recommend starting with AI-assisted development.** See the [AI-Assisted Development Guide](./5-ai-assisted-development.md).
+The NeoMind codebase is purpose-built for AI coding tools like **Claude Code** — the project ships with a `CLAUDE.md` context file, a 33-section frontend design spec, and 27 reference extension implementations. **Whether you're building extensions, components, or contributing to the main project, we recommend starting with AI-assisted development.** See the [AI-Assisted Development Guide](./5-ai-assisted-development.md).
 :::
 
 ## First Question: What Are You Building?
@@ -52,7 +52,7 @@ What do you want to do?
 - Desktop: Tauri 2.x
 - Protocols: REST + WebSocket + SSE + MQTT 3.1.1
 
-**Extensions**: Rust, depend on the `neomind-extension-sdk` crate (latest v0.6.3), export via the `neomind_export!` FFI macro, run in an isolated process provided by `neomind-extension-runner`.
+**Extensions**: Rust, depend on the `neomind-extension-sdk` crate (latest v0.6.6), export via the `neomind_export!` FFI macro, run in an isolated process provided by `neomind-extension-runner`.
 
 **Device types**: declarative JSON, no runtime code — just describes the metrics, commands, and defaults. Loaded by NeoMind on the fly.
 
@@ -143,4 +143,4 @@ cd web && npm run tauri:dev
 
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-08*

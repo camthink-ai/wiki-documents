@@ -15,14 +15,14 @@ NeoMind 可在桌面（macOS / Windows / Linux）或服务器上运行。以下�
 
 | 产物 | 大小 | 说明 |
 |------|------|------|
-| **服务器二进制** (tar.gz) | ~23–26 MB | `neomind` + `neomind-extension-runner` 打包；按平台分发 |
-| **Web 前端** (tar.gz) | ~5.4 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
-| **macOS 桌面** (.dmg) | ~39 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
-| **Windows 桌面** (.msi) | ~39 MB | |
-| **Linux 桌面** (.deb) | ~43 MB | |
-| **Linux AppImage** | ~112 MB | 完全自包含 — 包含所有系统库 |
+| **服务器二进制** (tar.gz) | ~27–30 MB | `neomind` + `neomind-extension-runner` 打包；按平台分发 |
+| **Web 前端** (tar.gz) | ~5.3 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
+| **macOS 桌面** (.dmg) | ~45 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
+| **Windows 桌面** (.msi) | ~44 MB | |
+| **Linux 桌面** (.deb) | ~48 MB | |
+| **Linux AppImage** | ~117 MB | 完全自包含 — 包含所有系统库 |
 
-> **服务器总磁盘占用**：~30 MB（二进制 + Web 资源）。没有 Docker 镜像层，没有 pip/npm 运行时——一个静态编译二进制 + 一组静态文件。
+> **服务器总磁盘占用**：~35 MB（二进制 + Web 资源）。没有 Docker 镜像层，没有 pip/npm 运行时——一个静态编译二进制 + 一组静态文件。
 
 ### 运行时资源占用
 
@@ -61,6 +61,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 ### 支持的操作系统
 
 - **Linux**：Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / 其他主流发行版（x86_64 / arm64）
+- **边缘设备（arm64）**：NVIDIA Jetson（Orin 系列，CUDA 运行时自动引导安装）、RK3576 等 aarch64 SBC——服务端与扩展均有 arm64 构建
 - **macOS**：12 Monterey 及以上（开发或小规模部署）
 - **Windows**：Windows 10/Server 2019 及以上（通过 WSL2 或原生）
 
@@ -69,7 +70,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 场景 | CPU | 内存 | 磁盘 | 说明 |
 |------|-----|------|------|------|
 | 轻量（仅规则 / 云端 LLM） | 2 核 | 2 GB | 10 GB | 不跑本地模型 |
-| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 `qwen3.5:4b` 等小型模型 |
+| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 Qwen3.5-4B 等 4B 模型；**3 GB 起即可跑首选的 MiniCPM5-2B（1.5GB）** |
 | 多设备 / 视觉管线 | 8 核 | 16 GB | 50 GB+ SSD | 多路视频流 + YOLO/OCR 扩展 |
 
 > **GPU**：非必需。本地 LLM 与视觉推理通过 Ollama（CPU 模式）即可运行；有 GPU 时 Ollama 会自动加速。
@@ -88,9 +89,27 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 
 服务器部署**无需手动安装额外依赖**——安装脚本会下载静态编译的二进制。可选组件：
 
-- **Ollama**（推荐）：用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
+- **Docker 镜像内置（默认）**：官方镜像 `camthink/neomind` 已内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM，无需额外安装
+- **Ollama**（可选）：已有 Ollama 环境时用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
 - **Docker**（可选）：`docker compose up -d` 一键部署
 - **nginx**（可选）：生产环境反向代理 + 静态前端托管
+
+### Docker 部署要求
+
+| 项 | 要求 |
+|----|------|
+| 镜像 | `camthink/neomind:latest`（多架构 amd64 + arm64，随发版构建） |
+| 端口 | `9375`（HTTP API + Web UI）、`1883`（MQTT） |
+| 数据持久化 | volume `neomind-data`（挂载至容器 `/app/data`） |
+| 本地 LLM | 镜像内置 llama.cpp 运行时与默认精选模型（LFM2.5-2.6B，构建参数可换/跳过）；模型目录首推 **MiniCPM5-2B**，向导内一键下载（预留 4-8GB 磁盘 + 内存） |
+
+详见 [安装与配置 — Docker 部署](../user-guide/1-install-setup.md#docker-部署)。
+
+### 边缘设备说明
+
+- **NVIDIA Jetson**（Orin 系列）：CUDA 运行时自动引导安装，视觉管线（YOLO / DeepStream）建议 8GB+ 显存预算
+- **RK3576 等 aarch64 SBC**：服务端与扩展均有 arm64 构建；纯 CPU 推理建议选 small 档模型
+- 内存紧张的设备建议：本地 LLM 用 2-3B 档模型，视觉推理与 LLM 分机部署
 
 ## 数据存储
 
@@ -140,4 +159,4 @@ NeoMind 支持多种 LLM 后端，按部署形态分两类：
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

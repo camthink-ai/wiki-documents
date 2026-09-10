@@ -35,7 +35,9 @@ systemctl status neomind.service
 # 1. Is the env var set? (a WRONG value also causes 401 — auto-auth is completely skipped)
 echo $NEOMIND_API_KEY
 
-# 2. Are you in the project root? (auto-auth needs relative path data/api_keys.redb)
+# 2. Can the CLI locate the data directory?
+#    auto-auth tries, in order: NEOMIND_DATA_DIR → platform user data dir
+#    (when it contains api_keys.redb) → ./data under the current directory (project-root fallback)
 ls data/api_keys.redb
 ```
 
@@ -44,7 +46,7 @@ ls data/api_keys.redb
 | Scenario | Fix |
 |----------|-----|
 | Set a wrong `NEOMIND_API_KEY` (e.g. doc placeholder) | `unset NEOMIND_API_KEY`, then run from project root |
-| Not in project root | `cd /path/to/neomind && neomind device list` |
+| Not in project root | `cd /path/to/neomind && neomind device list`, or set `NEOMIND_DATA_DIR` to the data dir, or run `neomind login` first to save a credential |
 | Need cross-directory access | Get real key from server startup output, `export NEOMIND_API_KEY=nmk_REAL_KEY` |
 | Connecting to remote server | Get the key from that server's startup output |
 | Auto-auth worked before, suddenly 401 | **Restart the server**: CLI operations on `api_keys.redb` can cause redb lock conflicts |
@@ -53,7 +55,7 @@ ls data/api_keys.redb
 > - Once `NEOMIND_API_KEY` is set (even to a placeholder), auto-auth is completely skipped. Always `unset` first.
 > - Do NOT run `neomind api-key create` while the server is running — it conflicts with the server's redb lock. To regenerate a key: stop the server, create the key, then restart.
 
-> Full API key setup walkthrough: [Install & Setup → CLI API Key Setup](./1-install-setup.md#cli-api-key-setup).
+> Full API key setup walkthrough: [CLI & API Keys](./11-cli-api-keys.md).
 
 ## Service Startup
 
@@ -72,7 +74,7 @@ netstat -ano | findstr 9375   # Windows
 **Fix**:
 - Kill the holder: `kill <PID>`
 - Or run on a different port: `neomind serve --port 9376`
-- Or change the systemd service's `PORT` env var and `systemctl restart neomind`
+- One-click deployment: re-run the install script with `PORT=xxxx` (the port is written into the systemd unit's `--port` argument)
 
 ### Startup fails with "permission denied" writing `data/`
 
@@ -140,7 +142,7 @@ curl http://localhost:11434/api/chat -d '{
 
 **Cause**: sending an image to a text-only cloud model (DeepSeek-V3, Qwen text tiers). NeoMind gates image sending on the capability toggle, but auto-detect mistakes can still cause this.
 
-**Fix**: turn **off** the Multimodal toggle on that backend, or switch to a vision-capable cloud model (`gpt-4o` / `claude-3-5-sonnet` / `qwen-vl` / `glm-4v`).
+**Fix**: turn **off** the Multimodal toggle on that backend, or switch to a vision-capable cloud model (`gpt-4o` / `claude-sonnet-4-6` / `qwen-vl` / `glm-4v`).
 
 ## Devices / MQTT
 
@@ -205,7 +207,7 @@ Pass the credentials into device code: `client.connect(client_id, username, pass
 
 ```bash
 # Find extension logs
-ls data/logs/
+ls data/logs/                # server logs; live extension logs are in the extension detail page → Logs tab
 neomind extension list       # status overview
 neomind extension info <ID>   # recent error for a specific extension
 ```
@@ -220,6 +222,8 @@ neomind extension info <ID>   # recent error for a specific extension
 - DataSourceId typo → format must be `extension:<id>:<metric>`
 - Command / metric not declared → check the extension manifest
 - Process running but not publishing → check extension logs
+
+For the extension-level troubleshooting table (install failures, Crash Loop, timeouts, etc.), see [Extension Management — Troubleshooting](./9-extensions.md#troubleshooting).
 
 ## Dashboard / Frontend
 
@@ -238,7 +242,7 @@ neomind extension info <ID>   # recent error for a specific extension
 
 ### Where is the data directory?
 
-Defaults: `/var/lib/neomind` (one-line install), `~/.neomind` (custom), `data/` in the project root (dev mode). Override with the `NEOMIND_DATA_DIR` env var.
+One-click install: `/var/lib/neomind` (data lives in its `data/` subdirectory); dev / manual mode: `data/` in the project root by default. Override with the `NEOMIND_DATA_DIR` env var to use a custom directory.
 
 Key files:
 
@@ -255,8 +259,14 @@ Yes. Stop the service, copy the entire data dir to the new host at the same path
 
 ### Backup
 
+**Built-in backup (0.9.21+, recommended) — schedule and retention are configured in [Settings → Preferences](./12-settings.md#backup-schedule);** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
+
+- Configure the backup schedule under **Settings → Preferences** (on/off, 6h–7d interval, retention count); you can also click "Back up now"
+- API: `POST /api/settings/backup` (back up now), `GET /api/settings/backups` (list)
+- Restore is a manual operation: stop the server → copy the backup files over the data files → start
+
 ```bash
-# Simple: stop + tar
+# Older versions without built-in backup: stop + copy the directory
 sudo systemctl stop neomind
 sudo tar czf neomind-backup-$(date +%F).tar.gz /var/lib/neomind
 sudo systemctl start neomind
@@ -291,4 +301,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

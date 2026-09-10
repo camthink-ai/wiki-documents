@@ -7,6 +7,14 @@ sidebar_label: "yolo-device-inference"
 
 # yolo-device-inference: AI Inference Extension
 
+:::note
+
+This audit reflects market **v2.7.6**; line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference). Since 2026-09 the version advanced to 2.7.8 (`builds` gained jetson / cuda targets); line numbers have shifted accordingly.
+
+:::
+
+> **Reading tip**: This article is about 540 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standard Compliance → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
+
 ## Case Background
 
 **yolo-device-inference** is the first "AI inference extension" in the NeoMind ecosystem. It deploys an Ultralytics YOLOv8 object detection model to edge nodes, automatically consumes bound device image metric streams (snapshot / image / frame), writes detection boxes, classes, and confidence back to the device as virtual metrics.
@@ -22,7 +30,7 @@ It optionally produces annotated JPEG thumbnails for dashboard display. The enti
 
 yolo-device-inference is the "middleware" of this data chain.
 
-**Difference from yolo-video-v2**: yolo-video-v2 receives user-pushed video streams (base64 frame sequences), suited for "manual trigger analysis" scenarios; yolo-device-inference subscribes to image update events of **bound devices** via the NeoMind capability system, operating in "always-on automatic" mode — once `bind_device` completes, the extension runs inference on every device image update without frontend polling. This is the canonical pattern for edge AI deployment. Case 3 in this series covers the streaming variant yolo-video-v2.
+**Difference from yolo-video**: yolo-video receives user-pushed video streams (base64 frame sequences), suited for "manual trigger analysis" scenarios; yolo-device-inference subscribes to image update events of **bound devices** via the NeoMind capability system, operating in "always-on automatic" mode — once `bind_device` completes, the extension runs inference on every device image update without frontend polling. This is the canonical pattern for edge AI deployment. Case 3 in this series covers the streaming variant yolo-video.
 
 **Target reader**: AI engineers preparing to deploy trained ONNX models to NeoMind edge nodes; platform developers wanting to understand how extensions access device data through the capability system. Requires intermediate Rust proficiency (async, traits, `cfg` conditional compilation) and basic familiarity with ONNX Runtime's dynamic library loading mechanism.
 
@@ -532,9 +540,9 @@ The CI pipeline must build natively on each target platform (no cross-compile), 
 
 - [Case Overview](./0-overview.md) — this case's position in the NeoMind extension ecosystem
 - [Extension Standards Appendix](./appendix-standards.md) — metadata.json field spec, capability declaration checklist
-- [3 yolo-video-v2](./3-yolo-video-v2.md) — companion case: streaming video inference variant; compare "device-bound auto-inference" vs "frontend-pushed frame analysis" design differences
+- [3 yolo-video](./3-yolo-video-v2.md) — companion case: streaming video inference variant; compare "device-bound auto-inference" vs "frontend-pushed frame analysis" design differences
 - [7 NE101 Camera Component](./7-ne101-camera-component/index.md) — flagship hardware case consuming this extension; shows the complete chain from device to AI inference to frontend display
 - [Extension Development API](../7-extension-development.md) — full reference for `Extension` trait, `ExtensionMetadata`, `CapabilityContext`
 - [Source Repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference) — `extensions/yolo-device-inference/src/lib.rs` (all deep links in this document point to this file)
 
-*Last updated: 2026-06-24*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-06-24*

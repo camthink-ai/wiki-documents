@@ -28,9 +28,9 @@ npm run dev                         # 前端（端口 5173）
 ```
 
 **工具链要求**：
-- Rust 1.92.0+（edition 2021）
-- Node.js 18+
-- 系统依赖：protobuf 编译器（`protoc`）
+- Rust 1.92.0+（`rust-toolchain.toml` 固定，edition 2021）
+- Node.js 20+
+- 无需额外系统依赖（无 protobuf/protoc 等代码生成步骤）
 
 ## 代码规范
 
@@ -80,10 +80,10 @@ npm run test           # Vitest 单元测试
 | `feat` | 新功能 | `feat(web): redesign About page with hero card` |
 | `fix` | Bug 修复 | `fix(devices): 4-state connection model with per-device offline timeout` |
 | `ci` | CI/CD 变更 | `ci: auto-cleanup old releases after publish` |
-| `chore` | 杂项（依赖升级、重构） | `chore: bump neomind-extension-sdk to 0.6.3` |
+| `chore` | 杂项（依赖升级、重构） | `chore: bump neomind-extension-sdk to 0.6.6` |
 | `docs` | 文档 | `docs: enrich extension management user guide` |
 | `refactor` | 重构（不改行为） | `refactor(web): unify data source config factories` |
-| `release` | 发布 | `release: bump version to 0.8.13` |
+| `release` | 发布 | `release: bump version to 0.9.23` |
 
 常用 scope：`web`（前端）、`devices`、`agent`、`extension`、`rules`、`api`、`cli`、`messages`、`storage`。
 
@@ -112,18 +112,29 @@ cd web && npm run lint && npm run build:check
 
 ## CI 流水线
 
-项目使用 GitHub Actions（`.github/workflows/build.yml`），触发条件：tag 创建 / release 发布 / 手动触发。
+项目有两条 GitHub Actions 流水线：
 
-**4 个并行 Job**：
+**1. CI Checks（`.github/workflows/ci.yml`）**——每个 PR 和 main 分支 push 都会运行：
+
+| Job | 内容 |
+|-----|------|
+| **Frontend checks** | `npm run lint:ci` → `tsc --noEmit` → `vitest run`（单元测试） |
+| **Skill ↔ CLI drift** | 技能清单与 CLI 命令一致性检查 |
+| **Skill parser tests** | 技能解析器测试 |
+| **Rust lint** | `cargo fmt --check` + `cargo clippy --workspace --all-targets -- -D warnings` |
+| **Rust tests** | `cargo test --workspace --locked`（全量测试） |
+| **cargo audit** | 依赖安全公告扫描 |
+
+**2. Build（`.github/workflows/build.yml`）**——发布流水线，由 **tag push 或手动触发**：
 
 | Job | 内容 | 产物 |
 |-----|------|------|
 | **Frontend** | `npm run lint` → `npm run build` | Web 前端静态文件 |
 | **Desktop** | Tauri 构建（macOS arm64 / Windows x86_64 / Linux x86_64 / Linux arm64） | 4 平台桌面安装包 |
 | **Server** | `cargo build --release`（Linux amd64 / Linux arm64 / Darwin arm64） | 3 平台服务端二进制 |
-| **Release** | 上传产物到 GitHub Release + 自动清理旧 release（保留最新 3 个） | GitHub Release 资产 |
+| **Release** | 等上面 3 个 Job 全部完成后，上传产物到 GitHub Release；随后 `cleanup-releases` 自动删除旧 release（保留最新 3 个） | GitHub Release 资产 |
 
-> **本地预检**：CI 不跑 `cargo test`——请务必在本地跑 `cargo test` 后再推 PR。
+> 前三个构建 Job 并行执行，Release / cleanup 依次在它们之后运行。
 
 ## 测试要求
 
@@ -155,4 +166,4 @@ cd web && npm run lint && npm run build:check
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-09*

@@ -9,6 +9,8 @@ sidebar_label: "AI Chat"
 
 AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什么，LLM 理解意图、调用工具、返回结果。它既能查询设备状态，也能创建规则、搭建仪表板、触发通知。
 
+它解决的问题是：**你不需要记住任何 CLI 命令、API 路径或界面操作路径**。「查一下机房温度、超过 35 度建个告警规则」这样的需求，过去要分别去设备页、规则页操作，现在一句话即可——因为 Chat 背后接的是与 CLI、API 完全同一套工具体系（见[内置工具一览](#内置工具一览)）。
+
 ## 前置条件
 
 - 已配置至少一个 [LLM 后端](./2-configure-llm.md)（Ollama 或云端）
@@ -18,7 +20,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 
 点击左侧导航的 **AI Chat**（对话图标）进入会话界面：
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 界面分为三个区域：
 
@@ -42,7 +44,82 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 2. **调用工具**：执行 `device list` 命令（绿色 ✓ 表示成功）
 3. **整合回答**：基于工具返回的数据生成自然语言回复
 
-> **思考过程展示**：AI 回复上方会显示「Thinking process」摘要（轮次、字符数），让你了解 AI 推理了多少步。复杂请求可能涉及多轮工具调用（NeoMind 默认上限 30 轮，5 分钟超时）。
+:::note 思考过程展示
+AI 回复上方会显示「Thinking process」摘要（轮次、字符数），让你了解 AI 推理了多少步。复杂请求可能涉及多轮工具调用（NeoMind 默认上限 30 轮，5 分钟超时）。
+:::
+
+## 完整示例：一次工具调用的全过程
+
+以「现在有几个设备在线？」为例，拆开看 AI 从接收问题到回答的每一步。理解这个流程，你就能看懂对话区里的每条记录，也知道该在什么时候追问。
+
+**第 1 步 · 用户发送问题**
+
+> 现在有几个设备在线？
+
+**第 2 步 · LLM 决定调用工具**
+
+LLM 不直接编答案，而是输出一个结构化的工具调用请求（对话区会显示工具名与参数，成功时带绿色 ✓）。LLM 只需要给出「简化名」——NeoMind 会自动把 `device`、`list_devices`、甚至「设备列表」这类别名映射到真实工具，并把参数补齐（比如没写 `action` 时按参数自动推断为 `list`）：
+
+```json
+{
+  "name": "device",
+  "arguments": { "action": "list" }
+}
+```
+
+**第 3 步 · NeoMind 执行工具**
+
+`device` 属于领域工具，NeoMind 在内部把它转换为等价的 CLI 命令 `neomind device list` 执行，并拿到 JSON 结果（节选示意）：
+
+```json
+{
+  "success": true,
+  "data": {
+    "devices": [
+      { "id": "sensor-01", "name": "客厅温湿度", "status": "online" },
+      { "id": "sensor-02", "name": "机房温度",   "status": "online" },
+      { "id": "hvac-01",   "name": "一号空调",   "status": "offline" }
+    ],
+    "total": 3
+  }
+}
+```
+
+**第 4 步 · LLM 整合结果生成回答**
+
+> 当前共有 3 台设备，其中 **2 台在线**（客厅温湿度、机房温度），1 台离线（一号空调 hvac-01）。
+
+如果问题更复杂（比如「过去 24 小时湿度曲线」），LLM 会在同一轮对话里连续多次调用工具（先查设备、再拉历史、再生成图表），直到它认为可以回答为止——这些中间步骤都会依次显示在对话区。
+
+## 内置工具一览
+
+AI Chat 可调用的工具分三类：**领域工具**（覆盖 NeoMind 各功能模块）、**通用内置工具**（记忆 / 技能 / 视觉等）、**扩展工具**（由已安装的扩展注册）。常用工具如下：
+
+| 工具 | 类别 | 能做什么 | 典型调用参数 |
+|------|------|---------|-------------|
+| `device` | 领域工具 | 设备列表、查最新遥测、查历史、下发控制指令、写指标 | `{"action":"latest","device_id":"sensor-01"}`；控制 `{"action":"control","device_id":"hvac-01","command":"on"}`；历史 `{"action":"history","device_id":"sensor-01","hours":24}` |
+| `rule` | 领域工具 | 创建 / 启用 / 禁用 / 删除自动化规则 | `{"action":"create","json":"<规则 JSON>"}` |
+| `agent` | 领域工具 | 创建 / 查看 / 触发 AI Agent | `{"action":"list"}`、`{"action":"create","name":"...","prompt":"..."}` |
+| `message` | 领域工具 | 发送站内消息 / 告警、读取消息列表 | `{"action":"send","title":"高温告警","content":"3号机 38°C"}` |
+| `transform` | 领域工具 | 创建 / 管理数据转换 | `{"action":"list"}`、`{"action":"create","js_code":"..."}` |
+| `push` / `dashboard` / `extension` / `system` | 领域工具 | 数据推送、仪表板组件、扩展管理、系统信息等 | 按 action + 参数 |
+| `shell` | 内置工具 | 直接执行任意 `neomind <域> <动作>` CLI 命令 | `{"command":"neomind device list"}` |
+| `skill` | 内置工具 | 按需搜索 / 加载操作指南（多步骤复杂操作前先查指南） | `{"action":"search","query":"创建规则"}` |
+| `memory` | 内置工具 | 读写跨会话记忆（见 [会话管理](#会话管理)） | `{"action":"add","target":"user","content":"偏好摄氏度"}` |
+| `vision` | 内置工具 | 分析图片（需视觉模型，见[多模态](#多模态图像分析)） | 随图片上传自动触发 |
+| `web_fetch` | 内置工具 | 抓取网页内容作为回答依据 | URL 参数 |
+| 扩展工具（如 `yolo-video:detect`） | 扩展注册 | 调用扩展命令（YOLO 检测、OCR、人脸识别等） | 按扩展定义 |
+
+:::info 领域工具与 shell 的关系
+领域工具（`device` / `rule` / `agent` 等）并不是独立实现——NeoMind 会把它们转换成对应的 `neomind <域> <动作>` CLI 命令交给 `shell` 工具执行。所以「AI 会调用的能力」与「CLI 能做的事」完全一致；反过来，如果 LLM 拿不准参数，你也可以让它直接执行某条 CLI 命令。
+:::
+
+### 常见坑（工具调用）
+
+- **只查不做**：小模型有时「谨慎过头」——你让它建规则，它只列出了现有规则。直接追问「帮我创建」即可（见下文 [使用技巧](#使用技巧)）
+- **LLM 自行动作推断**：调用 `device` 时不写 `action`，NeoMind 会按参数推断（带 `command` → 控制；带 `device_id` → 查最新值；都不带 → 列表）。如果推断结果不是你要的，明确说「查询」还是「控制」
+- **30 轮上限**：单次请求最多 30 轮工具调用、5 分钟超时。超限后 AI 会基于已拿到的结果作答，可能显得「没做完」——把任务拆成两句话问更稳
+- **同名设备**：LLM 按名称模糊匹配设备，同名设备多时会拿错，此时用设备 ID 提问
 
 ## 你可以问什么
 
@@ -70,10 +147,11 @@ AI Chat 内置工具覆盖几乎所有 NeoMind 能力。以下是典型问法（
 - 「最近一次人脸识别的结果是什么？」
 
 ### 系统与诊断
-- 「现在有几个设备在线？」
-- 「为什么这台设备没有数据？」→ 触发诊断流程
+- 「为什么 sensor-03 两小时没有数据？」→ 触发诊断流程
 
-> LLM 会自己决定调用哪些工具、按什么顺序调用。如果 AI 只执行了查询操作但没完成你的实际请求（比如你让它建规则但它只是查了查），直接追问「帮我创建」即可。
+:::tip
+LLM 会自己决定调用哪些工具、按什么顺序调用。如果 AI 只执行了查询操作但没完成你的实际请求（比如你让它建规则但它只是查了查），直接追问「帮我创建」即可。
+:::
 
 ## 切换 LLM 后端
 
@@ -100,7 +178,9 @@ AI Chat 内置工具覆盖几乎所有 NeoMind 能力。以下是典型问法（
 | 相机截图 | 「帮我读出表盘上的数字」 | OCR 扩展 |
 | 监控帧 | 「识别画面中的人脸」 | 人脸识别扩展 |
 
-> **Ollama 用户**：需要拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`），否则上传图片会被静默忽略。NeoMind 会自动探测后端能力。纯文本模型（如 `qwen3.5:4b`、DeepSeek-V3）无法处理图片。
+:::warning Ollama 用户需先拉取视觉模型
+需要拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`），否则上传图片会被静默忽略。NeoMind 会自动探测后端能力。纯文本模型（如 `qwen3.5:4b`、DeepSeek-V3）无法处理图片。
+:::
 
 ## Chat vs Agent：两种模式
 
@@ -122,13 +202,18 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 ## 会话管理
 
 - **多会话**：每个会话独立上下文，互不干扰。左侧会话列表可切换 / 重命名 / 删除
-- **跨会话记忆**：NeoMind 会从对话中抽取关键事实（你的偏好、设备别名等）写入用户记忆，跨会话生效
+- **跨会话记忆**：每轮实质性对话（回复达到一定长度，寒暄不算）结束后，NeoMind 会在后台用 LLM 抽取**最多 3 条**可复用的事实，分两类写入磁盘上的记忆文件，重启不丢失：
+  - `[user]` 用户画像类（偏好、习惯、身份）→ `data/memory/USER.md`（默认上限 2000 字符）
+  - `[knowledge]` 领域知识类（设备别名、位置、命名约定）→ `data/memory/KNOWLEDGE.md`（默认上限 3000 字符）
+
+  例如你说过「3 号机就是车间东边的空压机」，之后的任何新会话里 AI 都会记得这个别名。记忆文件也可以在系统设置中查看与清理
+- **IM 桥接（0.9.14+）**：除网页端外，还可以在 **Telegram / 飞书** 里直接和同一个 Agent 对话（在系统内配置 IM Bridge 后）；这与[通知渠道](./8-notifications.md)中的 Telegram/飞书是两个独立功能——通知是单向告警推送，IM 桥接是双向对话
 - **历史回溯**：会话内容持久化在 `sessions.redb`，重启服务不丢失
 - **自动标题**：新会话的第一条消息会自动成为会话标题，方便在列表中识别
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为全屏对话模式，会话列表通过左上角菜单展开。
 
@@ -140,6 +225,39 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 - **工具反馈**：LLM 调用工具失败时会返回错误与建议，按提示修正即可
 - **推荐问题**：新会话页面显示的推荐问题可以直接点击使用，也适合用来探索 AI 能力
 
+## 从 Telegram / 飞书对话（IM 桥接）
+
+除了网页端，还可以把 NeoMind 接入 **Telegram** 或**飞书**，在熟悉的 IM 里直接和 AI 对话——查询设备、执行控制都和网页端一致。
+
+**第一步：创建机器人凭据**
+
+- **Telegram**：在 Telegram 中找 [@BotFather](https://t.me/BotFather) → `/newbot` → 获取 Bot Token（形如 `123456789:AAxxx…`）
+- **飞书**：在[飞书开放平台](https://open.feishu.cn/)创建企业自建应用，获取 `App ID` 与 `App Secret`，并开启「接收消息」能力
+
+**第二步：在 NeoMind 中添加桥接**
+
+进入 **设置 → IM Channels**，选择平台并填写凭据：
+
+| 平台 | 必填字段 |
+|------|---------|
+| Telegram | Bot Token（可选自定义 API Base，用于代理/私有网关） |
+| 飞书 | App ID + App Secret（国际版 Lark 需切换 domain 为 `open.larksuite.com`） |
+
+保存后桥接自动启动并监听消息。
+
+**第三步：邀请配对**
+
+IM 桥接采用**邀请制**——在 Telegram/飞书里对你的机器人发送 `/start <配对令牌>`（令牌来自 IM Channels 管理界面），该聊天即被加入白名单并绑定会话。此后在这个聊天里说的每一句话，都由 NeoMind 直接回答。
+
+**管理**
+
+- 白名单查看 / 移除聊天：IM Channels 的桥接详情
+- 重置某个聊天的会话上下文：会话重置按钮（或 `POST /api/im-bridges/:id/sessions/:chat_id/reset`）
+
+:::note 与通知渠道的区别
+[通知渠道](./8-notifications.md)里的 Telegram / 飞书是**单向告警推送**（规则触发时通知你）；IM 桥接是**双向对话**（你发指令，AI 执行并回复）。两者相互独立、可同时使用。
+:::
+
 ## 下一步
 
 - [AI Agent](./6-ai-agent.md) — 从交互对话升级为自主巡检
@@ -148,4 +266,4 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-09*

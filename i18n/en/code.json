@@ -384,10 +384,10 @@
     "message": "Jetson edge AI gateway"
   },
   "homepage.platform.title": {
-    "message": "CamThink Platform Overview"
+    "message": "Platform & Tools"
   },
   "homepage.platform.desc": {
-    "message": "A complete platform covering hardware, system, AI toolchain, and edge deployment"
+    "message": "Software platform and model toolchain, covering the full path from devices to applications"
   },
   "homepage.platform.card.hardware": {
     "message": "Open schematics, PCB, modular design, supporting rapid customization, mass production, and batch deployment."
@@ -497,6 +497,15 @@
   "homepage.community.contact": {
     "message": "Product consultation and business cooperation"
   },
+  "carousel.ne302.title": {
+    "message": "NeoEyes NE302 (Mini AI Vision Camera)"
+  },
+  "carousel.ne302.tagline": {
+    "message": "STM32N6-based mini AI vision camera with 4 MP image capture"
+  },
+  "carousel.ne302.desc": {
+    "message": "4 MP imaging plus STM32N6 edge AI on a 38 × 38 mm board, with wireless connectivity and local storage. Powered over USB Type-C or DC — built for device integration and edge AI development."
+  },
   "carousel.ne301.title": {
     "message": "NeoEyes NE301 (AI Camera)"
   },
@@ -513,7 +522,7 @@
     "message": "Quick Start"
   },
   "carousel.link.devguide": {
-    "message": "Dev Guide"
+    "message": "Developer Guide"
   },
   "carousel.link.appguide": {
     "message": "App Guide"
@@ -554,9 +563,6 @@
   "carousel.link.userguide": {
     "message": "User Guide"
   },
-  "carousel.link.devguide": {
-    "message": "Developer Guide"
-  },
   "carousel.ne503.title": {
     "message": "NeoEyes NE503 (AI Camera Pro)"
   },
@@ -568,5 +574,68 @@
   },
   "carousel.link.swguide": {
     "message": "Software Guide"
+  },
+  "homepage.hero.cta.products": {
+    "message": "Browse Hardware"
+  },
+  "homepage.matrix.title": {
+    "message": "Products & Platform"
+  },
+  "homepage.matrix.desc": {
+    "message": "Five hardware lines and the NeoMind platform — every docs entry on one screen"
+  },
+  "matrix.badge.platform": {
+    "message": "Platform"
+  },
+  "homepage.matrix.neomind.desc": {
+    "message": "Device management, real-time dashboards, rule engine, AI Agent, extension ecosystem and notifications — with MQTT/Webhook/BLE connectivity."
+  },
+  "homepage.usecase.title": {
+    "message": "Start by Use Case"
+  },
+  "homepage.usecase.desc": {
+    "message": "Have a task in mind? Jump straight into the guide"
+  },
+  "homepage.usecase.detection.title": {
+    "message": "Object Detection"
+  },
+  "homepage.usecase.detection.desc": {
+    "message": "YOLO model training and on-camera deployment"
+  },
+  "homepage.usecase.ocr.title": {
+    "message": "OCR Text Extraction"
+  },
+  "homepage.usecase.ocr.desc": {
+    "message": "Extract and structure text from camera snapshots"
+  },
+  "homepage.usecase.voice.title": {
+    "message": "Voice Interaction"
+  },
+  "homepage.usecase.voice.desc": {
+    "message": "Full ASR → LLM → TTS voice pipeline"
+  },
+  "homepage.usecase.onboard.title": {
+    "message": "Device Onboarding"
+  },
+  "homepage.usecase.onboard.desc": {
+    "message": "Connect devices to NeoMind via MQTT/BLE/Webhook"
+  },
+  "homepage.latest.title": {
+    "message": "What's New"
+  },
+  "latest.ne302.title": {
+    "message": "NeoEyes NE302 Documentation"
+  },
+  "latest.hef.title": {
+    "message": "NE503 model training & HEF conversion"
+  },
+  "homepage.hero.cta.docs": {
+    "message": "Documentation Hub"
+  },
+  "latest.resources.title": {
+    "message": "NE503 Resources"
+  },
+  "latest.faq.title": {
+    "message": "NE503 Troubleshooting FAQ"
   }
 }

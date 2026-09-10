@@ -14,14 +14,14 @@ NeoMind runs on desktop (macOS / Windows / Linux) or servers. Below are the requ
 
 | Artifact | Size | Notes |
 |----------|------|-------|
-| **Server binary** (tar.gz) | ~23–26 MB | `neomind` + `neomind-extension-runner` bundled; per-platform |
-| **Web frontend** (tar.gz) | ~5.4 MB | Static assets (HTML/JS/CSS), served by the backend |
-| **macOS Desktop** (.dmg) | ~39 MB | Tauri app — bundles backend + frontend + system WebView |
-| **Windows Desktop** (.msi) | ~39 MB | |
-| **Linux Desktop** (.deb) | ~43 MB | |
-| **Linux AppImage** | ~112 MB | Fully self-contained — includes all system libraries |
+| **Server binary** (tar.gz) | ~27–30 MB | `neomind` + `neomind-extension-runner` bundled; per-platform |
+| **Web frontend** (tar.gz) | ~5.3 MB | Static assets (HTML/JS/CSS), served by the backend |
+| **macOS Desktop** (.dmg) | ~45 MB | Tauri app — bundles backend + frontend + system WebView |
+| **Windows Desktop** (.msi) | ~44 MB | |
+| **Linux Desktop** (.deb) | ~48 MB | |
+| **Linux AppImage** | ~117 MB | Fully self-contained — includes all system libraries |
 
-> **Total server footprint**: ~30 MB on disk (binary + web assets). No Docker layers, no pip/npm runtime — a single statically compiled binary plus static files.
+> **Total server footprint**: ~35 MB on disk (binary + web assets). No Docker layers, no pip/npm runtime — a single statically compiled binary plus static files.
 
 ### Runtime Resource Usage
 
@@ -60,6 +60,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 ### Supported Operating Systems
 
 - **Linux**: Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / other mainstream distros (x86_64 / arm64)
+- **Edge devices (arm64)**: NVIDIA Jetson (Orin series, with the CUDA runtime auto-bootstrapped), RK3576, and other aarch64 SBCs — arm64 builds are available for both the server and extensions
 - **macOS**: 12 Monterey+ (development or small-scale deployment)
 - **Windows**: Windows 10 / Server 2019+ (via WSL2 or native)
 
@@ -68,7 +69,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 | Scenario | CPU | RAM | Disk | Notes |
 |----------|-----|-----|------|-------|
 | Light (rules only / cloud LLM) | 2 cores | 2 GB | 10 GB | No local model |
-| **Recommended (local LLM)** | 4 cores | **8 GB** | 20 GB+ SSD | Runs `qwen3.5:4b` and similar small models |
+| **Recommended (local LLM)** | 4 cores | **8 GB** | 20 GB+ SSD | Runs 4B models like Qwen3.5-4B; **the recommended MiniCPM5-2B (1.5GB) runs from 3 GB** |
 | Multi-device / vision pipeline | 8 cores | 16 GB | 50 GB+ SSD | Multi-stream video + YOLO/OCR extensions |
 
 > **GPU**: Not required. Local LLM and vision inference run via Ollama (CPU mode); when a GPU is present, Ollama auto-accelerates.
@@ -83,11 +84,29 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 
 > For production, use an nginx reverse proxy and expose only 80/443 externally; keep 9375 / 1883 on the internal network.
 
+### Docker Deployment Requirements
+
+| Item | Requirement |
+|------|-------------|
+| Image | `camthink/neomind:latest` (multi-arch amd64 + arm64, built per release) |
+| Ports | `9375` (HTTP API + Web UI), `1883` (MQTT) |
+| Data persistence | volume `neomind-data` (mounted at `/app/data`) |
+| Local LLM | the image bundles the llama.cpp runtime and a default curated model (LFM2.5-2.6B, swappable/skippable via build arg); other models can be downloaded on demand in the wizard (reserve 4-8 GB disk + RAM) |
+
+See [Install & Setup — Docker](../user-guide/1-install-setup.md#docker).
+
+### Edge Devices
+
+- **NVIDIA Jetson** (Orin series): CUDA runtime auto-bootstrapped; budget 8 GB+ VRAM for vision pipelines (YOLO / DeepStream)
+- **RK3576 and other aarch64 SBCs**: prefer small-tier models for CPU-only inference
+- Memory-constrained boxes: use a 2-3B local model and run vision inference on a separate machine
+
 ### Runtime Dependencies
 
 Server deployment **requires no manual dependency installation** — the install script downloads statically compiled binaries. Optional components:
 
-- **Ollama** (recommended): local LLM inference. Install at [ollama.com](https://ollama.com). Pull a model the first time you configure an LLM backend, e.g. `ollama pull qwen3.5:4b`
+- **None (default)**: The Docker deployment image ships with the llama.cpp runtime and curated official models — a one-click download in the wizard gives you a local LLM with nothing extra to install
+- **Ollama** (optional, if you already have it): for local LLM inference. Install at [ollama.com](https://ollama.com). Pull a model the first time you configure an LLM backend, e.g. `ollama pull qwen3.5:4b`
 - **Docker** (optional): one-line deploy via `docker compose up -d`
 - **nginx** (optional): production reverse proxy + static frontend hosting
 
@@ -139,4 +158,4 @@ See [Configure LLM Backend](../user-guide/2-configure-llm.md) for setup.
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

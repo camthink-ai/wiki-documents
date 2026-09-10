@@ -136,11 +136,11 @@ The AI extension's response format is decided by the extension author; ne101_cam
 | `detections_bbox` | `r.detections[].bbox` | `` `{x,y,w,h}` `` pixel coords |
 | `ocr_text_blocks` | `r.text_blocks` | See code block below (has polygon) |
 
-**`boxes_x1y1x2y2`** (locate-anything-v2 family)** — see [`bundle.js` L288-L297](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L288-L297). The response structure is `r.boxes[]`, where each box has `x1, y1, x2, y2` (pixel coordinates) + `score`/`confidence`. Labels are not in the boxes — they are in the `r.answer` string as `<ref>label</ref>` tags in order. The code uses regex `match(/<ref>(.*?)<\/ref>/g)` to extract the label array, then pairs them by index `refTags[i]`. During normalization, coordinates are divided by image dimensions `W/H` to get 0-1 range. Commit `8656148` (`feat(ne101): pass NMS IoU threshold 0.5 to locate-anything-v2`) passes an additional `nms_iou_threshold: 0.5` parameter to this extension at L282, controlling the non-maximum suppression threshold.
+**`boxes_x1y1x2y2`** (locate-anything family)** — see [`bundle.js` L288-L297](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L288-L297). The response structure is `r.boxes[]`, where each box has `x1, y1, x2, y2` (pixel coordinates) + `score`/`confidence`. Labels are not in the boxes — they are in the `r.answer` string as `<ref>label</ref>` tags in order. The code uses regex `match(/<ref>(.*?)<\/ref>/g)` to extract the label array, then pairs them by index `refTags[i]`. During normalization, coordinates are divided by image dimensions `W/H` to get 0-1 range. Commit `8656148` (`feat(ne101): pass NMS IoU threshold 0.5 to locate-anything`) passes an additional `nms_iou_threshold: 0.5` parameter to this extension at L282, controlling the non-maximum suppression threshold.
 
-**`objects_bbox`** (image-analyzer-v2)** — see [`bundle.js` L298-L306](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L298-L306). The response structure is `r.objects[]`, where each object has `label`, `confidence`, and `bbox: {x, y, width, height}` (pixel coordinates). Normalization converts `{x, y, width, height}` to `[x1, y1, x2, y2]`: `x2 = x + width`, `y2 = y + height`, then divides by `W/H`.
+**`objects_bbox`** (image-analyzer)** — see [`bundle.js` L298-L306](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L298-L306). The response structure is `r.objects[]`, where each object has `label`, `confidence`, and `bbox: {x, y, width, height}` (pixel coordinates). Normalization converts `{x, y, width, height}` to `[x1, y1, x2, y2]`: `x2 = x + width`, `y2 = y + height`, then divides by `W/H`.
 
-**`detections_bbox`** (yolo-device-inference)** — see [`bundle.js` L307-L315](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L307-L315). The response structure is `r.detections[]`, with nearly identical field structure to `objects_bbox` (`label`, `confidence`, `bbox: {x, y, width, height}`), only the top-level key changes from `objects` to `detections`. The reason for listing it as a separate responseType instead of reusing `objects_bbox` is that it is image-analyzer-v2 only; shares analyze_image command with yolo but different response path, and yolo-device-inference may add device-specific fields in the future (e.g., inference time, model version).
+**`detections_bbox`** (yolo-device-inference)** — see [`bundle.js` L307-L315](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L307-L315). The response structure is `r.detections[]`, with nearly identical field structure to `objects_bbox` (`label`, `confidence`, `bbox: {x, y, width, height}`), only the top-level key changes from `objects` to `detections`. The reason for listing it as a separate responseType instead of reusing `objects_bbox` is that it is image-analyzer only; shares analyze_image command with yolo but different response path, and yolo-device-inference may add device-specific fields in the future (e.g., inference time, model version).
 
 **`ocr_text_blocks`** (ocr-device-inference)** — see [`bundle.js` L316-L328](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L316-L328). The response structure is `r.data.text_blocks[]`, where each block has `text`, `confidence`, `bbox: {x, y, width, height}` and an optional `polygon` (array of polygon vertices). Normalization **preserves the `polygon` field** (`polygon: b.polygon || null`), because OCR text boxes are typically not axis-aligned rectangles (tilted text), and a polygon fits better than a bbox. Coordinates are already normalized to 0-1 and are not divided by `W/H`. Commit `403c0f1` (`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`) fixed a compatibility issue where polygon vertices could arrive in either `{x, y}` object format or `[x, y]` array format:
 
@@ -184,17 +184,17 @@ graph TB
     R4 -->|"keep polygon<br/>already normalized"| UNI
 ```
 
-**Extension modes catalog**: Behind the four responseTypes is a "modes catalog" for four extensions, defined in the `EXT_MODES` object at [`bundle.js` L155-L171](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L155-L171). Each extension maps to a modes array, where each mode has `{id, command, imageArg, responseType, label, args}`. For example, `locate-anything-v2` has 5 modes (object_detection / grounding / text_detection / ground_gui / point), all using the `boxes_x1y1x2y2` response format:
+**Extension modes catalog**: Behind the four responseTypes is a "modes catalog" for four extensions, defined in the `EXT_MODES` object at [`bundle.js` L155-L171](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L155-L171). Each extension maps to a modes array, where each mode has `{id, command, imageArg, responseType, label, args}`. For example, `locate-anything` has 5 modes (object_detection / grounding / text_detection / ground_gui / point), all using the `boxes_x1y1x2y2` response format:
 
 ```js
 // bundle.js L155-L171
 var EXT_MODES = {
-  'locate-anything-v2': [
+  'locate-anything': [
     { id: 'object_detection', command: 'detect', imageArg: 'image_base64', responseType: 'boxes_x1y1x2y2', label: 'Object Detection', desc: 'Detect objects by category', icon: 'search', args: ['categories'] },
     { id: 'grounding', command: 'ground', imageArg: 'image_base64', responseType: 'boxes_x1y1x2y2', label: 'Grounding', desc: 'Find objects by description', icon: 'target', args: ['phrase'] },
     // ... (3 modes omitted)
   ],
-  'image-analyzer-v2': [
+  'image-analyzer': [
     { id: 'object_detection', command: 'analyze_image', imageArg: 'image', responseType: 'objects_bbox', label: 'Object Detection', desc: 'YOLOv8 object detection', icon: 'search', args: [] }
   ],
   'yolo-device-inference': [
@@ -346,10 +346,12 @@ This is one line of code but contains a **design decision**:
 - **Cost**: If the detections JSON has a format bug (e.g., the backend wrote truncated JSON), users silently lose all detection boxes with no UI indication. This cost is considered acceptable because losing detection boxes is a "visual degradation," not "data corruption."
 
 :::note The Design Tradeoff of Defensive Parsing
-If the detections JSON has a format bug (e.g., the backend wrote truncated JSON), users will silently lose all detection boxes with no UI indication. This cost is considered acceptable because **losing detection boxes is a "visual degradation," not "data corruption"** — the image, battery, timestamp, and other scalar metrics are unaffected.
+
+If the detections JSON is malformed (e.g. truncated), boxes are silently lost with no UI hint. The cost was accepted: **losing boxes is visual degradation, not data corruption** — image, battery and timestamp metrics are unaffected.
+
 :::
 
-**OCR polygon format compatibility**: Commit `403c0f1` (`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`) fixed another related format pitfall. The `polygon` field returned by OCR extensions (array of polygon vertices) comes in two formats: `[[x,y], ...]` (array pairs) and `[{x, y}, ...]` (object arrays). The frontend renderer must handle both formats simultaneously, otherwise polygon drawing crashes. This is because `ocr-device-inference` and `locate-anything-v2`'s `text_detection` mode serialize polygons inconsistently — the former uses object arrays (consistent with PaddleOCR's native output), the latter uses array pairs (consistent with COCO format).
+**OCR polygon format compatibility**: Commit `403c0f1` (`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`) fixed another related format pitfall. The `polygon` field returned by OCR extensions (array of polygon vertices) comes in two formats: `[[x,y], ...]` (array pairs) and `[{x, y}, ...]` (object arrays). The frontend renderer must handle both formats simultaneously, otherwise polygon drawing crashes. This is because `ocr-device-inference` and `locate-anything`'s `text_detection` mode serialize polygons inconsistently — the former uses object arrays (consistent with PaddleOCR's native output), the latter uses array pairs (consistent with COCO format).
 
 ---
 
@@ -559,7 +561,7 @@ These 5 decisions share a common theme: **choosing permissive degradation over s
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | 4.6 |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | 4.7 |
 | [`0eedd27`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/0eedd27) | fix | update virtual data on WS-triggered REST fetch | 4.7 |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 4.3 |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 4.3 |
 
 ### Following chapters
 

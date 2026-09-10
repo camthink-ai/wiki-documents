@@ -20,7 +20,7 @@ The rule engine lets NeoMind respond automatically **without human intervention*
 
 Click **Automation** (branch icon) in the left nav to open the automation page. The default tab is **Rules**:
 
-<img src="https://resources.camthink.ai/NeoMind/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/automation-rules.png" alt="Automation rules page — rule list, enabled status, Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all rules in a table, each row containing:
 
@@ -55,13 +55,38 @@ A rule has four parts — **name**, **trigger**, **condition**, and **actions** 
 }
 ```
 
-## Creating a Rule via Web UI
+<details>
+<summary>Complete JSON field reference</summary>
 
-### Step 1: Open the Rule Builder
+```json
+{
+  "name": "Sustained High Temperature",
+  "trigger": { "trigger_type": "data_change" },
+  "condition": {
+    "condition_type": "comparison",
+    "source": "device:sensor-01:temperature",
+    "operator": "greater_than",
+    "threshold": 30
+  },
+  "actions": [
+    { "type": "notify", "message": "Temperature above 30°C for 5 minutes", "severity": "critical" }
+  ],
+  "for_duration": 300000,
+  "cooldown": 60000
+}
+```
+
+</details>
+
+## Other Creation Methods
+
+### Option 1: Web UI
+
+#### Step 1: Open the Rule Builder
 
 In the Rules tab, click the **Create** button to open the full-screen rule builder:
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder.png" alt="Rule builder — basic info area: name, description, trigger selector" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Fill in the top of the builder:
 
@@ -71,7 +96,7 @@ Fill in the top of the builder:
 | **Description** | Optional, explains the rule's purpose |
 | **Trigger** | Select the trigger type (see below) |
 
-### Step 2: Configure the Trigger
+#### Step 2: Configure the Trigger
 
 | Trigger Type | Description | Use Case |
 |--------------|-------------|----------|
@@ -83,9 +108,9 @@ Fill in the top of the builder:
 
 The `data_change` trigger automatically extracts referenced data sources from the `condition` — no need to specify `sources` manually.
 
-### Step 3: Configure the Condition
+#### Step 3: Configure the Condition
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="Rule builder — condition config area: select data source, operator, threshold" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Conditions determine when a rule fires. Three types are supported:
 
@@ -125,9 +150,9 @@ Conditions determine when a rule fires. Three types are supported:
 }
 ```
 
-### Step 4: Configure Actions
+#### Step 4: Configure Actions
 
-<img src="https://resources.camthink.ai/NeoMind/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="Rule builder — action config area: notify, execute command, trigger agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Actions execute when the condition is met. A rule can have multiple actions, executed in order.
 
@@ -155,47 +180,20 @@ Actions execute when the condition is met. A rule can have multiple actions, exe
 { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 is offline, please diagnose" }
 ```
 
-### Step 5: Duration and Cooldown
+#### Step 5: Duration and Cooldown
 
 | Field | Description |
 |-------|-------------|
-| **For Duration (seconds)** | Condition must be **continuously met** for this duration before firing, filtering out sensor jitter |
-| **Cooldown (seconds)** | Minimum interval between triggers, default 60 seconds |
+| **For Duration** | Condition must be **continuously met** for this duration before firing, filtering out sensor jitter. The JSON field is in **milliseconds** (e.g. 5 minutes = `300000`; the UI offers seconds / minutes / hours) |
+| **Cooldown** | Minimum interval between triggers. The JSON field is in **milliseconds**, default `60000` (60 seconds) |
 
 Click **Save** to save the rule.
-
-## JSON Structure Reference
-
-<details>
-<summary>Complete JSON field reference</summary>
-
-```json
-{
-  "name": "Sustained High Temperature",
-  "trigger": { "trigger_type": "data_change" },
-  "condition": {
-    "condition_type": "comparison",
-    "source": "device:sensor-01:temperature",
-    "operator": "greater_than",
-    "threshold": 30
-  },
-  "actions": [
-    { "type": "notify", "message": "Temperature above 30°C for 5 minutes", "severity": "critical" }
-  ],
-  "for_duration": 300,
-  "cooldown": 60
-}
-```
-
-</details>
-
-## Other Creation Methods
 
 ### CLI
 
 ```bash
 # Create a rule (JSON format)
-neomind rule create --json '{"name":"High Temp","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"Too hot"}]}'
+neomind rule create --body '{"name":"High Temp","trigger":{"trigger_type":"data_change"},"condition":{"condition_type":"comparison","source":"device:sensor-01:temperature","operator":"greater_than","threshold":30},"actions":[{"type":"notify","message":"Too hot"}]}'
 
 # List all rules
 neomind rule list
@@ -204,8 +202,8 @@ neomind rule list
 neomind rule enable <rule_id>
 neomind rule disable <rule_id>
 
-# Execute rule immediately (manual trigger)
-neomind rule test <rule_id> --execute
+# Dry-run rule evaluation (only evaluates whether the condition is met, without triggering actions)
+neomind rule test <rule_id> --input '{"temperature": 35}'
 
 # Delete rule
 neomind rule delete <rule_id>
@@ -243,16 +241,16 @@ The **Import / Export** button in the Rules tab supports bulk management:
 | Operation | Description |
 |-----------|-------------|
 | **Export** | Export all rules to a JSON file (`neomind-rules-YYYY-MM-DD.json`) |
-| **Import** | Upload a JSON file to bulk import rules, with incremental import (skips existing rules with the same name) |
+| **Import** | Upload a JSON file to bulk import rules; rules that fail to import (e.g. invalid format) are counted as "skipped" and reported in the result |
 
 ## Rule Validation
 
 When creating a rule, NeoMind performs **context-aware validation**:
 
-- Device/extension exists
+- Referenced device exists
 - Metric name is valid
 - Command parameters match the device type definition
-- Agent ID exists (for trigger_agent actions)
+- Extension and Agent IDs are checked to be non-empty
 
 Validation failures return detailed error messages listing which field has the problem.
 
@@ -304,7 +302,7 @@ Device offline for 10+ minutes triggers diagnostic Agent:
   "name": "Device Offline Diagnosis",
   "trigger": { "trigger_type": "data_change" },
   "condition": { "condition_type": "comparison", "source": "device:sensor-03:online", "operator": "equal", "threshold": 0 },
-  "for_duration": 600,
+  "for_duration": 600000,
   "actions": [
     { "type": "notify", "message": "sensor-03 offline for 10 minutes", "severity": "critical" },
     { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 is offline, please diagnose" }
@@ -329,16 +327,23 @@ Click the **actions menu** on any rule row to view execution history:
 | [AI Agent](./6-ai-agent.md) | `trigger_agent` action calls an autonomous agent for deep analysis |
 | [Devices](./3-onboard-device.md) | `execute` action sends device commands |
 | [Data Transforms](./7b-data-transforms.md) | Rules can reference derived metrics from Transforms |
+| [Data Push](./7c-data-push.md) | Rules evaluate data in-platform and trigger actions; Data Push sends data off-platform |
 | [AI Chat](./5-ai-chat.md) | Create rules in natural language, LLM auto-generates JSON |
 
 ## Best Practices
 
-- **Add `for_duration` for debounce**: Sensor data is noisy; use `"for_duration": 120` to filter transient spikes
+- **Add `for_duration` for debounce**: Sensor data is noisy; use `"for_duration": 120000` (2 minutes) to filter transient spikes (unit is milliseconds)
 - **Set `cooldown` to prevent spam**: High-frequency data sources need cooldown to prevent alert storms
 - **Tiered notifications**: Regular alerts `severity: "info"`, severe alerts `severity: "critical"`
 - **Prefer rules over Agents**: Deterministic logic uses rules (millisecond evaluation), fuzzy judgment uses Agents (seconds of LLM analysis)
 - **Idempotent actions**: Design device commands as idempotent (e.g. `power_on` safe to call repeatedly), preventing side effects from rule retries
 
+## Next Steps
+
+- [Data Push](./7c-data-push.md) — Send in-platform data to external systems in real time
+- [Notifications](./8-notifications.md) — Configure channels and filters for `notify` actions
+- [AI Agent](./6-ai-agent.md) — Use `trigger_agent` actions for deep Agent analysis
+
 ---
 
-*Last updated: 2026-06-16*
+*Last updated: 2026-09-09*

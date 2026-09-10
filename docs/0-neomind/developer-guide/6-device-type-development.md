@@ -72,7 +72,7 @@ pub struct DeviceTypeTemplate {
 pub struct MetricDefinition {
     pub name: String,           // 指标名（支持点号嵌套，如 "values.temperature"）
     pub display_name: String,   // 显示名
-    pub data_type: MetricDataType, // Float / Integer / Boolean / String / Binary / Enum
+    pub data_type: MetricDataType, // Float / Integer / Boolean / String / Array / Binary / Enum
     pub unit: String,           // 单位（如 "°C"、"%"、"hPa"）
     pub min: Option<f64>,       // 数值范围（可选）
     pub max: Option<f64>,
@@ -138,7 +138,7 @@ NeoMind 默认开启自动发现。任何向 MQTT Broker 发送数据的未知�
 NeoMind 匹配已知设备类型？─── 是 ──→ 直接创建设备（自动注册）
         │ 否
         ▼
-创建 Draft（收集 5 条样本数据）
+创建 Draft（默认收集 10 条样本数据，可用 --max-samples 调整）
         │
         ▼
 用户在 Web UI 或 CLI 审批 ─── approve ──→ 注册为正式设备
@@ -175,13 +175,12 @@ neomind device create \
   --name "温湿度传感器" \
   --device-type dht22_sensor \
   --adapter-type mqtt \
-  --json '{"connection_config": {"telemetry_topic": "device/dht22/living-room/uplink"}}'
+  --config '{"telemetry_topic": "device/dht22/living-room/uplink"}'
 
 # Webhook 设备
 neomind device create \
   --name "Webhook 设备" \
-  --adapter-type webhook \
-  --json '{"connection_config": {}}'
+  --adapter-type webhook
 
 # 获取 Webhook URL
 neomind device webhook-url <DEVICE_ID>
@@ -205,7 +204,7 @@ neomind device control <DEVICE_ID> set_brightness \
   --params '{"brightness": 80}'
 
 # 直接写入指标（测试用）
-neomind device write-metric <DEVICE_ID> temperature 25.5
+neomind device write-metric <DEVICE_ID> --metric temperature --value 25.5
 ```
 
 ### 设备类型管理
@@ -223,6 +222,14 @@ neomind device types create \
 # 查看类型详情
 neomind device types get <TYPE_ID>
 ```
+
+### 命令模板：`payload_template` 与 `request_id` 自动注入
+
+`CommandDefinition` 支持 **`payload_template`**——用模板（`${param}` 占位符）定义下行 JSON 的完整结构，占位符在发送时用实际参数替换，设备端收到的就是它期望的原生报文格式（而不是平台通用信封）。未在模板中出现的参数会被忽略。
+
+模板中引用 **`${request_id}`** 时，平台会在发送前**自动注入唯一请求 ID**（`req-<UUID>`，无需在 `parameters` 中声明），设备回应答中带回同值即可关联请求-响应，无需设备端自己维护序号。
+
+> 完整字段说明见 [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes)。该仓库目前维护着 **128 个设备类型模板**（`types/` 目录共 129 个文件，含 `index.json`），其中 **126 个为 Milesight LoRaWAN 传感器**；NE301/NE101 相机类型为 `mode: full`（NE301 的命令带 `payload_template`），可直接导入参考。
 
 ## REST API 快速参考
 
@@ -343,4 +350,4 @@ while True:
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

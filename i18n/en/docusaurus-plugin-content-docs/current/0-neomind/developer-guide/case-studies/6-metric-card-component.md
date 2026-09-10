@@ -7,6 +7,14 @@ sidebar_label: "metric card"
 
 # metric card: Introductory Dashboard Component
 
+:::note
+
+This audit reflects component **v1.7.0**; line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card). Commit `19af1e9` (2026-06-25) replaced the frosted-glass container with a solid card surface, so the `mc-shimmer` animation and `blur(16px)` styles referenced in "Frosted container design (OKLCH + CSS variables)" are no longer in the current bundle.js.
+
+:::
+
+> **Reading tip**: This article is about 590 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standards in Practice → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
+
 ## Case Background
 
 **metric_card** is the simplest "meaningful component" in the NeoMind dashboard component marketplace. It renders one or more numeric values (temperature, battery level, inference latency, detected object count) as a frosted-glass card with labels, units, and decimal precision. The entire component is 352 lines of hand-written IIFE JavaScript with zero build step — the shortest path for a newcomer to understand "what makes up a NeoMind component."
@@ -578,7 +586,7 @@ metric_card's git history records the evolution of `extractValue` from "numbers 
 
 - [Engineering Standards Appendix](./appendix-standards.md) — Central reference for manifest schema, size constraints, and STYLE_GUIDE rules.
 - [Case Study Overview](./0-overview.md) — Version alignment table and reading paths for all 7 cases.
-- [1 weather-forecast-v2](./1-weather-forecast.md) — Paired extension case. weather-forecast produces metrics; metric_card consumes them; together they form a complete "extension → component" data pipeline.
+- [1 weather-forecast](./1-weather-forecast.md) — Paired extension case. weather-forecast produces metrics; metric_card consumes them; together they form a complete "extension → component" data pipeline.
 - [7 ne101_camera](./7-ne101-camera-component/index.md) — Flagship component case (next difficulty level). Builds on metric_card's foundation with device binding, image canvas, and AI processing pipeline.
 - [Component API Reference](../8-dashboard-component-dev.md) — API docs for dashboard component schema, data source binding, and render pipeline.
 - [Source Repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card) — `bundle.js` + `manifest.json`.
@@ -586,4 +594,4 @@ metric_card's git history records the evolution of `extractValue` from "numbers 
 
 ---
 
-*Last updated: 2026-06-22 · Source version: metric_card v1.7.0*
+*Source repo version: metric_card v1.7.0 | Last audit: 2026-06-22*

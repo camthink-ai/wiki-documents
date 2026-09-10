@@ -1,10 +1,13 @@
 ---
+sidebar_label: "Object Detection"
 description: A complete solution for person and object detection with notification push using the NeoMind platform, offering two implementation paths — YOLO Inference extension (edge inference) and AI Agent (LLM-powered analysis) — supporting NE101/NE301 smart cameras.
 keywords: [NeoMind, YOLO, AI Agent, person detection, object detection, notification push, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, person detection, YOLO, AI Agent, notification push]
 ---
 
-# AI Agent and Extensions Solutions
+# Object Detection with YOLO & AI Agent
+
+> Two implementation paths — the **YOLO Inference extension** (edge inference, low latency) and the **AI Agent** (LLM-powered analysis) — turning NE101/NE301 cameras into proactive visual sentinels.
 
 ---
 
@@ -47,7 +50,7 @@ For detailed performance comparison and selection guidance, see [Section 8](#8-c
 | Item | Specification | Qty | Purpose | Required |
 |------|----------|------|------|------|
 | **Smart Camera** | NE101 or NE301 | 1+ | Image capture | ✅ |
-| **NeoMind Platform** | v0.8.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind Platform** | v0.9.0+ | 1 | Edge AI management | [Download](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **LLM Runtime** | Ollama / OpenAI / Anthropic etc. | 1 | AI Agent backend | Approach B |
 | **Solar Power Kit** | 10W panel + 7AH rechargeable battery | 1 | Outdoor long-term deployment | Optional |
 
@@ -103,7 +106,7 @@ Register your NE101 or NE301 to the NeoMind platform:
 3. Enter the Device ID (matching the device side) and MQTT topic (MQTT Broker must be configured in advance)
 4. Save and wait for the device to come online
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
+![Device online and listed](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
 
 > For detailed device onboarding steps, refer to [NeoMind Quick Start - Device Management](../user-guide/3-onboard-device.md).
 
@@ -117,7 +120,7 @@ The YOLO Inference extension uses ONNX models for local object detection inferen
 
 **Step 1**: Navigate to the **Extensions** management page
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
+![Extensions management page](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
 
 **Step 2**: Find the **YOLO Device Inference** extension and click Install
 
@@ -128,7 +131,7 @@ The YOLO Inference extension uses ONNX models for local object detection inferen
 
 **Step 3**: After installation, enable the extension
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
+![Extension installed and enabled](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
 
 ### 4.2 Verify Inference Results
 
@@ -169,7 +172,7 @@ AI Agent uses an LLM to intelligently analyze images, with natural language prom
 
 **Step 1**: Navigate to the **AI Agent** management page
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
+![AI Agents page](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
 
 **Step 2**: Click **Create Agent** and fill in the basic information:
 
@@ -180,9 +183,9 @@ AI Agent uses an LLM to intelligently analyze images, with natural language prom
 
 The core of AI Agent is the prompt and execution rules. Prompts define the analysis logic, while execution rules define trigger conditions.
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
+![Agent prompt configuration](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
+![Agent execution rules](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
+![Agent execution rules (cont.)](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
 
 **Configuration steps**:
 
@@ -237,7 +240,7 @@ In the dashboard, click **Add Panel**, select the **YOLO Device Inference** exte
 </div>
 
 Once the device is bound, the YOLO extension automatically performs inference when images are captured and displays detection results in the panel, including annotated images and detected object types and counts:
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
+![YOLO panel live detection results](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
 
 ### 6.3 Add AI Agent Panel
 
@@ -249,7 +252,7 @@ Add an **AI Agent** panel to the dashboard and select the created AI Agent. When
 </div>
 
 ### 6.4 View Combined Results
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
+![Combined detection results view](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
 
 The completed dashboard displays detection results from both the YOLO extension and AI Agent for easy comparison:
 <div style={{display: 'flex', gap: '8px'}}>
@@ -265,9 +268,9 @@ The completed dashboard displays detection results from both the YOLO extension 
 
 Based on the AI Agent's prompt configuration, NeoMind automatically displays notifications in the app when targets are detected. Click the notification tag to view details and the associated detection image.
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
+![App notification details](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
+![Notification list](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
 
 ### 7.2 Email Notifications (Optional)
 
@@ -310,6 +313,17 @@ To receive notifications via email:
 - **Rapid prototyping**: Validate detection approaches via prompts without model training
 
 **Combined use**: Both approaches can run simultaneously. For example, the YOLO extension handles fast real-time detection while the AI Agent performs deep analysis and anomalous behavior understanding — complementing each other.
+
+## 9. Related Docs
+
+- [Extension Management](../user-guide/9-extensions.md) — YOLO extension install and command calls
+- [Using Dashboards](../user-guide/4-use-dashboard.md) — componentizing detection results
+- [Notification Channels](../user-guide/8-notifications.md) — alert delivery setup
+- [Configure LLM Backend](../user-guide/2-configure-llm.md) — required by path B (AI Agent)
+- [NE101 Camera OCR](./4-camera-ocr.md) — OCR solution for the same camera
+- [LocateAnything Grounding](./6-locate-anything-v2.md) — open-vocabulary grounding/counting
+
+---
 
 ---
 

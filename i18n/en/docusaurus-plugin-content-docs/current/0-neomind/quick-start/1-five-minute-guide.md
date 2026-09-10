@@ -45,7 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 After startup, open `http://localhost:9375` in your browser.
 
-<img src="https://resources.camthink.ai/NeoMind/step1-login-v2.png" alt="NeoMind login page" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/step1-login-v2.png" alt="NeoMind login page" style={{width: '100%'}} />
 
 > ✓ **Checkpoint**: you see the login / register page = the server is running. Register an account and log in.
 
@@ -60,15 +60,22 @@ After startup, open `http://localhost:9375` in your browser.
 
 ## Step 2: Configure LLM Backend (1 min)
 
-On first login you'll enter the setup wizard. NeoMind needs an LLM backend as its "brain" — pick one of three options:
+On first login you'll enter the setup wizard. NeoMind needs an LLM backend as its "brain" — pick one of the options below:
 
 | Option | Best for | Latency | Privacy | Requires |
 |--------|----------|---------|---------|----------|
-| **Ollama (local)** | Recommended, offline use | Low | Never leaves LAN | 8 GB+ RAM |
+| **Built-in model (one-click download in wizard)** | Fastest start | Low | Fully local | No API key needed |
+| **Ollama (local)** | If you already run Ollama, offline use | Low | Never leaves LAN | 8 GB+ RAM |
 | **Cloud API** | Most powerful models | Medium | Data goes to cloud | API Key |
 | **Skip for now** | Just look around | — | — | — |
 
-### Option A: Ollama Local (recommended)
+> The platform ships with several ready-to-run local models (e.g. Qwen 3.5, Gemma 4 — automatically recommended based on your hardware). Just click download in the wizard's **LLM Backend** step — no need to install Docker or Ollama. Importing your own GGUF models is also supported. See [Configure LLM Backend](../user-guide/2-configure-llm.md) for details.
+
+### Option A: Built-in model (one-click download, recommended)
+
+In the wizard's **LLM backend** step, open the built-in model card and click **Download** (auto-recommended for your hardware — no Ollama or Docker needed). When done, the wizard shows **"LLM backend connected"**.
+
+### Option B: Ollama local (if you already have it)
 
 ```bash
 # 1. Install Ollama (if you haven't): https://ollama.com
@@ -82,9 +89,9 @@ In the wizard:
 2. URL → `http://localhost:11434` (default)
 3. Model → `qwen3.5:4b`
 
-<img src="https://resources.camthink.ai/NeoMind/step2-llm-config.png" alt="LLM configuration wizard" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/step2-llm-config.png" alt="LLM configuration wizard" style={{width: '100%'}} />
 
-### Option B: Cloud API
+### Option C: Cloud API
 
 Pick OpenAI / Anthropic / GLM etc., enter your API Key and model name (e.g. `gpt-4o`, `claude-sonnet-4-6`).
 
@@ -131,7 +138,7 @@ In the Web UI **Devices** page → click **Add Device** → select **Webhook** �
 After creation you'll get a dedicated Webhook URL (like `/api/devices/<DEVICE_ID>/webhook`).
 
 <div style={{display: 'flex', gap: '8px'}}>
-  <img src="https://resources.camthink.ai/NeoMind/step3-add-device.png" alt="Add device" style={{width: '50%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v0923/step3-add-device.png" alt="Add device" style={{width: '50%'}} />
   <img src="https://resources.camthink.ai/NeoMind/step3-webhook-url.png" alt="Get webhook URL" style={{width: '50%'}} />
 </div>
 
@@ -147,7 +154,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 A `{"success": true}` response means it worked. Open the device detail page to see the latest telemetry values.
 
-<img src="https://resources.camthink.ai/NeoMind/step3-device-detail.png" alt="Device detail page showing telemetry" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/step3-device-detail.png" alt="Device detail page showing telemetry" style={{width: '100%'}} />
 
 > ✓ **Checkpoint**: the device detail page shows `temperature: 25.6` and `humidity: 60` = data is in the database.
 
@@ -166,21 +173,21 @@ NeoMind has a built-in MQTT broker (`localhost:1883`) that supports real devices
 
 ## Step 4: See Data on the Dashboard (30 sec)
 
-Go to the **Dashboard** page — a default dashboard is auto-created. Click **Edit**, then add a **Value Card** widget:
+Go to the **Dashboard** page and create a dashboard (pick the **Overview** template or a blank canvas), then add a **Value Card** widget:
 
 1. Click **Add Widget** → choose **Value Card**
 2. Data source → `device:demo-sensor:temperature`
 3. Save
 
-<img src="https://resources.camthink.ai/NeoMind/step4-dashboard.png" alt="Dashboard value card" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/step4-dashboard.png" alt="Dashboard value card" style={{width: '100%'}} />
 
 :::info DataSourceId Format
 
 The unified data source reference format is `{type}:{id}:{field}`:
 
 - `device:demo-sensor:temperature` — device telemetry
-- `extension:weather:temp` — extension metric
-- `agent:guard:status` — agent status
+- `extension:weather-forecast:temperature` — extension metric
+- `transform:temp-converter:temp_f` — data transform output
 
 Dashboards, rules, and data pushes all use this format. See the [Glossary](../concepts/1-glossary.md).
 :::
@@ -207,7 +214,7 @@ Open **AI Chat** and type:
 
 The AI Agent will query the device list and latest telemetry, then answer in natural language.
 
-<img src="https://resources.camthink.ai/NeoMind/step5-ai-chat.png" alt="AI Chat conversation" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/step5-ai-chat.png" alt="AI Chat conversation" style={{width: '100%'}} />
 
 Now try something more ambitious — let the AI create an automation for you:
 
@@ -264,4 +271,4 @@ Congratulations! You've completed the NeoMind core loop. From here:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

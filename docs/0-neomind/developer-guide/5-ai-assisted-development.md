@@ -18,7 +18,7 @@ NeoMind 的代码库从第一天起就为 **AI 辅助编程**而设计——结�
 | **项目级 `CLAUDE.md`** | AI 打开项目就自动读取技术栈、命令、架构规则、代码约定——零配置 |
 | **`web/DESIGN_SPEC.md`（33 节）** | 前端开发时 AI 自动遵守颜色系统、组件规范、无障碍标准 |
 | **Crate 化分层** | `neomind-devices`、`neomind-rules`、`neomind-extension-sdk`…AI 能精确定位目标模块 |
-| **真实扩展代码库** | 16 个官方扩展是现成的参考实现——AI 可以直接读代码学模式 |
+| **真实扩展代码库** | 27 个官方扩展是现成的参考实现——AI 可以直接读代码学模式 |
 | **CLI 优先架构** | `neomind widget create`、`neomind extension install`…AI 用 CLI 就能完成构建-测试-安装闭环 |
 | **强类型 Rust + TypeScript** | 编译器是 AI 的即时验证——生成代码对不对，编译一下就知道 |
 
@@ -81,9 +81,9 @@ Claude Code 会：探索现有扩展代码 → 参考类似实现 → 生成代�
 | **Code Conventions** | Rust fmt/clippy、Zustand slices 模式、DESIGN_SPEC.md | 遵循项目编码规范 |
 | **Frontend Design Standards** | 33 节设计规范索引 | 生成符合设计系统的前端代码 |
 
-> **扩展仓库和组件仓库**目前没有 `CLAUDE.md`。建议开发前让 AI 先读 `docs/guides/en/extension-system.md` 或对应的技术文档来建立上下文：
+> **组件仓库和设备类型仓库**目前没有 `CLAUDE.md`（扩展仓库已有）。没有 `CLAUDE.md` 的仓库，建议开发前让 AI 先读根目录的 `README.md` / `EXTENSION_GUIDE.md` 等技术文档来建立上下文：
 > ```
-> > 先读 docs/guides/en/extension-system.md 理解扩展架构，然后帮我创建...
+> > 先读 EXTENSION_GUIDE.md 理解扩展架构，然后帮我创建...
 > ```
 
 ## 工作流一：用 AI 开发扩展
@@ -126,16 +126,16 @@ AI 会运行跨平台编译脚本，生成 `.nep` 包，然后通过 `neomind ex
 
 ### 参考实现
 
-NeoMind-Extensions 仓库有 **16 个官方扩展**可直接参考：
+NeoMind-Extensions 仓库有 **27 个官方扩展**可直接参考：
 
 | 扩展 | 适合参考的场景 |
 |------|---------------|
-| `weather-forecast-v2` | HTTP API 调用 + metric 发布 |
+| `weather-forecast` | HTTP API 调用 + metric 发布 |
 | `yolo-device-inference` | ML 模型加载 + 推理命令 |
 | `modbus-bridge` | 工业协议桥接 |
 | `opcua-bridge` | OPC UA 协议接入 |
-| `image-analyzer-v2` | 图片处理 + 分析命令 |
-| `yolo-video-v2` | 视频流处理 + 流式推理 |
+| `image-analyzer` | 图片处理 + 分析命令 |
+| `yolo-video` | 视频流处理 + 流式推理 |
 | `homeassistant-bridge` | 第三方平台集成 |
 | `face-recognition` | 计算机视觉 + 组件 |
 
@@ -245,7 +245,7 @@ Claude Code 会逐文件追踪调用链，给出带文件路径和行号的流�
 | **加功能** | 「参考 `{existing-pattern}` 的模式，加一个 `{feature}`」 |
 | **探索代码** | 「帮我梳理 `{module}` 的执行流程，从 `{入口}` 到 `{终点}`」 |
 | **代码审查** | 「审查这段代码有没有安全问题、性能问题、不符合 `CLAUDE.md` 约定的地方」 |
-| **跨平台编译** | 「帮我编译扩展到 6 个平台（linux/darwin/windows × amd64/arm64）」 |
+| **跨平台编译** | 「帮我编译扩展到全部平台目标（linux/darwin/windows，无 windows-arm64，见附录构建矩阵）」 |
 
 ## 最佳实践
 
@@ -259,7 +259,7 @@ Claude Code 会逐文件追踪调用链，给出带文件路径和行号的流�
 ### DON'T
 
 - **不要跳过 CLAUDE.md**：如果仓库没有，先创建一个，写清楚构建命令和约定——这是 AI 理解项目的关键
-- **不要让 AI 猜 API 格式**：让 AI 先读 `docs/guides/en/14-api.md` 或 Swagger 文档，再写集成代码
+- **不要让 AI 猜 API 格式**：让 AI 先读本站的 [REST API 参考](./4-rest-api.md)，再写集成代码
 - **不要在前端用硬编码颜色**：让 AI 读 `DESIGN_SPEC.md` 第 1 节，只用 design token 类名
 
 ## 为自己的仓库配置 AI 上下文
@@ -279,7 +279,7 @@ neomind extension install ./target/release/my-extension.nep
 ## Conventions
 - metric 名用 snake_case
 - 命令参数用 JSON
-- 参考 NeoMind-Extensions/weather-forecast-v2 的代码风格
+- 参考 NeoMind-Extensions/weather-forecast 的代码风格
 ```
 
 这样 Claude Code 打开你的项目就知道怎么构建、测试、以及参考哪个现有实现。
@@ -292,7 +292,7 @@ neomind extension install ./target/release/my-extension.nep
 | **`neomind widget create`** | 仪表板组件脚手架 |
 | **`neomind extension install`** | 扩展安装与测试 |
 | **`cargo build --release`** | Rust 扩展编译 |
-| **Swagger UI** (`/api/docs`) | API 文档——让 AI 读这个了解端点格式 |
+| **REST API 参考文档** | API 端点参考——让 AI 读 [4-rest-api.md](./4-rest-api.md) 了解端点格式 |
 
 ## 下一步
 
@@ -303,4 +303,4 @@ neomind extension install ./target/release/my-extension.nep
 
 ---
 
-*最后更新: 2026-06-16*
+*最后更新: 2026-09-08*

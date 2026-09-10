@@ -27,7 +27,7 @@ ne101_camera 的源码仓库 [`camthink-ai/NeoMind-Dashboard-Components`](https:
 4. **ROI 叠加**（最重的阶段，10+ commits）——从中心点判定到 Sutherland-Hodgman 裁剪、从固定阈值到可配置阈值、ROI 多边形编辑器、坐标对齐修复
 5. **OCR 多边形支持**——`ocr_text_blocks` responseType、对象坐标（x/y pair）的转换、多边形渲染 + 矩形回退
 6. **React hooks 稳定化**——条件 useState 导致的 #310 崩溃、IME 输入冻结的两次迭代、ResizeObserver 异步挂载修复
-7. **每类检测着色 + NMS 调优**——golden-angle HSV 旋转的颜色分配、locate-anything-v2 的 `nms_iou_threshold` 透传。
+7. **每类检测着色 + NMS 调优**——golden-angle HSV 旋转的颜色分配、locate-anything 的 `nms_iou_threshold` 透传。
 
 这 7 个阶段不是严格线性的——例如 ROI 叠加（阶段 4）和 hooks 稳定化（阶段 6）在时间上有重叠，但用 gantt 图能看出每个阶段的相对体量。
 
@@ -95,7 +95,9 @@ React StrictMode 的双重挂载、配置频繁变更、并发 effect 竞争等�
 这个「**add-then-remove**」周期总共持续了几天，但留下了重要的工程教训：
 
 :::tip 工程教训
-临时调试 log 必须在合并到 main 之前清除，否则它们会成为永久性的噪声。更好的做法是用 error-boundary telemetry 或 opt-in 的 debug flag，而不是裸的 console.log。ne101_camera 最终选择了「彻底删除」而不是「保留在 debug flag 后」——因为 IIFE 范式没有构建步骤来剥离 debug 代码，任何保留的 log 都会进生产 bundle，拖慢每个用户的渲染性能。
+
+临时调试 log 必须在合入 main 前删除：IIFE 没有构建步骤剥离 debug 代码，任何保留的 log 都会进生产 bundle、拖慢每个用户的渲染。更好的方案是 error-boundary telemetry 或 opt-in debug flag，而不是裸 `console.log`。
+
 :::
 
 ```mermaid
@@ -195,7 +197,9 @@ Boa 引擎在某个版本里**没有完整实现 `console` shim**——`console.
 **这条 log 在浏览器里测试时一切正常**，但部署到生产环境（Transform 跑在 Boa 里）后立即崩溃。这就是 c16d803 修的 bug：删除 Transform JS 字符串里的 `console.log`。
 
 :::tip 工程教训
-在跨运行时代码里，必须避免 host-environment 假设。Transform JS 是「跨运行时代码」的典型——源码字符串由组件生成，但执行发生在平台沙箱里，两个运行时的能力集合不同（浏览器有完整的 `console` / `window` / `fetch`，Boa 只有 JS 语言核心 + 平台注入的 `extensions.invoke`）。任何对宿主环境的假设（`console.log` 存在、`Date.now` 存在、`JSON.stringify` 存在）都可能在某个运行时里失败。
+
+Transform JS 由组件生成、在平台沙箱执行，两个运行时能力集合不同：浏览器有完整 `console` / `window` / `fetch`，Boa 只有 JS 核心 + 注入的 `extensions.invoke`。跨运行时代码不得假设宿主能力——任何假设都可能在另一端失败。
+
 :::
 
 修复后的 ne101_camera 在 Transform 生成代码里彻底禁用了 `console.log`。
@@ -485,11 +489,9 @@ function imeInput(key, value, placeholder) {
 [Source: bundle.js L1459-L1468](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L1459-L1468)`defaultValue` + `onChange` 单向同步——浏览器原生管理输入，React 不干预。这个方案最大的优点是「**简单**」——10 行代码，没有 hooks、没有 ref、没有 state，自然不会有 hooks 顺序问题或冻结问题。
 
 :::tip 工程教训
-在 IIFE 范式下，最简单的方案往往是正确的方案。ESM + React 项目里，开发者习惯了「每个交互都用 hooks 管理」的范式（controlled input + useState），因为这个范式在 ESLint 的 `rules-of-hooks` 保护下是安全的。
 
-但 IIFE 没有 ESLint，hooks 的边界条件（不能在工厂函数里用、不能在条件块里用、数量必须稳定）全靠开发者自觉。在这种情况下，**回避 hooks** 比「正确使用 hooks」更安全——uncontrolled input 用 10 行代码达到了 controlled input + IME-aware ref + composing state 三层机制的效果，且没有任何边界条件。
+IIFE 没有 ESLint 兜底，hooks 的边界条件全靠自觉——**回避 hooks 比「正确使用 hooks」更安全**：一个 uncontrolled input 用 10 行代码就达到了 controlled + IME 三层机制的效果。ne101_camera 据此推广：能用 DOM 原生能力（`<input defaultValue>`、`<button onclick>`）解决的，不引入 hooks。
 
-这个教训后来被应用到 ne101_camera 的其它子模块：凡是能用 DOM 原生能力解决的（如 `<input defaultValue>`、`<button onclick>`），就不要引入 hooks。
 :::
 
 **设计决策：uncontrolled `defaultValue`（最终）vs controlled+IME-aware vs shared-ref**

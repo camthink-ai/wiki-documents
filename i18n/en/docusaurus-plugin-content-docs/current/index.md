@@ -65,7 +65,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     {/* NeoMind */}
     <div className="category-card">
       <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-header">
-        <img src="https://resources.camthink.ai/NeoMind/dashboardDemo.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
+        <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
       </Link>
       <div className="cat-body">
         <div className="cat-title">NeoMind Platform</div>
@@ -109,6 +109,23 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
           <Link to="/docs/neoeyes-ne503-series/quick-start" className="cat-link-item">Quick Start</Link>
           <Link to="/docs/neoeyes-ne503-series/hardware-guide/specifications" className="cat-link-item">Hardware Guide</Link>
           <Link to="/docs/neoeyes-ne503-series/software-guide/system-architecture" className="cat-link-item">Software Guide</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NE302 */}
+    <div className="category-card">
+      <Link to="/docs/neoeyes-ne302-series/ne302-overview" className="cat-header">
+        <img src="/img/home/hw/ne302.webp" style={{height: '80px', pointerEvents: 'none'}} alt="NE302" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEyes NE302</div>
+        <div className="cat-desc">Mini AI vision camera with STM32N6 + 4 MP on a 38×38 mm board, built for device integration.</div>
+        <div className="cat-links">
+          <Link to="/docs/neoeyes-ne302-series/ne302-overview" className="cat-link-item">Overview</Link>
+          <Link to="/docs/neoeyes-ne302-series/ne302-quick-start" className="cat-link-item">Quick Start</Link>
+          <Link to="/docs/neoeyes-ne302-series/hardware-guide/ne302-components-overview" className="cat-link-item">Hardware Guide</Link>
+          <Link to="/docs/neoeyes-ne302-series/software-guide/ne302-development-environment" className="cat-link-item">Software Guide</Link>
         </div>
       </div>
     </div>

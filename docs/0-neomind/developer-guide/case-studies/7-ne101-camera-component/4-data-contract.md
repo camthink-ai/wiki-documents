@@ -170,13 +170,13 @@ AI 扩展的响应格式由扩展作者决定，ne101_camera 不能控制。
 
 分发逻辑在 [`bundle.js` L288-L329](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L288-L329)。其中前三种 responseType 的归一化逻辑高度相似——都是把各自格式的坐标转换成 `[x1,y1,x2,y2]` 并除以图像宽高 `W/H` 得到 0-1 范围。
 
-**`boxes_x1y1x2y2`（locate-anything-v2 系）** —— 标签不在 box 里，而在 `r.answer` 字符串里以 `<ref>label</ref>` 标签形式按顺序排列，代码用正则提取配对。commit `8656148` 在 L282 给这个扩展额外透传了 `nms_iou_threshold: 0.5` 参数。
+**`boxes_x1y1x2y2`（locate-anything 系）** —— 标签不在 box 里，而在 `r.answer` 字符串里以 `<ref>label</ref>` 标签形式按顺序排列，代码用正则提取配对。commit `8656148` 在 L282 给这个扩展额外透传了 `nms_iou_threshold: 0.5` 参数。
 
-**`objects_bbox`（image-analyzer-v2）** —— 归一化时把 `{x, y, width, height}` 转成 `[x1, y1, x2, y2]`（`x2 = x + width`），再除以 `W/H`。
+**`objects_bbox`（image-analyzer）** —— 归一化时把 `{x, y, width, height}` 转成 `[x1, y1, x2, y2]`（`x2 = x + width`），再除以 `W/H`。
 
 **`detections_bbox`（yolo-device-inference）** —— 字段结构与 `objects_bbox` 几乎一样，只是顶层 key 从 `objects` 变成了 `detections`。
 
-之所以单独列为一种 responseType 而不是复用 `objects_bbox`，是因为 image-analyzer-v2 专用，与 yolo 共用 `analyze_image` 命令但响应路径不同，且未来 yolo-device-inference 可能在响应里增加设备端独有的字段（如推理耗时、模型版本）。
+之所以单独列为一种 responseType 而不是复用 `objects_bbox`，是因为 image-analyzer 专用，与 yolo 共用 `analyze_image` 命令但响应路径不同，且未来 yolo-device-inference 可能在响应里增加设备端独有的字段（如推理耗时、模型版本）。
 
 **`ocr_text_blocks`（ocr-device-inference）** —— 见 [`bundle.js` L316-L328](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L316-L328)。
 
@@ -228,17 +228,17 @@ graph TB
 
 **扩展模式目录**：四种 responseType 背后是四个扩展的「模式目录」，定义在 [`bundle.js` L155-L171](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L155-L171) 的 `EXT_MODES` 对象里。
 
-每个扩展对应一个模式数组，每个模式有 `{id, command, imageArg, responseType, label, args}`。例如 `locate-anything-v2` 有 5 个模式（object_detection / grounding / text_detection / ground_gui / point），都走 `boxes_x1y1x2y2` 响应格式：
+每个扩展对应一个模式数组，每个模式有 `{id, command, imageArg, responseType, label, args}`。例如 `locate-anything` 有 5 个模式（object_detection / grounding / text_detection / ground_gui / point），都走 `boxes_x1y1x2y2` 响应格式：
 
 ```js
 // bundle.js L155-L171
 var EXT_MODES = {
-  'locate-anything-v2': [
+  'locate-anything': [
     { id: 'object_detection', command: 'detect', imageArg: 'image_base64', responseType: 'boxes_x1y1x2y2', label: 'Object Detection', desc: 'Detect objects by category', icon: 'search', args: ['categories'] },
     { id: 'grounding', command: 'ground', imageArg: 'image_base64', responseType: 'boxes_x1y1x2y2', label: 'Grounding', desc: 'Find objects by description', icon: 'target', args: ['phrase'] },
     // ... (3 modes omitted)
   ],
-  'image-analyzer-v2': [
+  'image-analyzer': [
     { id: 'object_detection', command: 'analyze_image', imageArg: 'image', responseType: 'objects_bbox', label: 'Object Detection', desc: 'YOLOv8 object detection', icon: 'search', args: [] }
   ],
   'yolo-device-inference': [
@@ -405,14 +405,16 @@ if (typeof vDet === 'string') { try { vDet = JSON.parse(vDet); } catch(e) { vDet
 - **理由**：静默 null 是**最安全的降级**——用户至少能看到图像和电池等标量指标，只是检测框消失了。调试时开发者可以在 DevTools 里手动检查 `vDet` 的值来判断是否触发了这个 catch。
 
 :::note 防御性解析的设计权衡
-如果 detections 的 JSON 格式有 bug（比如后端写入了截断的 JSON），用户会无声无息地丢失所有检测框，且没有任何 UI 提示。这个代价被认为可接受，因为**检测框丢失是「视觉降级」而非「数据损坏」**——图像、电池、时间戳等标量指标不受影响。
+
+若 detections 的 JSON 损坏（如截断），检测框会无声丢失且无 UI 提示。这一代价被认为可接受：**丢框是「视觉降级」而非「数据损坏」**——图像、电池、时间戳等标量指标不受影响。
+
 :::
 
 **OCR polygon 格式兼容**：commit `403c0f1`（`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`）修复了另一个相关的格式坑。
 
 OCR 扩展返回的 `polygon` 字段（多边形顶点数组）有两种格式：`[[x,y], ...]`（数组对）和 `[{x, y}, ...]`（对象数组）。前端渲染时必须同时处理两种格式，否则 polygon 画框会崩溃。
 
-这是因为 `ocr-device-inference` 和 `locate-anything-v2` 的 `text_detection` 模式对 polygon 的序列化策略不一致——前者用对象数组（与 PaddleOCR 原生输出一致），后者用数组对（与 COCO 格式一致）。
+这是因为 `ocr-device-inference` 和 `locate-anything` 的 `text_detection` 模式对 polygon 的序列化策略不一致——前者用对象数组（与 PaddleOCR 原生输出一致），后者用数组对（与 COCO 格式一致）。
 
 ---
 
@@ -644,7 +646,7 @@ var _vals = Object.assign({}, wsValues, imageData || {}, virtualDataState[0] || 
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | 4.6 |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | 4.7 |
 | [`0eedd27`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/0eedd27) | fix | update virtual data on WS-triggered REST fetch | 4.7 |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | 4.3 |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | 4.3 |
 
 ### 后续章节桥接
 

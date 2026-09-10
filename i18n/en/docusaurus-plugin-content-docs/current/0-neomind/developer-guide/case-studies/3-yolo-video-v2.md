@@ -1,25 +1,33 @@
 ---
-description: "NeoMind's most complex streaming extension: Push-mode real-time video processing, YOLOv11 detection, ROI/line-crossing/smart-capture, ffmpeg-next + nokhwa dual backends, cross-platform ONNX Runtime dylib governance, and frontend MJPEG integration — a complete engineering dissection"
-keywords: [NeoMind, yolo-video-v2, streaming extension, Push mode, video analytics, ROI]
+description: "NeoMind's most complex streaming extension: Push-mode real-time video processing, YOLOv11 detection, ROI/line-crossing/smart-capture, ffmpeg-next decoding + base64 frame-push dual channels, cross-platform ONNX Runtime dylib governance, and frontend MJPEG integration — a complete engineering dissection"
+keywords: [NeoMind, yolo-video, streaming extension, Push mode, video analytics, ROI]
 tags: [NeoMind, case study, streaming]
-sidebar_label: "yolo-video-v2"
+sidebar_label: "yolo-video"
 ---
 
-# yolo-video-v2: Streaming Extension
+# yolo-video: Streaming Extension
+
+:::note
+
+This audit reflects market **v2.7.6** (the extension was named `yolo-video-v2` then, now `yolo-video`; upstream main has not adopted the new folder name, so deep links 404 until merged). Line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video). Since 2026-09 the version advanced to 2.7.8 (`src/lib.rs` ~3,700 lines, backup files cleaned); line numbers have shifted accordingly.
+
+:::
+
+> **Reading tip**: This article is about 870 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.
 
 ## Case Background
 
-**yolo-video-v2** is the **most complex streaming extension** in the NeoMind ecosystem. It mounts an Ultralytics YOLOv11 object-detection model onto a live video stream and supports three input sources (RTSP/RTMP/HLS network streams, local cameras, and front-end base64 frame pushes). In Push mode it continuously pushes JPEG frames with detection overlays plus structured detection JSON back to the front end.
+**yolo-video** is the **most complex streaming extension** in the NeoMind ecosystem. It mounts an Ultralytics YOLOv11 object-detection model onto a live video stream and supports three input sources (RTSP/RTMP/HLS network streams, local cameras, and front-end base64 frame pushes). In Push mode it continuously pushes JPEG frames with detection overlays plus structured detection JSON back to the front end.
 
 **Business features** include ROI region counting, line-crossing counting, and smart-capture rules (threshold/presence/absence triggers).
 
-The current version is 2.7.6; the core code is about 2829 lines of Rust (`src/lib.rs`) plus 721 lines (`src/detector.rs`) and 387 lines (`src/video_source.rs`). It is the single largest crate in this series and the only extension that exercises the full SDK chain of `StreamCapability` + `StreamMode::Push` + the `send_push_output` FFI.
+At audit time (v2.7.6) the core code was about 2829 lines of Rust (`src/lib.rs`) plus 721 lines (`src/detector.rs`) and 387 lines (`src/video_source.rs`). It is the single largest crate in this series and the most complete exercise of the SDK chain of `StreamCapability` + `StreamMode::Push` + the `send_push_output` FFI (stream-player, voice-assistant and others also use this chain, but this case is the most thorough usage of it).
 
 **What problem does it solve?** NeoMind's synchronous capability bridge (see [Case #2](./2-yolo-device-inference.md)) is designed for "event-driven + single-frame inference" — you run YOLO once when a device's image metric updates.
 
 But video analytics is a **continuous frame stream**: an RTSP camera produces 25-30 frames per second, and every frame needs inference, statistics, and visualization. If you polled via the synchronous bridge, you would issue 30 cross-process calls per second, which is unacceptable in both latency and overhead.
 
-yolo-video-v2 solves this with **Push mode**:
+yolo-video solves this with **Push mode**:
 
 - The extension spawns a dedicated OS thread to run the frame loop in `init_session`
 - Each frame is pushed directly into the SDK's output channel via the `send_push_output` FFI
@@ -28,9 +36,9 @@ yolo-video-v2 solves this with **Push mode**:
 
 **Key differences from yolo-device-inference** (this is the most important comparison for understanding this case):
 
-| Dimension | yolo-device-inference (2) | yolo-video-v2 (3) |
+| Dimension | yolo-device-inference (2) | yolo-video (3) |
 |-----------|----------------------------|---------------------|
-| Data source | Subscribes to a bound device's image metric (event-driven pull) | RTSP/camera/base64, one of three (started in init_session) |
+| Data source | Subscribes to a bound device's image metric (event-driven pull) | RTSP network streams / `camera://` local cameras / base64 frame pushes (the latter two share the base64 channel) |
 | Invocation | Resident after `configure + bind_device` | Explicit session lifecycle via `start_stream / stop_stream` |
 | Stream mode | Synchronous capability bridge (`invoke_capability_sync`) | `StreamCapability` + `StreamMode::Push` + `send_push_output` |
 | Frame rate | Device image-update frequency (usually < 1 FPS) | Native video frame rate (25-30 FPS) |
@@ -42,7 +50,7 @@ yolo-video-v2 solves this with **Push mode**:
 
 1. The semantics of Push mode — why video streams must use Push instead of Pull, and what `StreamMode::Push` actually does at the SDK layer
 2. Session lifecycle management — the complete `init_session` → `start_push` → frame loop → `stop_stream` state machine and cleanup logic
-3. Multi-backend video source abstraction — why RTSP uses ffmpeg-next while local cameras use nokhwa, and which path base64 pushing takes
+3. Multi-backend video source abstraction — why network streams use ffmpeg-next while local cameras (`camera://`) and base64 pushing share the `process_session_chunk` channel, plus the nokhwa dependency that is declared in `Cargo.toml` but never referenced by `src/`
 4. Cross-platform ONNX Runtime dynamic-library governance — from versioned `libonnxruntime.so.N` symlinks on Linux, to Windows DLL paths, to macOS `DYLD_LIBRARY_PATH`
 5. A source-hygiene anti-pattern — why files like `detector.rs.backup` should never be committed
 
@@ -50,7 +58,7 @@ yolo-video-v2 solves this with **Push mode**:
 
 ## Architecture Overview
 
-yolo-video-v2 uses a five-layer architecture: NeoMind Runtime (WebSocket relay) → Extension (StreamProcessor + ActiveStream map) → Detector (YoloDetector with lazy-loaded usls YOLO) → Video Source (ffmpeg-next / nokhwa / base64 channel) → Frontend (YoloVideoDisplay React component). The diagram below shows data flow and the key state machine.
+yolo-video uses a five-layer architecture: NeoMind Runtime (WebSocket relay) → Extension (StreamProcessor + ActiveStream map) → Detector (YoloDetector with lazy-loaded usls YOLO) → Video Source (ffmpeg-next / base64 channel) → Frontend (YoloVideoDisplay React component). The diagram below shows data flow and the key state machine.
 
 ```mermaid
 graph TB
@@ -77,8 +85,7 @@ graph TB
 
     subgraph "Video source (multi-backend)"
         FFMPEG[ffmpeg-next<br/>RTSP/RTMP/HLS/File]
-        NOKHWA[nokhwa<br/>local camera AVFoundation/V4L2]
-        BASE64[base64 channel<br/>frontend-pushed frames]
+        BASE64[base64 channel<br/>camera:// local camera / frontend-pushed frames]
     end
 
     subgraph "Frontend"
@@ -86,7 +93,6 @@ graph TB
     end
 
     FFMPEG -->|"decode → RgbImage"| PROC
-    NOKHWA -->|"frame → RgbImage"| PROC
     BASE64 -->|"process_session_chunk"| PROC
     PROC -->|"detect()"| DET
     PROC -->|"JPEG + metadata"| SDK
@@ -100,11 +106,11 @@ A stream moves through four stages from creation to destruction, each correspond
 | State | Trigger | Callback | Internal action |
 |-------|---------|----------|-----------------|
 | `Created` | Front-end `init` over WebSocket | — | ActiveStream struct constructed, frame loop not started |
-| `Initializing` | SDK | `init_session` | Parse `source_url` to choose ffmpeg / nokhwa / base64; insert into registry |
+| `Initializing` | SDK | `init_session` | Parse `source_url` to choose ffmpeg (network streams) or the base64 channel (`camera://` local cameras / front-end pushes); insert into registry |
 | `Streaming` | SDK | `start_push` | Dedicated OS thread runs the frame loop: decode → detect → ROI/line → JPEG → `send_push_output` |
 | `Stopped` | Front-end `stop_stream` or disconnect | `stop_stream` | `running = false`, remove from registry, thread exits naturally |
 
-The key dispatching logic in `init_session` lives at [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1302-L1308): the protocol prefix of `source_url` (`rtsp://` / `http://` / `camera://` etc.) decides whether to take the network-stream path (ffmpeg) or the local-camera path (nokhwa / base64).
+The key dispatching logic in `init_session` lives at [`src/lib.rs` L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308): the protocol prefix of `source_url` (`rtsp://` / `http://` / `camera://` etc.) decides whether to take the network-stream path (ffmpeg) or the local-camera / base64 path (`process_session_chunk`).
 
 ```rust
 // lib.rs L1302-L1308
@@ -116,11 +122,11 @@ let is_network_stream = source_url.starts_with("rtsp://")
     || source_url.starts_with("https://")
     || source_url.starts_with("file://");
 ```
-[Source: lib.rs L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1302-L1308)
+[Source: lib.rs L1302-L1308](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1302-L1308)
 
 ### Comparison with yolo-device-inference architecture
 
-| Architecture dimension | 2 yolo-device-inference | 3 yolo-video-v2 |
+| Architecture dimension | 2 yolo-device-inference | 3 yolo-video |
 |------------------------|--------------------------|-------------------|
 | Entry abstraction | `Extension::execute_command("bind_device")` | `Extension::stream_capability()` + `init_session` |
 | Inference trigger | Device image-metric update event | Frame-loop OS thread drives proactively |
@@ -134,7 +140,7 @@ let is_network_stream = source_url.starts_with("rtsp://")
 
 ### StreamCapability declaration
 
-The extension declares itself a Push-mode streaming extension via `stream_capability()`. See [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1275-L1288):
+The extension declares itself a Push-mode streaming extension via `stream_capability()`. See [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288):
 
 ```rust
 fn stream_capability(&self) -> Option<StreamCapability> {
@@ -153,11 +159,11 @@ fn stream_capability(&self) -> Option<StreamCapability> {
 }
 ```
 
-The semantics of `StreamMode::Push` are: **the extension produces data proactively** and the SDK does not poll. The corresponding `Pull` mode has the SDK request data actively (suitable for low-frequency metrics), and `Stateless` mode is a stateless request-response (suitable for command-style APIs). A video stream produces 25-30 frames per second; only Push mode can guarantee no frame loss. `max_concurrent_sessions: 4` caps the number of simultaneous video streams per extension instance — this is an empirically-validated ceiling based on ONNX Runtime memory and CPU inference throughput. `direction: Bidirectional` is required because the front end both receives frames (Push output) and sends base64 frames (`process_session_chunk`).
+The semantics of `StreamMode::Push` are: **the extension produces data proactively** and the SDK does not poll. The native SDK's `StreamMode` has only three variants — `Stateless` / `Stateful` / `Push` (there is no `Pull`); the first two go through the `process_chunk` / `process_session_chunk` request-response channels, with the caller pulling actively (suitable for low-frequency metrics or command-style interactions). A video stream produces 25-30 frames per second; only Push mode can guarantee no frame loss. `max_concurrent_sessions: 4` caps the number of simultaneous video streams per extension instance — this is an empirically-validated ceiling based on ONNX Runtime memory and CPU inference throughput. `direction: Bidirectional` is required because the front end both receives frames (Push output) and sends base64 frames (`process_session_chunk`).
 
 ### `init_session`: session initialization
 
-`init_session` is called back after the SDK establishes a WebSocket session. It constructs the `ActiveStream` state and inserts it into the global registry. See [`src/lib.rs` L1290-L1360](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1290-L1360).
+`init_session` is called back after the SDK establishes a WebSocket session. It constructs the `ActiveStream` state and inserts it into the global registry. See [`src/lib.rs` L1290-L1360](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1290-L1360).
 
 ```rust
 // lib.rs L1290-L1320 (trimmed)
@@ -191,7 +197,7 @@ async fn init_session(&self, session: &StreamSession) -> Result<()> {
         // ... (additional fields omitted)
     };
 ```
-[Source: lib.rs L1290-L1360](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1290-L1360)
+[Source: lib.rs L1290-L1360](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1290-L1360)
 
 Key logic:
 
@@ -205,7 +211,7 @@ Note that `init_session` itself **does not start the frame loop** — the loop s
 
 ### `execute_command`: start_stream / stop_stream dispatch
 
-The extension exposes five commands: `start_stream` / `stop_stream` / `get_stream_stats` / `gc_memory` / `update_stream_config`. See [`src/lib.rs` L1114-L1215](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1114-L1215):
+The extension exposes five commands: `start_stream` / `stop_stream` / `get_stream_stats` / `gc_memory` / `update_stream_config`. See [`src/lib.rs` L1114-L1215](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1114-L1215):
 
 ```rust
 async fn execute_command(&self, command: &str, args: &serde_json::Value) -> Result<serde_json::Value> {
@@ -226,7 +232,7 @@ async fn execute_command(&self, command: &str, args: &serde_json::Value) -> Resu
 }
 ```
 
-`start_stream` is implemented at [`src/lib.rs` L654-L707](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L654-L707). It generates a UUID as `stream_id`, constructs `ActiveStream`, then spawns `processing_loop` on a **dedicated OS thread** — not `tokio::spawn`, because the loop performs heavy blocking I/O (FFmpeg decode, ONNX forward) that would stall the entire tokio runtime if placed on a worker thread.
+`start_stream` is implemented at [`src/lib.rs` L654-L707](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L654-L707). It generates a UUID as `stream_id`, constructs `ActiveStream`, then spawns `processing_loop` on a **dedicated OS thread** — not `tokio::spawn`, because the loop performs heavy blocking I/O (FFmpeg decode, ONNX forward) that would stall the entire tokio runtime if placed on a worker thread.
 
 ```rust
 // lib.rs L654-L696 (trimmed)
@@ -267,9 +273,9 @@ pub async fn start_stream(self: &Arc<Self>, config: StreamConfig) -> Result<Stre
         Self::processing_loop(active_stream, stream_id_clone, config_clone, processor_clone);
     });
 ```
-[Source: lib.rs L654-L707](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L654-L707)
+[Source: lib.rs L654-L707](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L654-L707)
 
-`stop_stream` is at [`src/lib.rs` L813-L822](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L813-L822). It simply does `registry.streams.remove(stream_id)` + `stream.lock().running = false`; the frame-loop thread notices `running == false` on the next iteration and exits — this is cooperative cancellation, safer than `thread::abort()` (which Rust's standard library does not provide).
+`stop_stream` is at [`src/lib.rs` L813-L822](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L813-L822). It simply does `registry.streams.remove(stream_id)` + `stream.lock().running = false`; the frame-loop thread notices `running == false` on the next iteration and exits — this is cooperative cancellation, safer than `thread::abort()` (which Rust's standard library does not provide).
 
 ```rust
 // lib.rs L813-L822
@@ -284,11 +290,11 @@ pub fn stop_stream(&self, stream_id: &str) -> Result<()> {
     }
 }
 ```
-[Source: lib.rs L813-L822](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L813-L822)
+[Source: lib.rs L813-L822](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L813-L822)
 
 ### Frame loop: decode → detect → ROI/line → JPEG → `send_push_output`
 
-The network-stream frame loop lives inside the `std::thread::spawn` closure in `start_push`: [`src/lib.rs` L1427-L1650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1427-L1650). The per-frame pipeline:
+The network-stream frame loop lives inside the `std::thread::spawn` closure in `start_push`: [`src/lib.rs` L1427-L1650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1427-L1650). The per-frame pipeline:
 
 ```rust
 // lib.rs L1427-L1468 (trimmed)
@@ -325,10 +331,10 @@ let task_handle = std::thread::spawn(move || {
         // Decode next frame from FFmpeg (blocking)
         let frame_result = video_source.next_frame();
 ```
-[Source: lib.rs L1427-L1650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1427-L1650)
+[Source: lib.rs L1427-L1650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1427-L1650)
 
-1. **decode**: `video_source.next_frame()` blocks on an FFmpeg-decoded RGB24 frame ([`src/lib.rs` L1468](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1468)).
-2. **resize**: original resolution → 640×640 (YOLO input size, [`src/lib.rs` L1486-L1489](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1486-L1489)).
+1. **decode**: `video_source.next_frame()` blocks on an FFmpeg-decoded RGB24 frame ([`src/lib.rs` L1468](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1468)).
+2. **resize**: original resolution → 640×640 (YOLO input size, [`src/lib.rs` L1486-L1489](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1486-L1489)).
 
 ```rust
 // lib.rs L1486-L1489
@@ -337,9 +343,9 @@ let inference_image = image::imageops::resize(
     image::imageops::FilterType::CatmullRom,
 );
 ```
-[Source: lib.rs L1486-L1489](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1486-L1489)
-3. **detect**: `detector.detect(&inference_image, confidence, max_obj)` ([`src/lib.rs` L1494](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1494)) returns `Vec<Detection>`.
-4. **scale back**: detection-box coordinates are scaled from 640×640 back to original resolution ([`src/lib.rs` L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1497-L1505)).
+[Source: lib.rs L1486-L1489](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1486-L1489)
+3. **detect**: `detector.detect(&inference_image, confidence, max_obj)` ([`src/lib.rs` L1494](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1494)) returns `Vec<Detection>`.
+4. **scale back**: detection-box coordinates are scaled from 640×640 back to original resolution ([`src/lib.rs` L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1497-L1505)).
 
 ```rust
 // lib.rs L1497-L1505
@@ -353,9 +359,9 @@ let scaled: Vec<_> = dets.into_iter().map(|mut d| {
     d
 }).collect();
 ```
-[Source: lib.rs L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1497-L1505)
-5. **ROI counting**: `count_roi_detections` tallies targets inside each ROI ([`src/lib.rs` L1546](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1546)).
-6. **line crossing**: `ObjectTracker::update` + `line_crossing_direction` compute crossing direction ([`src/lib.rs` L1557-L1575](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1557-L1575)).
+[Source: lib.rs L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1497-L1505)
+5. **ROI counting**: `count_roi_detections` tallies targets inside each ROI ([`src/lib.rs` L1546](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1546)).
+6. **line crossing**: `ObjectTracker::update` + `line_crossing_direction` compute crossing direction ([`src/lib.rs` L1557-L1575](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1557-L1575)).
 
 ```rust
 // lib.rs L1557-L1575
@@ -373,9 +379,9 @@ let track_movements: Vec<(u32, (f32, f32), (f32, f32))> = matches.iter()
 for line in &lines_cfg {
     let entry = s.line_counts.entry(line.id.clone()).or_insert((0u64, 0u64));
 ```
-[Source: lib.rs L1557-L1575](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1557-L1575)
-7. **draw + encode JPEG**: `draw_detections` + `encode_jpeg(&output_image, 75)` ([`src/lib.rs` L1615](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1615)).
-8. **send_push_output**: build `PushOutputMessage::image_jpeg` + metadata (detections / roi_stats / line_stats / capture_events) and push via FFI ([`src/lib.rs` L1640-L1646](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1640-L1646)).
+[Source: lib.rs L1557-L1575](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1557-L1575)
+7. **draw + encode JPEG**: `draw_detections` + `encode_jpeg(&output_image, 75)` ([`src/lib.rs` L1615](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1615)).
+8. **send_push_output**: build `PushOutputMessage::image_jpeg` + metadata (detections / roi_stats / line_stats / capture_events) and push via FFI ([`src/lib.rs` L1640-L1646](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1640-L1646)).
 
 ```rust
 // lib.rs L1640-L1646
@@ -387,11 +393,11 @@ let output = PushOutputMessage::image_jpeg(&sid, sequence, jpeg_data)
         "capture_events": capture_events,
     }));
 ```
-[Source: lib.rs L1640-L1646](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1640-L1646)
+[Source: lib.rs L1640-L1646](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1640-L1646)
 
 ### Smart-capture rules
 
-`CaptureCondition` is a `#[serde(tag = "type")]` tagged enum supporting three trigger conditions ([`src/lib.rs` L152-L164](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L152-L164)):
+`CaptureCondition` is a `#[serde(tag = "type")]` tagged enum supporting three trigger conditions ([`src/lib.rs` L152-L164](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L152-L164)):
 
 ```rust
 // lib.rs L152-L164
@@ -409,13 +415,13 @@ pub enum CaptureCondition {
     Absence { class_name: String },
 }
 ```
-[Source: lib.rs L152-L164](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L152-L164)
+[Source: lib.rs L152-L164](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L152-L164)
 
 - `Threshold { class_name, threshold }`: fires when the count of a class inside the specified ROI exceeds the threshold (rising edge).
 - `Presence { class_name }`: fires when a class transitions from absent to present (rising edge).
 - `Absence { class_name }`: fires when a class transitions from present to absent (falling edge).
 
-Each `CaptureRule` carries a `cooldown_seconds` (default 5s, [`src/lib.rs` L179](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L179)). The runtime state `CaptureRuleState` records `last_triggered` and `prev_condition_met` — a `CaptureEvent` (with base64 image) is only emitted when the condition transitions false→true (rising edge) and the elapsed time since the last trigger exceeds the cooldown.
+Each `CaptureRule` carries a `cooldown_seconds` (default 5s, [`src/lib.rs` L179](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L179)). The runtime state `CaptureRuleState` records `last_triggered` and `prev_condition_met` — a `CaptureEvent` (with base64 image) is only emitted when the condition transitions false→true (rising edge) and the elapsed time since the last trigger exceeds the cooldown.
 
 ### Streaming session lifecycle sequence diagram
 
@@ -454,7 +460,7 @@ sequenceDiagram
 
 ### YoloDetector lazy load
 
-`YoloDetector` wraps `usls::models::YOLO` and uses the same lazy-load pattern as 2: an `Option<YOLO>` + `load_attempted` pair encodes a four-state machine. See [`src/detector.rs` L1-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/detector.rs#L1-L80). `auto_device()` prefers CoreML (macOS) / CUDA (Linux) / CPU; `with_device_fallback` falls back to CPU when the GPU is unavailable. `setup_native_lib_paths` configures `DYLD_LIBRARY_PATH` / `LD_LIBRARY_PATH` / `PATH` before loading the model so the ONNX Runtime dylib can be located ([`src/detector.rs` L63-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/detector.rs#L63-L80)).
+`YoloDetector` wraps `usls::models::YOLO` and uses the same lazy-load pattern as 2: an `Option<YOLO>` + `load_attempted` pair encodes a four-state machine. See [`src/detector.rs` L1-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/detector.rs#L1-L80). `auto_device()` prefers CoreML (macOS) / CUDA (Linux) / CPU; `with_device_fallback` falls back to CPU when the GPU is unavailable. `setup_native_lib_paths` configures `DYLD_LIBRARY_PATH` / `LD_LIBRARY_PATH` / `PATH` before loading the model so the ONNX Runtime dylib can be located ([`src/detector.rs` L63-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/detector.rs#L63-L80)).
 
 ```rust
 // detector.rs L63-L80 (setup_native_lib_paths summary)
@@ -472,13 +478,16 @@ fn setup_native_lib_paths() {
 
 ### Video source abstraction
 
-`video_source.rs` defines a unified `VideoSource` trait and a `FrameResult` enum (Frame / EndOfStream / NotReady / Error), and maps URL prefixes to `SourceType` (Camera / RTSP / RTMP / HLS / File / Screen) via `parse_source_url`. See [`src/video_source.rs` L1-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/video_source.rs#L1-L80). `FfmpegVideoSource` uses ffmpeg-next v7 (features: codec / format / software-scaling) to decode network streams; `to_rgb_image()` converts an FFmpeg frame to `image::RgbImage`.
+`video_source.rs` defines a unified `VideoSource` trait and a `FrameResult` enum (Frame / EndOfStream / NotReady / Error), and maps URL prefixes to `SourceType` (Camera / RTSP / RTMP / HLS / File / Screen) via `parse_source_url`. See [`src/video_source.rs` L1-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L1-L80). `FfmpegVideoSource` uses ffmpeg-next v7 (features: codec / format / software-scaling) to decode network streams; `to_rgb_image()` converts an FFmpeg frame to `image::RgbImage`.
 
 ```rust
-// video_source.rs L1-L80 (trait + enum summary)
-pub trait VideoSource: Send {
-    fn next_frame(&mut self) -> FrameResult;
+// video_source.rs (trait + enum summary)
+pub trait VideoSource {
+    fn info(&self) -> &SourceInfo;
+    fn is_active(&self) -> bool;
 }
+// Note: next_frame() is defined on the FfmpegVideoSource impl block, not on the trait
+// (FfmpegVideoSource has its own `unsafe impl Send`)
 
 pub enum FrameResult {
     Frame(VideoFrame),
@@ -507,11 +516,11 @@ This section lists five key decisions, each with the chosen approach, the altern
 
 ### Decision 1: Push mode over Pull mode
 
-**We chose `StreamMode::Push`; the alternative was `Pull` with periodic polling; rationale**: a video stream produces data at high frequency (25-30 FPS). Pull mode would require the SDK to call `pull_output()` at a fixed interval — high overhead and prone to dropped frames. Push mode lets the extension control the push cadence while the SDK only relays. The `max_concurrent_sessions: 4` cap is also specific to Push mode — under Pull the SDK can serialize polling across sessions without a hard limit. Declaration at [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1275-L1288).
+**We chose `StreamMode::Push`; the alternative was pull-based polling (reusing the `process_chunk` request-response channel — the native SDK has no `Pull` variant); rationale**: a video stream produces data at high frequency (25-30 FPS). Polling would require the caller to fetch at a fixed interval — high overhead and prone to dropped frames. Push mode lets the extension control the push cadence while the SDK only relays. The `max_concurrent_sessions: 4` cap is also specific to Push mode — under polling the caller can serialize across sessions without a hard limit. Declaration at [`src/lib.rs` L1275-L1288](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1275-L1288).
 
 ### Decision 2: Move ROI drawing to the front end
 
-**We chose front-end canvas overlay; the alternative was back-end-drawn JPEG with boxes; rationale**: commit `60e4e5b` removed back-end ROI drawing (the comment at [`src/lib.rs` L1585-L1587](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1585-L1587) explicitly says "ROI/Line overlay drawing is handled by the frontend canvas to avoid double-drawing"). The back end now only ships JPEG + metadata JSON, and the front end draws ROI polygons and crossing lines on a canvas. Benefits:
+**We chose front-end canvas overlay; the alternative was back-end-drawn JPEG with boxes; rationale**: commit `60e4e5b` removed back-end ROI drawing (the comment at [`src/lib.rs` L1585-L1587](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1585-L1587) explicitly says "ROI/Line overlay drawing is handled by the frontend canvas to avoid double-drawing"). The back end now only ships JPEG + metadata JSON, and the front end draws ROI polygons and crossing lines on a canvas. Benefits:
 
 1. less JPEG re-encoding overhead
 2. the front end can restyle ROIs dynamically without restarting the stream
@@ -523,13 +532,19 @@ This section lists five key decisions, each with the chosen approach, the altern
 // to avoid double-drawing (backend JPEG + frontend canvas overlay)
 ```
 
-### Decision 3: ffmpeg-next + nokhwa + base64 — three backends
+### Decision 3: ffmpeg-next decoding + base64 frame channel
 
-**We chose multiple backends; the alternative was a single ffmpeg backend; rationale**: RTSP/RTMP/HLS network streams must use ffmpeg (ffmpeg-next v7 is the most mature FFmpeg binding in the Rust ecosystem). However, ffmpeg + AVFoundation support for local cameras on macOS is poor (frequent crashes); nokhwa (features: input-native) provides native wrappers for macOS AVFoundation and Linux V4L2 and is far more stable. Base64 pushing needs no video decoding at all — frames arrive via `process_session_chunk` as ready JPEGs. `parse_source_url` dispatches by URL prefix: [`src/video_source.rs` L43-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/video_source.rs#L43-L80).
+**We chose multiple backends; the alternative was a single ffmpeg backend; rationale**: RTSP/RTMP/HLS network streams must use ffmpeg (ffmpeg-next v7 is the most mature FFmpeg binding in the Rust ecosystem).
+
+Local cameras (`camera://`) and front-end base64 pushes share the `process_session_chunk` channel: the front end encodes camera frames as base64 JPEG and pushes them to the extension, so the extension never opens a camera device itself — this sidesteps the poor reliability (frequent crashes) of ffmpeg + AVFoundation capture on macOS. Note: `Cargo.toml` declares a `nokhwa` dependency (features: input-native), but `src/` never references it — it was reserved historically for native camera capture and was never activated; it is an unused dependency.
+
+Base64 pushing needs no video decoding at all — frames arrive via `process_session_chunk` as ready JPEGs. `parse_source_url` dispatches by URL prefix: [`src/video_source.rs` L43-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/video_source.rs#L43-L80).
 
 ### Decision 4: process-isolated feature flag
 
-**We chose opt-in process isolation; the alternative was mandatory isolation for all extensions; rationale**: video processing is HIGH-RISK (ONNX Runtime memory leaks + multithreading + heavy image payloads). The `process-isolated` feature in `Cargo.toml` ([`Cargo.toml` L43-L44](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/Cargo.toml#L43-L44)) lets deployments opt in. The source header explicitly flags the risk level ([`src/lib.rs` L6-L11](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L6-L11)). Forcing isolation on all extensions would saddle lightweight ones (such as weather-forecast) with IPC overhead — an unreasonable performance penalty.
+**We chose opt-in process isolation; the alternative was mandatory isolation for all extensions; rationale**: video processing is HIGH-RISK (ONNX Runtime memory leaks + multithreading + heavy image payloads). The `process-isolated` feature in `Cargo.toml` ([`Cargo.toml` L43-L44](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/Cargo.toml#L43-L44)) lets deployments opt in. The source header explicitly flags the risk level ([`src/lib.rs` L6-L11](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L6-L11)). Forcing isolation on all extensions would saddle lightweight ones (such as weather-forecast) with IPC overhead — an unreasonable performance penalty.
+
+> **Status note (2026-09)**: The platform has since been unified so that **all native extensions run in a separate `neomind-extension-runner` process by default** (process isolation is guaranteed by the platform and no longer depends on an extension-side feature flag). This decision is preserved as a record of the design process at the time.
 
 ```rust
 // lib.rs L6-L11
@@ -543,7 +558,7 @@ This section lists five key decisions, each with the chosen approach, the altern
 
 ### Decision 5: usls + ort-load-dynamic
 
-**We chose runtime dynamic loading of ONNX Runtime; the alternative was static linking; rationale**: the `ort-load-dynamic` feature of `usls` ([`Cargo.toml` L33](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/Cargo.toml#L33)) avoids statically linking ONNX Runtime; instead `setup_native_lib_paths` locates the dylib at runtime. Benefits:
+**We chose runtime dynamic loading of ONNX Runtime; the alternative was static linking; rationale**: the `ort-load-dynamic` feature of `usls` ([`Cargo.toml` L33](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/Cargo.toml#L33)) avoids statically linking ONNX Runtime; instead `setup_native_lib_paths` locates the dylib at runtime. Benefits:
 
 1. smaller package size (the ONNX Runtime dylib is about 50MB; static linking would bloat every platform's .nep)
 2. flexible cross-platform distribution (one .nep can pair with different platforms' dylibs)
@@ -557,7 +572,7 @@ The cost is the need for correct library-search paths at runtime — exactly the
 
 ### Command system
 
-`start_stream` / `stop_stream` are exposed as standard `ExtensionCommand`s to both Agent and front end, declared in the [commands() method around L1101-L1111 of src/lib.rs](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1101-L1111). The front end sends a JSON object as the command over WebSocket and the runtime dispatches via `execute_command`. An Agent can also trigger streaming analysis via the same interface (for example, "monitor the front door for 10 minutes and report everyone who enters").
+`start_stream` / `stop_stream` are exposed as standard `ExtensionCommand`s to both Agent and front end, declared in the [commands() method around L1101-L1111 of src/lib.rs](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1101-L1111). The front end sends a JSON object as the command over WebSocket and the runtime dispatches via `execute_command`. An Agent can also trigger streaming analysis via the same interface (for example, "monitor the front door for 10 minutes and report everyone who enters").
 
 ```rust
 // lib.rs L1101-L1111
@@ -575,7 +590,7 @@ ExtensionCommand {
 
 ### StreamCapability + `send_push_output`
 
-The push channel provided by the SDK is the core integration point. After `stream_capability()` declares the capability, the SDK calls `init_session` when a WebSocket session is established, and `start_push` once the session is ready. The frame loop pushes data into the SDK output channel via the `send_push_output(&PushOutputMessage::image_jpeg(...))` FFI; the SDK then relays to the front-end WebSocket. `set_output_sender` is a no-op ([`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1362-L1364)) because Push mode uses the FFI directly rather than a tokio mpsc channel — a point of confusion: only Pull mode needs `set_output_sender`.
+The push channel provided by the SDK is the core integration point. After `stream_capability()` declares the capability, the SDK calls `init_session` when a WebSocket session is established, and `start_push` once the session is ready. The frame loop pushes data into the SDK output channel via the `send_push_output(&PushOutputMessage::image_jpeg(...))` FFI; the SDK then relays to the front-end WebSocket. `set_output_sender` is a no-op ([`src/lib.rs` L1362-L1364](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1362-L1364)) because the frame loop calls the `send_push_output` FFI directly instead of going through a tokio mpsc channel — a point of confusion: in the SDK, `set_output_sender` is itself the output channel prepared **for Push mode** (the SDK source comment reads "Set output sender for push mode"); this extension simply opts out of it and uses the FFI directly — it is not "only needed in Pull mode".
 
 ```rust
 // lib.rs L1362-L1364
@@ -586,7 +601,7 @@ fn set_output_sender(&self, _sender: Arc<tokio::sync::mpsc::Sender<PushOutputMes
 
 ### Metric output
 
-The extension also emits virtual metrics (`produce_metrics`, [`src/lib.rs` L1217-L1269](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1217-L1269)): `active_streams`, `total_frames_processed`, `total_detections`, `total_roi_alerts`, `latest_capture`. These let dashboards monitor extension health without parsing the push stream.
+The extension also emits virtual metrics (`produce_metrics`, [`src/lib.rs` L1217-L1269](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1217-L1269)): `active_streams`, `total_frames_processed`, `total_detections`, `total_roi_alerts`, `latest_capture`. These let dashboards monitor extension health without parsing the push stream.
 
 ```rust
 // lib.rs L1217-L1247 (trimmed)
@@ -619,7 +634,7 @@ fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> {
 
 ### Frontend component YoloVideoDisplay
 
-The front-end component `YoloVideoDisplay` (entrypoint: `yolo-video-v2-components.umd.cjs`, [`metadata.json` L32-L37](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/metadata.json#L32-L37)) consumes push output:
+The front-end component `YoloVideoDisplay` (entrypoint: `yolo-video-components.umd.cjs`, [`metadata.json` L32-L37](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/metadata.json#L32-L37)) consumes push output:
 
 ```json
 // metadata.json L32-L37
@@ -627,10 +642,10 @@ The front-end component `YoloVideoDisplay` (entrypoint: `yolo-video-v2-component
   "components": [
     "YoloVideoDisplay"
   ],
-  "entrypoint": "yolo-video-v2-components.umd.cjs"
+  "entrypoint": "yolo-video-components.umd.cjs"
 }
 ```
-[Source: metadata.json L32-L37](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/metadata.json#L32-L37)
+[Source: metadata.json L32-L37](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/metadata.json#L32-L37)
 
 1. receive `image_jpeg` chunks and render to `<img>` or canvas
 2. parse metadata JSON (`detections` / `roi_stats` / `line_stats` / `capture_events`) to draw overlays
@@ -643,7 +658,7 @@ The contract is "JPEG frame + JSON metadata pushed in parallel" — fundamentall
 Commit `c41e6a6` introduced `stream-player`, a pure player extension (no detection) useful for debugging whether an RTSP source is reachable.
 
 :::tip Troubleshooting best practice
-When troubleshooting yolo-video-v2, first use stream-player to verify the stream source is healthy, then switch to yolo-video-v2 to add detection — this avoids the confusion of "is the stream broken or is the detection broken?"
+When troubleshooting yolo-video, first use stream-player to verify the stream source is healthy, then switch to yolo-video to add detection — this avoids the confusion of "is the stream broken or is the detection broken?"
 :::
 
 ---
@@ -660,7 +675,7 @@ The extension maintains three classes of test assets:
 
 ### Memory stress testing
 
-The existence of `test_memory.sh` reflects a real pain point: ONNX Runtime accumulates memory during long-running video processing (the comment at [`src/lib.rs` L644-L647](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L644-L647) explicitly says "This is a workaround for ONNX Runtime memory leak"):
+The existence of `test_memory.sh` reflects a real pain point: ONNX Runtime accumulates memory during long-running video processing (the comment at [`src/lib.rs` L644-L647](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L644-L647) explicitly says "This is a workaround for ONNX Runtime memory leak"):
 
 ```rust
 // lib.rs L644-L647
@@ -669,7 +684,7 @@ The existence of `test_memory.sh` reflects a real pain point: ONNX Runtime accum
 // Note: This is a workaround for ONNX Runtime memory leak
 ```
 
-The stress script starts an RTSP stream, runs for hours, and monitors the RSS growth curve. The `gc_memory` command ([`src/lib.rs` L1164-L1168](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1164-L1168)):
+The stress script starts an RTSP stream, runs for hours, and monitors the RSS growth curve. The `gc_memory` command ([`src/lib.rs` L1164-L1168](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1164-L1168)):
 
 ```rust
 // lib.rs L1164-L1168
@@ -680,7 +695,7 @@ The stress script starts an RTSP stream, runs for hours, and monitors the RSS gr
 }
 ```
 
-and `cleanup_memory` ([`src/lib.rs` L630-L650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L630-L650)):
+and `cleanup_memory` ([`src/lib.rs` L630-L650](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L630-L650)):
 
 ```rust
 // lib.rs L630-L650 (trimmed)
@@ -700,7 +715,7 @@ pub fn cleanup_memory(&self) {
 }
 ```
 
-provide a runtime escape hatch for manual memory cleanup — every 30 frames also trigger an automatic cleanup ([`src/lib.rs` L1631-L1634](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1631-L1634)):
+provide a runtime escape hatch for manual memory cleanup — every 30 frames also trigger an automatic cleanup ([`src/lib.rs` L1631-L1634](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1631-L1634)):
 
 ```rust
 // lib.rs L1631-L1634
@@ -731,29 +746,29 @@ Commit `3919c6a` fixed the versioned `libonnxruntime.so.N` symlink problem on Li
 
 ### platform .nep distribution
 
-The `builds` field of `metadata.json` declares download URLs for five platforms ([`metadata.json` L15-L31](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/metadata.json#L15-L31)): darwin-aarch64 / darwin-x86_64 / linux-x86_64 / linux-aarch64 / windows-x86_64. Each .nep contains the compiled cdylib + the front-end UMD bundle + model files + font files (the `fonts/` directory, used by `ab_glyph` to draw detection-box labels).
+The `builds` field of `metadata.json` declares download URLs for five platforms ([`metadata.json` L15-L31](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/metadata.json#L15-L31)): darwin-aarch64 / darwin-x86_64 / linux-x86_64 / linux-aarch64 / windows-x86_64. Each .nep contains the compiled cdylib + the front-end UMD bundle + model files + font files (the `fonts/` directory, used by `ab_glyph` to draw detection-box labels).
 
 ```json
 // metadata.json L15-L31
 "builds": {
   "darwin-aarch64": {
-    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-v2-2.7.6-darwin_aarch64.nep"
+    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-2.7.6-darwin_aarch64.nep"
   },
   "darwin-x86_64": {
-    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-v2-2.7.6-darwin_x86_64.nep"
+    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-2.7.6-darwin_x86_64.nep"
   },
   "linux-x86_64": {
-    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-v2-2.7.6-linux_amd64.nep"
+    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-2.7.6-linux_amd64.nep"
   },
   "linux-aarch64": {
-    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-v2-2.7.6-linux_arm64.nep"
+    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-2.7.6-linux_arm64.nep"
   },
   "windows-x86_64": {
-    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-v2-2.7.6-windows_amd64.nep"
+    "url": "https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.6/yolo-video-2.7.6-windows_amd64.nep"
   }
 }
 ```
-[Source: metadata.json L15-L31](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/metadata.json#L15-L31)
+[Source: metadata.json L15-L31](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/metadata.json#L15-L31)
 
 ### ONNX Runtime dynamic-library governance
 
@@ -765,7 +780,7 @@ This is the biggest deployment pain point; each platform has its own trap:
 | Windows | DLL not on PATH; load fails | `40da6b8` |
 | macOS | `DYLD_LIBRARY_PATH` set at runtime may be blocked by SIP | `40da6b8` |
 
-`setup_native_lib_paths` ([`src/detector.rs` L63-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/detector.rs#L63-L80)) checks `NEOMIND_EXTENSION_DIR/lib/` and system paths, appending the dylib directory to the appropriate environment variable.
+`setup_native_lib_paths` ([`src/detector.rs` L63-L80](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/detector.rs#L63-L80)) checks `NEOMIND_EXTENSION_DIR/lib/` and system paths, appending the dylib directory to the appropriate environment variable.
 
 :::note Cross-platform dylib troubleshooting
 Each platform has different pitfalls: Linux's `libonnxruntime.so.N` versioned symlink needs manual creation; Windows's DLL must be added to PATH; macOS's `DYLD_LIBRARY_PATH` set at runtime via `set_var` may be blocked by SIP. Always test model loading on the target platform before deployment.
@@ -783,6 +798,8 @@ Commit `60e4e5b` upgraded ffmpeg-next from v7 to v8 (note: the current `Cargo.to
 
 **The extension's `src/` directory contains multiple backup files**: `detector.rs.backup`, `detector.rs.bak`, `lib.rs.backup`, `lib.rs.backup2`, plus root-level `Cargo.toml.bak` and `frontend/src/index.tsx.bak`.
 
+> **2026-09 update**: these backup files have since been removed; the repository's `src/` now contains only the three canonical source files (`lib.rs` / `detector.rs` / `video_source.rs`). This section is kept as an anti-pattern record.
+
 :::warning Source-governance anti-pattern
 Backup files should never be committed to a repository. Git itself is the version-management system; `git log` / `git diff` can show any historical version, and `git stash` can hold unfinished work. Committing `.bak` / `.backup` / `.backup2` files causes:
 
@@ -791,7 +808,7 @@ Backup files should never be committed to a repository. Git itself is the versio
 3. **CI / linters** potentially compiling backup files by mistake
 :::
 
-All deep links in this case study point **only to canonical files** (`src/lib.rs`, `src/detector.rs`, `src/video_source.rs`, `Cargo.toml`, `metadata.json`) and never reference backups. Compared with the 18 backup files in [Case #2](./2-yolo-device-inference.md), yolo-video-v2 has fewer backups but commits the same violation.
+All deep links in this case study point **only to canonical files** (`src/lib.rs`, `src/detector.rs`, `src/video_source.rs`, `Cargo.toml`, `metadata.json`) and never reference backups. Compared with the 18 backup files in [Case #2](./2-yolo-device-inference.md), yolo-video has fewer backups but commits the same violation.
 
 ### Troubleshooting quick reference
 
@@ -800,7 +817,7 @@ All deep links in this case study point **only to canonical files** (`src/lib.rs
 | No frames pushed after `init_session` | FFmpeg failed to connect to RTSP | Check logs for "FFmpeg failed to connect"; validate the source with stream-player first |
 | Frame rate far below target_fps | ONNX inference too slow or FFmpeg decode bottleneck | Lower `target_fps`; inspect the `fps` field; confirm GPU path (CoreML/CUDA) is active |
 | Memory keeps growing | ONNX Runtime memory leak | Invoke `gc_memory`; lower frame rate; consider enabling `process-isolated` |
-| Detection boxes misaligned | Coordinate-scaling error | Check `scale_x` / `scale_y` computation ([`src/lib.rs` L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video-v2/src/lib.rs#L1497-L1505)) |
+| Detection boxes misaligned | Coordinate-scaling error | Check `scale_x` / `scale_y` computation ([`src/lib.rs` L1497-L1505](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-video/src/lib.rs#L1497-L1505)) |
 | Linux `dlopen` fails | `libonnxruntime.so.N` symlink missing | Confirm commit `3919c6a` fix is applied; create the symlink manually |
 | Front end stuck on "Connecting" | Front-end state machine missed the first frame | Confirm commit `261d8e6` fix is applied |
 
@@ -815,17 +832,17 @@ All deep links in this case study point **only to canonical files** (`src/lib.rs
 | `1e9a1f1` | v2.7.6 | chore: bump to v2.7.6 |
 | `8e81400` | v2.7.4 | chore: bump to v2.7.4 — OCR batch recognition optimization |
 | `3919c6a` | — | fix: handle libonnxruntime.so.N versioned libraries on Linux |
-| `53f041f` | — | feat(yolo-video-v2): add ROI smart capture rules and redesign frontend cards |
-| `60e4e5b` | — | fix(yolo-video-v2): remove backend ROI drawing and upgrade ffmpeg-next to v8 |
-| `c41e6a6` | — | feat: add stream-player extension and optimize yolo-video-v2 rendering |
+| `53f041f` | — | feat(yolo-video): add ROI smart capture rules and redesign frontend cards |
+| `60e4e5b` | — | fix(yolo-video): remove backend ROI drawing and upgrade ffmpeg-next to v8 |
+| `c41e6a6` | — | feat: add stream-player extension and optimize yolo-video rendering |
 | `40da6b8` | — | fix: Windows DLL path and macOS dylib loading for all extensions |
-| `261d8e6` | — | fix: yolo-video-v2 persistent Connecting overlay |
+| `261d8e6` | — | fix: yolo-video persistent Connecting overlay |
 
 ### Relationship to other cases
 
-- **1 weather-forecast-v2**: The simplest synchronous extension (HTTP pull + metric output); the starting point for the NeoMind extension model.
+- **1 weather-forecast**: The simplest synchronous extension (HTTP pull + metric output); the starting point for the NeoMind extension model.
 - **2 yolo-device-inference**: AI inference + synchronous capability bridge (event-driven pull); the "low-frequency version" of #3.
-- **3 yolo-video-v2 (this case)**: AI inference + Push streaming mode (high-frequency proactive push); the "streaming upgrade" of #2.
+- **3 yolo-video (this case)**: AI inference + Push streaming mode (high-frequency proactive push); the "streaming upgrade" of #2.
 - **4 onvif-bridge / 5 uink-rms-bridge**: Protocol-bridge extensions focused on device onboarding rather than AI inference.
 - **6 metric_card**: A pure front-end component extension with no back-end logic.
 - **7 ne101_camera (flagship case)**: An end-to-end camera product case that combines 2 (device-bound inference) and 3 (RTSP streaming analysis).
@@ -843,7 +860,7 @@ If you only care about the SDK's StreamCapability interface design, jump straigh
 
 ### Bridge to NE101 Camera
 
-Case 7 ne101_camera (the flagship case) shows how a real camera product simultaneously uses 2 (device-bound inference) and 3 (RTSP streaming analysis).
+Case 7 ne101_camera (the flagship case, now released) shows how a real camera product simultaneously uses 2 (device-bound inference) and 3 (RTSP streaming analysis).
 
 :::tip Reading prerequisite
 The ne101 device's image metrics flow through #2's event-driven path, while the ne101 RTSP live stream flows through #3's Push path. Understanding this case's `init_session` -> `start_push` -> frame loop -> `send_push_output` chain is a prerequisite for reading #7.
@@ -851,16 +868,23 @@ The ne101 device's image metrics flow through #2's event-driven path, while the 
 
 ### Summary
 
-yolo-video-v2 is the most engineering-complex extension in the NeoMind ecosystem. It comprehensively demonstrates Push streaming integration with the SDK, multi-backend video source abstraction, ROI/line-crossing/smart-capture business logic, cross-platform ONNX Runtime governance, and front-end MJPEG interplay. Its source also exposes engineering-practice problems (committed backup files, ONNX Runtime memory-leak workarounds) that are equally instructive.
+yolo-video is the most engineering-complex extension in the NeoMind ecosystem. It comprehensively demonstrates Push streaming integration with the SDK, multi-backend video source abstraction, ROI/line-crossing/smart-capture business logic, cross-platform ONNX Runtime governance, and front-end MJPEG interplay. Its source also exposes engineering-practice problems (committed backup files, ONNX Runtime memory-leak workarounds) that are equally instructive.
 
 :::tip The value of anti-patterns
 **Knowing where things go wrong is often deeper than knowing how to do them right.** Committed backup files and ONNX Runtime memory-leak workarounds may look like "code smells", but they document the constraints and compromises of real engineering environments. Their avoidance and reference value for future projects is no less than that of positive examples.
 :::
 
+### Related Documentation
+
+- For the full capability table, cross-platform build matrix, and .nep package structure standards, see [Appendix: Engineering Standards](./appendix-standards.md)
+- For the SDK capability system, see [Extension SDK](../3-extension-sdk.md)
+- For the end-to-end extension development workflow, see [Extension Development](../7-extension-development.md)
+- For a REST perspective on this case's Push frame format, see [REST API — Realtime API](../4-rest-api.md#realtime-api)
+
 ### Source Repository
 
-- [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video-v2) — All source deep-links in this article point to this directory
+- [Source repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video) — All source deep-links in this article point to this directory
 
 ---
 
-*Last updated: 2026-06-23*
+*Source repo version: v2.7.6 | SDK: 0.6 | Last audit: 2026-09-08*

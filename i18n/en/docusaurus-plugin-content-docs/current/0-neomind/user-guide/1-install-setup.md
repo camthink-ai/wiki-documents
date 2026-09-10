@@ -41,18 +41,18 @@ xattr -cr /Applications/NeoMind.app
 
 ### First-Launch Wizard
 
-On first launch, NeoMind runs a **setup wizard** — just two steps:
+On first launch, NeoMind runs a **setup wizard** with four steps (skippable at any point — you can finish the setup later in Settings):
 
-1. **Create an admin account** — set username and password; timezone is auto-detected
+1. **Welcome** — platform introduction and documentation links
+2. **LLM Backend** — configure the AI model: **one-click download of built-in models** (no API key needed), connect a custom backend (OpenAI/Ollama, etc.), or quick setup via the CLI
+3. **Devices** — connect/approve devices
+4. **Done** — enter the main UI
 
 :::note Self-registration is off by default
 `POST /api/auth/register` is closed by default for security (the server binds `0.0.0.0`, and open registration would let any device on the LAN mint an account). To add users, have an admin create them in **Settings → Users** (or via `POST /api/users`); if you truly need open self-registration, an admin can enable it with `PUT /api/settings/registration`.
 :::
-2. **Done** — you're in the main UI, with a quick-start guide (Chat, configure LLM, explore features)
 
-> LLM backend configuration is **deferred** — when you first use AI Chat or create an Agent, the system guides you to the Settings page. See [Configure LLM Backend](./2-configure-llm.md).
-
-You'll land in the main UI when the wizard completes.
+> Skipping LLM configuration is fine — the first time you use AI Chat or create an Agent, the system guides you through it again. For details on built-in local models, see [Configure LLM Backend](./2-configure-llm.md).
 
 ## Server One-Line Install (Linux / macOS)
 
@@ -75,7 +75,7 @@ After install, open `http://your-server:9375` in a browser and complete the firs
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VERSION` | latest | Specific version, e.g. `0.8.0` |
+| `VERSION` | latest | Specific version, e.g. `0.9.23` |
 | `INSTALL_DIR` | `/usr/local/bin` | Binary install directory |
 | `DATA_DIR` | `/var/lib/neomind` | Data directory (redb files, logs) |
 | `WEB_DIR` | `/var/www/neomind` | Frontend static files |
@@ -88,7 +88,7 @@ Examples:
 
 ```bash
 # Pin a version
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.8.0 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
 
 # Custom directories
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -99,22 +99,46 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
   | USE_NGINX=true sh
 ```
 
+### Upgrade
+
+- **In-browser upgrade (recommended)**: `Settings → About` automatically checks for new versions (every 24 hours; an update icon appears in the top-right corner when an update is available). Click to upgrade online — the system automatically downloads, verifies, backs up, and restarts, with no SSH needed at any point (this relies on helper systemd units deployed by install.sh; older installs can get them by rerunning the install script once).
+- **Rerun the install script**: `VERSION=0.9.23 sh install.sh` reinstalls a pinned version.
+- **Docker**: `docker compose pull && docker compose up -d`.
+
+For automatic data-directory backups, see [Troubleshooting](./10-troubleshooting.md).
+
 ## Docker
 
+The official multi-arch build image (amd64 + arm64, rebuilt on every release) is published on Docker Hub — **no repo clone, no Rust toolchain needed**:
+
 ```bash
-git clone https://github.com/camthink-ai/NeoMind.git
-cd NeoMind
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+Or use Docker Compose (pulls `camthink/neomind:latest` automatically):
+
+```bash
+mkdir neomind && cd neomind
+curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-compose.yml
 docker compose up -d
 ```
 
-Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume.
+Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume. The image ships with the llama.cpp runtime and curated models — download a local LLM with one click in the setup wizard.
+
+| Image | Purpose |
+|------|------|
+| `camthink/neomind:latest` | Follows the latest release |
+| `camthink/neomind:<version>` | Pin a version, e.g. `camthink/neomind:0.9.22` |
 
 | Port | Purpose |
 |------|---------|
 | `9375` | HTTP API + Web UI + WebSocket |
 | `1883` | MQTT broker (device connections) |
 
-Customize ports and other parameters via `.env` (copy from `.env.example`):
+Customize ports and other parameters via `.env` ([`.env.example`](https://github.com/camthink-ai/NeoMind/blob/main/.env.example)):
 
 ```bash
 cp .env.example .env
@@ -129,14 +153,14 @@ Visit `http://host:9375` after deploy.
 For environments where the one-line script can't run (air-gapped servers, custom directory layouts):
 
 ```bash
-VERSION=0.8.0  # Replace with your target version
+VERSION=0.9.23  # Replace with your target version
 
 # Pick your platform (amd64 or arm64)
 ARCH=amd64  # Linux x86_64; use arm64 for ARM devices
 
 # Download
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}.tar.gz
-wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web-${VERSION}.tar.gz
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-web.tar.gz
 
 # Install binaries
 tar xzf neomind-server-linux-${ARCH}.tar.gz
@@ -145,7 +169,7 @@ sudo install -m 755 neomind-extension-runner /usr/local/bin/
 
 # Deploy frontend
 sudo mkdir -p /var/www/neomind
-sudo tar xzf neomind-web-${VERSION}.tar.gz -C /var/www/neomind
+sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 
 # Start
 ./neomind serve
@@ -199,16 +223,17 @@ See [Developer Guide](../developer-guide/1-overview.md) for build/contribution d
 
 ## First-Run Setup (All Modes)
 
-Regardless of install path, first visit to the Web UI requires just one step:
+Whichever installation you chose, the first visit to the web UI is the same: **create the admin account** (the first user automatically becomes admin; timezone is auto-detected) → then the [four-step setup wizard](#first-launch-wizard) (Welcome → LLM backend → Device connection → Done; every step is skippable).
 
-1. **Create an admin account** — the first registered user becomes admin; timezone is auto-detected
+Skipped items can be completed later: [Configure LLM Backend](./2-configure-llm.md), [Device Onboarding](./3-onboard-device.md). Then chat in [AI Chat](./5-ai-chat.md), build [dashboards](./4-use-dashboard.md), and create automation rules.
 
-You're then in the main UI. LLM backend configuration and device onboarding are deferred — set them up whenever you need:
+## Users & Roles
 
-- **[Configure LLM Backend](./2-configure-llm.md)** — required before using AI Chat
-- **[Onboard a Device](./3-onboard-device.md)** — connect cameras or sensors via the onboarding wizard
-
-Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashboards](./4-use-dashboard.md), or create automation rules.
+- The **first admin** comes from the first-start wizard and has full permissions
+- **Self-registration is closed by default** (by design): new accounts are created by an admin via the API (`POST /api/users`, admin-only); open self-registration by calling `PUT /api/settings/registration`
+- **Roles**: admin (full access) / user (daily operations) / viewer (read-only)
+- **Offline recovery**: if an admin account's role is wrong, run `neomind user set-role <name> admin` on the server (no API required)
+- Changing a password or deleting a user **immediately revokes** all of that user's sessions
 
 ## Verify the Install
 
@@ -216,8 +241,8 @@ Once done, you can chat with devices in [AI Chat](./5-ai-chat.md), build [Dashbo
 # Probe backend health
 curl http://localhost:9375/api/health
 
-# Open API docs (Swagger)
-# Visit http://localhost:9375/api/docs in a browser
+# Verify the API is reachable
+# Visit http://localhost:9375 in a browser to see the Web UI
 
 # systemd status (one-line install)
 systemctl status neomind.service
@@ -241,87 +266,71 @@ The default extension marketplace is hosted on GitHub (`raw.githubusercontent.co
 
 ## CLI API Key Setup
 
-NeoMind Server **auto-generates a default API Key** (format `nmk_xxx`) on first start. It's used for CLI authentication and external integrations. All `neomind` CLI commands require a valid key to call the Server API.
+`neomind` CLI and external integrations authenticate to the Server API with an **API key** (auto-generated on first start, format `nmk_xxx`). When run from the project root, the CLI auto-authenticates with no setup.
 
-:::tip Local Development: Zero Config Needed
-When running CLI commands from the **project root** (the directory containing `data/`), the CLI auto-reads the key from `data/api_keys.redb` (auto-auth) — no manual setup required.
+For the full retrieval, configuration, and verification walkthrough see **[CLI & API Keys](./11-cli-api-keys.md)**.
 
-```bash
-cd /path/to/neomind    # cd to project root
-neomind device list     # just works
-```
+## Environment Variable Reference
 
-> Note: auto-auth resolves the path `data/api_keys.redb` **relative to the current working directory**. You must be in the project root. The `NEOMIND_DATA_DIR` env var does **not** affect auto-auth path resolution.
+Commonly used runtime variables (grouped by purpose, all verified against source):
+
+**Core paths & service**
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_DATA_DIR` | Data directory (redb, extensions, backups; default `./data` or the platform data dir) |
+| `NEOMIND_PORT` / `--port` | HTTP API port (default 9375) |
+| `NEOMIND_HOST` | Bind address (default 0.0.0.0) |
+| `NEOMIND_WEB_DIR` | Frontend static directory (default `/var/www/neomind`) |
+| `NEOMIND_LOG_JSON` / `RUST_LOG` | Log format and level |
+
+**Built-in HTTPS proxy (0.9.21+)**
+
+Without nginx, NeoMind ships a rustls TLS front proxy that forwards to the plaintext listener:
+
+| Variable | Description |
+|------|------|
+| `NEOMIND_TLS_PORT` | HTTPS listen port (default 9376) |
+| `NEOMIND_TLS_CERT` / `NEOMIND_TLS_KEY` | PEM certificate and key paths |
+
+:::note vs nginx
+The built-in proxy suits single-box HTTPS enablement; all clients share one rate-limit bucket and the upstream assumes the default port. For multi-client production, prefer nginx with per-client limits.
 :::
 
-### When You Need a Manual Key
+**LLM & models**
 
-| Scenario | Manual Key Needed? |
-|----------|-------------------|
-| Local dev, running CLI from project root | No (auto-auth) |
-| Running CLI from `web/`, `/tmp`, etc. | Yes |
-| Connecting to a remote server | Yes |
-| Desktop app's embedded CLI | No (auto-configured) |
+| Variable | Description |
+|------|------|
+| `NEOMIND_BUILTIN_LLM` / `NEOMIND_BUILTIN_MODEL_PATH` / `NEOMIND_BUILTIN_MODEL_NGL` | Built-in llama.cpp runtime and model control |
+| `NEOMIND_BUILTIN_LLM_CTX` / `NEOMIND_BUILTIN_LLM_PORT` | Context length and listen port |
+| `NEOMIND_CATALOG_URL` | Built-in model catalog URL (default camthink-ai/NeoMind-Runtimes) |
+| `NEOMIND_MAX_CONTEXT` | Override the default context length |
+| `NEOMIND_TOOL_CONCURRENCY` | Tool-call concurrency |
 
-### Getting Your Real API Key
+**Extensions & security**
 
-:::warning Documentation Keys Are Placeholders
-All `nmk_xxx` values in this documentation are **placeholders** — they will not work. Your real key is printed to **stdout** (terminal output) at server startup and is **not written to log files**. `neomind api-key list` only shows masked values (`nmk_****`) and cannot recover the full key.
-:::
+| Variable | Description |
+|------|------|
+| `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | Marketplace source override |
+| `NEOMIND_STRICT_PACKAGE_SHA256` | Set to 1 to reject packages without a checksum |
+| `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | Extension process workers and FFI timeout |
+| `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | Session signing and at-rest encryption keys (auto-generated under data/ by default) |
+| `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | Backup schedule seeds (settings win once saved) |
 
-The server prints a banner with the key at startup:
+> The full list is authoritative in the source (`grep -r 'env::var' crates/`); the table above is the operations-relevant subset.
 
-```
-╔═══════════════════════════════════════════════╗
-║ ⚠ DEFAULT API KEY GENERATED                    ║
-╠═══════════════════════════════════════════════╣
-║ Key: nmk_a1b2c3d4....（your real key）        ║
-║ Name: Default API Key                          ║
-╚═══════════════════════════════════════════════╝
-```
+## Production Checklist
 
-Missed the startup output? Find it by deployment type:
+Before moving from trial to production, walk through:
 
-| Deployment | How to Find |
-|------------|-------------|
-| **Dev mode** (`neomind serve`) | Scroll up in the terminal where you started the server |
-| **Linux systemd** | `journalctl -u neomind.service \| grep 'nmk_'` |
-| **Docker** | `docker logs neomind 2>&1 \| grep 'nmk_'` |
-| **Manual / nohup** | `grep 'nmk_' /path/to/neomind.log` (only if stdout was redirected) |
-| **Can't find it** | Restart the server and watch the output: `neomind serve 2>&1 \| head -30` |
-
-### Set the Environment Variable
-
-Once you have the real key, set it as an environment variable for cross-directory or remote use:
-
-```bash
-# Temporary (current session)
-export NEOMIND_API_KEY=nmk_YOUR_REAL_KEY
-
-# Permanent (add to shell config)
-echo 'export NEOMIND_API_KEY=nmk_YOUR_REAL_KEY' >> ~/.zshrc   # macOS
-source ~/.zshrc
-```
-
-:::warning Wrong Key Is Worse Than No Key
-Once `NEOMIND_API_KEY` is set (even to a wrong value), the CLI **stops trying auto-auth**. If you previously set a wrong value, clear it first:
-
-```bash
-unset NEOMIND_API_KEY    # after clearing, cd to project root to restore auto-auth
-```
-:::
-
-### Verify
-
-```bash
-# Local: from project root, no key needed
-neomind device list
-
-# Cross-directory: after setting correct NEOMIND_API_KEY
-neomind dashboard list
-```
-
-If you get 401, see [Troubleshooting → CLI 401](./10-troubleshooting.md#cli-commands-return-401-unauthorized).
+- **[Backups](./10-troubleshooting.md#data--storage)** — enable the automatic schedule (Settings → Preferences) and confirm retention count
+- **[Data retention](./12-settings.md#device-defaults--data-retention)** — set telemetry retention to match your needs (default is forever; disk grows continuously)
+- **[Users & roles](#users--roles)** — keep self-registration closed; create user / viewer accounts for operators and business users
+- **HTTPS** — front with an nginx reverse proxy and expose only 80/443 (keep 9375 / 1883 internal)
+- **[Marketplace source](./9-extensions.md)** — switch to a mirror if your network needs it
+- **[Online upgrade](#upgrade)** — make sure install.sh's helper systemd units are installed (older installs: rerun the script once)
+- **Timezone** — verify the system timezone; rule cron schedules and data timestamps depend on it (Settings → Preferences)
+- **Monitoring** — point Prometheus at `http://your-server:9375/metrics` (HTTP request counters, uptime, event-bus drop counters) instead of waiting for incidents
 
 ## Next Steps
 
@@ -334,4 +343,4 @@ NeoMind is running? Here's the recommended order:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

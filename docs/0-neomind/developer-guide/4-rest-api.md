@@ -1,21 +1,21 @@
 ---
-description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端），含 Swagger 入口与错误格式。"
-keywords: [NeoMind, REST API, HTTP, Swagger, JWT, API Key, 端点]
+description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
+keywords: [NeoMind, REST API, HTTP, JWT, API Key, 端点]
 tags: [NeoMind, 开发指南]
 sidebar_label: "REST API Reference"
 ---
 
 # REST API 参考
 
-NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整交互式文档见 Swagger UI。
+NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整端点清单以源码 `crates/neomind-api/src/server/router.rs` 为准。
 
 ## 入口
 
 | 项 | 值 |
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| Swagger UI（交互式文档） | `http://<SERVER_IP>:9375/api/docs` |
-| 默认端口 | 9375（可用 `--port` / `PORT` 环境变量改） |
+| 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
+| 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
 
 > **所有端点路径以 `/api` 开头**。下文的端点列表都省略 `/api` 前缀。
 
@@ -95,6 +95,8 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 
 > **重要陷阱**：后端返回 **snake_case**（如 `data_source`），前端使用 **camelCase**（如 `dataSource`）。前端所有 API 响应都经 `web/src/store/persistence/types.ts::fromDashboardDTO()` 转换。集成商自己解析 JSON 时，字段以**后端原样 snake_case** 为准。
 
+> 本页面向集成商与脚本作者。字段命名、认证与实时协议的细节均在本页内；UI 层操作见[用户指南](../user-guide/1-install-setup.md)。
+
 ## 主要端点分组
 
 ### Auth（认证）
@@ -102,7 +104,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | POST | `/auth/login` | 登录拿 JWT |
-| POST | `/auth/register` | 注册（首个用户自动 admin） |
+| POST | `/auth/register` | 自助注册（默认关闭，需管理员在设置中开启；注册用户为普通角色——首个管理员由 `/setup/initialize` 创建） |
 | GET | `/auth/status` | 当前认证状态 |
 | GET | `/auth/verify` | 验证 JWT 是否有效 |
 
@@ -113,13 +115,15 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/devices` | 列出设备 |
 | POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空） |
 | GET | `/devices/:id` | 设备详情（含 metrics + commands） |
+| GET | `/devices/:id/current` | 设备全部指标当前值 |
 | PUT | `/devices/:id` | 更新设备 |
 | DELETE | `/devices/:id` | 删除设备 |
-| GET | `/devices/:id/history` | 遥测历史（`?metric=&time_range=`） |
-| POST | `/devices/:id/control` | 下发指令（`{"command": "...", "params": {...}}`） |
+| GET | `/devices/:id/telemetry` | 设备遥测历史（`?metric=&start=&end=`） |
+| GET | `/telemetry` | 跨设备遥测查询（`?source=&metric=&start=&end=&limit=&offset=`；`offset` 为跳过最新 N 条，用于服务端分页，响应含精确 `total_count`） |
+| POST | `/devices/:id/command/:command` | 下发指令（body 为参数对象，如 `{"offset": 1}`） |
 | POST | `/devices/:id/webhook` | Webhook 推数据（无需认证） |
-| GET | `/devices/types` | 列出设备类型 |
-| POST | `/devices/types` | 创建设备类型 |
+| GET | `/device-types` | 列出设备类型 |
+| POST | `/device-types` | 创建设备类型 |
 | GET | `/devices/drafts` | 待审批草稿（自动发现） |
 | POST | `/devices/drafts/:id/approve` | 审批草稿 |
 
@@ -133,7 +137,7 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | PUT | `/dashboards/:id` | 更新仪表板（含布局） |
 | DELETE | `/dashboards/:id` | 删除仪表板 |
 | POST | `/dashboards/:id/share` | 生成分享链接（带过期） |
-| GET | `/dashboards/shared/:token` | 访问分享（无需认证） |
+| GET | `/share/:token` | 访问分享仪表板（无需认证） |
 
 ### Rules（规则）
 
@@ -191,10 +195,10 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/messages` | 消息列表 |
 | GET | `/messages/channels` | 列出通知渠道 |
 | POST | `/messages/channels` | 添加渠道（webhook/email/telegram/wecom/dingtalk/slack/feishu） |
-| PUT | `/messages/channels/:id` | 更新渠道 |
-| DELETE | `/messages/channels/:id` | 删除渠道 |
-| POST | `/messages/channels/:id/test` | 测试渠道投递 |
-| POST | `/messages/send` | 手动发消息 |
+| PUT | `/messages/channels/:name` | 更新渠道 |
+| DELETE | `/messages/channels/:name` | 删除渠道 |
+| POST | `/messages/channels/:name/test` | 测试渠道投递 |
+| POST | `/messages` | 手动发消息 |
 
 ### Extensions（扩展）
 
@@ -202,12 +206,13 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 |------|------|------|
 | GET | `/extensions` | 列出已装扩展 |
 | GET | `/extensions/types` | 扩展类型枚举 |
-| POST | `/extensions/discover` | 扫描扩展目录 |
+| POST | `/extensions/sync` | 扫描扩展目录并安装（同步） |
 | GET | `/extensions/:id` | 扩展详情 |
 | GET | `/extensions/:id/health` | 健康检查 |
 | GET | `/extensions/:id/commands` | 扩展命令列表 |
-| POST | `/extensions/:id/commands/:cmd` | 执行扩展命令 |
+| POST | `/extensions/:id/command` | 执行扩展命令（body `{"command": "...", "args": {...}}`） |
 | GET | `/extensions/:id/components` | 扩展提供的 Dashboard 组件 |
+| GET / WS | `/extensions/:id/stream` | 扩展流会话（Push 模式实时帧；见[实时 API](#实时-api)） |
 
 ### Data Push（数据推送）
 
@@ -228,18 +233,39 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/settings/*` | 系统设置（保留策略等） |
-| GET | `/system/info` | 系统信息（MQTT / 网络 / webhook） |
-| GET | `/system/network-info` | 网络信息 |
+| GET | `/system/network-info` | 网络信息（MQTT / webhook 地址） |
+| GET | `/metrics` | Prometheus 文本指标（公开）：HTTP 请求计数、uptime、事件总线丢弃计数等 |
 
 ## 实时 API
 
 除 REST 外，NeoMind 提供：
 
-- **WebSocket**：`ws://<host>:9375/api/events` — 仪表板实时数据流、设备状态变化推送
-- **SSE**：`GET /api/events`（Server-Sent Events）— 同样的事件流，HTTP 单向
+- **WebSocket**：`ws://<host>:9375/api/events/ws` — 仪表板实时数据流、设备状态变化推送
+- **SSE**：`GET /api/events/stream`（Server-Sent Events）— 同样的事件流，HTTP 单向
 - **MQTT**：直连 `mqtt://<host>:1883` 订阅设备原始 topic
 
-实时协议（WebSocket / SSE）的权威实现参考 Web 前端 `web/src/lib/events.ts` 与 `web/src/lib/websocket.ts`。
+### 扩展流（`/api/extensions/:id/stream`）
+
+Push 模式扩展（视频/音频等连续帧输出）通过该 WebSocket 端点建立流会话。自 **0.9.23** 起支持**二进制推送帧**（可选启用）：
+
+1. 客户端在 `init` 配置中携带 `{"binary": true}` 主动协商
+2. 服务端在 `session_created.binary` 中确认；未确认则保持旧版 Text（JSON + base64）格式
+3. 启用后，`push_output` 帧改用 WS Binary 帧传输，免去双重 base64 编码开销，帧格式：
+
+```
+[kind u8=1][version u8=1][sequence u64 BE][meta_len u32 BE][meta JSON][payload bytes]
+```
+
+`meta` 与 Text 信封字段一致（不含 `data`/`sequence`）；控制消息（`session_created`、`error` 等）始终走 Text 帧——WS 帧类型即第一级判别器。新旧前端与新旧服务器的任意组合均可安全回退。
+
+实时协议（WebSocket / SSE）的权威实现参考 Web 前端 `web/src/lib/events.ts` 与 `web/src/lib/websocket.ts`；Push 帧格式的实战案例见[案例研究：yolo-video](./case-studies/3-yolo-video-v2.md)。
+
+## 相关页面
+
+- [设备接入](../user-guide/3-onboard-device.md) — Webhook 推入与设备模型
+- [自动化规则](../user-guide/7-automation-rules.md) · [数据推送](../user-guide/7c-data-push.md) · [通知](../user-guide/8-notifications.md)
+- [扩展管理](../user-guide/9-extensions.md) · [配置 LLM 后端](../user-guide/2-configure-llm.md)
+- [设备类型开发](./6-device-type-development.md) · [扩展开发](./7-extension-development.md)
 
 ## 错误处理建议
 
@@ -261,10 +287,10 @@ else:
 
 ## 下一步
 
-- **完整交互式文档**：`/api/docs`（Swagger）——所有端点 + 参数 schema + 在线试调用
+- **完整端点清单**：`crates/neomind-api/src/server/router.rs` —— 所有路由（公开 / 保护 / 管理员）的权威定义
 - 加新端点 → 在 `crates/neomind-api/src/` 加 handler，遵循现有分模块模式
 - 实时推送 → WebSocket / SSE（参考 `web/src/lib/websocket.ts`）
 
 ---
 
-*最后更新: 2026-06-15*
+*最后更新: 2026-09-08*

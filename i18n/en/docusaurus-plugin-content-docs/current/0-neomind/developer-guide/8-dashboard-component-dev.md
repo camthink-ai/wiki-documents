@@ -53,9 +53,9 @@ This creates a `temperature-gauge/` directory with template files.
   "name": { "en": "Temperature Gauge", "zh": "温度表" },
   "description": { "en": "Displays temperature with min/max range" },
   "icon": "thermometer",
-  "category": "indicators",
+  "category": "display",
   "global_name": "NeoMindTemperatureGauge",
-  "export_name": "default",
+  "export_name": "NeoMindTemperatureGauge",
   "version": "1.0.0",
   "size_constraints": {
     "min_w": 2, "min_h": 2,
@@ -66,21 +66,20 @@ This creates a `temperature-gauge/` directory with template files.
   "max_data_sources": 1,
   "has_display_config": true,
   "config_schema": {
-    "display": {
-      "type": "object",
-      "properties": {
-        "unit": { "type": "string", "description": "Temperature unit (°C, °F)" },
-        "minValue": { "type": "number", "description": "Minimum value on gauge" },
-        "maxValue": { "type": "number", "description": "Maximum value on gauge" }
-      }
-    },
-    "config": { "type": "object", "properties": {} }
+    "type": "object",
+    "properties": {
+      "unit": { "type": "string", "description": "Temperature unit (°C, °F)", "default": "°C" },
+      "minValue": { "type": "number", "description": "Minimum value on gauge", "default": -20 },
+      "maxValue": { "type": "number", "description": "Maximum value on gauge", "default": 50 }
+    }
   },
   "default_config": {
-    "display": { "unit": "°C", "minValue": -20, "maxValue": 50 }
+    "unit": "°C", "minValue": -20, "maxValue": 50
   }
 }
 ```
+
+> `config_schema` is **a single flat JSON Schema**: fields under `properties` automatically generate the settings form, their values go into the component's `config`, and they are **spread directly onto top-level props** (see the Props API below).
 
 ### 3. Edit bundle.js
 
@@ -90,12 +89,22 @@ This creates a `temperature-gauge/` directory with template files.
   var React = global.React;
 
   function TemperatureGauge(props) {
-    var value = props.dataSource && props.dataSource[0]
-      ? props.dataSource[0].value : null;
-    var display = props.display || {};
-    var unit = display.unit || '°C';
-    var min = display.minValue !== undefined ? display.minValue : -20;
-    var max = display.maxValue !== undefined ? display.maxValue : 50;
+    // config_schema fields land directly on top-level props (unit / minValue / maxValue)
+    var unit = props.unit || '°C';
+    var min = props.minValue !== undefined ? props.minValue : -20;
+    var max = props.maxValue !== undefined ? props.maxValue : 50;
+
+    // Data values are resolved asynchronously via fetchData()
+    // (the dataSource prop is the binding config, not resolved values)
+    var state = React.useState(null);
+    var value = state[0], setValue = state[1];
+    React.useEffect(function() {
+      if (!props.fetchData) return;
+      props.fetchData().then(function(r) {
+        setValue(r.value !== undefined ? r.value : null);
+      });
+    }, []);
+
     var pct = value !== null
       ? Math.max(0, Math.min(100, (value - min) / (max - min) * 100))
       : 0;
@@ -107,11 +116,11 @@ This creates a `temperature-gauge/` directory with template files.
     },
       React.createElement('div', {
         style: { fontSize: '2.5rem', fontWeight: 'bold',
-                 color: 'var(--color-text-primary)' }
-      }, value !== null ? value.toFixed(1) + unit : '--'),
+                 color: 'var(--foreground)' }
+      }, value !== null ? Number(value).toFixed(1) + unit : '--'),
       React.createElement('div', {
         style: { width: '80%', height: '6px', borderRadius: '3px',
-                 background: 'var(--color-border)' }
+                 background: 'var(--border)' }
       },
         React.createElement('div', {
           style: { width: pct + '%', height: '100%', borderRadius: '3px',
@@ -145,26 +154,28 @@ neomind widget get temperature-gauge   # Check full manifest
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | YES | Unique identifier. Lowercase, hyphens only. Cannot match built-in widget IDs |
+| `id` | string | YES | Unique identifier. Lowercase with hyphens or underscores. Cannot match built-in widget IDs |
 | `name` | object/string | YES | Display name. Supports i18n: `{"en": "Name", "zh": "名称"}` |
 | `description` | object/string | YES | Widget description. Supports i18n |
 | `icon` | string | NO | Lucide icon name (default: "Box") |
-| `category` | string | YES | One of: `indicators`, `charts`, `controls`, `display`, `spatial`, `business`, `custom` |
-| `global_name` | string | YES | JS global variable name. Convention: `NeoMind{PascalCaseId}` |
-| `export_name` | string | NO | Export method (default: "default") |
+| `category` | string | NO | Free-form category string (default: "custom"). Built-in widgets use `indicator` / `chart` / `control` / `display` / `spatial` / `layout`; community components commonly use `display` / `device` / `visualization` |
+| `global_name` | string | YES | JS global variable name. Common formats: `NeoMind_<Name>` or `<Name>PascalCase` (e.g. `NeoMind_MetricCard`, `NE101CameraPanel`) |
+| `export_name` | string | NO | Export name (resolution order: `global[export_name]` → `global.default` → the global itself if it's a function; default "default") |
 | `version` | string | NO | Semantic version (default: "1.0.0") |
 | `author` | string | NO | Author name |
 | `size_constraints` | object | YES | Grid size limits |
 | `has_data_source` | boolean | YES | Whether widget accepts data source bindings |
 | `max_data_sources` | number | NO | Maximum data sources (0 = none, omit = unlimited) |
+| `has_device_binding` | boolean | NO | Whether the component supports **device binding** — when true, the component receives a `deviceContext` prop (device online state, latest metrics, etc.) and links with the device detail view |
+| `device_type_filter` | string[] | NO | Paired with `has_device_binding`: restricts the bindable device types (e.g. `["ne101_camera"]`) |
 | `has_display_config` | boolean | NO | Whether widget has display configuration |
 | `has_actions` | boolean | NO | Whether widget sends commands (e.g., toggle) |
-| `config_schema` | object | NO | JSON Schema for `display` and `config` fields |
+| `config_schema` | object | NO | JSON Schema for the widget's configuration (`properties` auto-generates the settings form) |
 | `default_config` | object | NO | Default configuration values |
 
 ### Built-in Widget IDs (reserved, cannot be used)
 
-`value-card`, `led-indicator`, `sparkline`, `progress-bar`, `line-chart`, `area-chart`, `bar-chart`, `pie-chart`, `radar-chart`, `toggle-switch`, `markdown-display`, `image-display`, `image-history`, `web-display`, `map-display`, `video-display`, `custom-layer`, `agent-monitor-widget`, `ai-analyst`
+`value-card`, `counter`, `metric-card`, `led-indicator`, `sparkline`, `progress-bar`, `line-chart`, `area-chart`, `bar-chart`, `pie-chart`, `toggle-switch`, `markdown-display`, `image-display`, `image-history`, `web-display`, `map-display`, `video-display`, `custom-layer`, plus the business components `agent-monitor-widget` and `ai-analyst`
 
 ### size_constraints
 
@@ -180,10 +191,11 @@ The dashboard uses a 12-column grid. Specify min/default/max width and height in
 
 ### config_schema
 
-Describes the fields your widget accepts:
+A **single flat JSON Schema** (`type: "object"` + `properties`, optionally `ui_hints` for field order/visibility):
 
-- `display` — visual configuration set by users in the dashboard editor (unit, color, etc.)
-- `config` — internal configuration (content for markdown, URL for web display, etc.)
+- Each entry under `properties` automatically generates a form control in the widget's settings panel
+- User-entered values are stored in the component instance's `config` object and **spread directly onto top-level props** (`props.unit`, not `props.display.unit`)
+- If the bundle exports custom `ConfigPanel` / `AdvancedPanel` components, they take priority for rendering the config UI
 
 ## bundle.js IIFE Format
 
@@ -219,74 +231,95 @@ Describes the fields your widget accepts:
 
 ## Component Props API
 
+Props passed to your component by the renderer (`ComponentRenderer`), per the actual code:
+
 ```typescript
 interface WidgetProps {
-  config: Record<string, any>;        // Internal config from manifest config_schema
-  display: Record<string, any>;       // Display config from manifest config_schema
-  dataSource: Array<{                 // Data source values
-    value: number | string;           // Current value
-    timestamp: number;                // Unix timestamp (ms)
-    label?: string;                   // Data source label
-    values?: Array<{                  // Time-series (for charts)
-      value: number;
-      timestamp: number;
-    }>;
-  }>;
-  id: string;                         // Component instance ID
-  title: string;                      // Widget title
-  type: string;                       // Widget type
-  actions?: {                         // Command actions (if has_actions: true)
-    sendCommand: (cmd: string, payload?: any) => void;
+  config: Record<string, any>;        // Widget config object (values produced by config_schema forms)
+  // config_schema.properties fields are ALSO spread onto top-level props:
+  // e.g. a "unit" field in the schema is readable directly as props.unit
+  dataSource: object | object[];      // Data source [binding config] (single object or array) — NOT resolved values!
+  fetchData?: (options?: {            // Resolves the data sources (injected for community/extension components)
+    timeRange?: number; limit?: number;
+  }) => Promise<FetchResult | FetchResult[]>;
+  deviceContext?: {                   // Injected when has_device_binding: true
+    device: {                         // The bound device
+      id: string; name: string; deviceType: string;
+      status: 'online' | 'offline'; lastSeen: number;
+      currentValues: Record<string, any>;   // Latest metric values
+    };
+    deviceType?: {                    // Device type definition (metrics/commands)
+      name: string; deviceType: string;
+      metrics: any[]; commands: any[];
+    };
   };
+  sendDeviceCommand?: (cmd: string,   // Device-bound components: send a command to the bound device
+    params?: Record<string, unknown>) => Promise<any>;
+  title: string;                      // Widget title
+  editMode: boolean;                  // Whether the dashboard is in edit mode
+  onConfigChange?: (fn: any) => void; // Config persistence callbacks
+  onDataSourceChange?: (fn: any) => void;
+}
+
+interface FetchResult {               // fetchData return value
+  value?: unknown;                    // latest mode: single current value
+  series?: Array<{ timestamp: number; value: number }>;  // timeseries mode: time series
 }
 ```
 
 ## CSS Variable Theming
 
-**Never hardcode colors.** Use these design tokens:
+**Never hardcode colors.** Use these design tokens (the actual variables from `web/src/index.css`):
 
 | Variable | Usage |
 |----------|-------|
-| `var(--color-text-primary)` | Primary text |
-| `var(--color-text-secondary)` | Secondary text |
-| `var(--color-text-muted)` | Muted/hint text |
-| `var(--color-bg-primary)` | Main background |
-| `var(--color-bg-secondary)` | Card background |
-| `var(--color-border)` | Borders |
-| `var(--color-success)` | Positive/success |
-| `var(--color-error)` | Error/danger |
-| `var(--color-warning)` | Warning |
-| `var(--color-info)` | Information |
-| `var(--color-accent)` | Accent/highlight |
+| `var(--foreground)` | Primary text |
+| `var(--muted-foreground)` | Secondary/muted text |
+| `var(--background)` | Main background |
+| `var(--card)` | Card background |
+| `var(--border)` | Borders |
+| `var(--color-success)` / `var(--color-success-bg)` | Positive/success |
+| `var(--color-error)` / `var(--color-error-bg)` | Error/danger |
+| `var(--color-warning)` / `var(--color-warning-bg)` | Warning |
+| `var(--color-info)` / `var(--color-info-bg)` | Information |
+| `var(--primary)` | Accent/primary color |
+| `var(--chart-1)` … `var(--chart-6)` | Chart palette |
 
 ## Data Source Binding
 
-When `has_data_source: true`, users bind metrics to your widget.
+When `has_data_source: true`, users bind metrics to your widget. Note: `props.dataSource` is the **binding config**; actual values are fetched via `props.fetchData()`:
 
 ### Single Value (Indicators)
 
 ```javascript
-var currentTemp = props.dataSource[0].value;
+// fetchData() resolves to { value: <current value> }
+props.fetchData().then(function(result) {
+  var currentTemp = result.value;
+});
 ```
 
 ### Time-Series (Charts)
 
 ```javascript
-var history = props.dataSource[0].values || [];
-history.forEach(function(point) {
-  // point.value, point.timestamp
+// With the data source in timeseries mode, fetchData() returns { series: [{timestamp, value}, ...] }
+props.fetchData({ timeRange: 24, limit: 200 }).then(function(result) {
+  (result.series || []).forEach(function(point) {
+    // point.value, point.timestamp
+  });
 });
 ```
 
 ### Multi-source (Charts)
 
-When `max_data_sources > 1`, `dataSource` is an array where each element is a separate series:
+When `max_data_sources > 1`, `props.dataSource` is an array of binding configs and `fetchData()` returns a matching array of results:
 
 ```javascript
-props.dataSource.forEach(function(ds, i) {
-  var label = ds.label || 'Series ' + (i + 1);
-  var points = ds.values || [];
-  // render each series...
+props.fetchData().then(function(results) {
+  results.forEach(function(result, i) {
+    var binding = props.dataSource[i];        // each binding's config
+    var points = result.series || [];          // each binding's data
+    // render each series...
+  });
 });
 ```
 
@@ -303,7 +336,7 @@ neomind widget install ../my-widget.zip
 
 ### Method 2: Web UI
 
-In NeoMind's **Extensions** page, click **Install Widget** and upload the ZIP file.
+In the dashboard edit mode, open the **Add Component → Custom** tab and click **Import Component** to upload the ZIP file (see the [Dashboard User Guide](../user-guide/4-use-dashboard.md)).
 
 ### Method 3: Uninstall
 
@@ -317,8 +350,9 @@ neomind widget uninstall my-widget
 # Check the component's config_schema first
 neomind widget get my-widget
 
-# Add to a dashboard
-neomind dashboard update <DASHBOARD_ID> --components '[{
+# Add to a dashboard (--components replaces ALL components, so --replace-all is
+# required; to only append use `neomind dashboard add-components <ID> --components '[...]'
+neomind dashboard update <DASHBOARD_ID> --replace-all --components '[{
   "id": "c1",
   "type": "my-widget",
   "title": "My Widget",
@@ -328,14 +362,13 @@ neomind dashboard update <DASHBOARD_ID> --components '[{
     "sourceId": "sensor-01",
     "property": "temperature"
   },
-  "display": {"unit": "°C"},
-  "config": {}
+  "config": {"unit": "°C"}
 }]'
 ```
 
 ## Complete Example: Line Chart Component
 
-Here is a component that draws a simple SVG line chart from time-series data:
+Here is a component that pulls a time series via `fetchData` and draws a simple SVG line chart:
 
 ```javascript
 (function(global) {
@@ -343,16 +376,23 @@ Here is a component that draws a simple SVG line chart from time-series data:
   var React = global.React;
 
   function SimpleLineChart(props) {
-    var ds = props.dataSource && props.dataSource[0];
-    var points = (ds && ds.values) || [];
-    var display = props.display || {};
-    var strokeColor = display.color || 'var(--color-accent)';
+    var state = React.useState([]);
+    var points = state[0], setPoints = state[1];
+    var strokeColor = props.color || 'var(--primary)';
+
+    React.useEffect(function() {
+      if (!props.fetchData) return;
+      // With the data source in timeseries mode this resolves to { series: [{timestamp, value}, ...] }
+      props.fetchData().then(function(result) {
+        setPoints(result.series || []);
+      });
+    }, []);
 
     if (points.length < 2) {
       return React.createElement('div', {
         style: { width: '100%', height: '100%',
                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                 color: 'var(--color-text-muted)' }
+                 color: 'var(--muted-foreground)' }
       }, 'Waiting for data...');
     }
 
@@ -384,14 +424,14 @@ Here is a component that draws a simple SVG line chart from time-series data:
 })(window);
 ```
 
-Corresponding manifest.json:
+Corresponding manifest.json (`config_schema` is a flat JSON Schema; the `color` field appears at the top level of props):
 
 ```json
 {
   "id": "simple-line-chart",
   "name": { "en": "Simple Line Chart", "zh": "简单折线图" },
   "description": { "en": "A minimal SVG line chart" },
-  "category": "charts",
+  "category": "chart",
   "global_name": "NeoMindSimpleLineChart",
   "size_constraints": {
     "min_w": 3, "min_h": 2,
@@ -401,11 +441,9 @@ Corresponding manifest.json:
   "max_data_sources": 1,
   "has_display_config": true,
   "config_schema": {
-    "display": {
-      "type": "object",
-      "properties": {
-        "color": { "type": "string", "description": "Line color (CSS variable or hex)" }
-      }
+    "type": "object",
+    "properties": {
+      "color": { "type": "string", "description": "Line color (CSS variable or hex)" }
     }
   }
 }
@@ -445,4 +483,4 @@ This page is the component API reference. Real-world engineering examples:
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

@@ -418,7 +418,7 @@ graph TB
 4. 类别过滤 / 短语输入
 5. ROI 开关 + 多边形编辑器（用户在画布上拖拽点）
 6. ROI 重叠阈值滑块（`processingRoiOverlap`，commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae)）
-7. NMS IoU 阈值透传给 `locate-anything-v2`（commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)）。
+7. NMS IoU 阈值透传给 `locate-anything`（commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)）。
 
 `NE101CameraPanel` 主组件的核心 hooks（位于 [`bundle.js` L484-L513](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L484-L513)）构成了它的状态机骨架：
 
@@ -732,7 +732,9 @@ Source: [manifest.json L18-L37](https://github.com/camthink-ai/NeoMind-Dashboard
 前者的价值在于覆盖面广，后者的价值在于把一条复杂的设备链路收敛成单一面板。两者不是替代关系，而是递进关系——ne101_camera 在 metric_card 的 IIFE 注入 + manifest 契约 + 内联 style 三件套基础上，增加了设备绑定、图像画布、AI 处理流水线、ROI 叠加四层新能力。
 
 :::tip 工程教训
-NeoMind 组件市场存在两种互补的设计范式：**「薄组件 + 厚通用性」**（metric_card，覆盖面广）与**「厚组件 + 薄专用性」**（ne101_camera，收敛复杂链路）。理解这种递进关系，有助于在「为通用场景写组件」和「为专用设备写组件」之间做出正确选择。
+
+组件市场有两种互补范式：**「薄组件 + 厚通用性」**（metric_card，覆盖面广）与**「厚组件 + 薄专用性」**（ne101_camera，收敛复杂链路）。写组件前先想清楚自己站在哪一边。
+
 :::
 
 ---
@@ -746,7 +748,9 @@ NeoMind 组件市场存在两种互补的设计范式：**「薄组件 + 厚通�
 3. **代码生成（`generateTransformJsCode`）** 是 ne101_camera 独有的架构创新，把「可变的后处理」从组件代码里物理剥离。这个模式在后续案例里会被复用。
 
 :::tip 工程教训
-读 ne101_camera 源码时，先在脑子里建立**五层模型**（helper / template / sub-component / main / export），再把代码归位。同一个文件里 1972 行互相穿插，没有五层模型就会被代码量压垮。设备绑定组件的核心架构特征是**双通道数据流**（WebSocket + REST），这是它与显示型组件的根本区别。
+
+读 ne101_camera 源码前，先建立**五层模型**（helper / template / sub-component / main / export），1972 行才能对号入座。它的核心架构特征是**双通道数据流**（WebSocket + REST），这也是设备绑定组件与显示型组件的根本区别。
+
 :::
 
 ### 演进里程碑表
@@ -756,7 +760,7 @@ NeoMind 组件市场存在两种互补的设计范式：**「薄组件 + 厚通�
 | Commit | 类型 | 一句话说明 | 影响的架构层 |
 |--------|------|------------|------------|
 | [`c276c23`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/c276c23) | feat | per-class detection colors via golden-angle HSV rotation | Helper 层（`classColor` L57） |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | Template 引擎层（透传 NMS 参数） |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | Template 引擎层（透传 NMS 参数） |
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | Sub-component 层（`AdvancedPanel` 滑块） |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | Main component 层（mount effect 的 REST 回退） |
 | [`e3a70be`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/e3a70be) | fix | parse JSON string detections from backend virtual metrics | Main component 层（[`L857`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L853-L867) 的 JSON.parse） |

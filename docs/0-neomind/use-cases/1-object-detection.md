@@ -1,10 +1,13 @@
 ---
+sidebar_label: "Object Detection"
 description: 基于 NeoMind 平台实现人物与目标识别及通知推送的完整方案，提供 YOLO Inference 扩展（边缘推理）和 AI Agent（LLM 智能分析）两种实现路径，支持 NE101/NE301 智能相机。
 keywords: [NeoMind, YOLO, AI Agent, 人物识别, 目标检测, 通知推送, NE101, NE301, Ollama, Qwen]
 tags: [NeoMind, 人物识别, YOLO, AI Agent, 通知推送]
 ---
 
-# AI Agent and Extensions Solutions
+# Object Detection with YOLO & AI Agent
+
+> 两种实现路径——**YOLO Inference 扩展**（边缘推理，低延迟）与 **AI Agent**（LLM 智能分析，灵活），把 NE101/NE301 相机变成会主动报警的目视哨兵。
 
 ---
 
@@ -47,7 +50,7 @@ NeoMind 提供两种途径实现目标检测与通知推送，可根据场景需
 | 物料 | 型号/规格 | 数量 | 用途 | 必需 |
 |------|----------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 1+ | 图像采集 | ✅ |
-| **NeoMind 平台** | v0.8.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
+| **NeoMind 平台** | v0.9.0+ | 1 | 边缘 AI 管理 | [下载](https://github.com/camthink-ai/NeoMind/releases/latest) ✅ |
 | **LLM 推理环境** | Ollama / OpenAI / Anthropic 等 | 1 | AI Agent 后端 | 方案 B |
 | **太阳能供电套件** | 10W 光伏板 + 7AH 可充电电池 | 1 | 户外长期部署 | 可选 |
 
@@ -103,7 +106,7 @@ ollama list
 3. 填写设备 ID（与设备端一致）和 MQTT 主题（需要提前配置好 MQTT Broker）
 4. 保存并等待设备上线
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
+![设备上线并出现在设备列表](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-1.png)
 
 > 详细的设备接入步骤请参考 [NeoMind 快速入门 - 设备管理](../user-guide/3-onboard-device.md)。
 
@@ -117,7 +120,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 **步骤 1**：进入 **Extensions（扩展）** 管理页面
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
+![扩展管理页面](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
 
 **步骤 2**：找到 **YOLO Device Inference** 扩展，点击安装
 
@@ -128,7 +131,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 **步骤 3**：安装完成后，启用扩展
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
+![扩展安装完成并启用](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-4.png)
 
 ### 4.2 验证推理结果
 
@@ -169,7 +172,7 @@ AI Agent 通过 LLM 大语言模型对图像进行智能分析，使用自然语
 
 **步骤 1**：进入 **AI Agent** 管理页面
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
+![AI Agent 管理页面](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-1.png)
 
 **步骤 2**：点击 **创建 Agent**，填写基本信息：
 
@@ -180,9 +183,9 @@ AI Agent 通过 LLM 大语言模型对图像进行智能分析，使用自然语
 
 AI Agent 的核心是提示词（Prompt）和执行规则。通过配置提示词定义分析逻辑，通过执行规则定义触发条件。
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
+![Agent 提示词配置](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-3.png)
+![Agent 执行规则配置](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-4.png)
+![Agent 执行规则配置（续）](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/ai-agent-5.png)
 
 **配置步骤**：
 
@@ -227,6 +230,8 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 进入 **Dashboard（仪表板）** 管理页面，点击 **创建仪表板**：
 
+> 📷 待补截图｜创建仪表板 · 建议路径 `…/neomind/object-detection/05-create-dashboard.png`
+
 
 
 ### 6.2 添加 YOLO Inference 面板
@@ -239,7 +244,7 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 </div>
 
 绑定设备后，当设备采集到图像时，YOLO 扩展会自动推理并在面板中展示检测结果，包括标注后的图像和检测到的目标类型、数量：
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
+![YOLO 面板实时检测结果](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-3.png)
 
 ### 6.3 添加 AI Agent 面板
 
@@ -251,7 +256,7 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 </div>
 
 ### 6.4 查看综合结果
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
+![检测结果综合查看](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-1.png)
 
 完成后的仪表板可以同时展示 YOLO 扩展和 AI Agent 两种方案的检测结果，方便对比：
 <div style={{display: 'flex', gap: '8px'}}>
@@ -267,9 +272,9 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 根据 AI Agent 的提示词配置，当检测到目标时，NeoMind 会自动在 App 上显示通知。点击通知标签，可以查看具体的通知细节，关联检测图片。
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
+![App 通知详情](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-1.png)
 
-![](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
+![通知列表](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/notification-2.png)
 
 ### 7.2 邮件通知（可选）
 
@@ -313,6 +318,17 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 **组合使用**：两种方案可以同时运行。例如，YOLO 扩展负责实时快速检测，AI Agent 负责深度分析和异常行为理解，两者互为补充。
 
+## 9. 相关文档
+
+- [扩展管理](../user-guide/9-extensions.md) — YOLO 扩展安装与命令调用
+- [使用仪表板](../user-guide/4-use-dashboard.md) — 检测结果的组件化展示
+- [通知渠道](../user-guide/8-notifications.md) — 告警推送配置
+- [配置 LLM 后端](../user-guide/2-configure-llm.md) — 方案 B 的 AI Agent 依赖
+- [NE101 摄像头 OCR 应用案例](./4-camera-ocr.md) — 同一相机的 OCR 方案
+- [LocateAnything 视觉定位](./6-locate-anything-v2.md) — 开放词汇的定位/计数方案
+
 ---
 
-*最后更新: 2026-06-15*
+---
+
+*最后更新: 2026-09-09*

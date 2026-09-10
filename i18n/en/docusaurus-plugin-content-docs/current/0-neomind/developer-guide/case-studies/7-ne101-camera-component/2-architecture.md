@@ -412,7 +412,7 @@ graph TB
 4. class filter / phrase input
 5. ROI toggle + polygon editor (user drags points on a canvas)
 6. ROI overlap threshold slider (`processingRoiOverlap`, commit [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae))
-7. NMS IoU threshold pass-through to `locate-anything-v2` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
+7. NMS IoU threshold pass-through to `locate-anything` (commit [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148)).
 
 The core hooks of `NE101CameraPanel` (located at [`bundle.js` L484-L513](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L484-L513)) form its state machine skeleton:
 
@@ -720,7 +720,9 @@ Source: [manifest.json L18-L37](https://github.com/camthink-ai/NeoMind-Dashboard
 The former's value is wide coverage; the latter's value is collapsing a complex device link into a single panel. The two are not substitutes but a progression — ne101_camera builds on metric_card's three-piece set (IIFE injection + manifest contract + inline style) and adds four new capability layers: device binding, image canvas, AI processing pipeline, and ROI overlay.
 
 :::tip Engineering Lesson
-The NeoMind component marketplace hosts two complementary design paradigms: **"thin component + thick generality"** (metric_card, wide coverage) and **"thick component + thin specificity"** (ne101_camera, collapsing a complex device link). Understanding this progression helps you make the right choice between writing a component for general scenarios versus writing one for a dedicated device.
+
+The marketplace has two complementary paradigms: **thin component + broad generality** (metric_card) and **thick component + narrow specialization** (ne101_camera). Decide which side you're on before writing one.
+
 :::
 
 ---
@@ -734,7 +736,9 @@ This section decomposed ne101_camera's five-layer IIFE architecture, the three-e
 3. **Code generation (`generateTransformJsCode`)** is an architectural innovation unique to ne101_camera that physically strips "variable post-processing" out of the component code. This pattern will be reused in later case studies.
 
 :::tip Engineering Lesson
-When reading ne101_camera source code, first build the **five-layer model** (helper / template / sub-component / main / export) in your head, then slot each piece of code into its layer. With 1972 lines interleaving within a single file, you will be overwhelmed without the model. The core architectural trait of a device-bound component is its **dual-channel data flow** (WebSocket + REST) — this is the fundamental difference between it and a display-only component.
+
+Before reading ne101_camera, build the **five-layer model** (helper / template / sub-component / main / export) in your head — only then do the 1,972 lines fall into place. Its defining trait is the **dual-channel data flow** (WebSocket + REST), which separates device-bound components from display-only ones.
+
 :::
 
 ### Evolution Milestone Table
@@ -744,7 +748,7 @@ The six commits below are key nodes in ne101_camera's architectural evolution, i
 | Commit | Type | One-line description | Affected layer |
 |--------|------|----------------------|----------------|
 | [`c276c23`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/c276c23) | feat | per-class detection colors via golden-angle HSV rotation | Helper (`classColor` L57) |
-| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything-v2 | Template engine (NMS parameter pass-through) |
+| [`8656148`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/8656148) | feat | pass NMS IoU threshold 0.5 to locate-anything | Template engine (NMS parameter pass-through) |
 | [`636a8ae`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/636a8ae) | feat | make ROI overlap threshold configurable | Sub-component (`AdvancedPanel` slider) |
 | [`b0be12b`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/b0be12b) | fix | initial fetch on mount for image + virtual metrics | Main component (mount-effect REST fallback) |
 | [`e3a70be`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/commit/e3a70be) | fix | parse JSON string detections from backend virtual metrics | Main component ([`L857`](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L853-L867) JSON.parse) |

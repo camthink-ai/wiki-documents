@@ -1,5 +1,5 @@
 ---
-description: "Configure LLM backends in NeoMind: local Ollama (recommended qwen3.5:4b) and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
+description: "Configure LLM backends in NeoMind: built-in local models (MiniCPM5-2B recommended), Ollama, and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
 keywords: [NeoMind, LLM, Ollama, qwen3.5, model config, multimodal, CLI]
 tags: [NeoMind, User Guide]
 sidebar_label: "Configure LLM Backend"
@@ -9,7 +9,6 @@ sidebar_label: "Configure LLM Backend"
 
 NeoMind's AI Agent and AI Chat rely on an LLM backend to understand natural language and execute instructions. This guide covers configuring local or cloud LLMs via **Web UI** or **CLI**.
 
----
 
 ## Backend Overview
 
@@ -17,21 +16,30 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 
 | Category | Backend | Default Model | Notes |
 |----------|---------|---------------|-------|
-| **Local** (recommended) | Ollama | `qwen3.5:4b` | Default backend, fully offline |
-| Local | llama.cpp | Loaded at startup | Self-hosted llama-server |
-| **Cloud** | OpenAI | `gpt-4o-mini` | API Key required |
-| Cloud | Anthropic | `claude-3-5-sonnet` | API Key required |
-| Cloud | Google | `gemini-1.5-flash` | API Key required |
-| Cloud | xAI | `grok-beta` | API Key required |
-| Cloud | Qwen (Alibaba) | `qwen-max-latest` | DashScope Key required |
-| Cloud | DeepSeek | `deepseek-v3` | API Key required |
-| Cloud | GLM (Zhipu) | `glm-4-plus` | API Key required |
-| Cloud | MiniMax | `m2-1-19b` | API Key required |
-| Cloud | Custom | Any | OpenAI-compatible endpoint |
+| **Local (zero config)** | Built-in llama.cpp | Curated platform models (Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5, etc.) | Runtime bundled in the Docker image, one-click download in the wizard, see [section below](#built-in-local-models-zero-config) |
+| **Local** | Ollama | `qwen3.5:4b` | Fully offline |
+| Local | llama.cpp (self-hosted) | Loaded at startup | Run llama-server yourself |
+| **Cloud** | OpenAI | `gpt-4.1-mini` | API Key required |
+| Cloud | Anthropic | `claude-sonnet-4-5` | API Key required |
+| Cloud | Google | `gemini-2.5-flash` | API Key required |
+| Cloud | xAI | `grok-3-mini` | API Key required |
+| Cloud | Qwen (Alibaba) | `qwen-plus` | DashScope Key required |
+| Cloud | DeepSeek | `deepseek-chat` | API Key required |
+| Cloud | GLM (Zhipu) | `glm-4.5-flash` | API Key required |
+| Cloud | MiniMax | `MiniMax-M2` | API Key required |
+| Cloud | Custom gateway | Any | OpenAI-compatible endpoint (type OpenAI with a custom endpoint) |
 
-> **Recommended**: Ollama + `qwen3.5:4b` (4B params, balances speed and quality, runs smoothly on 8GB RAM). Add cloud backends when you need more power or multimodal.
+> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB, 3GB RAM floor, serve at its default 8K window — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). With 4GB+ RAM and a need for the strongest agent, pick **Qwen3.5-4B** (requires a 16K window — degrades badly at 8K). On the Ollama path use `qwen3.5:4b`.
 
----
+
+## Built-in Local Models (Zero Config)
+
+Since 0.9.16, the Docker image ships with the llama.cpp runtime plus officially curated models. In the **LLM Backend** step of the first-run wizard (or via the built-in model card under **Settings → LLM Backends**), you can download and use them directly:
+
+- **One-click download** — The model list comes from a remote model catalog (`models/catalog.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes), so new models keep arriving without upgrading the platform); when offline, it automatically falls back to the built-in curated list
+- **Hardware-based recommendations** — The download page lists each model's RAM requirements (e.g. MiniCPM5-2B: 1.5GB, minimum 3GB RAM; Ling-3.0-tiny: 4.8GB, minimum 6GB — note Ling suits 8K short sessions only)
+- **Import your own GGUF** — The built-in model wizard offers an "Import Local Model" card: drop in a `.gguf` file (streamed upload, no extra memory usage) or enter a server path; the platform auto-parses the name/context/quantization info, verifies and stores it with SHA-256, and imported models participate in backend switching just like curated ones (context capped at 128K)
+- **Works out of the box** — Once the first download completes, the model is automatically registered as a local backend and runs with the model's own optimal sampling parameters (temperature / top-p / top-k)
 
 ## Option 1: Web UI Setup (Recommended)
 
@@ -58,9 +66,9 @@ ollama pull qwen3.5:4b-vl   # or llava / minicpm-v etc.
 
 Navigate to **Settings → LLM Backends**:
 
-<img src="https://resources.camthink.ai/NeoMind/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-Click **Add Backend** to open the configuration form.
+Backends are presented as cards (built-in model / Ollama / llama.cpp / Cloud AI). Click **Add Instance** on the corresponding card to open the configuration form.
 
 ### Step 3: Fill in Backend Details
 
@@ -77,16 +85,16 @@ Click **Add Backend** to open the configuration form.
 
 | Field | Value |
 |-------|-------|
-| Type | OpenAI (or Anthropic / Google / Qwen / …) |
+| Type | OpenAI-compatible protocol (or Anthropic protocol) |
 | API Key | Your API Key (e.g. `sk-...`) |
 | Base URL | Leave empty for official; fill in for custom gateway |
-| Model | `gpt-4o-mini` (or `gpt-4o` / `gpt-4-turbo`, etc.) |
+| Model | `gpt-4.1-mini` (or `gpt-4o` / `gpt-4-turbo`, etc.) |
 
 **Chinese providers**: Qwen / DeepSeek / GLM / MiniMax all use OpenAI-compatible protocols. NeoMind has built-in default endpoints — just fill in the API Key and model name.
 
-#### Custom (OpenAI-Compatible Endpoint)
+#### Custom Gateway (OpenAI-Compatible Endpoint)
 
-If you use vLLM, Together AI, OpenRouter, or another self-hosted/third-party gateway, select **Custom**:
+If you use vLLM, Together AI, OpenRouter, or another self-hosted/third-party gateway, pick the **OpenAI-compatible** protocol on the **Cloud AI** card and fill in:
 
 - `base_url`: Gateway URL (e.g. `https://api.openrouter.ai/v1`)
 - `api_key`: Gateway key
@@ -98,7 +106,7 @@ After saving, NeoMind probes the backend's capabilities (tool calling, multimoda
 
 ### Step 4: Set Default and Verify
 
-Click **Set Default** in the backend list to make it the system default.
+Select the backend in the **model picker at the top of AI Chat** to make it the system default (the current default carries an "Active" badge), or activate it with `neomind llm activate <ID>`.
 
 Then open **AI Chat** and send a greeting to verify:
 
@@ -109,7 +117,6 @@ Then open **AI Chat** and send a greeting to verify:
 > - Cloud backend: Is the API Key valid? Is the network reachable?
 > - More in [Troubleshooting](./10-troubleshooting.md)
 
----
 
 ## Option 2: CLI Setup
 
@@ -141,15 +148,15 @@ neomind llm create --name local --type ollama \
 # OpenAI cloud
 neomind llm create --name openai --type openai \
   --endpoint https://api.openai.com/v1 \
-  --model gpt-4o-mini --api-key sk-xxxx
+  --model gpt-4.1-mini --api-key sk-xxxx
 
 # GLM cloud (OpenAI-compatible)
 neomind llm create --name glm --type openai \
   --endpoint https://open.bigmodel.cn/api/paas/v4 \
   --model glm-4-flash --api-key xxx.xxx.xxx
 
-# Custom gateway (OpenRouter etc.)
-neomind llm create --name router --type custom \
+# Custom gateway (OpenRouter etc., via the OpenAI-compatible protocol)
+neomind llm create --name router --type openai \
   --endpoint https://openrouter.ai/api/v1 \
   --model anthropic/claude-3.5-sonnet --api-key sk-or-xxxx
 ```
@@ -188,7 +195,7 @@ neomind llm delete local
 
 | Command | Description | Key Flags |
 |---------|-------------|-----------|
-| `llm list` | List all backends | `--json` for JSON output |
+| `llm list` | List all backends | — |
 | `llm get <id>` | View details | — |
 | `llm models` | List available Ollama models | `--endpoint <url>` |
 | `llm create` | Create a backend | `--name` `--type` `--endpoint` `--model` `--api-key` `--temperature` |
@@ -199,38 +206,24 @@ neomind llm delete local
 
 </details>
 
----
 
-## Ollama API Endpoint
+## Thinking Effort
 
-NeoMind calls Ollama's **native `/api/chat` endpoint** (not `/v1/chat/completions`). This means:
+For models that support reasoning, you can control the thinking effort uniformly in the backend capability panel: **none / low / medium / high** (some backends offer finer levels). NeoMind abstracts this into a single switch and maps it automatically to each backend's native parameters — Ollama's `think` levels, `reasoning_effort` for OpenAI / custom / GLM / Google, `thinking` for DeepSeek / Anthropic, and `enable_thinking` for Qwen. Backends that don't support reasoning show a read-only badge instead.
 
-- Supports the `thinking` field (chain-of-thought for reasoning models like qwen3.x / deepseek-r1)
-- Supports native multimodal (image input)
-- Streaming and tool calling use the Ollama native protocol
 
-If you're testing with `curl`, use the correct endpoint:
-
-```bash
-curl http://localhost:11434/api/chat -d '{
-  "model": "qwen3.5:4b",
-  "messages": [{"role": "user", "content": "Hello"}],
-  "stream": false
-}'
-```
-
----
+:::note Ollama endpoint
+NeoMind calls Ollama's **native `/api/chat` endpoint** (not `/v1/chat/completions`) — which is why thinking chains (`thinking`), native multimodality, and Ollama's native streaming/tool-call protocol all work. For curl examples during self-testing and the common 404 troubleshoot, see [Troubleshooting — LLM / Ollama](./10-troubleshooting.md#llm--ollama).
 
 ## Multimodal (Vision) Capability
 
 NeoMind supports image input and visual analysis. Vision capability depends on the model:
 
 - **Ollama**: After pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava` / `minicpm-v`), you can upload images in [AI Chat](./5-ai-chat.md).
-- **Cloud**: `gpt-4o` / `gpt-4o-mini` / `claude-3-5-sonnet` / `gemini-1.5-flash` / `qwen-vl` / `glm-4v` natively support vision.
+- **Cloud**: `gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen-vl` / `glm-4v` natively support vision.
 
 NeoMind auto-detects multimodal capability (via LiteLLM registry + `/api/show` runtime probe + name heuristic matching). If auto-detection is inaccurate, manually toggle **Multimodal** in the backend detail page.
 
----
 
 ## Setting the Default Backend
 
@@ -241,7 +234,7 @@ A NeoMind instance can have **multiple LLM backends**, but only one is marked as
 - LLM analysis in the rule engine
 
 :::tip Switching the default
-- **Web UI**: Backend list → click **Set Default**
+- **Web UI**: model picker at the top of AI Chat → click the backend to set as default
 - **CLI**:
 
 ```bash
@@ -253,7 +246,6 @@ neomind llm activate local
 ```
 :::
 
----
 
 ## Next Steps
 
@@ -263,4 +255,4 @@ neomind llm activate local
 
 ---
 
-*Last updated: 2026-06-15*
+*Last updated: 2026-09-08*

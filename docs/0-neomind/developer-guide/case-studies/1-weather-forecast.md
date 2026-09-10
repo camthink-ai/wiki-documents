@@ -1,23 +1,31 @@
 ---
-description: 从零编写第一个 NeoMind 数据型扩展——weather-forecast-v2 完整工程剖析（HTTP 拉取 + 周期指标 + React 前端）
+description: 从零编写第一个 NeoMind 数据型扩展——weather-forecast 完整工程剖析（HTTP 拉取 + 周期指标 + React 前端）
 keywords: [NeoMind, weather-forecast, 扩展开发, 工程案例]
 tags: [NeoMind, 案例, 数据型扩展]
-sidebar_label: "weather-forecast-v2"
+sidebar_label: "weather-forecast"
 ---
 
-# weather-forecast-v2：入门数据型扩展
+# weather-forecast：入门数据型扩展
+
+:::note
+
+本案例剖析基于市场 **v2.7.6**（扩展原名 `weather-forecast-v2`，现更名 `weather-forecast`；上游 main 尚未同步新目录名，深链在合并前会 404）。行号以 audit 时点为准，以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast)为准。2026-09 起 `src/lib.rs` 已重构（状态拆入 `Arc` 包装的 `WeatherInner`、HTTP 调用移入 `spawn_blocking`），版本推进至 2.7.7，4.1 节的权衡分析对应重构前代码。
+
+:::
+
+> **阅读提示**：全篇约 540 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。
 
 ## 案例背景
 
-**weather-forecast-v2** 是 NeoMind 生态中最简单的「数据型扩展」——它定时从 [Open-Meteo API](https://open-meteo.com/) 拉取天气数据，将温度、湿度、风速等指标写入 NeoMind 指标系统。
+**weather-forecast** 是 NeoMind 生态中最简单的「数据型扩展」——它定时从 [Open-Meteo API](https://open-meteo.com/) 拉取天气数据，将温度、湿度、风速等指标写入 NeoMind 指标系统。
 
 同时提供一个 React 卡片组件用于仪表板展示。整个扩展约 700 行 Rust + 560 行 TypeScript，没有任何 AI 推理、流式处理或协议桥接逻辑，是新手理解「一个扩展由哪些部分组成」的最短路径。
 
-**它解决了什么问题？** NeoMind 仪表板需要展示实时环境数据（温度、湿度、风速），但这些数据来自外部 HTTP API 而非本地设备。weather-forecast-v2 充当「数据代理」——把外部 API 的数据拉取到 NeoMind 指标系统，使仪表板组件可以像消费任何本地设备指标一样消费天气数据。
+**它解决了什么问题？** NeoMind 仪表板需要展示实时环境数据（温度、湿度、风速），但这些数据来自外部 HTTP API 而非本地设备。weather-forecast 充当「数据代理」——把外部 API 的数据拉取到 NeoMind 指标系统，使仪表板组件可以像消费任何本地设备指标一样消费天气数据。
 
 **目标读者**：刚读完 [扩展 API 通用参考](../7-extension-development.md)、想动手写第一个扩展的开发者。不需要 Rust 高级知识，但要理解 trait、async/await、模块系统等基础概念。
 
-**在生态中的位置**：weather-forecast-v2 是「数据型扩展」的范本——它不依赖任何硬件设备、不涉及 AI 模型、不桥接工业协议。后续案例中，#2（yolo-device-inference）会在它的基础上增加模型加载，#4（onvif-bridge）会增加协议栈复杂度。掌握了本案例的 8 节内容，你就掌握了所有数据型扩展的骨架。
+**在生态中的位置**：weather-forecast 是「数据型扩展」的范本——它不依赖任何硬件设备、不涉及 AI 模型、不桥接工业协议。后续案例中，#2（yolo-device-inference）会在它的基础上增加模型加载，#4（onvif-bridge）会增加协议栈复杂度。掌握了本案例的 8 节内容，你就掌握了所有数据型扩展的骨架。
 
 **你将学到**：
 
@@ -30,7 +38,7 @@ sidebar_label: "weather-forecast-v2"
 
 ## 架构总览
 
-weather-forecast-v2 由三部分组成：Rust 扩展核心（数据拉取 + 指标产出）、React 前端组件（卡片 UI）、NeoMind 运行时（加载 + 调度）。下图展示了数据流向和进程边界。
+weather-forecast 由三部分组成：Rust 扩展核心（数据拉取 + 指标产出）、React 前端组件（卡片 UI）、NeoMind 运行时（加载 + 调度）。下图展示了数据流向和进程边界。
 
 ```mermaid
 graph TB
@@ -52,7 +60,7 @@ graph TB
 
     subgraph "仪表板（浏览器）"
         RC[WeatherCard<br/>React 组件]
-        UMD[weather-forecast-v2-components.umd.cjs]
+        UMD[weather-forecast-components.umd.cjs]
     end
 
     RT -->|"周期调用 produce_metrics()"| EXT
@@ -82,7 +90,7 @@ graph TB
 ### 目录结构
 
 ```
-extensions/weather-forecast-v2/
+extensions/weather-forecast/
 ├── Cargo.toml          # 依赖声明 + crate 元信息
 ├── metadata.json       # 扩展清单（构建脚本从 Cargo.toml 自动生成）
 ├── src/
@@ -96,11 +104,11 @@ extensions/weather-forecast-v2/
     └── extension_test.rs
 ```
 
-单文件 Rust 设计是故意的——weather-forecast-v2 的逻辑复杂度不足以拆分模块。后续案例（如 yolo-device-inference）会拆出 `onnx_utils.rs` / `camera.rs` 等子模块。
+单文件 Rust 设计是故意的——weather-forecast 的逻辑复杂度不足以拆分模块。后续案例（如 yolo-device-inference）会拆出 `onnx_utils.rs` / `camera.rs` 等子模块。
 
 ### ExtensionMetadata 构建器链
 
-查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L219-L273) L219-273
+查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L219-L273) L219-273
 
 ```rust
 fn metadata(&self) -> &ExtensionMetadata {
@@ -108,7 +116,7 @@ fn metadata(&self) -> &ExtensionMetadata {
     static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
     META.get_or_init(|| {
         ExtensionMetadata::new(
-            "weather-forecast-v2",      // why kebab-case: 与目录名、metadata.json id 一致
+            "weather-forecast",      // why kebab-case: 与目录名、metadata.json id 一致
             "Weather Forecast V2",
             "2.0.0"
         )
@@ -135,7 +143,7 @@ fn metadata(&self) -> &ExtensionMetadata {
     static META: std::sync::OnceLock<ExtensionMetadata> = std::sync::OnceLock::new();
     META.get_or_init(|| {
         ExtensionMetadata::new(
-            "weather-forecast-v2",
+            "weather-forecast",
             "Weather Forecast V2",
             "2.0.0"
         )
@@ -163,13 +171,13 @@ fn metadata(&self) -> &ExtensionMetadata {
                 name: "refreshInterval".to_string(),
 ```
 
-[Source: lib.rs L219-L273](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L219-L273)
+[Source: lib.rs L219-L273](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L219-L273)
 
 **为什么用 `OnceLock` 而非 `lazy_static!`？** `OnceLock` 是 Rust 1.70 标准库引入的，不需要额外依赖。metadata 在第一次调用 `metadata()` 时构建，之后所有调用返回同一引用——这对 FFI 边界很重要，因为宿主进程会频繁查询 metadata。
 
 ### 指标产出：AtomicI64 + 定点小数
 
-查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L80-L92) L80-92（字段定义）、[L119-129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L119-L129)（存储）、[L466-522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L466-L522)（产出）
+查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L80-L92) L80-92（字段定义）、[L119-129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L119-L129)（存储）、[L466-522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L466-L522)（产出）
 
 ```rust
 pub struct WeatherExtension {
@@ -223,7 +231,7 @@ pub struct WeatherExtension {
 }
 ```
 
-[Source: lib.rs L80-L92](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L80-L92)
+[Source: lib.rs L80-L92](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L80-L92)
 
 ```rust
 // lib.rs L119-L129
@@ -240,7 +248,7 @@ fn store_weather_metrics(&self, weather: &WeatherResult) {
 }
 ```
 
-[Source: lib.rs L119-L129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L119-L129)
+[Source: lib.rs L119-L129](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L119-L129)
 
 ```rust
 // lib.rs L466-L522 (trimmed)
@@ -280,13 +288,13 @@ fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> {
                 name: "wind_direction_deg".to_string(),
 ```
 
-[Source: lib.rs L466-L522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L466-L522)
+[Source: lib.rs L466-L522](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L466-L522)
 
 **为什么不用 `Mutex<WeatherResult>`？** 因为 `produce_metrics()` 是同步方法，会被运行时周期性高频调用。如果用 `Mutex`，每次读取都要获取锁，在高并发指标采集场景下会造成锁争用。`AtomicI64` 的 `load` 是无锁操作，性能开销最小。
 
 ### HTTP 客户端：ureq 同步
 
-查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L132-L167) L132-167
+查看完整实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L132-L167) L132-167
 
 ```rust
 fn geocode_sync(&self, city: &str) -> std::result::Result<GeoLocation, String> {
@@ -335,7 +343,7 @@ fn geocode_sync(&self, city: &str) -> std::result::Result<GeoLocation, String> {
         .call()
 ```
 
-[Source: lib.rs L132-L167](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/src/lib.rs#L132-L167)
+[Source: lib.rs L132-L167](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/src/lib.rs#L132-L167)
 
 `Cargo.toml` 第 21 行有明确注释：`# Use sync HTTP client to avoid Tokio runtime issues in dynamic libraries`。这是整个案例最关键的设计决策，详见 4.1。
 
@@ -362,20 +370,20 @@ sequenceDiagram
 
 ### 前端入口：Vite UMD 包
 
-查看完整实现：[`frontend/src/index.tsx`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast-v2/frontend/src/index.tsx#L425-L565) L425-565
+查看完整实现：[`frontend/src/index.tsx`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/weather-forecast/frontend/src/index.tsx#L425-L565) L425-565
 
-`WeatherCard` 组件通过 `forwardRef` 暴露，Vite 构建为 UMD 包（`weather-forecast-v2-components.umd.cjs`）。`metadata.json` 的 `frontend` 字段声明入口：
+`WeatherCard` 组件通过 `forwardRef` 暴露，Vite 构建为 UMD 包（`weather-forecast-components.umd.cjs`）。`metadata.json` 的 `frontend` 字段声明入口：
 
 ```json
 {
   "frontend": {
     "components": ["WeatherCard"],
-    "entrypoint": "weather-forecast-v2-components.umd.cjs"
+    "entrypoint": "weather-forecast-components.umd.cjs"
   }
 }
 ```
 
-前端通过 `fetch('/api/extensions/weather-forecast-v2/command')` 调用后端命令，带 3 次重试和初始化错误检测——这保证了扩展加载延迟时 UI 不会直接报错。
+前端通过 `fetch('/api/extensions/weather-forecast/command')` 调用后端命令，带 3 次重试和初始化错误检测——这保证了扩展加载延迟时 UI 不会直接报错。
 
 ---
 
@@ -387,7 +395,7 @@ sequenceDiagram
 
 **被否决的方案**：
 - **A. `reqwest` 异步客户端** → 否决原因：`reqwest` 依赖 Tokio runtime，而 NeoMind 扩展以 `.dylib`/`.so`/`.dll` 形式被宿主进程动态加载。在动态库内部启动 Tokio runtime 会与宿主进程的运行时产生冲突（宿主可能已经有自己的 runtime），导致 panic 或 undefined behavior。`Cargo.toml` 第 21 行的注释明确记录了这一点。
-- **B. 原始 `hyper` + 手动线程池** → 否决原因：过于底层，HTTP/JSON 解析、连接池、超时控制都需要手写，维护成本远超收益。weather-forecast-v2 的 HTTP 调用量极小（每次命令一次 geocoding + 一次 weather fetch），不需要异步并发。
+- **B. 原始 `hyper` + 手动线程池** → 否决原因：过于底层，HTTP/JSON 解析、连接池、超时控制都需要手写，维护成本远超收益。weather-forecast 的 HTTP 调用量极小（每次命令一次 geocoding + 一次 weather fetch），不需要异步并发。
 
 **权衡代价**：同步调用会阻塞调用线程。`execute_command` 是 async 方法，但内部的 `get_weather_sync` 是同步阻塞的——调用期间该 task 无法让出控制权。**这是可接受的**，因为天气 API 响应通常 &lt;2s，而 NeoMind 的命令超时默认 30s。
 
@@ -404,14 +412,14 @@ sequenceDiagram
 - **B. `Arc<AtomicPtr<str>>`** → 否决原因：字符串不是定长类型，无法用原子操作直接交换。需要 `Box::leak` 或类似技巧，引入 unsafe 代码，违反 [附录](./appendix-standards.md#unsafe-rust) 的「尽量避免 unsafe」原则。
 - **C. 每次创建新的 `String`（不可变设计）** → 否决原因：需要把整个 `WeatherExtension` 放在 `Arc<Mutex<>>` 或 `Arc<RwLock<>>` 里，改变所有方法的签名，侵入性太大。
 
-**权衡代价**：`RwLock` 在 Linux 上比 `Mutex` 略慢（内核态开销），但在 weather-forecast-v2 的负载下（每 5 分钟一次写），差异可忽略。读写比大致为 N:1——每次 `produce_metrics()` 都会间接读取与城市相关的派生数据（每 30s 一次），而用户触发的 `get_weather` 命令才是写者。默认配置下读写比约为 30:1，正是 `RwLock` 优于 `Mutex` 的典型区间。若未来引入「城市热切换」类高频写场景（如跟随定位自动切换），应重新评估是否改用 `ArcSwap<String>` 等无锁结构。
+**权衡代价**：`RwLock` 在 Linux 上比 `Mutex` 略慢（内核态开销），但在 weather-forecast 的负载下（每 5 分钟一次写），差异可忽略。读写比大致为 N:1——每次 `produce_metrics()` 都会间接读取与城市相关的派生数据（每 30s 一次），而用户触发的 `get_weather` 命令才是写者。默认配置下读写比约为 30:1，正是 `RwLock` 优于 `Mutex` 的典型区间。若未来引入「城市热切换」类高频写场景（如跟随定位自动切换），应重新评估是否改用 `ArcSwap<String>` 等无锁结构。
 
 ### 指标命名：`<物理量>_<单位>` 后缀
 
 **决策**：所有指标名包含单位后缀，如 `temperature_c`、`wind_speed_kmph`、`pressure_hpa`。
 
 **被否决的方案**：
-- **A. 不含单位：`temperature`、`wind_speed`、`pressure`** → 否决原因：NeoMind 指标系统是全局共享的，多个扩展可能产出同名指标。如果 weather-forecast-v2 输出 `temperature`，另一个扩展（如温湿度传感器）也输出 `temperature`，查询时会冲突。加单位后缀让指标名自带歧义消除。
+- **A. 不含单位：`temperature`、`wind_speed`、`pressure`** → 否决原因：NeoMind 指标系统是全局共享的，多个扩展可能产出同名指标。如果 weather-forecast 输出 `temperature`，另一个扩展（如温湿度传感器）也输出 `temperature`，查询时会冲突。加单位后缀让指标名自带歧义消除。
 - **B. 扩展前缀：`weather_temperature`** → 否决原因：NeoMind 指标系统已经有 `device_id` 维度做命名空间隔离，不需要在指标名里重复扩展名。单位后缀比扩展前缀更有信息量——用户看到 `temperature_c` 就知道单位是摄氏度。
 - **C. 点号分隔：`temperature.celsius`** → 否决原因：Prometheus 风格的点号在 NeoMind 指标查询语法中会与字段路径冲突（`device.metrics.temperature.celsius` 被解析为嵌套字段）。下划线更安全。
 
@@ -437,11 +445,11 @@ sequenceDiagram
 
 ### metadata.json 字段映射
 
-对照 [附录](./appendix-standards.md#metadatajson--manifestjson-schema)，逐字段检查 weather-forecast-v2 的 `metadata.json`：
+对照 [附录](./appendix-standards.md#metadatajson--manifestjson-schema)，逐字段检查 weather-forecast 的 `metadata.json`：
 
 | 字段 | 值 | 附录章节 | 备注 |
 |------|----|---------|------|
-| `id` | `"weather-forecast-v2"` | [基础信息](./appendix-standards.md#基础信息) | kebab-case，与目录名一致 |
+| `id` | `"weather-forecast"` | [基础信息](./appendix-standards.md#基础信息) | kebab-case，与目录名一致 |
 | `name` | `"weather forecast"` | [基础信息](./appendix-standards.md#基础信息) | 小写展示名 |
 | `version` | `"2.7.6"` | [基础信息](./appendix-standards.md#基础信息) | 从 Cargo.toml 自动读取 |
 | `type` | `"native"` | [类型与分类](./appendix-standards.md#类型与分类) | Rust cdylib |
@@ -450,9 +458,9 @@ sequenceDiagram
 
 ### Capability 声明与反向示例
 
-weather-forecast-v2 的 `src/lib.rs` 中**没有**显式调用 `CapabilityContext::invoke_capability()`——它只通过 `produce_metrics()` 返回指标值，由运行时自动写入指标库。但如果它需要**直接写入设备指标**（如把温度写入某个虚拟设备），就必须声明 `device_metrics_write` capability。
+weather-forecast 的 `src/lib.rs` 中**没有**显式调用 `CapabilityContext::invoke_capability()`——它只通过 `produce_metrics()` 返回指标值，由运行时自动写入指标库。但如果它需要**直接写入设备指标**（如把温度写入某个虚拟设备），就必须声明 `device_metrics_write` capability。
 
-**反向示例**：如果 weather-forecast-v2 想直接写虚拟设备指标但忘记在 metadata 中声明 `device_metrics_write`：
+**反向示例**：如果 weather-forecast 想直接写虚拟设备指标但忘记在 metadata 中声明 `device_metrics_write`：
 
 ```rust
 // ❌ 错误：未声明 capability 直接调用
@@ -465,11 +473,11 @@ ctx.invoke_capability("device_metrics_write", &json!({
 // 详见附录 7.2 Capability 显式申请
 ```
 
-正确做法是在 `metadata.json` 中声明所需 capability（当前 weather-forecast-v2 不需要，所以没有此字段）。
+正确做法是在 `metadata.json` 中声明所需 capability（当前 weather-forecast 不需要，所以没有此字段）。
 
 ### 版本号三段一致性
 
-验证 weather-forecast-v2 的版本号在所有位置一致：
+验证 weather-forecast 的版本号在所有位置一致：
 
 | 位置 | 值 | 一致？ |
 |------|----|--------|
@@ -485,15 +493,15 @@ ctx.invoke_capability("device_metrics_write", &json!({
 
 ```json
 "builds": {
-    "darwin-aarch64":  { "...weather-forecast-v2-2.7.6-darwin_aarch64.nep" },
-    "darwin-x86_64":   { "...weather-forecast-v2-2.7.6-darwin_x86_64.nep" },
-    "linux-x86_64":    { "...weather-forecast-v2-2.7.6-linux_amd64.nep" },
-    "linux-aarch64":   { "...weather-forecast-v2-2.7.6-linux_arm64.nep" },
-    "windows-x86_64":  { "...weather-forecast-v2-2.7.6-windows_amd64.nep" }
+    "darwin-aarch64":  { "...weather-forecast-2.7.6-darwin_aarch64.nep" },
+    "darwin-x86_64":   { "...weather-forecast-2.7.6-darwin_x86_64.nep" },
+    "linux-x86_64":    { "...weather-forecast-2.7.6-linux_amd64.nep" },
+    "linux-aarch64":   { "...weather-forecast-2.7.6-linux_arm64.nep" },
+    "windows-x86_64":  { "...weather-forecast-2.7.6-windows_amd64.nep" }
 }
 ```
 
-weather-forecast-v2 是纯 Rust + HTTP，没有 C 依赖，5 个 target 都能直接 `cargo build` 产出。对比 yolo-device-inference（需要 ONNX Runtime C 库），交叉编译难度低很多。
+weather-forecast 是纯 Rust + HTTP，没有 C 依赖，5 个 target 都能直接 `cargo build` 产出。对比 yolo-device-inference（需要 ONNX Runtime C 库），交叉编译难度低很多。
 
 ---
 
@@ -503,7 +511,7 @@ weather-forecast-v2 是纯 Rust + HTTP，没有 C 依赖，5 个 target 都能�
 
 **来源提交**：[`f1ea628`](https://github.com/camthink-ai/NeoMind-Extensions/commit/f1ea628) — `refactor: use crates.io SDK for ABI isolation`
 
-**症状**：早期 weather-forecast-v2 使用 `semver::Version::parse("2.0.0").unwrap()` 解析版本号。当 SDK 内部类型从 `semver::Version` 改为 `String` 时，所有扩展的 `.unwrap()` 在非 semver 格式的版本字符串上 panic。
+**症状**：早期 weather-forecast 使用 `semver::Version::parse("2.0.0").unwrap()` 解析版本号。当 SDK 内部类型从 `semver::Version` 改为 `String` 时，所有扩展的 `.unwrap()` 在非 semver 格式的版本字符串上 panic。
 
 **根因**：扩展直接依赖 SDK 的 git 仓库（`neomind-extension-sdk = { git = "..." }`），主项目更新 SDK 后，扩展必须同步重编译。SDK 内部类型变更（如 `Version` → `String`）在所难免，但 git 依赖没有版本号隔离，一改全崩。
 
@@ -514,7 +522,7 @@ weather-forecast-v2 是纯 Rust + HTTP，没有 C 依赖，5 个 target 都能�
 ### 最佳实践清单
 
 1. **始终用 `RwLock` 包装可变配置，而非 `Mutex`**
-   weather-forecast-v2 的 `default_city` 用 `RwLock<String>` 而非 `Mutex<String>`。原因：`produce_metrics()` 和 `execute_command("refresh")` 都会读城市名，而 `configure()` 只在配置变更时写。`RwLock` 允许多个读并发，`Mutex` 会串行化所有访问。
+   weather-forecast 的 `default_city` 用 `RwLock<String>` 而非 `Mutex<String>`。原因：`produce_metrics()` 和 `execute_command("refresh")` 都会读城市名，而 `configure()` 只在配置变更时写。`RwLock` 允许多个读并发，`Mutex` 会串行化所有访问。
 
 2. **定点小数存储（×100 + AtomicI64）优于 `Mutex<f64>`**
    `AtomicI64` 不支持 `f64`，但温度需要两位小数精度（25.55°C）。乘以 100 存为整数（2555），读取时除以 100 还原。这比 `Mutex<f64>` 快 10 倍以上，且无需锁。代价是精度限制在小数点后两位——对天气数据足够。
@@ -533,7 +541,7 @@ weather-forecast-v2 是纯 Rust + HTTP，没有 C 依赖，5 个 target 都能�
 - [案例集总览](./0-overview.md) —— 7 个案例的索引和 4 条阅读路径
 - [6 metric_card 组件案例](./6-metric-card-component.md) —— 下一个入门案例：仪表板组件范本
 - [扩展 API 通用参考](../7-extension-development.md) —— `Extension` trait、宏、capability 的 API 文档
-- [源代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast-v2) —— GitHub 仓库完整源码
+- [源代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast) —— GitHub 仓库完整源码
 
 ---
 

@@ -610,6 +610,12 @@
     overflow: hidden;
 }
 
+/* 瘦身后的「平台与工具」区块：网格与其他区块对齐到同一内容宽度，避免铺满整屏 */
+.tech-stack-section .neomind-layer-grid {
+    max-width: 1200px;
+    margin: 2.5rem auto 0;
+}
+
 /* REMOVED .tech-stack-section::before gradient to fix stiff transitions */
 
 .tech-stack-section>* {
@@ -915,7 +921,8 @@
 /* Bottom: Hardware */
 .stack-hw-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* 5 个产品线各占一列（NE302 加入后由 4 列扩为 5 列） */
+    grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
 }
 
@@ -1049,10 +1056,11 @@
     }
 }
 
-/* Tablet: hardware grid steps down to 2 columns before going single-column */
+/* Tablet: hardware grid steps down to 3 columns before going single-column
+   (5 张卡片按 3+2 排布，避免落单) */
 @media screen and (max-width: 1200px) and (min-width: 901px) {
     .stack-hw-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     /* NeoMind layer steps down to a single column on mid-width screens */
@@ -1380,260 +1388,445 @@
     /* Lighter primary on hover */
 }
 
-/* ================= PRODUCT CAROUSEL ================= */
-.product-carousel-wrapper {
-    width: 100%;
-    margin-top: 2rem;
-    position: relative;
-}
-
-.carousel-container {
-    position: relative;
-    width: 100%;
-    min-height: 500px;
-    padding: 0 60px;
-    /* Reserve space for arrows */
-}
-
-.carousel-slide {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.carousel-slide.active {
-    display: flex;
-    opacity: 1;
-    gap: 4rem;
+.btn-hero-ghost {
+    display: inline-flex;
     align-items: center;
-    padding: 1rem;
-    animation: fadeIn 0.5s ease-out;
+    gap: 0.5rem;
+    padding: 15px 28px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: #ffffff !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.btn-hero-ghost:hover {
+    background: rgba(255, 255, 255, 0.24);
+    border-color: #ffffff;
+    color: #ffffff !important;
+    text-decoration: none;
 }
 
-/* Left: Visual */
-.slide-visual {
-    flex: 1;
+/* ================= PRODUCT MATRIX ================= */
+/* 锚点定位预留固定导航栏高度，避免区块标题被遮住 */
+#products,
+.usecase-section,
+.latest-section {
+    scroll-margin-top: 72px;
+}
+
+.product-matrix {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+}
+
+/* —— NeoMind 平台宽卡 —— */
+.matrix-platform-card {
+    display: flex;
     align-items: center;
+    gap: 2.5rem;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    background: var(--ifm-card-background-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
 }
 
-.slide-image-container {
-    position: relative;
-    max-width: 450px;
-    width: 100%;
+.matrix-platform-card:hover {
+    border-color: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 16px 40px rgba(242, 74, 0, 0.10);
+    transform: translateY(-2px);
+    text-decoration: none;
 }
 
-.slide-image-container img {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
-}
-
-.carousel-slide:hover .slide-image-container img {
-    transform: scale(1.02);
-}
-
-.slide-badge {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
-    color: white;
-    font-weight: 800;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
-}
-
-/* Right: Content */
-.slide-content {
+.matrix-platform-content {
     flex: 1.2;
+    min-width: 0;
     text-align: left;
 }
 
-.slide-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    background: -webkit-linear-gradient(120deg, var(--ct-color-primary), #FF7A00);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.matrix-platform-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.slide-tagline {
-    font-size: 1.2rem;
+.matrix-badge {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--ct-color-primary, #F24A00), #FF8E53);
+    letter-spacing: 0.02em;
+}
+
+.matrix-platform-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--ifm-font-color-base);
+}
+
+.matrix-platform-desc {
+    margin: 0.75rem 0 1.25rem;
+    color: var(--ifm-color-emphasis-700);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 560px;
+}
+
+.matrix-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.matrix-platform-visual {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.matrix-platform-visual img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.12));
+}
+
+/* —— 硬件卡片 —— */
+.matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+}
+
+.matrix-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    background: var(--ifm-card-background-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.matrix-card:hover {
+    border-color: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+.matrix-card-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    padding: 0.9rem;
+    background: color-mix(in srgb, var(--ifm-color-emphasis-200, #ccc) 30%, transparent);
+}
+
+[data-theme='dark'] .matrix-card-visual {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.matrix-card-visual img {
+    max-width: 88%;
+    max-height: 118px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.matrix-card:hover .matrix-card-visual img {
+    transform: scale(1.05);
+}
+
+.matrix-card-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 0.14rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    box-shadow: 0 3px 8px rgba(255, 107, 107, 0.35);
+}
+
+.matrix-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.9rem 1rem 1rem;
+    text-align: left;
+    flex: 1;
+}
+
+.matrix-card-type {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ifm-color-emphasis-600);
+}
+
+.matrix-card-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--ifm-font-color-base);
+}
+
+.matrix-card-name:hover {
+    color: var(--ct-color-primary, #F24A00);
+    text-decoration: none;
+}
+
+.matrix-card-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.matrix-chip {
+    display: inline-block;
+    padding: 0.14rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
     font-weight: 600;
     color: var(--ifm-color-emphasis-800);
-    margin-bottom: 1rem;
-}
-
-.slide-desc {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--ifm-color-emphasis-600);
-    margin-bottom: 2.5rem;
-    max-width: 90%;
-}
-
-/* Resource Grid */
-.resource-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-}
-
-.resource-card {
-    background: var(--ifm-card-background-color);
+    background: var(--ifm-color-emphasis-100);
     border: 1px solid var(--ifm-color-emphasis-200);
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
+}
+
+[data-theme='dark'] .matrix-chip {
+    color: var(--ifm-color-emphasis-700);
+}
+
+.matrix-card-links {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    text-decoration: none !important;
-    transition: all 0.2s ease;
-    cursor: pointer;
+    gap: 0.6rem;
+    margin-top: auto;
+    padding-top: 0.65rem;
+    border-top: 1px dashed var(--ifm-color-emphasis-200);
 }
 
-.resource-card:hover {
-    border-color: var(--ct-color-primary);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-}
-
-.resource-icon {
-    font-size: 1.4rem;
-}
-
-.resource-label {
-    flex: 1;
-    font-weight: 600;
-    color: var(--ifm-color-emphasis-900);
-}
-
-.resource-arrow {
-    color: var(--ct-color-primary);
-    font-weight: bold;
-    opacity: 0;
-    transform: translateX(-5px);
-    transition: all 0.2s ease;
-}
-
-.resource-card:hover .resource-arrow {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* Controls */
-.carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--ifm-card-background-color);
-    border: 1px solid var(--ifm-color-emphasis-200);
-    display: flex;
-    font-size: 1.5rem;
+.matrix-link {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    color: var(--ct-color-primary);
-    cursor: pointer;
-    z-index: 10;
-    opacity: 0.6;
-    transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    gap: 0.28rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ct-color-primary, #F24A00);
 }
 
-.carousel-btn:hover {
-    opacity: 1;
-    background: var(--ct-color-primary);
-    color: white;
-    border-color: var(--ct-color-primary);
+.matrix-link:hover {
+    color: var(--ct-color-primary, #F24A00);
+    text-decoration: none;
+    opacity: 0.82;
 }
 
-.btn-prev {
-    left: 10px;
-}
-
-.btn-next {
-    right: 10px;
-}
-
-.carousel-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.8rem;
-    margin-top: 2rem;
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+.matrix-link-divider {
+    width: 1px;
+    height: 0.85rem;
     background: var(--ifm-color-emphasis-300);
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.3s;
 }
 
-.dot.active {
-    background: var(--ct-color-primary);
-    transform: scale(1.2);
+/* ================= USE CASE QUICK STARTS ================= */
+.usecase-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 2.5rem;
 }
 
-/* Responsive */
-@media screen and (max-width: 900px) {
-    .carousel-slide.active {
+.usecase-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.4rem 1.4rem 1.3rem;
+    border-radius: 14px;
+    background: var(--ifm-card-background-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.usecase-card:hover {
+    border-color: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+    text-decoration: none;
+}
+
+.usecase-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    color: var(--ct-color-primary, #F24A00);
+    background: color-mix(in srgb, var(--ct-color-primary, #F24A00) 9%, transparent);
+    margin-bottom: 0.3rem;
+}
+
+.usecase-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ifm-font-color-base);
+}
+
+.usecase-desc {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--ifm-color-emphasis-700);
+}
+
+.usecase-arrow {
+    position: absolute;
+    right: 1.1rem;
+    top: 1.45rem;
+    color: var(--ifm-color-emphasis-400);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.usecase-card:hover .usecase-arrow {
+    color: var(--ct-color-primary, #F24A00);
+    transform: translateX(3px);
+}
+
+/* ================= LATEST DOCS ================= */
+.latest-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+}
+
+.latest-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.15rem 1.3rem;
+    border-radius: 12px;
+    background: var(--ifm-card-background-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.latest-card:hover {
+    border-color: var(--ct-color-primary, #F24A00);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+    text-decoration: none;
+}
+
+.latest-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.latest-badge {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--ct-color-primary, #F24A00), #FF8E53);
+}
+
+.latest-date {
+    font-size: 0.76rem;
+    color: var(--ifm-color-emphasis-600);
+}
+
+.latest-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.55;
+    color: var(--ifm-font-color-base);
+    padding-right: 1.2rem;
+}
+
+.latest-arrow {
+    position: absolute;
+    right: 1.05rem;
+    bottom: 1.05rem;
+    color: var(--ifm-color-emphasis-400);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.latest-card:hover .latest-arrow {
+    color: var(--ct-color-primary, #F24A00);
+    transform: translateX(3px);
+}
+
+/* ================= MATRIX / USECASE / LATEST RESPONSIVE ================= */
+@media screen and (max-width: 1200px) and (min-width: 901px) {
+    .matrix-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .usecase-grid,
+    .latest-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .matrix-platform-card {
         flex-direction: column;
-        gap: 2rem;
-        text-align: center;
+        align-items: stretch;
+        gap: 1.25rem;
     }
 
-    .slide-visual {
-        width: 100%;
+    .matrix-platform-visual img {
+        max-height: 300px;
+        object-fit: contain;
     }
+}
 
-    .slide-image-container {
-        max-width: 280px;
+@media screen and (max-width: 900px) and (min-width: 601px) {
+    .matrix-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    .slide-content {
-        text-align: center;
-        width: 100%;
-    }
-
-    .slide-desc {
-        max-width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .resource-grid {
+@media screen and (max-width: 600px) {
+    .matrix-grid,
+    .usecase-grid,
+    .latest-grid {
         grid-template-columns: 1fr;
-        /* Stack vertically on mobile */
     }
 
-    .carousel-btn {
-        display: none;
-        /* Hide arrows on mobile, rely on swipe/dots */
+    .matrix-platform-card {
+        padding: 1.4rem;
+    }
+
+    .matrix-platform-title {
+        font-size: 1.35rem;
+    }
+
+    .btn-hero-ghost {
+        padding: 12px 20px;
+        font-size: 0.95rem;
     }
 }
 
@@ -1663,7 +1856,10 @@
 }
 
 /* ============================================================ */
-/* Hero — composite image as full-bleed background + dark scrim   */
+/* Hero — full-bleed background image + dark scrim                  */
+/* 背景图用真实 <img class="hero-bg-image">（JSX 内联、fetchpriority=high），
+   不再用 CSS background-image：Docusaurus 会把 CSS url() 重写成哈希资产，
+   既无法与 <link rel="preload"> 匹配，也会重复下载。                  */
 /* The background image is always dark, so we force light text +   */
 /* a dark scrim in BOTH site themes for consistent contrast.       */
 /* ============================================================ */
@@ -1671,13 +1867,21 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background-image: url('/img/hero-platform.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     background-color: var(--ct-hero-bg);
     /* Text color follows the site theme (dark in light mode, light in dark
        mode). The theme-aware scrim below provides the matching backing. */
+}
+
+/* 背景图层：铺满 hero，object-fit 裁剪等效 background-size: cover */
+.hero-section.hero-platform .hero-bg-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
 }
 
 /* Full-screen frosted glass — blurs the entire composite background image
@@ -1688,7 +1892,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     /* 暗色蒙版：保证白字在任何背景图局部亮度下都有清晰对比。
        明暗主题统一使用同一套蒙版（不切换）。 */
@@ -1702,9 +1906,9 @@
     -webkit-backdrop-filter: blur(3px) saturate(108%);
 }
 
-.hero-section.hero-platform > * {
+.hero-section.hero-platform > :not(.hero-bg-image) {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Hero 文字对比度 — 仅 subtitle 保持白色 + halo（暗蒙版下白字最清晰）。
