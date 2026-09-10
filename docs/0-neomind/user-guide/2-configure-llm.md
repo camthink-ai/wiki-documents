@@ -1,5 +1,5 @@
 ---
-description: 在 NeoMind 中配置 LLM 后端：本地 Ollama（推荐 qwen3.5:4b）与云端模型（OpenAI/Anthropic/Qwen/DeepSeek/GLM 等）的接入步骤、CLI 命令、模型选择与多模态能力说明。
+description: 在 NeoMind 中配置 LLM 后端：内置本地模型（首选 MiniCPM5-2B）、Ollama 与云端模型（OpenAI/Anthropic/Qwen/DeepSeek/GLM 等）的接入步骤、CLI 命令、模型选择与多模态能力说明。
 keywords: [NeoMind, LLM, Ollama, qwen3.5, 模型配置, 多模态, CLI]
 tags: [NeoMind, 用户指南]
 sidebar_label: "Configure LLM Backend"
@@ -29,7 +29,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | 云端 | MiniMax | `MiniMax-M2` | 需 API Key |
 | 云端 | 自定义网关 | 任意 | OpenAI 兼容端点（类型选 OpenAI，填自定义 endpoint） |
 
-> **推荐**：本地首选内置模型 **MiniCPM5-2B**（Q4_K_M，1.5GB，2026-09 修正版评测工具命中率 81%、与云端 deepseek-v4-flash 同档；Apache-2.0 可分发）。Ollama 路线用 `qwen3.5:4b`（4B，平衡之选）。需要更强能力或多模态时再接入云端。
+> **推荐**：本地首选内置模型 **MiniCPM5-2B**（Q4_K_M，1.5GB，最低 3GB 内存，按默认 8K 窗口服务——2026-09 修正版评测工具命中率 81%，与云端 deepseek-v4-flash 同档；Apache-2.0 可分发）。内存充裕（4GB+）且需要最强 agent 时选 **Qwen3.5-4B**（须配 16K 窗口，8K 下会大幅退化）。Ollama 路线用 `qwen3.5:4b`。
 
 
 ## 内置本地模型（零配置）
@@ -37,7 +37,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 从 0.9.16 起，Docker 镜像内置 llama.cpp 运行时并预置官方精选模型；首次启动向导的 **LLM 后端** 步骤（或 **设置 → LLM 后端** 的内置模型卡片）可以直接下载使用：
 
 - **一键下载** — 模型列表来自远程模型目录（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台）；离线时自动回退到内置精选列表
-- **按硬件自动推荐** — 下载页会标注每个模型的显存/内存需求（如 Ling-3.0-tiny 4.8GB Q4_K_M、128K 上下文、最低 6GB RAM）
+- **按硬件自动推荐** — 下载页会标注每个模型的内存需求（如 MiniCPM5-2B 1.5GB、最低 3GB RAM；Ling-3.0-tiny 4.8GB、最低 6GB——注意 Ling 仅适合 8K 短会话）
 - **导入自己的 GGUF** — 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径；平台自动解析名称/上下文/量化信息并以 SHA-256 校验落盘，导入模型与精选模型同等参与切换（上下文上限 128K）
 - **开箱即用** — 首次下载完成后自动注册为本地后端并按模型自带的最优采样参数（temperature / top-p / top-k）运行
 
@@ -51,7 +51,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 # 安装 Ollama（macOS / Linux）
 curl -fsSL https://ollama.com/install.sh | sh
 
-# 推荐模型（中文 + 工具调用 + 128K 上下文）
+# 平衡之选（4B；建议配 16K 以上上下文）
 ollama pull qwen3.5:4b
 
 # 如需视觉能力（可读图），额外拉取视觉模型

@@ -69,7 +69,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 | Scenario | CPU | RAM | Disk | Notes |
 |----------|-----|-----|------|-------|
 | Light (rules only / cloud LLM) | 2 cores | 2 GB | 10 GB | No local model |
-| **Recommended (local LLM)** | 4 cores | **8 GB** | 20 GB+ SSD | Runs `qwen3.5:4b` and similar small models |
+| **Recommended (local LLM)** | 4 cores | **8 GB** | 20 GB+ SSD | Runs 4B models like Qwen3.5-4B; **the recommended MiniCPM5-2B (1.5GB) runs from 3 GB** |
 | Multi-device / vision pipeline | 8 cores | 16 GB | 50 GB+ SSD | Multi-stream video + YOLO/OCR extensions |
 
 > **GPU**: Not required. Local LLM and vision inference run via Ollama (CPU mode); when a GPU is present, Ollama auto-accelerates.

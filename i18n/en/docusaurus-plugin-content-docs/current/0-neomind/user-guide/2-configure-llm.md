@@ -1,5 +1,5 @@
 ---
-description: "Configure LLM backends in NeoMind: local Ollama (recommended qwen3.5:4b) and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
+description: "Configure LLM backends in NeoMind: built-in local models (MiniCPM5-2B recommended), Ollama, and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
 keywords: [NeoMind, LLM, Ollama, qwen3.5, model config, multimodal, CLI]
 tags: [NeoMind, User Guide]
 sidebar_label: "Configure LLM Backend"
@@ -29,7 +29,7 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 | Cloud | MiniMax | `MiniMax-M2` | API Key required |
 | Cloud | Custom gateway | Any | OpenAI-compatible endpoint (type OpenAI with a custom endpoint) |
 
-> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). On the Ollama path use `qwen3.5:4b` (4B, the balanced pick). Add cloud backends when you need more power or multimodal.
+> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB, 3GB RAM floor, serve at its default 8K window — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). With 4GB+ RAM and a need for the strongest agent, pick **Qwen3.5-4B** (requires a 16K window — degrades badly at 8K). On the Ollama path use `qwen3.5:4b`.
 
 
 ## Built-in Local Models (Zero Config)
@@ -37,7 +37,7 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 Since 0.9.16, the Docker image ships with the llama.cpp runtime plus officially curated models. In the **LLM Backend** step of the first-run wizard (or via the built-in model card under **Settings → LLM Backends**), you can download and use them directly:
 
 - **One-click download** — The model list comes from a remote model catalog (`models/catalog.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes), so new models keep arriving without upgrading the platform); when offline, it automatically falls back to the built-in curated list
-- **Hardware-based recommendations** — The download page lists each model's VRAM/RAM requirements (e.g. Ling-3.0-tiny: 4.8GB Q4_K_M, 128K context, minimum 6GB RAM)
+- **Hardware-based recommendations** — The download page lists each model's RAM requirements (e.g. MiniCPM5-2B: 1.5GB, minimum 3GB RAM; Ling-3.0-tiny: 4.8GB, minimum 6GB — note Ling suits 8K short sessions only)
 - **Import your own GGUF** — The built-in model wizard offers an "Import Local Model" card: drop in a `.gguf` file (streamed upload, no extra memory usage) or enter a server path; the platform auto-parses the name/context/quantization info, verifies and stores it with SHA-256, and imported models participate in backend switching just like curated ones (context capped at 128K)
 - **Works out of the box** — Once the first download completes, the model is automatically registered as a local backend and runs with the model's own optimal sampling parameters (temperature / top-p / top-k)
 

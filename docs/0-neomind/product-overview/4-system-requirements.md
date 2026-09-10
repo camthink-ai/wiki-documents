@@ -70,7 +70,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 场景 | CPU | 内存 | 磁盘 | 说明 |
 |------|-----|------|------|------|
 | 轻量（仅规则 / 云端 LLM） | 2 核 | 2 GB | 10 GB | 不跑本地模型 |
-| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 `qwen3.5:4b` 等小型模型 |
+| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 Qwen3.5-4B 等 4B 模型；**3 GB 起即可跑首选的 MiniCPM5-2B（1.5GB）** |
 | 多设备 / 视觉管线 | 8 核 | 16 GB | 50 GB+ SSD | 多路视频流 + YOLO/OCR 扩展 |
 
 > **GPU**：非必需。本地 LLM 与视觉推理通过 Ollama（CPU 模式）即可运行；有 GPU 时 Ollama 会自动加速。
@@ -101,7 +101,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 镜像 | `camthink/neomind:latest`（多架构 amd64 + arm64，随发版构建） |
 | 端口 | `9375`（HTTP API + Web UI）、`1883`（MQTT） |
 | 数据持久化 | volume `neomind-data`（挂载至容器 `/app/data`） |
-| 本地 LLM | 镜像内置 llama.cpp 运行时与默认精选模型（LFM2.5-2.6B，构建参数可换/跳过）；向导内也可按需下载其他模型（预留 4-8GB 磁盘 + 内存） |
+| 本地 LLM | 镜像内置 llama.cpp 运行时与默认精选模型（LFM2.5-2.6B，构建参数可换/跳过）；模型目录首推 **MiniCPM5-2B**，向导内一键下载（预留 4-8GB 磁盘 + 内存） |
 
 详见 [安装与配置 — Docker 部署](../user-guide/1-install-setup.md#docker-部署)。
 
