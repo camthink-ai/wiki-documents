@@ -461,7 +461,7 @@ Event-sequence facts (from `moss-tts-nano/service/server.py` / `cosyvoice-3/serv
 1. `seq` increases monotonically from 0; `data` is headerless raw int16 LE PCM, interpreted according to `sample_rate` / `channels`;
 2. Lines with `is_pause: true` are **silence fillers** (inter-sentence pauses when cloning long text split into segments); players can push them into the queue as usual;
 3. On error the stream terminates in-band: the last line becomes `{"error": "..."}` followed by connection close — line parsers must check for the `error` key;
-4. **The first chunk arrives fast**: MOSS decodes frame-by-frame with an adaptive batch size (1→2→4→8), measured first chunk avg 71ms, worst 73ms (vs 10s+ for whole-utterance synthesis); cosyvoice-3 targets <200ms first chunk and <500ms per 30-character sentence.
+4. **The first chunk arrives fast**: MOSS decodes frame-by-frame with an adaptive batch size (1→2→4→8), measured first chunk avg 71ms, worst 73ms (vs 10s+ for whole-utterance synthesis); cosyvoice-3 targets &lt;200ms first chunk and &lt;500ms per 30-character sentence.
 
 ### 6.5 Deployment and configuration
 
