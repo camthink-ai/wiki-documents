@@ -2,10 +2,76 @@ import React from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import Translate, { translate } from '@docusaurus/Translate';
-import ProductCarousel from '@site/src/components/ProductCarousel';
+import Translate from '@docusaurus/Translate';
+import ProductMatrix from '@site/src/components/ProductMatrix';
 import { Icon } from '@site/src/components/icons';
 import '../css/welcome.css';
+
+/** 按场景快速开始 —— 全部链接已对照构建产物核实 */
+const USE_CASES = [
+    {
+        id: 'detection',
+        title: <Translate id="homepage.usecase.detection.title">目标检测</Translate>,
+        desc: <Translate id="homepage.usecase.detection.desc">YOLO 系列模型训练与相机端部署推理</Translate>,
+        url: '/docs/neomind/use-cases/object-detection',
+        icon: (
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v2M12 17v2M5 12h2M17 12h2M7.7 7.7l1.4 1.4M14.9 14.9l1.4 1.4M7.7 16.3l1.4-1.4M14.9 9.1l1.4-1.4" /><circle cx="12" cy="12" r="3" /></svg>
+        ),
+    },
+    {
+        id: 'ocr',
+        title: <Translate id="homepage.usecase.ocr.title">OCR 文字识别</Translate>,
+        desc: <Translate id="homepage.usecase.ocr.desc">相机抓拍图片的文字提取与结构化</Translate>,
+        url: '/docs/neomind/use-cases/ocr-text-extraction',
+        icon: (
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>
+        ),
+    },
+    {
+        id: 'voice',
+        title: <Translate id="homepage.usecase.voice.title">语音交互</Translate>,
+        desc: <Translate id="homepage.usecase.voice.desc">ASR → LLM → TTS 全链路语音方案</Translate>,
+        url: '/docs/neomind/use-cases/voice',
+        icon: (
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 19v3" /></svg>
+        ),
+    },
+    {
+        id: 'onboard',
+        title: <Translate id="homepage.usecase.onboard.title">设备接入</Translate>,
+        desc: <Translate id="homepage.usecase.onboard.desc">MQTT/BLE/Webhook 设备接入 NeoMind 平台</Translate>,
+        url: '/docs/neomind/user-guide/onboard-device',
+        icon: (
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" /></svg>
+        ),
+    },
+];
+
+/** 最新文档 —— 与 docs/index.md「最新文档」保持同一批条目，更新时两处同步 */
+const LATEST_DOCS = [
+    {
+        badge: 'NEW',
+        title: <Translate id="latest.ne302.title">NeoEyes NE302 系列文档上线</Translate>,
+        date: '2026-09-05',
+        url: '/docs/neoeyes-ne302-series/ne302-overview',
+    },
+    {
+        badge: 'NEW',
+        title: <Translate id="latest.hef.title">NE503 模型训练与 HEF 转换</Translate>,
+        date: '2026-07-21',
+        url: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
+    },
+    {
+        title: <Translate id="latest.verified.title">NE503 Verified Apps</Translate>,
+        date: '2026-07-16',
+        url: '/docs/neoeyes-ne503-series/application-guide/verified-apps',
+    },
+    {
+        title: <Translate id="latest.market.title">NeoMind 扩展市场源切换</Translate>,
+        date: '2026-07-10',
+        url: '/docs/neomind/user-guide/extensions',
+    },
+];
 
 export default function Home(): JSX.Element {
     const { siteConfig } = useDocusaurusContext();
@@ -18,7 +84,7 @@ export default function Home(): JSX.Element {
 
                 {/* ================= HERO ================= */}
                 <div className="hero-section hero-platform">
-                    {/* LCP 背景图：真实 <img> + fetchpriority，避免 CSS 背景被 webpack 重写哈希导致 preload 失配/双重下载 */}
+                    {/* LCP 背景图：真实 <img> + fetchpriority，避免 CSS 背景被 webpack 重写哈希导致双重下载 */}
                     <img
                         className="hero-bg-image"
                         src="/img/hero-platform.webp"
@@ -45,9 +111,12 @@ export default function Home(): JSX.Element {
                         </p>
 
                         <div className="hero-actions">
-                            <Link to="/docs/" className="btn-primary">
-                                <Translate id="homepage.hero.cta.start">浏览文档</Translate>
+                            <Link href="#products" className="btn-primary">
+                                <Translate id="homepage.hero.cta.products">选硬件产品</Translate>
                                 <Icon.ArrowRight size={16} className="btn-arrow" />
+                            </Link>
+                            <Link to="/docs/neomind/product-overview/what-is-neomind" className="btn-hero-ghost">
+                                <Translate id="homepage.hero.cta.platform">NeoMind 平台文档</Translate>
                             </Link>
                             <Link to="https://github.com/camthink-ai" className="btn-github">
                                 <Icon.Github size={18} className="btn-github-icon" />
@@ -55,263 +124,101 @@ export default function Home(): JSX.Element {
                             </Link>
                         </div>
                     </div>
-
                 </div>
 
-                {/* Stats Section Removed */}
-
-                {/* PLATFORM capability section removed — consolidated into the
-                    PLATFORM PANORAMA tech stack below to avoid redundancy. */}
-
-                {/* ================= PRODUCTS ================= */}
-                <div className="section-container" id="core-products">
+                {/* ================= 产品矩阵 ================= */}
+                <div className="section-container" id="products">
                     <div className="section-header">
-                        <span className="section-label">QUICK ACCESS</span>
-                        <h2 className="section-title"><Translate id="homepage.products.title">快速入口</Translate></h2>
+                        <span className="section-label">PRODUCTS</span>
+                        <h2 className="section-title"><Translate id="homepage.matrix.title">产品与平台</Translate></h2>
                         <p className="section-desc">
-                            <Translate id="homepage.products.desc">为了帮助你快速上手 CamThink 产品，这里提供了一些重要的资源链接</Translate>
+                            <Translate id="homepage.matrix.desc">五条硬件产品线与 NeoMind 平台，全部文档入口一屏直达</Translate>
                         </p>
                     </div>
 
-                    <ProductCarousel />
+                    <ProductMatrix />
                 </div>
 
-                {/* ================= TECH STACK PANORAMA ================= */}
-                <div className="tech-stack-section">
-                    <div className="tech-stack-header">
-                        <div className="section-label">PLATFORM PANORAMA</div>
-                        <h2><Translate id="homepage.stack.title">平台技术栈全景</Translate></h2>
-                        <p className="tech-stack-subtitle"><Translate id="homepage.stack.subtitle">从底层算力到上层应用，完整覆盖您的开发需求</Translate></p>
+                {/* ================= 按场景快速开始 ================= */}
+                <div className="section-container usecase-section">
+                    <div className="section-header">
+                        <span className="section-label">QUICK STARTS</span>
+                        <h2 className="section-title"><Translate id="homepage.usecase.title">按场景快速开始</Translate></h2>
+                        <p className="section-desc">
+                            <Translate id="homepage.usecase.desc">带着任务来？从这里直接进入对应方案文档</Translate>
+                        </p>
                     </div>
 
-                    <div className="tech-stack-container">
+                    <div className="usecase-grid">
+                        {USE_CASES.map((u) => (
+                            <Link key={u.id} to={u.url} className="usecase-card">
+                                <span className="usecase-icon">{u.icon}</span>
+                                <span className="usecase-title">{u.title}</span>
+                                <span className="usecase-desc">{u.desc}</span>
+                                <span className="usecase-arrow"><Icon.ArrowRight size={15} /></span>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
 
-                        {/* Layer 1: Applications */}
-                        <div className="stack-layer">
-                            <div className="layer-label"><Translate id="homepage.stack.layer.app">应用层</Translate></div>
-                            <div className="layer-content">
-                                <div className="stack-apps-grid">
-                                    <div className="app-card">
-                                        <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg>
-                                        </span>
-                                        <span><Translate id="homepage.stack.app.building">智能楼宇</Translate></span>
-                                    </div>
-                                    <div className="app-card">
-                                        <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></svg>
-                                        </span>
-                                        <span><Translate id="homepage.stack.app.agriculture">智慧农业</Translate></span>
-                                    </div>
-                                    <div className="app-card">
-                                        <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 12h10" /></svg>
-                                        </span>
-                                        <span><Translate id="homepage.stack.app.vision">视觉分析</Translate></span>
-                                    </div>
-                                    <div className="app-card">
-                                        <span className="app-icon">
-                                            <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z" /><rect x="3" y="14" width="7" height="7" rx="1" /><path d="M14 14h7v7h-7z" /></svg>
-                                        </span>
-                                        <span><Translate id="homepage.stack.app.other">其它领域</Translate></span>
-                                    </div>
-                                </div>
+                {/* ================= 平台与工具 ================= */}
+                <div className="tech-stack-section">
+                    <div className="tech-stack-header">
+                        <div className="section-label">PLATFORM & TOOLS</div>
+                        <h2><Translate id="homepage.platform.title">平台与工具</Translate></h2>
+                        <p className="tech-stack-subtitle"><Translate id="homepage.platform.desc">软件平台与模型工具链，覆盖从设备到应用的完整链路</Translate></p>
+                    </div>
+
+                    <div className="neomind-layer-grid">
+                        <Link to="/docs/neomind/product-overview/what-is-neomind" className="neomind-block">
+                            <div className="neomind-block-head">
+                                <span className="neomind-block-title"><Translate id="homepage.stack.mw.neomind">NeoMind</Translate></span>
+                                <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.platformsub">Edge AI platform · device management & application runtime</Translate></span>
                             </div>
-                        </div>
-
-                        {/* Connector */}
-                        <div className="stack-connector"></div>
-
-                        {/* Layer 2: NeoMind Platform — NeoMind + AI ToolStack */}
-                        <div className="stack-layer">
-                            <div className="layer-label"><Translate id="homepage.stack.layer.neomind">应用配套</Translate></div>
-                            <div className="layer-content">
-                                <div className="neomind-layer-grid">
-
-                                    {/* Block 1: NeoMind */}
-                                    <Link to="/docs/neomind/product-overview/what-is-neomind" className="neomind-block">
-                                        <div className="neomind-block-head">
-                                            <span className="neomind-block-title"><Translate id="homepage.stack.mw.neomind">NeoMind</Translate></span>
-                                            <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.platformsub">Edge AI platform · device management & application runtime</Translate></span>
-                                        </div>
-                                        <div className="neomind-block-chips">
-                                            <span className="nm-chip">Device Management</span>
-                                            <span className="nm-chip">Real-time Dashboard</span>
-                                            <span className="nm-chip">Rule Engine</span>
-                                            <span className="nm-chip">AI Agent</span>
-                                            <span className="nm-chip">Extension Ecosystem</span>
-                                            <span className="nm-chip">Notifications</span>
-                                        </div>
-                                    </Link>
-
-                                    {/* Block 2: AI ToolStack */}
-                                    <Link to="/docs/neoeyes-ne301-series/application-guide/ai-tool-stack/" className="neomind-block">
-                                        <div className="neomind-block-head">
-                                            <span className="neomind-block-title"><Translate id="homepage.stack.mw.toolstack">AI ToolStack</Translate></span>
-                                            <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.toolsub">Full model lifecycle · training / quantization / conversion / deployment</Translate></span>
-                                        </div>
-                                        <div className="neomind-block-chips">
-                                            <span className="nm-chip">Model Management</span>
-                                            <span className="nm-chip">Model Training</span>
-                                            <span className="nm-chip">Quantization</span>
-                                            <span className="nm-chip">Conversion</span>
-                                            <span className="nm-chip">Edge Deployment</span>
-                                        </div>
-                                    </Link>
-
-                                </div>
+                            <div className="neomind-block-chips">
+                                <span className="nm-chip">Device Management</span>
+                                <span className="nm-chip">Real-time Dashboard</span>
+                                <span className="nm-chip">Rule Engine</span>
+                                <span className="nm-chip">AI Agent</span>
+                                <span className="nm-chip">Extension Ecosystem</span>
+                                <span className="nm-chip">Notifications</span>
                             </div>
-                        </div>
+                        </Link>
 
-                        {/* Connector */}
-                        <div className="stack-connector"></div>
-
-                        {/* Layer 3: Middleware - ENRICHED */}
-                        <div className="stack-layer">
-                            <div className="layer-label"><Translate id="homepage.stack.layer.software">软件生态</Translate></div>
-                            <div className="layer-content">
-                                <div className="middleware-container">
-                                    <div className="stack-middleware-grid">
-
-                                        {/* Column 1: AI & Computing */}
-                                        <div className="mw-column">
-                                            <div className="mw-col-title"><Translate id="homepage.stack.mw.ai">AI 推理 & 框架</Translate></div>
-                                            <div className="mw-chips-wrap">
-                                                <span className="mw-chip">TensorRT</span>
-                                                <span className="mw-chip">DeepStream</span>
-                                                <span className="mw-chip">STM32Cube.AI</span>
-                                                <span className="mw-chip">ESP-DL</span>
-                                                <span className="mw-chip">TFLite Micro</span>
-                                                <span className="mw-chip">Ollama</span>
-                                                <span className="mw-chip">VLLM</span>
-                                                <span className="mw-chip">Ultralytics</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Column 2: OS & Core */}
-                                        <div className="mw-column">
-                                            <div className="mw-col-title"><Translate id="homepage.stack.mw.os">OS & 核心组件</Translate></div>
-                                            <div className="mw-chips-wrap">
-                                                <span className="mw-chip">Linux / Ubuntu</span>
-                                                <span className="mw-chip">FreeRTOS</span>
-                                                <span className="mw-chip">JetPack SDK</span>
-                                                <span className="mw-chip">Docker</span>
-                                                <span className="mw-chip">OTA Update</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Column 3: Connectivity */}
-                                        <div className="mw-column">
-                                            <div className="mw-col-title"><Translate id="homepage.stack.mw.conn">连接与协议</Translate></div>
-                                            <div className="mw-chips-wrap">
-                                                <span className="mw-chip">WiFi 6 / BLE</span>
-                                                <span className="mw-chip">Cat.1</span>
-                                                <span className="mw-chip">WiFi HaLow</span>
-                                                <span className="mw-chip">MQTT</span>
-                                                <span className="mw-chip">HTTP</span>
-                                                <span className="mw-chip">RTSP</span>
-                                                <span className="mw-chip">REST API</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Column 4: Tools & Extensions */}
-                                        <div className="mw-column">
-                                            <div className="mw-col-title"><Translate id="homepage.stack.mw.tools">工具与扩展</Translate></div>
-                                            <div className="mw-chips-wrap">
-                                                <span className="mw-chip">ESP-IDF</span>
-                                                <span className="mw-chip">VS Code</span>
-                                                <span className="mw-chip">Arduino</span>
-                                                <span className="mw-chip">Camera Modules</span>
-                                                <span className="mw-chip">SSD</span>
-                                                <span className="mw-chip">Comm Modules</span>
-                                                <span className="mw-chip">Sensors</span>
-                                                <span className="mw-chip">UART/Debug</span>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
+                        <Link to="/docs/neoeyes-ne301-series/application-guide/ai-tool-stack/" className="neomind-block">
+                            <div className="neomind-block-head">
+                                <span className="neomind-block-title"><Translate id="homepage.stack.mw.toolstack">AI ToolStack</Translate></span>
+                                <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.toolsub">Full model lifecycle · training / quantization / conversion / deployment</Translate></span>
                             </div>
-                        </div>
-
-                        {/* Connector */}
-                        <div className="stack-connector"></div>
-
-                        {/* Layer 3: Hardware */}
-                        <div className="stack-layer">
-                            <div className="layer-label"><Translate id="homepage.stack.layer.hardware">硬件生态</Translate></div>
-                            <div className="layer-content">
-                                <div className="stack-hw-grid">
-                                    <Link to="/docs/neoedge-ng4500-series/overview" className="hw-stack-card hw-4500">
-                                        <div className="hw-card-image">
-                                            <img src="/img/home/hw/ng4500.webp" alt="NeoEdge NG4500" loading="lazy" decoding="async" />
-                                        </div>
-                                        <div className="hw-info">
-                                            <div className="hw-type">High Performance Edge</div>
-                                            <h3 className="hw-name">NeoEdge NG4500</h3>
-                                        </div>
-                                        <div className="hw-chip-info">
-                                            <span>NVIDIA Jetson</span>
-                                            <span>Up to 100+ TOPS</span>
-                                        </div>
-                                    </Link>
-                                    <Link to="/docs/neoeyes-ne503-series/overview" className="hw-stack-card hw-503">
-                                        <div className="hw-card-image">
-                                            <img src="/img/home/hw/ne503.webp" alt="NeoEyes NE503" loading="lazy" decoding="async" />
-                                        </div>
-                                        <div className="hw-info">
-                                            <div className="hw-type">AI Camera Pro</div>
-                                            <h3 className="hw-name">NeoEyes NE503</h3>
-                                        </div>
-                                        <div className="hw-chip-info">
-                                            <span>Hailo-15H SoC</span>
-                                            <span>20 TOPS · 4K</span>
-                                        </div>
-                                    </Link>
-                                    <Link to="/docs/neoeyes-ne301-series/overview" className="hw-stack-card hw-301">
-                                        <div className="hw-card-image">
-                                            <img src="/img/home/hw/ne301.webp" alt="NeoEyes NE301" loading="lazy" decoding="async" />
-                                        </div>
-                                        <div className="hw-info">
-                                            <div className="hw-type">Intelligent Vision</div>
-                                            <h3 className="hw-name">NeoEyes NE301</h3>
-                                        </div>
-                                        <div className="hw-chip-info">
-                                            <span>STM32N6 (Arm Cortex-M55)</span>
-                                            <span>NPU Integrated</span>
-                                        </div>
-                                    </Link>
-                                    {/* NE302 专属文档尚未发布，暂指向 NE301 系列（NE300 家族共用文档） */}
-                                    <Link to="/docs/neoeyes-ne301-series/overview" className="hw-stack-card hw-302">
-                                        <div className="hw-card-image">
-                                            <img src="/img/home/hw/ne302.webp" alt="NeoEyes NE302" loading="lazy" decoding="async" />
-                                        </div>
-                                        <div className="hw-info">
-                                            <div className="hw-type">Edge AI Camera</div>
-                                            <h3 className="hw-name">NeoEyes NE302</h3>
-                                        </div>
-                                        <div className="hw-chip-info">
-                                            <span>NE300 Family</span>
-                                            <span>Low-power Edge AI</span>
-                                        </div>
-                                    </Link>
-                                    <Link to="/docs/neoeyes-ne101-series/overview" className="hw-stack-card hw-101">
-                                        <div className="hw-card-image">
-                                            <img src="/img/home/hw/ne101.webp" alt="NeoEyes NE101" loading="lazy" decoding="async" />
-                                        </div>
-                                        <div className="hw-info">
-                                            <div className="hw-type">Low Power IoT</div>
-                                            <h3 className="hw-name">NeoEyes NE101</h3>
-                                        </div>
-                                        <div className="hw-chip-info">
-                                            <span>ESP32-S3</span>
-                                            <span>Low-frequency capture</span>
-                                        </div>
-                                    </Link>
-                                </div>
+                            <div className="neomind-block-chips">
+                                <span className="nm-chip">Model Management</span>
+                                <span className="nm-chip">Model Training</span>
+                                <span className="nm-chip">Quantization</span>
+                                <span className="nm-chip">Conversion</span>
+                                <span className="nm-chip">Edge Deployment</span>
                             </div>
-                        </div>
+                        </Link>
+                    </div>
+                </div>
 
+                {/* ================= 最新文档 ================= */}
+                <div className="section-container latest-section">
+                    <div className="section-header">
+                        <span className="section-label">WHAT'S NEW</span>
+                        <h2 className="section-title"><Translate id="homepage.latest.title">最新文档</Translate></h2>
+                    </div>
+
+                    <div className="latest-grid">
+                        {LATEST_DOCS.map((d) => (
+                            <Link key={d.url} to={d.url} className="latest-card">
+                                <div className="latest-meta">
+                                    {d.badge && <span className="latest-badge">{d.badge}</span>}
+                                    <span className="latest-date">{d.date}</span>
+                                </div>
+                                <div className="latest-title">{d.title}</div>
+                                <span className="latest-arrow"><Icon.ArrowRight size={15} /></span>
+                            </Link>
+                        ))}
                     </div>
                 </div>
 
