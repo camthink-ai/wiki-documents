@@ -11,6 +11,8 @@ sidebar_label: "Settings"
 
 ## 偏好设置（Preferences）
 
+> 📷 TODO screenshot | 偏好设置页总览 · suggested path `…/NeoMind/v0923/settings-preferences.png`
+
 ### 语言与地区
 
 | 设置 | 说明 |
@@ -45,6 +47,8 @@ sidebar_label: "Settings"
 
 ### 备份计划
 
+> 📷 TODO screenshot | 备份计划配置（开关、间隔、保留份数） · suggested path `…/NeoMind/v0923/settings-backup-schedule.png`
+
 | 设置 | 说明 |
 |------|------|
 | Backup Enabled | 开关自动备份 |
@@ -63,6 +67,8 @@ USER.md / KNOWLEDGE.md 两个记忆文件的字符上限（默认 2000 / 3000）
 开启后，未知设备发来的数据会自动进入**待审批列表**并预生成设备类型建议（默认最多采集 10 条样本）。关闭后未知设备数据直接丢弃。配套流程见 [设备接入 — 待审批](./3-onboard-device.md)。
 
 ### 扩展市场源
+
+> 📷 TODO screenshot | 扩展市场源切换 · suggested path `…/NeoMind/v0923/settings-marketplace-source.png`
 
 默认从 GitHub 拉取扩展市场索引。国内网络可在此切换镜像地址（或用环境变量 `NEOMIND_EXTENSION_MARKET_URL`），保存后下一次市场请求即生效，无需重启。切换后扩展完整性按镜像的文件校验。
 
