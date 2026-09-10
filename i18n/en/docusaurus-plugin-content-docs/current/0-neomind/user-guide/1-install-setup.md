@@ -323,7 +323,7 @@ The built-in proxy suits single-box HTTPS enablement; all clients share one rate
 
 Before moving from trial to production, walk through:
 
-- **[Backups](./10-troubleshooting.md#how-do-i-back-up)** — enable the automatic schedule (Settings → Preferences) and confirm retention count
+- **[Backups](./10-troubleshooting.md#data--storage)** — enable the automatic schedule (Settings → Preferences) and confirm retention count
 - **[Data retention](./12-settings.md#device-defaults--data-retention)** — set telemetry retention to match your needs (default is forever; disk grows continuously)
 - **[Users & roles](#users--roles)** — keep self-registration closed; create user / viewer accounts for operators and business users
 - **HTTPS** — front with an nginx reverse proxy and expose only 80/443 (keep 9375 / 1883 internal)

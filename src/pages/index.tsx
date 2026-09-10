@@ -115,9 +115,10 @@ export default function Home(): JSX.Element {
                                 <Translate id="homepage.hero.cta.docs">文档中心</Translate>
                                 <Icon.ArrowRight size={16} className="btn-arrow" />
                             </Link>
-                            <Link href="#products" className="btn-hero-ghost">
+                            {/* 页内锚点用原生 <a>，避免被当作路由校验 */}
+                            <a href="#products" className="btn-hero-ghost">
                                 <Translate id="homepage.hero.cta.products">选硬件产品</Translate>
-                            </Link>
+                            </a>
                             <Link to="https://github.com/camthink-ai" className="btn-github">
                                 <Icon.Github size={18} className="btn-github-icon" />
                                 <Translate id="homepage.hero.cta.github">GitHub Star</Translate>

@@ -217,7 +217,7 @@ neomind llm delete local
 
 :::note Ollama 端点
 NeoMind 调用 Ollama 的**原生 `/api/chat` 端点**（不是 `/v1/chat/completions`）——因此支持思维链（`thinking`）、原生多模态与 Ollama 原生流式/工具调用协议。自测时的 curl 示例与常见 404 排查见 [故障排查 — LLM / Ollama](./10-troubleshooting.md#llm--ollama)。
-```
+:::
 
 
 ## 多模态（视觉）能力

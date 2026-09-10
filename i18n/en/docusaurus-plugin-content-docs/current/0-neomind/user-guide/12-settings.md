@@ -40,7 +40,7 @@ Global defaults for new agents and AI Chat (individual agents can override in th
 | **Auto Cleanup + Cleanup Now** | When enabled, expired data is purged automatically; **Cleanup Now** runs a pass immediately |
 
 :::warning Retention means deletion
-Once a retention period applies, telemetry older than it is **physically deleted** and unrecoverable. Pair it with [automatic backups](./10-troubleshooting.md#how-do-i-back-up) for anything important.
+Once a retention period applies, telemetry older than it is **physically deleted** and unrecoverable. Pair it with [automatic backups](./10-troubleshooting.md#data--storage) for anything important.
 :::
 
 ### Backup Schedule
@@ -52,7 +52,7 @@ Once a retention period applies, telemetry older than it is **physically deleted
 | Keep | Retention count (1 / 2 / 3 / 5 / 7 / 14) |
 | Back up now | Run a backup immediately |
 
-What gets backed up, where it is stored, and how to restore: [Troubleshooting — How do I back up?](./10-troubleshooting.md#how-do-i-back-up).
+What gets backed up, where it is stored, and how to restore: [Troubleshooting — How do I back up?](./10-troubleshooting.md#data--storage).
 
 ### Memory Limits
 
