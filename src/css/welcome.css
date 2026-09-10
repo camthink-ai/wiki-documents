@@ -610,6 +610,12 @@
     overflow: hidden;
 }
 
+/* 瘦身后的「平台与工具」区块：网格与其他区块对齐到同一内容宽度，避免铺满整屏 */
+.tech-stack-section .neomind-layer-grid {
+    max-width: 1200px;
+    margin: 2.5rem auto 0;
+}
+
 /* REMOVED .tech-stack-section::before gradient to fix stiff transitions */
 
 .tech-stack-section>* {
