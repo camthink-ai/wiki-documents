@@ -1,6 +1,6 @@
 ---
 title: Welcome
-description: 欢迎来到 CamThink Wiki 中心！探索边缘智能，获取 NeoEyes NE301、NE101 和 NeoEdge NG4500 系列产品的详细技术文档、快速入门指南及 AIoT 应用教程。
+description: 欢迎来到 CamThink Wiki 中心！探索边缘智能，获取 NeoEyes NE101、NE301、NE302、NE503 和 NeoEdge NG4500 系列产品的详细技术文档、快速入门指南及 AIoT 应用教程。
 keywords: [CamThink, 边缘智能, AIoT, 开发者社区, 边缘计算, 技术文档, 视觉感知, 边缘 AI]
 tags: [产品入门, 边缘 AI, 硬件指南, 开发者资源, 品牌介绍]
 hide_table_of_contents: true
@@ -66,7 +66,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     {/* NeoMind */}
     <div className="category-card">
       <Link to="/docs/neomind/product-overview/what-is-neomind" className="cat-header">
-        <img src="https://resources.camthink.ai/NeoMind/dashboardDemo.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
+        <img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" style={{height: '80px', objectFit: 'cover', objectPosition: 'top', pointerEvents: 'none'}} alt="NeoMind" />
       </Link>
       <div className="cat-body">
         <div className="cat-title">NeoMind 平台</div>
@@ -110,6 +110,23 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
           <Link to="/docs/neoeyes-ne503-series/quick-start" className="cat-link-item">快速入门</Link>
           <Link to="/docs/neoeyes-ne503-series/hardware-guide/specifications" className="cat-link-item">硬件指南</Link>
           <Link to="/docs/neoeyes-ne503-series/software-guide/system-architecture" className="cat-link-item">软件指南</Link>
+        </div>
+      </div>
+    </div>
+
+    {/* NE302 */}
+    <div className="category-card">
+      <Link to="/docs/neoeyes-ne302-series/ne302-overview" className="cat-header">
+        <img src="/img/home/hw/ne302.webp" style={{height: '80px', pointerEvents: 'none'}} alt="NE302" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">NeoEyes NE302</div>
+        <div className="cat-desc">迷你 AI 视觉相机，STM32N6 + 4 MP，38×38 mm 主板，面向设备集成。</div>
+        <div className="cat-links">
+          <Link to="/docs/neoeyes-ne302-series/ne302-overview" className="cat-link-item">产品概述</Link>
+          <Link to="/docs/neoeyes-ne302-series/ne302-quick-start" className="cat-link-item">快速入门</Link>
+          <Link to="/docs/neoeyes-ne302-series/hardware-guide/ne302-components-overview" className="cat-link-item">硬件指南</Link>
+          <Link to="/docs/neoeyes-ne302-series/software-guide/ne302-development-environment" className="cat-link-item">软件指南</Link>
         </div>
       </div>
     </div>
