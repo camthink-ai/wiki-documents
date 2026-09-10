@@ -578,9 +578,6 @@
   "homepage.hero.cta.products": {
     "message": "Browse Hardware"
   },
-  "homepage.hero.cta.platform": {
-    "message": "NeoMind Platform Docs"
-  },
   "homepage.matrix.title": {
     "message": "Products & Platform"
   },
@@ -637,5 +634,8 @@
   },
   "latest.market.title": {
     "message": "NeoMind extension marketplace source switching"
+  },
+  "homepage.hero.cta.docs": {
+    "message": "Documentation Hub"
   }
 }
