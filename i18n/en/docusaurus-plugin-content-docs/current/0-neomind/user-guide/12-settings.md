@@ -11,7 +11,7 @@ Click **Settings** at the bottom of the sidebar to open the settings panel — f
 
 ## Preferences
 
-> 📷 TODO screenshot | Preferences page overview · suggested path `…/NeoMind/v0923/settings-preferences.png`
+<img src="/img/neomind/settings-preferences.png" alt="System Settings — Preferences page" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### Language & Region
 
@@ -47,7 +47,6 @@ Once a retention period applies, telemetry older than it is **physically deleted
 
 ### Backup Schedule
 
-> 📷 TODO screenshot | Backup schedule settings (toggle, interval, retention) · suggested path `…/NeoMind/v0923/settings-backup-schedule.png`
 
 | Setting | Description |
 |------|------|
@@ -68,7 +67,6 @@ When enabled, data from unknown devices lands in the **pending list** with a sug
 
 ### Extension Marketplace Source
 
-> 📷 TODO screenshot | Extension marketplace source switching · suggested path `…/NeoMind/v0923/settings-marketplace-source.png`
 
 The marketplace index is fetched from GitHub by default. For restricted networks, switch the mirror here (or via the `NEOMIND_EXTENSION_MARKET_URL` env var) — the next marketplace request uses it, no restart needed. Package integrity is verified against the mirror's artifacts.
 

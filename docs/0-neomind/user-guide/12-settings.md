@@ -11,7 +11,7 @@ sidebar_label: "Settings"
 
 ## 偏好设置（Preferences）
 
-> 📷 TODO screenshot | 偏好设置页总览 · suggested path `…/NeoMind/v0923/settings-preferences.png`
+<img src="/img/neomind/settings-preferences.png" alt="系统设置 — 偏好设置页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 语言与地区
 
@@ -47,7 +47,6 @@ sidebar_label: "Settings"
 
 ### 备份计划
 
-> 📷 TODO screenshot | 备份计划配置（开关、间隔、保留份数） · suggested path `…/NeoMind/v0923/settings-backup-schedule.png`
 
 | 设置 | 说明 |
 |------|------|
@@ -68,7 +67,6 @@ USER.md / KNOWLEDGE.md 两个记忆文件的字符上限（默认 2000 / 3000）
 
 ### 扩展市场源
 
-> 📷 TODO screenshot | 扩展市场源切换 · suggested path `…/NeoMind/v0923/settings-marketplace-source.png`
 
 默认从 GitHub 拉取扩展市场索引。国内网络可在此切换镜像地址（或用环境变量 `NEOMIND_EXTENSION_MARKET_URL`），保存后下一次市场请求即生效，无需重启。切换后扩展完整性按镜像的文件校验。
 
