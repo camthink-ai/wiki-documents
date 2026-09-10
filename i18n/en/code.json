@@ -497,6 +497,15 @@
   "homepage.community.contact": {
     "message": "Product consultation and business cooperation"
   },
+  "carousel.ne302.title": {
+    "message": "NeoEyes NE302 (AI Camera)"
+  },
+  "carousel.ne302.tagline": {
+    "message": "New member of the NeoEyes NE300 family · Low-power edge AI camera"
+  },
+  "carousel.ne302.desc": {
+    "message": "Carries forward the NE300 family's low-power edge AI design with local real-time inference. Connects seamlessly to the NeoMind platform over MQTT/Webhook for device management, rule automation, and data visualization."
+  },
   "carousel.ne301.title": {
     "message": "NeoEyes NE301 (AI Camera)"
   },
@@ -513,7 +522,7 @@
     "message": "Quick Start"
   },
   "carousel.link.devguide": {
-    "message": "Dev Guide"
+    "message": "Developer Guide"
   },
   "carousel.link.appguide": {
     "message": "App Guide"
@@ -553,9 +562,6 @@
   },
   "carousel.link.userguide": {
     "message": "User Guide"
-  },
-  "carousel.link.devguide": {
-    "message": "Developer Guide"
   },
   "carousel.ne503.title": {
     "message": "NeoEyes NE503 (AI Camera Pro)"

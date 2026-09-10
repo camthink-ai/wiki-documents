@@ -18,6 +18,15 @@ export default function Home(): JSX.Element {
 
                 {/* ================= HERO ================= */}
                 <div className="hero-section hero-platform">
+                    {/* LCP 背景图：真实 <img> + fetchpriority，避免 CSS 背景被 webpack 重写哈希导致 preload 失配/双重下载 */}
+                    <img
+                        className="hero-bg-image"
+                        src="/img/hero-platform.webp"
+                        alt=""
+                        loading="eager"
+                        fetchpriority="high"
+                        decoding="async"
+                    />
                     <div className="hero-content">
                         <div className="hero-pill">
                             <span className="hero-pill-dot"></span>
@@ -235,7 +244,7 @@ export default function Home(): JSX.Element {
                                 <div className="stack-hw-grid">
                                     <Link to="/docs/neoedge-ng4500-series/overview" className="hw-stack-card hw-4500">
                                         <div className="hw-card-image">
-                                            <img src="https://www.camthink.ai/resource/neoedge_ng4500_ai_box.png" alt="NeoEdge NG4500" loading="lazy" />
+                                            <img src="/img/home/hw/ng4500.webp" alt="NeoEdge NG4500" loading="lazy" decoding="async" />
                                         </div>
                                         <div className="hw-info">
                                             <div className="hw-type">High Performance Edge</div>
@@ -248,7 +257,7 @@ export default function Home(): JSX.Element {
                                     </Link>
                                     <Link to="/docs/neoeyes-ne503-series/overview" className="hw-stack-card hw-503">
                                         <div className="hw-card-image">
-                                            <img src="https://resources.camthink.ai/official-site/menu/ne503.png" alt="NeoEyes NE503" loading="lazy" />
+                                            <img src="/img/home/hw/ne503.webp" alt="NeoEyes NE503" loading="lazy" decoding="async" />
                                         </div>
                                         <div className="hw-info">
                                             <div className="hw-type">AI Camera Pro</div>
@@ -261,7 +270,7 @@ export default function Home(): JSX.Element {
                                     </Link>
                                     <Link to="/docs/neoeyes-ne301-series/overview" className="hw-stack-card hw-301">
                                         <div className="hw-card-image">
-                                            <img src="https://www.camthink.ai/resource/neoesye_ne301_computer_vision_camera.png" alt="NeoEyes NE301" loading="lazy" />
+                                            <img src="/img/home/hw/ne301.webp" alt="NeoEyes NE301" loading="lazy" decoding="async" />
                                         </div>
                                         <div className="hw-info">
                                             <div className="hw-type">Intelligent Vision</div>
@@ -272,9 +281,23 @@ export default function Home(): JSX.Element {
                                             <span>NPU Integrated</span>
                                         </div>
                                     </Link>
+                                    {/* NE302 专属文档尚未发布，暂指向 NE301 系列（NE300 家族共用文档） */}
+                                    <Link to="/docs/neoeyes-ne301-series/overview" className="hw-stack-card hw-302">
+                                        <div className="hw-card-image">
+                                            <img src="/img/home/hw/ne302.webp" alt="NeoEyes NE302" loading="lazy" decoding="async" />
+                                        </div>
+                                        <div className="hw-info">
+                                            <div className="hw-type">Edge AI Camera</div>
+                                            <h3 className="hw-name">NeoEyes NE302</h3>
+                                        </div>
+                                        <div className="hw-chip-info">
+                                            <span>NE300 Family</span>
+                                            <span>Low-power Edge AI</span>
+                                        </div>
+                                    </Link>
                                     <Link to="/docs/neoeyes-ne101-series/overview" className="hw-stack-card hw-101">
                                         <div className="hw-card-image">
-                                            <img src="https://www.camthink.ai/resource/neoeyes_ne101_modular_camera.png" alt="NeoEyes NE101" loading="lazy" />
+                                            <img src="/img/home/hw/ne101.webp" alt="NeoEyes NE101" loading="lazy" decoding="async" />
                                         </div>
                                         <div className="hw-info">
                                             <div className="hw-type">Low Power IoT</div>
@@ -295,7 +318,6 @@ export default function Home(): JSX.Element {
                 {/* ================= COMMUNITY ================= */}
                 <div className="community-section">
                     <div className="community-bg-image"></div>
-                    <div className="community-overlay"></div>
 
                     <div className="community-content">
                         <div className="section-header">

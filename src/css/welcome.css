@@ -915,7 +915,8 @@
 /* Bottom: Hardware */
 .stack-hw-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* 5 个产品线各占一列（NE302 加入后由 4 列扩为 5 列） */
+    grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
 }
 
@@ -1049,10 +1050,11 @@
     }
 }
 
-/* Tablet: hardware grid steps down to 2 columns before going single-column */
+/* Tablet: hardware grid steps down to 3 columns before going single-column
+   (5 张卡片按 3+2 排布，避免落单) */
 @media screen and (max-width: 1200px) and (min-width: 901px) {
     .stack-hw-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     /* NeoMind layer steps down to a single column on mid-width screens */
@@ -1663,7 +1665,10 @@
 }
 
 /* ============================================================ */
-/* Hero — composite image as full-bleed background + dark scrim   */
+/* Hero — full-bleed background image + dark scrim                  */
+/* 背景图用真实 <img class="hero-bg-image">（JSX 内联、fetchpriority=high），
+   不再用 CSS background-image：Docusaurus 会把 CSS url() 重写成哈希资产，
+   既无法与 <link rel="preload"> 匹配，也会重复下载。                  */
 /* The background image is always dark, so we force light text +   */
 /* a dark scrim in BOTH site themes for consistent contrast.       */
 /* ============================================================ */
@@ -1671,13 +1676,21 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background-image: url('/img/hero-platform.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     background-color: var(--ct-hero-bg);
     /* Text color follows the site theme (dark in light mode, light in dark
        mode). The theme-aware scrim below provides the matching backing. */
+}
+
+/* 背景图层：铺满 hero，object-fit 裁剪等效 background-size: cover */
+.hero-section.hero-platform .hero-bg-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
 }
 
 /* Full-screen frosted glass — blurs the entire composite background image
@@ -1688,7 +1701,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
     /* 暗色蒙版：保证白字在任何背景图局部亮度下都有清晰对比。
        明暗主题统一使用同一套蒙版（不切换）。 */
@@ -1702,9 +1715,9 @@
     -webkit-backdrop-filter: blur(3px) saturate(108%);
 }
 
-.hero-section.hero-platform > * {
+.hero-section.hero-platform > :not(.hero-bg-image) {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Hero 文字对比度 — 仅 subtitle 保持白色 + halo（暗蒙版下白字最清晰）。
