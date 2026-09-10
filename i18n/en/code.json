@@ -624,18 +624,18 @@
     "message": "What's New"
   },
   "latest.ne302.title": {
-    "message": "NeoEyes NE302 series docs published"
+    "message": "NeoEyes NE302 Documentation"
   },
   "latest.hef.title": {
     "message": "NE503 model training & HEF conversion"
   },
-  "latest.verified.title": {
-    "message": "NE503 Verified Apps"
-  },
-  "latest.market.title": {
-    "message": "NeoMind extension marketplace source switching"
-  },
   "homepage.hero.cta.docs": {
     "message": "Documentation Hub"
+  },
+  "latest.resources.title": {
+    "message": "NE503 Resources"
+  },
+  "latest.faq.title": {
+    "message": "NE503 Troubleshooting FAQ"
   }
 }

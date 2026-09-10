@@ -51,25 +51,25 @@ const USE_CASES = [
 const LATEST_DOCS = [
     {
         badge: 'NEW',
-        title: <Translate id="latest.ne302.title">NeoEyes NE302 系列文档上线</Translate>,
-        date: '2026-09-05',
-        url: '/docs/neoeyes-ne302-series/ne302-overview',
+        title: <Translate id="latest.resources.title">NE503 Resources</Translate>,
+        date: '2026-08-26',
+        url: '/docs/neoeyes-ne503-series/application-guide/',
     },
     {
         badge: 'NEW',
+        title: <Translate id="latest.faq.title">NE503 故障排查 FAQ</Translate>,
+        date: '2026-08-19',
+        url: '/docs/neoeyes-ne503-series/troubleshooting',
+    },
+    {
+        title: <Translate id="latest.ne302.title">NeoEyes NE302 文档</Translate>,
+        date: '2026-08-14',
+        url: '/docs/neoeyes-ne302-series/ne302-overview',
+    },
+    {
         title: <Translate id="latest.hef.title">NE503 模型训练与 HEF 转换</Translate>,
         date: '2026-07-21',
         url: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
-    },
-    {
-        title: <Translate id="latest.verified.title">NE503 Verified Apps</Translate>,
-        date: '2026-07-16',
-        url: '/docs/neoeyes-ne503-series/application-guide/verified-apps',
-    },
-    {
-        title: <Translate id="latest.market.title">NeoMind 扩展市场源切换</Translate>,
-        date: '2026-07-10',
-        url: '/docs/neomind/user-guide/extensions',
     },
 ];
 

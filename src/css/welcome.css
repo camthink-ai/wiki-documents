@@ -1412,6 +1412,13 @@
 }
 
 /* ================= PRODUCT MATRIX ================= */
+/* 锚点定位预留固定导航栏高度，避免区块标题被遮住 */
+#products,
+.usecase-section,
+.latest-section {
+    scroll-margin-top: 72px;
+}
+
 .product-matrix {
     display: flex;
     flex-direction: column;
