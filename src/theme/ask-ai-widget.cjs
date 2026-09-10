@@ -19,17 +19,25 @@ function getAskAiLanguage(locale) {
 }
 
 function getAskAiPageContext(pathname) {
-  const path = String(pathname || '');
-  const isDocumentation = /(?:^|\/)docs(?:\/|$)/.test(path);
+  const segments = String(pathname || '').split('/').filter(Boolean);
+  const docsIndex = segments.indexOf('docs');
 
-  if (!isDocumentation) return { page_type: 'home' };
+  if (docsIndex === -1) return { page_type: 'home' };
 
+  const route = segments.slice(docsIndex + 1);
   const context = { page_type: 'documentation' };
-  const product = PRODUCT_ROUTE_CONTEXT.find(([route]) =>
-    path.includes(`/docs/${route}/`),
-  )?.[1];
+  const productEntry = PRODUCT_ROUTE_CONTEXT.find(
+    ([productRoute]) => route[0] === productRoute,
+  );
 
-  return product ? { ...context, product } : context;
+  if (!productEntry) {
+    return route.length > 0 ? { ...context, section: route[0] } : context;
+  }
+
+  context.product = productEntry[1];
+  if (route.length > 1) context.section = route[1];
+
+  return context;
 }
 
 function updateAskAiPageContext(targetWindow, pageContext) {
