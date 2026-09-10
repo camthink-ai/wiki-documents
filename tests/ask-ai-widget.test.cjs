@@ -44,17 +44,30 @@ test('maps the two configured Docusaurus locales without guessing unknown locale
 test('provides documentation context and only attaches products proven by Wiki routes', () => {
   assert.deepEqual(
     getAskAiPageContext('/docs/neoeyes-ne503-series/user-guide/dashboard'),
-    { page_type: 'documentation', product: 'NE503' },
+    { page_type: 'documentation', product: 'NE503', section: 'user-guide' },
   );
   assert.deepEqual(
     getAskAiPageContext('/zh-Hans/docs/neoeyes-ne301-series/quick-start'),
-    { page_type: 'documentation', product: 'NE301' },
+    { page_type: 'documentation', product: 'NE301', section: 'quick-start' },
   );
   assert.deepEqual(
     getAskAiPageContext('/docs/hardware-dev-resources/ssd'),
-    { page_type: 'documentation' },
+    { page_type: 'documentation', section: 'hardware-dev-resources' },
   );
   assert.deepEqual(getAskAiPageContext('/not-found'), { page_type: 'home' });
+});
+
+test('omits section and product when the route gives no trustworthy level', () => {
+  assert.deepEqual(getAskAiPageContext('/docs/neoeyes-ne503-series/'), {
+    page_type: 'documentation',
+    product: 'NE503',
+  });
+  assert.deepEqual(getAskAiPageContext('/docs'), {
+    page_type: 'documentation',
+  });
+  assert.deepEqual(getAskAiPageContext('/docs/'), {
+    page_type: 'documentation',
+  });
 });
 
 test('installs the official CSS and script once after configuring the production Wiki identity', () => {
