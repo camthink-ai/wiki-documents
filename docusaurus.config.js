@@ -209,7 +209,7 @@ const config = {
             ]
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} CamThink.ai All rights reserved.`,
+        copyright: `Copyright © ${new Date().getFullYear()} CamThink Technology Co., Ltd. All Rights Reserved.`,
       },
       prism: { theme: prismThemes.github, darkTheme: prismThemes.dracula },
     }),
