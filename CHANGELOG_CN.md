@@ -6,6 +6,82 @@
 
 > 本更新日志自 **2025-12-23** 起开始记录，此前的历史变更未作追溯。
 
+## [2026-09-09]
+
+### 变更
+- **NeoEyes NE503 AI 体验演示下载**: Model Showcase 安装包由 `.tar.gz` 改为 `.neoapp` 分发。快速入门、Resources 和 Parking Lot 实录的下载链接已指向 `neoruntime-apps` 当前 release 资产，安装步骤改为在 Import → Upload Package 中直接上传 `.neoapp` 文件，无需手动解压（中英文完整支持）。
+- **NeoEyes NE302 接口板图片**: 产品概述、硬件组成、硬件连接、构建烧录和快速入门五处的接口板配图更换为最新版板卡照片（编程/存储标注图与双板组装图），正文连接器命名与新图标注对齐（`N6_UART`、`N6_STLINK`），并补充 IR-CUT 插座行、注明其控制路径未核验的使用边界（中英文完整支持）。
+
+## [2026-09-01]
+
+### 变更
+- **NeoEyes NE101 硬件接线**: 将版本差异直接整合到受影响的接口表中。供电控制、PIR 和 V2.0 RTC 表现已标明适用主板版本与 GPIO 分配，覆盖 V2.0 TF 卡/模组供电共用约束及 RTC 与摄像头 I2C 共用关系（中英文完整支持）。
+- **NeoEyes NE301 硬件文档**: 在产品概述、组件概览和硬件连接指南中补充 V1.0–V1.3 的版本化接线信息，明确 WiFi/J12 SPI 映射、电池与 WiFi 供电控制 GPIO、U0 可用性、UART VCC_IN 兼容、PIR/ISP 接线以及 V1.3 IR-CUT 接口（中英文完整支持）。
+
+## [2026-08-26]
+
+### 新增
+- **NE503 Resources**: 新增应用指南入口页，集中提供 NeoRuntime 平台、SDK、示例应用、API、Event Bus 协议和预构建应用的 GitHub 链接。
+
+### 变更
+- **NE503 应用开发文档结构调整**: 删除 `1-app-development/` 子目录，将 Hello World、AI 辅助开发和 HEF 模型编译文档移至应用指南根目录。
+
+### 移除
+- **NE503 应用指南 Reference 文档**: 删除 `4-application-guide/3-reference/` 下原有的 App、SDK、示例、REST API 和事件集成参考文档；相关材料通过 Resources 入口访问。
+- **NE503 SDK Workflow**: 删除应用开发下的 SDK Workflow 页面；SDK、API、示例和事件协议资料通过 Resources 入口访问。
+- **NE503 版本兼容性矩阵**: 删除软件指南中的版本基线与兼容性矩阵页面；当前版本与兼容性资料以对应 GitHub 仓库和发布记录为准。
+
+## [2026-08-19]
+
+### 变更
+- **NeoEyes NE503 应用指南结构重排**: `4-application-guide/` 重组为三板块：`1-app-development`（只教如何开发 app，person-detection 移出）、`2-cookbook`（真实应用项目实录，七要素模板）、`3-reference`（查表型参考，合并原 `reference/` 的 App/SDK/示例三篇与原 `2-3rd-party-integration` 的 REST/视频/事件三篇）。原 `2-3rd-party-integration/` 与 `1-app-development/reference/` 目录删除；person-detection 从教学教程改写为 Cookbook 七要素实录风格（目标/模型与数据链路/配置文件/核心代码/部署步骤/验证方法/常见错误，补验证记录块）；parking-lot 改名 `0-` 并修正最后更新日期。文档导读（0.5）集成商/开发者角色路径同步更新。批次① Cookbook 新篇（区域入侵/人流统计/安全帽/RTSP→NVR/事件→云端）仅在规划预留，不创建空文件。
+
+### 新增
+- **NeoEyes NE503 故障排查 FAQ**: 产品根新篇，合并重组原三处排障文档（software-guide 的 Troubleshooting Guide 379 行、app-development 的应用排障 224 行、user-guide 的 CLI 与排障 92 行）为**单一按症状组织的入口**——8 个症状域（设备与网络 / 视频与流 / AI 与模型 / 应用与容器 / 事件与集成 / 存储与磁盘 / 烧录与外设 / 系统与服务），每条按「现象 → 原因 → 快速修复」起步、深挖诊断命令随后；烧录故障以入口条目 + 锚点链接 System Flashing §8（不复制正文）；附录收错误码表（含「DELETE 模型连带删文件」高危提示）与诊断命令速查。aipc-cli 命令速查归入平台服务总览的 CLI 工具节（中英文完整支持）。
+
+### 变更
+- **NE503 aipc-cli 命令速查迁移**: 平台服务总览（software-guide）的 CLI 工具节由一句话概述扩充为完整命令速查表（system / app / device / stream / model 五模块 + 输出格式说明），成为命令参考的唯一主归属；部署与运维篇（user-guide）保留一行导航链接。
+
+
+### 变更（续）
+- **NE503 模型生命周期打包侧/订阅侧拆分完善**: 模型训练篇新增「HEF 来源三渠道」表（设备预置 / 自训 / 第三方）与 384×640 匹配约束、HEF 命名规范（文件名即 model_id 的注册约定）、§7 API 部署正路（scp → `POST /ai/models/scan` → `POST /ai/models/{id}/load`）、附录「torch surgery 裁剪类别」进阶小节（多类裁单类免重训，真机验证）；SDK 参考的 `subscribe` 新增 `raw_output_only` 与自训模型小节（B-path 原因 + NMS 自解码最小示例），模型训练篇原有两处 raw_output_only 重复解释收敛为链接（中英文完整支持）。
+- **NE503 系统管理与部署运维建议去重**: 时区/静态 IP/MAC 绑定/改 IP 后对接更新等生产建议，主归属统一为部署与运维篇；系统管理篇对应位置压缩为单行链接（操作警告保留原地）。
+
+### 移除
+- **NE503 三处旧排障文档下架**: `3-software-guide/4-reference/1-troubleshooting.md`、`4-application-guide/1-app-development/reference/troubleshooting.md`、`2-user-guide/5-cli-and-troubleshooting.md` 已删除，全部内容（含去重）并入新的故障排查 FAQ；全库入链（quick-start / developer-guide / video-integration / sdk-workflow / sdk-examples / parking-lot / deployment-and-ops / platform-services 共 8 处中英文）已改指新篇锚点。
+
+## [2026-08-17]
+
+### 新增 (Added)
+- **NeoEyes NE503 Cookbook：Parking Lot**: Cookbook 首篇——基于 `neoruntime-apps` 停车场 showcase 的多模型应用完整实录：四模型清单（`yolov5m_vehicles` / `scdepthv3` / `license_plate_det` / `plate_recognition`）与动态注册（`allow_register_model`）、`sub.raw` 取流权限与「视频→事件」数据链路、模型注册与事件发布的核心 SDK 代码、bundle 安装与启动步骤、三路验证（MJPEG 实时页面、Event Bus WebSocket、应用日志）和「现象→原因→修复」常见错误表；包含出货固件 HD 预览黑屏所需的 `HD_PREVIEW_ENABLED=0` 规避说明（platform-api 仅回环监听）。2026-08 真机验证：约 22 FPS 检测到车辆、4 模型全部注册；车牌识别如实标注本次画面未触发（中英文完整支持）。
+- **NeoEyes NE503 版本兼容性矩阵**: software-guide 参考篇新增——组件版本对照（OS 1.12.0 / 平台服务 v1.0.0 / SDK 0.3.0 / MCU 0.1.7.0 / board_tools 1.10.1，经 2026-08 固件真机核对）、OS 升级六道兼容关卡（machine / product / hardware-compatibility / aipc-compat-level / data-schema / min-recovery-version）、出厂预置 14 个模型与 model-showcase 预装清单（VLM 默认不内置）、DFC 与 HEF 兼容说明（中英文完整支持）。
+- **NeoEyes NE503 部署与运维指南**: user-guide 新增——首次部署 10 项检查清单、静态 IP 与 NTP 规划、日志三渠道采集（Web / API / SSH）与磁盘空间实测规划（root 3.3G / data 54G / 模型库 / 应用镜像 / 日志清理）、固件双层升级与回滚恢复（deploy.sh --rollback、A/B 双拷贝、MCU OTA；当前固件无一键恢复出厂，重刷即恢复）（中英文完整支持）。
+- **NeoEyes NE503 安全加固指南**: user-guide 新增——出厂默认凭据清单（Web/API、SSH、无认证 RTSP、静态 Token）与首改动作、三面端口暴露与防护原则、凭据管理、容器权限最小化与镜像可信、外网远程访问的中转方案；基于 2026-08 真机实测（RTSP 无认证、无强制改密均为实测现状并如实标注）（中英文完整支持）。
+- **NeoEyes NE503 整机接线与供电指南**: user-guide 新增——PoE 与 DC 供电选择标准、报警输入（1 路）与 Wiegand / RS-485 扩展接口说明、音频接口、调试接口入口（UART 恢复模式拨码、ST-LINK / SWD、串口日志，链接系统烧录的图示）；接线实拍照片将随后续批次补充（中英文完整支持）。
+
+### 变更 (Changed)
+- **NE503 快速入门新增角色阅读路径**: §7 改造为「角色→路径」矩阵（试机用户 / 应用开发者 / 集成商 / 模型工程师 / 平台开发者），平台开发者路径首次桥接开源仓 neoruntime 设计文档。
+- **NE503 系统架构新增端到端数据链路**: 架构页新增 §2——传感器→ISP→三路码流的编码与 AI 推理链路图、三路流分工表、检测结果与帧 / 事件 / Overlay 的对齐机制（frame_sequence + stream_map）、应用容器五层沙箱隔离概览，后续章节顺延重编号。
+
+### 修复 (Fixed)
+- **NE503 全系对外访问协议修正**: `http://<设备IP>:8080` → `https://<设备IP>`（nginx 对外仅 443，8080 为内部回环）、`ws://` → `wss://`、curl 示例统一加 `-k`（设备自签证书）、wscat 加 `--no-check`，涉及 10 篇文档中英文同步。
+- **NE503 源码仓库迁移与安装路径修正**: 已失效的 `camthink-ai/ne503` 仓库改为 `neoruntime-sdks` + `neoruntime-apps` 双仓同级 clone，示例构建入口统一为 `scripts/build_app.sh`；`/opt/aipc` 统一修正为设备实际部署根 `/data/aipc`（平台自动重映射旧前缀的兼容说明保留）；烧录工具版本 1.9.0 → 1.10.1。
+- **NE503 主码流分辨率修正**: 主码流按出厂实际修正为 3840×2160@30（4K），涉及系统架构与视频集成两篇（仓库默认配置的 1080p 与出厂配置不符）。
+- **NE503 Wiegand 与报警输入事实修正（用户指南评审）**: 源码核实（neoruntime + MCU 固件）后修正——Wiegand CH0/CH1 为纯输出通道（继电器 + 电平），删除「接入读卡器 / 刷卡数据上 Event Bus」的错误描述；报警输入的信号上报（事件总线 / API）在当前固件尚未开放，触发电平选项暂未生效，均已如实标注；「AI 检测→报警输出」确认为非内置联动。
+- **NE503 API 认证模型修正**: 登录返回的 Token 更正为会话凭据（每次登录随机发放，改密或服务重启后失效，脚本需处理 401 重新登录）；明确另一把内置静态集成密钥（X-API-Key / Bearer 均可）不随改密变化且出厂默认值已随开源仓库公开，生产部署前必须更换；改密操作仅需有效登录会话、无需旧密码。涉及 REST API 参考与安全加固两篇（真机实测验证）。
+- **NE503 用户指南过期表述清理**: 删除「清理录像 / 录像文件命名」等与「本机无录像存储」实测结论冲突的表述（Dashboard / 系统管理 / 故障排查）；主码流分辨率建议从 1080p 对齐到出厂 4K（视频与成像）；忘记密码指引修正为真实可用路径（aipc-cli 无密码重置命令）；整机接线篇 tags 随板块迁移更正为用户指南。
+- **NE503 用户指南链接卫生**: 删除部署与运维、整机接线两篇中与正文链接完全重复的「相关文档」小节及安全加固篇的重复条目；补齐「故障排查」缺失链接；80% 存储清理建议统一口径并指向部署与运维篇的磁盘规划。
+
+## [2026-08-14]
+
+### 新增 (Added)
+- **NeoEyes NE302 文档**: 新增面向紧凑型 STM32N6 AI 相机的 10 篇文档，覆盖产品信息、快速指南、抓拍与存储、数据传输、AI 模型验证、系统维护、硬件组成与连接、开发环境配置，以及构建和烧录流程。图片已迁移至 CDN，中英文完整支持。
+
+## [2026-08-12]
+
+### 新增 (Added)
+- **NeoEyes NE503 用户手册**: NE503 下新增 6 页 Web 控制台用户手册——Dashboard（总览与导航）、Video and Imaging（实时预览、图像质量、叠加与图像控制、VLC RTSP 验证）、AI Apps and Models（应用管理、AI 模型市场、安装向导）、Peripherals（外设）、System Management（设备信息、时间、网络、存储、日志、文件管理器、终端、进程管理器）、Troubleshooting（CLI 命令参考与故障排查）。每页均配真机截图（已上传 CDN），完整覆盖 NE503 Web 控制台各项功能（中英文完整支持）。
+
 ## [2026-07-21]
 
 ### 新增 (Added)

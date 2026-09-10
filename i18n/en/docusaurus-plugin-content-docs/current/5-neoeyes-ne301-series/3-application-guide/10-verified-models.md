@@ -6,7 +6,7 @@ tags: [NE301, model deployment, object detection, pose estimation, face detectio
 
 # NE301 Verified Models
 
-NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model inference. The tables below list all models verified on actual devices (12 models total).
+NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model inference. The tables below list all models verified on actual devices (12 models total). For other ready-to-use models, see the [Models page in the CamThink Developer Center](https://www.camthink.ai/developer-center/models/).
 
 ## Hardware Constraints
 
@@ -23,6 +23,7 @@ NE301 is based on the STM32N6 NPU and supports TFLite Int8 quantized model infer
 > - **tflite** — Original TFLite weight file for secondary development or model analysis
 > - **json** — NE301 model configuration file defining input specs, post-processing type, and inference parameters
 > - **bin** — NE301 OTA firmware package, deploy directly via the Web UI
+> - **Firmware requirement** — Since 2026-07, the OTA packages (.bin) are compiled with STEdgeAI Runtime v4.0. Use device firmware (App) released on or after 2026-07; earlier firmware will fail to load these models due to an NPU runtime version mismatch.
 
 ## 1. General Object Detection (COCO 80 Classes)
 
@@ -93,4 +94,4 @@ Two types of files are available for download from the tables above:
 
 ---
 
-**Document version**: v1.7 · **Last updated**: 2026-06-12
+**Document version**: v1.8 · **Last updated**: 2026-07-24

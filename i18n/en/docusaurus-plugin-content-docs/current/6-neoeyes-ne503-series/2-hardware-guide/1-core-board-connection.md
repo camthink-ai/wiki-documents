@@ -1,12 +1,14 @@
 ---
-description: NE503 core processing board (Hailo15H) hardware resources and interface definitions, covering SoC built-in resources, on-board I2C devices, high-speed interfaces, and expansion interfaces exposed through board-to-board connectors.
-keywords: [NE503, Hailo15H, core processing board, IO configuration, pin definition, LPDDR4, eMMC, IMX678, hardware connection]
-tags: [NE503, core processing board, IO configuration, Hailo15H]
+description: NE503 core-board resources, interface connections, and key electrical parameters.
+keywords: [NE503, core processing board, IO configuration, pin definition, LPDDR4, eMMC, hardware connection]
+tags: [NE503, core processing board, IO configuration, hardware connection]
 ---
 
 # Core Board
 
-The core processing board hosts the Hailo15H SoC, NPU, memory, and storage subsystems. It connects to the interface board via Board-to-Board Connectors, exposing native SoC high-speed interfaces and expansion pins. This document describes the hardware resources and pin definitions from a chip-level perspective.
+The core processing board provides the SoC, NPU, memory, storage, and high-speed interfaces and expansion pins for the interface board.
+
+> Part numbers are for datasheet, driver, and debugging reference; follow the BOM and schematic for hardware changes.
 
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/core-board-connection/core-board-annotation.png" alt="NE503 Core Board Interface Annotation" style={{ width: '60%', height: 'auto' }} />
 
@@ -14,13 +16,13 @@ The core processing board hosts the Hailo15H SoC, NPU, memory, and storage subsy
 
 NE503 consists of the following physical modules:
 
-| Module | Main Chip | Description |
-|:-------|:----------|:------------|
-| Core Processing Board | Hailo15H SoC | SoC, NPU, memory, storage, I2C sensors, PCIe clock, Ethernet PHY |
-| Interface Board | STM32G0B0RET6 | MCU managing external IO, power, and peripheral control; TF card slot on board (see [Interface Board](./2-aipc-board-connection.md)) |
-| Sensor Board | IMX678-AAQR1-C | 4K CMOS image sensor, connected via FPC connector |
-| Light Board | — | Dual-light board (white/red PWM) + IR light board (near/far-IR PWM) |
-| Lens Module | AN41908A-VBA | AF auto-zoom and autofocus lens driver |
+| Module | Description |
+|:-------|:------------|
+| Core Processing Board | SoC, NPU, memory, storage, I2C sensors, PCIe clock, Ethernet PHY |
+| Interface Board | MCU managing external IO, power, and peripheral control; TF card slot on board (see [Interface Board](./2-aipc-board-connection.md)) |
+| Sensor Board | 4K CMOS image sensor, connected via FPC connector |
+| Light Board | Dual-light board (white/red PWM) + IR light board (near/far-IR PWM) |
+| Lens Module | Selectable `AF Lens (44.5° HFOV)` or `Motorized Zoom (110° HFOV)`; the driver device and controls depend on the configuration |
 
 The core board and interface board are interconnected via board-to-board connectors: the core board provides native SoC pins, and devices on the interface board are connected to these pins through the connectors.
 
@@ -32,38 +34,38 @@ Core board resources are divided into two categories by physical location:
 
 **On-Board Resources** — Physically soldered on the core processing board:
 
-| # | Function | Chip Model | Category |
-|:--|:---------|:-----------|:---------|
-| 1 | LPDDR4 | MT53E2G32D4DE-046 WT:C | SoC built-in |
-| 2 | eMMC | SDINBDA6-64G-H | SoC built-in |
-| 3 | QSPI Flash | IS25WP064D-JKLE | SoC built-in |
-| 4 | Temperature Sensor | TMP1075DSGR | On-board I2C |
-| 5 | Gyroscope | LSM6DSR | On-board I2C |
-| 6 | EEPROM | AT24C02D | On-board I2C |
-| 7 | PCIe Clock | PI6CG18201 | On-board I2C |
-| 8 | PCIe & USB | Hailo15H built-in | SoC high-speed |
-| 9 | Ethernet PHY | LAN8720AI | On-board RMII |
+| # | Function | Main Parameters | Category |
+|:--|:---------|:----------------|:---------|
+| 1 | LPDDR4 | 4 GB / 8 GB | SoC built-in |
+| 2 | eMMC | 64 GB | SoC built-in |
+| 3 | QSPI Flash | 8 MB, Quad SPI | SoC built-in |
+| 4 | Temperature Sensor | I2C1, 12-bit, 0.0625°C | On-board I2C |
+| 5 | Gyroscope | I2C2, ±16 g / ±4000 dps | On-board I2C |
+| 6 | EEPROM | I2C1, 2 Kb | On-board I2C |
+| 7 | PCIe Clock | I2C1, 25 MHz, 0.3 ps | On-board I2C |
+| 8 | PCIe & USB | Native PCIe Gen4 and USB | SoC high-speed |
+| 9 | Ethernet PHY | 10/100M RMII, IO 1.6V ~ 3.6V | On-board RMII |
 
 **Expansion Resources** — Physically located on the interface board or external modules, connected through core board connector pins:
 
-| # | Function | Chip/Module | Connection | Category |
-|:--|:---------|:------------|:-----------|:---------|
-| 10 | Image Sensor | IMX678-AAQR1-C | MIPI CSI-2 + I2C0 | Internal |
+| # | Function | Main Parameters | Connection | Category |
+|:--|:---------|:----------------|:-----------|:---------|
+| 10 | Image Sensor | 4K CMOS | MIPI CSI-2 + I2C0 | Internal |
 | 11 | TF Card | — | SDIO0 + GPIO | Product |
 | 12 | Debug UART | — | UART0 | Debug |
 | 13 | BOOT Mode | — | BOOT0/BOOT1 | Debug |
-| 14 | Lens Driver | AN41908A-VBA | SPI (CS1) | Internal |
-| 15 | Audio Codec | NAU88C10 | I2S + I2C0 | Internal |
+| 14 | Lens Driver | — | SPI (CS1) | Internal |
+| 15 | Audio Codec | I2C0 address 0x1A | I2S + I2C0 | Internal |
 | 16 | Radar Module | — | UART2 + GPIO | Internal |
-| 17 | MCU Reset Control | SN74LVC1G14DCK | GPIO | Internal |
+| 17 | MCU Reset Control | Bidirectional reset | GPIO | Internal |
 
 ## SoC Built-in Resources
 
 The following resources are directly connected via native SoC interfaces and physically soldered on the core processing board.
 
-### LPDDR4 (MT53E2G32D4DE-046 WT:C)
+### LPDDR4 (documented 8 GB configuration: MT53E2G32D4DE-046 WT:C)
 
-8 GB LPDDR4, 4266 Mb/s, 8.5 GB/s single-channel bandwidth.
+NE503 is available with 4 GB or 8 GB LPDDR4. The documented 8 GB configuration uses MT53E2G32D4DE-046 WT:C at 4266 Mb/s with 8.5 GB/s single-channel bandwidth; the 4 GB configuration follows its BOM.
 
 | Pin | Function |
 |:---|:---|
@@ -101,7 +103,7 @@ The following resources are directly connected via native SoC interfaces and phy
 
 ### PCIe & USB
 
-Hailo15H SoC native PCIe Gen4 and USB interfaces. PCIe clock provided by on-board PI6CG18201.
+Hailo-15H SoC provides native PCIe Gen4 and USB interfaces. The PCIe clock is provided by on-board PI6CG18201.
 
 ### Ethernet PHY (LAN8720AI)
 
@@ -183,9 +185,9 @@ The core board connects to the image sensor via MIPI CSI-2 data lanes and I2C0 c
 | H_I2C0_SDA | I2C0 data line |
 | H_I2C0_SCL | I2C0 clock line |
 
-### Lens Driver (SPI CS1)
+### Lens Driver
 
-The core board SPI bus is routed via CS1 chip select to connect the AN41908A-VBA AF auto-zoom and autofocus lens driver. Shares SPI bus with QSPI Flash, distinguished by different chip selects. MCU SPI1 also connects to the same chip for homing and limit protection (see [Interface Board](./2-aipc-board-connection.md)).
+The core board SPI bus is routed via CS1 chip select to provide the lens-driver control path. It shares the SPI bus with QSPI Flash and is distinguished by a separate chip select. The board record on this page corresponds to the AN41908A-VBA driver device; the installed lens option, driver device, and autofocus/zoom capabilities must follow the specific SKU, BOM, and firmware. MCU SPI1 handles lens homing and limit protection (see [Interface Board](./2-aipc-board-connection.md)).
 
 | Pin | Function |
 |:---|:---|
@@ -196,11 +198,11 @@ The core board SPI bus is routed via CS1 chip select to connect the AN41908A-VBA
 | H_SPI_CLK | FLASH_CLK |
 | H_SPI_CS1 | FLASH_CS1 (Lens driver chip select) |
 
-> Note: The function column names FLASH_DQ0 ~ FLASH_DQ3 and FLASH_CLK above come from the SoC QSPI controller pin naming. These pins are connected to the lens driver chip AN41908A via CS1 chip select, sharing the same data and clock lines as the QSPI Flash (CS0), distinguished by different chip select signals.
+> Note: The function column names FLASH_DQ0 ~ FLASH_DQ3 and FLASH_CLK above come from the SoC QSPI controller pin naming. These pins are connected to the AN41908A lens driver via CS1 chip select, sharing the same data and clock lines as the QSPI Flash (CS0), distinguished by different chip select signals.
 
 ### Audio Codec (I2S + I2C0)
 
-The core board routes audio channels via I2S data interface and I2C0 control bus, connecting to the NAU88C10 audio codec (located on the interface board). I2C0 slave address **0x1A**.
+The core board routes audio channels via I2S data interface and I2C0 control bus, connecting to the NAU88C10 audio codec on the interface board. I2C0 slave address **0x1A**.
 
 | Pin | Function |
 |:---|:---|
@@ -237,7 +239,7 @@ Core board SDIO0 interface routed via connector to the TF card slot on the inter
 
 ### GPIO (MCU Reset Control)
 
-Core board GPIO18 pin routed via connector to the SN74LVC1G14DCK reset chip for resetting the interface board MCU (STM32G0B0). In the reverse direction, the MCU can also reset the core processing board via PD8 (POWER_RST) (see [Interface Board](./2-aipc-board-connection.md)).
+Core board GPIO18 pin is routed via connector to the SN74LVC1G14DCK reset chip for resetting the interface board MCU (STM32G0B0). In the reverse direction, the MCU can also reset the core processing board via PD8 (POWER_RST) (see [Interface Board](./2-aipc-board-connection.md)).
 
 | Pin | Function |
 |:---|:---|
@@ -249,7 +251,7 @@ The following interfaces are used for system debugging and firmware flashing, wi
 
 ### UART0 (Debug Serial Port)
 
-SoC native UART0, routed via connector for system debugging. This serial port has a dual role: it serves as the SoC debug serial port for system log output and interactive debugging, and also acts as the primary communication channel between the core processing board and the interface board MCU (STM32G0B0).
+The native SoC UART0 is routed via connector for system debugging. This serial port has a dual role: it serves as the SoC debug serial port for system log output and interactive debugging, and also acts as the primary communication channel between the core processing board and the interface board MCU (STM32G0B0).
 
 | Pin | Function |
 |:---|:---|

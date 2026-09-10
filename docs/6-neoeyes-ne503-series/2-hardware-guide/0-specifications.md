@@ -1,51 +1,43 @@
 ---
-description: NE503 硬件规格参数详表，涵盖 Hailo15H SoC、LPDDR4、eMMC、QSPI Flash、图像传感器、IMU、以太网 PHY 等核心芯片的型号与电气参数。
-keywords: [NE503, 硬件规格, Hailo15H, IMX678, LPDDR4, LSM6DSR, 芯片参数]
-tags: [NE503, 硬件规格, 芯片参数, 硬件参考]
+description: NE503 硬件规格，涵盖处理板、接口板、存储、接口、成像和工作环境等关键参数。
+keywords: [NE503, 硬件规格, LPDDR4, eMMC, SoC, MCU, 接口]
+tags: [NE503, 硬件规格, 接口, 硬件参考]
 ---
 
 # Hardware Specifications
 
-## 简介
-
-NE503 采用核心处理板（Hailo15H SoC）与接口板（STM32G0B0RET6 MCU）双板架构，详见 [Core Board](./1-core-board-connection.md) 和 [Interface Board](./2-aipc-board-connection.md)。
-
-| 型号 | 型号描述 |
-|:---|:---|
-| NE503 | Hailo15H + eMMC 64GB + LPDDR4 8GB，AF 4x 变焦 |
-
 ## 模组级规格参数
 
-NE503 各物理模组的主要器件参数如下：
+NE503 各物理模组的主要规格参数如下：
 
 ### 核心处理板
 
-| 类型 | 芯片型号 | 规格参数 |
-|:---|:---|:---|
-| CPU / SoC | Hailo-15H | 四核 Arm Cortex-A53，频率 1.3 GHz；AI 算力高达 20 TOPS；ISP 支持最高 12 MP 分辨率，600 Mpixel/s 像素率，支持 HDR 和降噪；VPU 支持 H.265/H.264 编码 |
-| LPDDR4 | MT53E2G32D4DE-046 WT:C | 8 GB LPDDR4，4266 Mb/s，8.5 GB/s 单通道带宽 |
-| eMMC | SDINBDA6-64G-H | 64 GB eMMC |
-| QSPI Flash | IS25WP064D-JKLE | 8 MB，四线 SPI 协议，待机电流 8 µA，擦写次数 > 100,000 次 |
-| 温度传感器 | TMP1075DSGR | 12 bit 分辨率，0.0625°C，I2C 接口 |
-| EEPROM | AT24C02D | 2 Kb（256 × 8），I2C 接口，待机电流 < 1 µA，1,000,000 次写周期 |
-| PCIe 时钟发生器 | PI6CG18201 | 25 MHz，全输出工作电流（IDD）15 mA，低抖动 PCIe Gen4：0.3 ps |
-| 以太网 PHY | LAN8720AI | 10/100M 以太网 PHY 芯片，IO 电压 1.6V ~ 3.6V |
-| 惯性测量模块（IMU） | LSM6DSR | 集成 3 轴数字加速度计（可编程，最大 ±16 g）和 3 轴数字陀螺仪（高达 ±4000 dps） |
+| 类型 | 规格参数 |
+|:---|:---|
+| CPU / SoC | 四核 Arm Cortex-A53，频率 1.3 GHz；AI 算力高达 20 TOPS；ISP 支持最高 12 MP 分辨率、600 Mpixel/s 像素率、HDR 和降噪；VPU 支持 H.265/H.264 编码 |
+| LPDDR4 | 4 GB 或 8 GB；当前记录的 8 GB 配置为 4266 Mb/s、8.5 GB/s 单通道带宽，4 GB 配置参数以对应 BOM 为准 |
+| eMMC | 64 GB |
+| QSPI Flash | 8 MB，四线 SPI 协议，待机电流 8 µA，擦写次数 > 100,000 次 |
+| 温度传感器 | 12 bit 分辨率，0.0625°C，I2C 接口 |
+| EEPROM | 2 Kb（256 × 8），I2C 接口，待机电流 < 1 µA，1,000,000 次写周期 |
+| PCIe 时钟发生器 | 25 MHz，全输出工作电流（IDD）15 mA，低抖动 PCIe Gen4：0.3 ps |
+| 以太网 PHY | 10/100M 以太网，RMII 接口，IO 电压 1.6V ~ 3.6V |
+| 惯性测量模块（IMU） | 集成 3 轴数字加速度计（可编程，最大 ±16 g）和 3 轴数字陀螺仪（高达 ±4000 dps） |
 
 ### 接口板
 
-| 类型 | 芯片型号 | 规格参数 |
-|:---|:---|:---|
-| MCU | STM32G0B0RET6 | Arm Cortex-M0+，64 MHz，512 KB Flash，144 KB RAM |
-| 温度传感器 | LMT87DCK | 模拟输出温度传感器，-50°C ~ 150°C |
-| 镜头驱动 | AN41908A-VBA | AF 自动变焦与自动对焦，SPI 接口 |
-| 音频编解码器 | NAU88C10 | I2S 接口音频编解码器（SoC 控制，非 MCU 管理） |
+| 类型 | 规格参数 |
+|:---|:---|
+| MCU | Arm Cortex-M0+，64 MHz，512 KB Flash，144 KB RAM |
+| 温度传感器 | 模拟输出，-50°C ~ 150°C |
+| 镜头驱动 | 可选 `AF Lens (44.5° HFOV)` 或 `Motorized Zoom (110° HFOV)`；驱动器件与可用控制能力以具体 SKU/BOM 和固件为准 |
+| 音频编解码器 | I2S 接口，由处理板控制 |
 
 ### 外部模组
 
-| 类型 | 芯片型号 | 规格参数 |
-|:---|:---|:---|
-| 图像传感器 | IMX678-AAQR1-C | 1/1.8 英寸 4K CMOS 图像传感器，高达 60fps 的 4K 全像素输出 |
+| 类型 | 规格参数 |
+|:---|:---|
+| 图像传感器 | 1/1.8 英寸 4K CMOS 图像传感器，高达 60fps 的 4K 全像素输出 |
 
 ### 灯板（独立模组）
 
@@ -66,3 +58,8 @@ NE503 各物理模组的主要器件参数如下：
 | 版本 | 修订日期 | 修订内容 |
 |:---|:---|:---|
 | V1.0 | 2026-04-02 | 首发版本 |
+
+## 相关文档
+
+- [核心处理板](./1-core-board-connection.md)
+- [接口板](./2-aipc-board-connection.md)

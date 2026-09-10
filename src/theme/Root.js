@@ -1,39 +1,86 @@
 import React from 'react';
 import { useLocation } from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { hasConsent } from '../analytics/consent';
 import { track, flushQueue } from '../analytics/track';
+import {
+  getAskAiLanguage,
+  getAskAiPageContext,
+  installAskAiWidget,
+  updateAskAiPageContext,
+} from './ask-ai-widget.cjs';
 
-const UMAMI_SCRIPT_URL = 'https://wiki-data.camthink.ai/script.js';
-const UMAMI_WEBSITE_ID = '3ca6071b-afef-4f95-b095-88ef20bfb2a6';
+const TRACKER_SCRIPT_URL = 'https://analytics.camthink.ai/sdk/tracker.umd.js';
+const TRACKER_CONFIG = {
+  endpoint: 'https://analytics.camthink.ai/collect/v1/events',
+  project_key: 'pk_4fdf4e86fe5631cbf0a54cda15008c8b',
+  auto_track: {
+    page_view: true,
+    element_click: true,
+    scroll: true,
+  },
+  cross_project: {
+    enabled: true,
+    scope_key: 'camthink',
+    cookie_domain: '.camthink.ai',
+  },
+};
 const isProd = process.env.NODE_ENV === 'production';
 
 const KNOWN_LOCALES = ['zh-Hans', 'en'];
+const ASK_AI_API_URL = 'https://wiki-data.camthink.ai';
+const ASK_AI_SITE_ID = 'camthink-wiki';
 
-// Umami 脚本动态注入（consent-gated，仅 production）。
-// 脚本加载后自动追踪 pageview（含 SPA 路由变化），无需手动 capture。
-function injectUmami() {
+// CamthinkTracker SDK 动态注入（consent-gated，仅 production）。
+// SDK 的 page_view 只在 init() 触发一次，不 hook history ——
+// SPA 路由切换的 page_view 由下方 location effect 手动补（CamthinkTracker.page()）。
+function injectTracker() {
   if (typeof document === 'undefined') return;
-  if (document.querySelector('script[data-umami]')) return;
+  if (document.querySelector('script[data-camthink-tracker]')) return;
   const s = document.createElement('script');
   s.async = true;
   s.defer = true;
-  s.src = UMAMI_SCRIPT_URL;
-  s.setAttribute('data-website-id', UMAMI_WEBSITE_ID);
-  s.setAttribute('data-umami', '');
-  s.onload = flushQueue;
+  s.src = TRACKER_SCRIPT_URL;
+  s.setAttribute('data-camthink-tracker', '');
+  s.onload = () => {
+    if (!window.CamthinkTracker) return;
+    window.CamthinkTracker.init(TRACKER_CONFIG); // 幂等：内部 f || ... guard
+    flushQueue(); // init 完成后清空缓冲事件，切换到直发模式
+  };
   document.head.appendChild(s);
 }
 
 if (isProd && typeof window !== 'undefined') {
-  if (hasConsent()) injectUmami();
+  if (hasConsent()) injectTracker();
   // consent 变化时注入（横幅未来接入点）
   window.addEventListener('consent-change', () => {
-    if (hasConsent()) injectUmami();
+    if (hasConsent()) injectTracker();
   });
 }
 
 export default function Root({ children }) {
   const location = useLocation();
+  const { i18n, siteConfig } = useDocusaurusContext();
+  const askAiWidgetEnabled = siteConfig.customFields?.askAiWidgetEnabled === true;
+  const askAiLanguage = getAskAiLanguage(i18n.currentLocale);
+
+  // Ask AI 仅在正式 Wiki 注入。先写入配置再追加脚本，确保 Widget 首次读取到
+  // 正确的站点身份、页面语言和当前文档上下文。
+  React.useEffect(() => {
+    if (!askAiWidgetEnabled || typeof window === 'undefined') return;
+    installAskAiWidget(window, document, true, {
+      apiUrl: ASK_AI_API_URL,
+      siteId: ASK_AI_SITE_ID,
+      ...(askAiLanguage ? { language: askAiLanguage } : {}),
+      pageContext: getAskAiPageContext(location.pathname),
+    });
+  }, [askAiWidgetEnabled, askAiLanguage]);
+
+  // Widget 在每次提问时读取 pageContext；因此站内导航只更新上下文，不重复加载脚本。
+  React.useEffect(() => {
+    if (!askAiWidgetEnabled || typeof window === 'undefined') return;
+    updateAskAiPageContext(window, getAskAiPageContext(location.pathname));
+  }, [askAiWidgetEnabled, location]);
 
   // --- B3：核心事件埋点（external_link_click / code_copy / search）---
   React.useEffect(() => {
@@ -50,7 +97,7 @@ export default function Root({ children }) {
         return;
       }
       // 排除站点自身域名及采集域名
-      if (url.hostname === window.location.hostname || url.hostname === 'wiki-data.camthink.ai') return;
+      if (url.hostname === window.location.hostname || url.hostname === 'analytics.camthink.ai') return;
       // --- B4 download：外链子集（特定后缀），附加捕获（不 short-circuit，
       // 让 external_link_click 与 download 同时记录 —— 二者维度不同）。
       if (/\.(pdf|zip|bin|hex|tar\.gz|dmg|exe)$/i.test(url.pathname)) {
@@ -151,6 +198,17 @@ export default function Root({ children }) {
   // location 变化时重置 lastDepth（否则换页后不再报 25/50/75/100）。
   React.useEffect(() => {
     lastDepthRef.current = 0;
+  }, [location]);
+
+  // --- CamthinkTracker SPA page_view：SDK 只在 init() 报首次 page_view，
+  // 不 hook history，故路由切换需手动补。首屏若 SDK 未就绪则跳过（init 已报首次）。
+  React.useEffect(() => {
+    if (!isProd || typeof window === 'undefined') return;
+    try {
+      window.CamthinkTracker?.page?.();
+    } catch (e) {
+      // SDK 未 init —— 静默跳过（init 时已报首次 page_view）
+    }
   }, [location]);
 
   // --- B4 language_switch：locale 前缀变化检测。

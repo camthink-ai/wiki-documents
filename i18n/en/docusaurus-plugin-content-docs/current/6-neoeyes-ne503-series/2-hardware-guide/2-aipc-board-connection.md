@@ -1,12 +1,16 @@
 ---
-description: NE503 interface board (STM32G0B0RET6) hardware interface pin definitions, distinguishing external interfaces, on-board resources, and debug interfaces, covering Alarm, RS-485, IR-CUT, light boards, LENS Driver, fan, RTC, and more.
-keywords: [NE503, STM32G0B0, interface board, IO configuration, pin definition, RS-485, IR-CUT, light board, hardware connection]
-tags: [NE503, interface board, IO configuration, STM32G0B0]
+description: NE503 interface-board external interfaces, on-board resources, debug interfaces, and key pin definitions.
+keywords: [NE503, STM32G0B0, interface board, IO configuration, pin definition, RS-485, IR-CUT, hardware connection]
+tags: [NE503, interface board, IO configuration, hardware connection]
 ---
 
 # Interface Board
 
-The interface board uses an independent MCU (STM32G0B0RET6) to manage external IO, power, and peripheral control, and communicates with the core processing board via UART0. Its key interfaces are distributed across two sides, with the external terminal block exposing PoE, Wiegand, alarm, and audio wiring. The annotated photos are shown below:
+The interface-board MCU manages external IO, power, and peripherals, and communicates with the core board over UART0. Its terminals provide PoE, Wiegand, alarm, and audio wiring.
+
+> Part numbers are for datasheet, driver, and debugging reference; follow the BOM and schematic for hardware changes.
+
+The annotated photos are shown below:
 
 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'stretch' }}>
   <div style={{ flex: '1', minWidth: '200px' }}>
@@ -31,25 +35,25 @@ The interface board uses an independent MCU (STM32G0B0RET6) to manage external I
 
 **On-Board Resources** — Implemented features:
 
-| # | Function | Chip/Module | Description | Category |
-|:--|:---------|:------------|:------------|:---------|
-| 3 | IR-CUT Driver | IR-CUT device | Day/night filter switching | Internal |
-| 4 | Light Sensor Detection | Photoresistor | ADC ambient light sampling | Internal |
-| 5 | IR Light Board Driver | External light board | Near/Far-IR LED PWM | Internal |
-| 6 | LENS Driver | AN41908A-VBA | SPI lens driver | Internal |
-| 7 | System LED | — | Blue status LED | Internal |
-| 8 | Temperature Sensor | LMT87DCK | ADC temperature sampling | Internal |
-| 9 | Bidirectional Reset | SN74LVC1G14DCK + PD8 | SoC resets MCU (chip) / MCU resets Processor Board (PD8) | Internal |
-| 10 | RTC | Supercapacitor | VBAT power-fail retention | Internal |
+| # | Function | Description | Category |
+|:--|:---------|:------------|:---------|
+| 3 | IR-CUT Driver | Day/night filter switching | Internal |
+| 4 | Light Sensor Detection | ADC ambient light sampling | Internal |
+| 5 | IR Light Board Driver | Near/Far-IR PWM | Internal |
+| 6 | LENS Driver | SPI lens driver | Internal |
+| 7 | System LED | Blue status LED | Internal |
+| 8 | Temperature Sensor | ADC temperature sampling | Internal |
+| 9 | Bidirectional Reset | SoC resets MCU / MCU resets Processor Board | Internal |
+| 10 | RTC | VBAT power-fail retention | Internal |
 
 **Internal Reserved Resources** — Reserved features, not yet enabled:
 
-| # | Function | Chip/Module | Description | Category |
-|:--|:---------|:------------|:------------|:---------|
-| 11 | Radar Power Enable | — | PB0 power control | Internal (Reserved) |
-| 12 | Dual-Light Board Driver | External light board | White/Red LED PWM | Internal (Reserved) |
-| 13 | Fan Driver | — | 12V fan enable | Internal (Reserved) |
-| 14 | Heater | — | 12V heater enable | Internal (Reserved) |
+| # | Function | Description | Category |
+|:--|:---------|:------------|:---------|
+| 11 | Radar Power Enable | PB0 power control | Internal (Reserved) |
+| 12 | Dual-Light Board Driver | White/Red LED PWM | Internal (Reserved) |
+| 13 | Fan Driver | 12V fan enable | Internal (Reserved) |
+| 14 | Heater | 12V heater enable | Internal (Reserved) |
 
 **Debug Interfaces** — For development and debugging:
 
@@ -114,7 +118,7 @@ The interface board controls external light boards via PWM (independent physical
 
 ### LENS Driver (AN41908A-VBA)
 
-The MCU SPI1 interface controls the AF auto-zoom and autofocus lens module. The SoC-side SPI CS1 is also connected to the same chip (default control path), while the MCU side handles lens homing and limit protection.
+The MCU SPI1 interface provides the control path for the installed lens module. The AN41908A-VBA entry on this page corresponds to the documented board-level driver device; the product offers `AF Lens (44.5° HFOV)` or `Motorized Zoom (110° HFOV)`, while the actual lens capabilities, driver device, and firmware controls depend on the specific SKU/BOM. The SoC-side SPI CS1 is also connected to this driver path (default control path), while the MCU side handles lens homing and limit protection.
 
 | Pin | Function |
 |:---|:---|
@@ -205,7 +209,7 @@ MCU SWD debug port for firmware flashing and online debugging.
 
 ### UART1 (Debug Serial Port)
 
-| Pin | Function |
-|:---|:---|
-| PA10 | USART1_RX (Receive) |
+| Pin | Function | Notes |
+|:---|:---|:---|
+| PA10 | USART1_RX (Receive) | — |
 | PA9 | USART1_TX (Transmit) | Mutually exclusive with Alarm_OUT1, only one can be used at a time |

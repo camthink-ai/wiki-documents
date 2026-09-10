@@ -11,7 +11,7 @@ tags: [硬件组件, NE300, 开发板, 接口定义, 硬件资源]
 
 ## 主板概述
 
-主板搭载STM32N657L0H3芯片，并连接有64MB外部PSRAM和128MB外部Flash。STM32U073KBU6芯片作为电源管理以及超低休眠功耗实现。配有wifi芯片SiWN917M100LGTBA，支持单频2.4G的WIFI6（IEEE 802.11 b/g/n/ax）和Bluetooth5.4。支持拓展cat-1无线通信模组，以及拓展有GPIO用于其他的二次开发。标配OS04C10摄像头模组，并可选配USB摄像头模组。核心特性：
+主板搭载STM32N657L0H3芯片，并连接有64MB外部PSRAM和128MB外部Flash。V1.1–V1.3 配置 STM32U073KBU6，用于电源管理和超低功耗休眠；V1.0 为初始电源架构，不含该 U0 控制芯片。配有wifi芯片SiWN917M100LGTBA，支持单频2.4G的WIFI6（IEEE 802.11 b/g/n/ax）和Bluetooth5.4。支持拓展cat-1无线通信模组，以及拓展有GPIO用于其他的二次开发。标配OS04C10摄像头模组，并可选配USB摄像头模组。核心特性：
 
 * **主控芯片**：板载STM32N657L0H3微控制器，集成Arm® Cortex®-M55内核，最高工作频率可达800MHz，ST Neural-ART Accelerator, frequency up to1 GHz, 600 Gops, 288 MAC/cycle。
 
@@ -31,7 +31,7 @@ tags: [硬件组件, NE300, 开发板, 接口定义, 硬件资源]
 
 * **一键断电**：通过滑动开关实现一键切断电池电源输入。
 
-* **外拓传感器模组**：支持外部Alarm IO报警输入，PIR模组输入，或者其余传感器输入。
+* **外拓传感器模组**：支持外部Alarm IO 报警输入及其他传感器输入；独立 PIR 接口仅适用于 V1.3，其他版本请按接口表确认。
 
 * **丰富的可扩展IO**：SPI+I2C+UART+SAI（音频接口，可兼容I2S）+普通GPIO等
 

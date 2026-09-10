@@ -268,6 +268,8 @@ neomind extension reload <extension_id>
 
 Common crash causes: missing model files, invalid API keys, port conflicts, ABI version mismatches.
 
+Hung extensions (process alive but unresponsive) are covered too: the host sends a liveness probe every 30 seconds and, after repeated failures, kills and restarts the process through the same recovery machinery as crashes. An extension shown as **Crashed** in the list stopped because it crashed (not manually stopped); hover for the reason and consecutive-crash count.
+
 ## Using Extension Data
 
 ### In Dashboards
@@ -314,6 +316,10 @@ During execution, the Agent automatically invokes extension commands to close th
   ]
 }
 ```
+
+## Install Integrity
+
+Marketplace installs verify each package's SHA256 (from the `checksums.txt` shipped with the release assets); a mismatch refuses the install. Deployments that want stronger guarantees can set `NEOMIND_STRICT_PACKAGE_SHA256=1` — packages without integrity data are rejected outright. Locally installed `.nep` files go through path-traversal and zip-bomb defenses, and symlink entries are always rejected.
 
 ## Extension Package Format (.nep)
 

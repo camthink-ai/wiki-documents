@@ -52,6 +52,7 @@ API Key 不依赖用户会话，可设过期时间与权限范围。
 少数端点无需鉴权：
 
 - `/api/health` / `/health/status` / `/health/live` / `/health/ready`
+- `/api/metrics`（Prometheus 文本格式运行指标：HTTP 请求计数、EventBus 丢弃事件数、运行时长与版本——可直接接入 Prometheus 抓取）
 - `/api/system/network-info`
 - `/api/auth/status` / `/auth/verify`
 - `/api/auth/login` / `/auth/register`

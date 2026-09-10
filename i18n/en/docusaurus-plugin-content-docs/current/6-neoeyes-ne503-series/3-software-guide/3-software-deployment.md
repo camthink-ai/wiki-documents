@@ -1,230 +1,103 @@
 ---
-description: NE503 platform software deployment guide, covering release package deployment, service dependencies, iterative development, and deployment verification.
-keywords: [NE503, deployment, deploy.sh, systemd, iterative development]
-tags: [platform development, NE503, deployment, operations]
+description: NE503 platform software installation and upgrade guide covering Web upgrade, SSH deployment, version verification, and rollback.
+keywords: [NE503, platform software, Web upgrade, OTA, deploy.sh, release package]
+tags: [application guide, NE503, software deployment, operations]
 ---
 
 # Software Deployment
 
-This document explains how to deploy the NE503 platform software release package to a device. Platform software includes platform services, HAL libraries, and the Web console. This is distinct from system image (hailo-os) flashing — see [System Flashing](./2-system-flashing.md) for that.
+This page covers installation and upgrade of the NE503 platform software release package (`.tar.gz`). The system OS uses a `.swu` package.
 
-> Prerequisites: Complete the environment setup and build process in [Developer Guide](./1-developer-guide.md) to produce the `build/release/aipc-hailo15-<version>.tar.gz` release package.
+## 1. Prepare the Release Package
 
-## 1. Service Dependencies
+Download `aipc-hailo15-<version>.tar.gz` from [neoruntime Releases](https://github.com/camthink-ai/neoruntime/releases).
 
-NE503 runs multiple platform services managed by systemd with ordered startup:
+Before starting, confirm that:
 
-```mermaid
-graph LR
-    FB[aipc-firstboot] --> HM[aipc-healthmon]
-    FB --> EB[event-bus]
-    FB --> CD[camera-daemon]
-    FB --> ER[ai-runtime]
-    FB --> DC[device-control]
-    FB --> DD[device-discovery]
-    EB --> AM[app-manager]
-    ER --> AM
-    ER --> PA[platform-api]
-    AM --> PA
-    DC --> PA
-    EB --> PA
-```
+- The target is an NE503 device and the Web console or SSH is available.
+- Web upgrade uses an administrator account; SSH deployment requires `root` privileges.
+- `/data` is writable and has enough space: `df -h /data`.
+- Record the current `Firmware Version`. Keep power and network connectivity stable during the upgrade.
 
-| Service | Language | Dependencies |
-|---------|----------|-------------|
-| aipc-firstboot | Shell | None (oneshot, runs before all services) |
-| aipc-healthmon | Shell | aipc-firstboot (black-box health sampler, resident) |
-| event-bus | Go | None |
-| camera-daemon | C++ | None |
-| ai-runtime | C++ | containerd |
-| device-control | Go | None |
-| device-discovery | Go | None |
-| app-manager | Go | event-bus + ai-runtime + containerd |
-| platform-api | Go | event-bus + ai-runtime + app-manager + device-control |
+## 2. Upgrade Through the Web Console
 
-> containerd is not listed above but is required by ai-runtime and app-manager. Ensure it is enabled: `systemctl enable containerd`.
+Use this method when the device is running and reachable through the Web console.
 
-## 2. Release Package Deployment
+1. Open `https://<device-ip>` and sign in with an administrator account.
+2. Open `Settings → Device Info`.
+3. Under `Firmware & Hardware`, find `Firmware Version` and click its `Update` button. Do not click `Update` beside `System OS Version`.
 
-### 2.1 Transfer Package
+   ![Firmware Update dialog](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/software-guide/software-deployment/software-upgrade.jpg)
+
+4. Upload one `aipc-hailo15-<version>.tar.gz` file.
+5. Confirm that power is stable, select `I understand and wish to continue with the upgrade`, and click `Confirm Update`.
+6. Wait for upload, writing, and reboot to finish. Do not refresh the page, click again, or cut power.
+7. After the device comes back online, sign in again and verify `Firmware Version`.
+
+**Success:** the device is online again, you can sign in, and `Firmware Version` shows the target version. If `Device offline` appears, check power and network, then click `Re-detect`.
+
+## 3. Install or Upgrade Through SSH
+
+Use `deploy.sh` when the Web entry is unavailable or command-line deployment is required:
 
 ```bash
 scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/data/
-```
-
-### 2.2 Execute Deployment
-
-```bash
 ssh root@<device-ip>
-# root partition is nearly full (3.3G, 99% used); extract directly in /data
-cd /data && tar xzf aipc-hailo15-<version>.tar.gz
-cd aipc-hailo15-<version> && ./deploy.sh --prefix /data/aipc
+cd /data
+tar xzf aipc-hailo15-<version>.tar.gz
+cd aipc-hailo15-<version>
+./deploy.sh
 ```
 
-Expected output (key stages excerpted; per-file `+ xxx -> ...` logs omitted):
+When `Proceed with deployment? [y/N]` appears, verify the target and enter `y`. Success includes:
 
-```plaintext
-[deploy]   AIPC Hot-swap Deploy
-[deploy]   Current version:  unknown (first deploy) or previous version
-[deploy]   Package version:  1.0.0
-[deploy]   Config deploy:    yes
-[deploy]   Install prefix:   /data/aipc
-Proceed with deployment? [y/N] y
-[deploy] [1/8] Creating runtime directories...
-[deploy] [2/8] Backing up current installation...
-[deploy] [3/8] Stopping services for hot-swap...
-[deploy] [4/8] Deploying binaries...
-[deploy] [5/8] Deploying firstboot initialization script...
-[deploy] [6/8] Deploying HAL libraries...
-[deploy] [7/8] Deploying configs and systemd units...
-[deploy] [8/8] Starting services...
-[deploy] Running health checks (timeout 15s)...
-[deploy] Service status:
-[deploy]   aipc-healthmon: active
-[deploy]   event-bus: active
-[deploy]   camera-daemon: active
-[deploy]   ai-runtime: active
-[deploy]   platform-api: active
-[deploy]   app-manager: active
-[deploy]   device-control: active
-[deploy]   device-discovery: active
+```text
 [deploy]   Deploy successful!
-[deploy]   Version: 1.0.0
+[deploy]   Version: <version>
 ```
 
-### 2.3 deploy.sh Options
+The install path is `/data/aipc`. Incompatible packages do not stop the existing services.
 
-| Option | Description |
-|--------|-------------|
-| `--prefix /data/aipc` | Install to specified directory (recommended: `/data` — root partition is 3.3G / 99% used, only ~60M free) |
-| `--force` | Force deployment, skip confirmation prompts |
-| `--rollback` | Roll back to previous version |
-| `--status` | Display current deployment status |
-| `--no-config` | Skip config file overwrite (preserve device config) |
+Common options:
 
-Complete examples:
+| Option | Effect |
+|:---|:---|
+| `--no-config` | Preserve the device's existing configuration |
+| `--status` | Show the current version and backup information |
+| `--rollback` | Restore the previous version from the latest backup |
+
+## 4. Verify or Roll Back
+
+After signing in again, open `Settings → Device Info` and confirm that `Firmware Version` has changed.
+
+A firmware upgrade also updates the MCU. To query the MCU version, run:
 
 ```bash
-./deploy.sh --prefix /data/aipc --force    # Deploy to /data partition
-./deploy.sh --rollback                      # Roll back to previous version
-./deploy.sh --status                        # Check deployment status
+aipc-cli device status
 ```
 
-## 3. Iterative Development
+Confirm `Version` in the `MCU` section of the output:
 
-During development, you can replace individual service binaries without a full deployment.
+```text
+MCU:
+  Version:      0.1.8.0
+```
 
-### 3.1 Manual Single Service Replacement
+Verify the version through SSH:
 
 ```bash
-scp build/output/device-control root@<device-ip>:/opt/aipc/bin/
-ssh root@<device-ip> "systemctl restart device-control"
+cat /data/aipc/VERSION
 ```
 
-If `/opt` runs low on space (root partition 3.3G, 99% used, ~60M free), deploy to `/data` instead:
+**Success:** the command prints the complete `VERSION` content and the version matches the target. To roll back, run the following from the release package directory:
 
 ```bash
-scp build/output/device-control root@<device-ip>:/data/aipc/bin/
+./deploy.sh --rollback
 ```
 
-### 3.2 Make Deploy Targets
+Rollback requires an available device backup.
 
-The Makefile provides automated deployment commands:
+## 5. Related Documentation
 
-```bash
-make setup-ssh TARGET=root@<device-ip>          # First time: configure SSH key auth
-make deploy-init TARGET=root@<device-ip>         # First time: initialize directory structure
-make deploy-all TARGET=root@<device-ip>          # Per-service build + scp + restart
-```
-
-Specify `/data` partition:
-
-```bash
-make deploy-all TARGET=root@<device-ip> REMOTE_PREFIX=/data/aipc
-```
-
-## 4. Release Package Contents
-
-`aipc-hailo15-<version>.tar.gz` contains:
-
-| Path | Contents |
-|------|----------|
-| `opt/aipc/bin/` | Platform service binaries + CLI + tools |
-| `opt/aipc/scripts/` | Ops scripts (firstboot / healthmon / logrotate) |
-| `opt/aipc/lib/hal/` | HAL shared libraries |
-| `opt/aipc/etc/` | YAML configuration |
-| `opt/aipc/etc/security/` | seccomp policies |
-| `opt/aipc/web/` | Web console |
-| `opt/aipc/swagger-ui/` | API documentation |
-| `opt/aipc/models/` | Model directory (empty, requires separate download) |
-| `systemd/` | systemd service units |
-| `deploy.sh` | Hot-swap deployment script |
-| `VERSION` | Version metadata |
-
-## 5. Deployment Verification
-
-After deployment, run the following checks on the device:
-
-```bash
-# 1. Service status (all should be active)
-systemctl status ai-runtime camera-daemon app-manager event-bus device-control device-discovery platform-api
-```
-
-Expected output:
-
-```plaintext
-● ai-runtime.service - AI Runtime Service
-     Loaded: loaded (/etc/systemd/system/ai-runtime.service)
-     Active: active (running)
-```
-
-```bash
-# 2. Binary architecture (should be ARM aarch64)
-file /opt/aipc/bin/ai-runtime
-# ELF 64-bit LSB pie executable, ARM aarch64
-
-# 3. HAL libraries
-ls -l /opt/aipc/lib/hal/libaipc_hal*.so
-
-# 4. NPU device
-lsmod | grep hailo && ls -la /dev/hailo*
-
-# 5. Web console
-curl -s http://localhost:8080/ | head -1
-# <!DOCTYPE html>
-```
-
-Access the Web console at `http://<device-ip>:8080` with default credentials `admin` / `password`.
-
-## 6. Troubleshooting
-
-### containerd Not Running
-
-If app-manager fails to start, check containerd:
-
-```bash
-systemctl enable containerd && systemctl start containerd
-```
-
-### "exec format error"
-
-Binary architecture mismatch between build output and device:
-
-```bash
-file build/output/ai-runtime    # Should be ARM aarch64
-ssh root@<device-ip> "uname -m" # Device should report aarch64
-```
-
-### Service Fails to Start
-
-Check service logs to diagnose:
-
-```bash
-journalctl -u <service-name> -n 50 --no-pager
-```
-
-## 7. Related Documentation
-
-- [Developer Guide](./1-developer-guide.md) — Environment setup and building
-- [System Architecture](./0-system-architecture.md) — Four-layer architecture and core services
-- [System Flashing](./2-system-flashing.md) — System image flashing
+- [Troubleshooting](../5-troubleshooting.md) — Service, network, and storage issues
+- [NeoRuntime deployment guide](https://github.com/camthink-ai/neoruntime/blob/main/docs/deployment/DEPLOYMENT.md) — `deploy.sh` reference

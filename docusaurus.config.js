@@ -36,6 +36,18 @@ const configuredPlugins = [
           from: '/',
           to: '/docs',
         },
+        {
+          from: '/docs/neoeyes-ne503-series/user-guide/device-management-tools',
+          to: '/docs/neoeyes-ne503-series/user-guide/device-maintenance',
+        },
+        {
+          from: '/docs/neoeyes-ne503-series/user-guide/deployment',
+          to: '/docs/neoeyes-ne503-series/user-guide/device-maintenance',
+        },
+        {
+          from: '/docs/neoeyes-ne503-series/application-guide/hello-world',
+          to: '/docs/neoeyes-ne503-series/application-guide/cookbook/hello-world',
+        },
       ],
     }
   ],
@@ -63,6 +75,9 @@ const config = {
   /* GitHub / Cloudflare 共用（由上方动态注入） */
   url: SITE_URL,
   baseUrl: BASE_URL,
+  customFields: {
+    askAiWidgetEnabled: SITE_URL === 'https://wiki.camthink.ai',
+  },
 
 
   /* GitHub Pages 部署 (org/user & repo) — 不在 GitHub 可忽略 */

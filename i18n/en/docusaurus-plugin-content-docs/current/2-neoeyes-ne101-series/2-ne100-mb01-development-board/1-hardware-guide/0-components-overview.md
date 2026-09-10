@@ -23,7 +23,7 @@ Key Features:
 - One-touch snapshot function  
 - External Alarm IO input or PIR Module input  
 - Expansion GPIOs for secondary development  
-- Type-C based debug UART  
+- Type-C based debug UART
 
 ## **Camera Module Overview**
 

@@ -167,7 +167,7 @@ virtual.paddle_ocr_v6.inference_time_ms // 单帧推理耗时（ms）
 
 **商品标签**：相机对准货架价签或传送带标签，ROI 框住文字主区（品名、SKU、价格、批次），多标签用多 ROI。返回文字可推送 ERP、对账系统，或在仪表板汇总为「本次识别到的 SKU 列表」。
 
-> 复杂版面（表格、票据、扭曲文档）建议换 [`paddle-ocr-vl`](./5-paddle-ocr-vl.md)（VLM，需 GPU 服务）。
+> 复杂版面（表格、票据、扭曲文档）建议换 `paddle-ocr-vl`（VLM，需 GPU 服务）。
 
 ### 6.2 目标检测
 
@@ -261,7 +261,6 @@ NeoMind 共有三个 OCR 扩展，都能接入本篇同一条 `processingExtensi
 - [通用 OCR 方案](./2-ocr-text-extraction.md)
 - [目标检测应用案例](./1-object-detection.md)
 - [人脸识别方案](./3-face-recognition.md)
-- [PaddleOCR-VL 文档理解](./5-paddle-ocr-vl.md)
 - [LocateAnything 视觉定位](./6-locate-anything-v2.md)
 - [DeepStream 多路视频分析（NG4500）](./7-deepstream-ng4500.md)
 - [扩展管理](../user-guide/9-extensions.md)

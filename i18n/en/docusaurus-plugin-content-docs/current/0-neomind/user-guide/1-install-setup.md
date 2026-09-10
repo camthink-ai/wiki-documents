@@ -48,6 +48,10 @@ On first launch, NeoMind runs a **setup wizard** with four steps (skippable at a
 3. **Devices** — connect/approve devices
 4. **Done** — enter the main UI
 
+:::note Self-registration is off by default
+`POST /api/auth/register` is closed by default for security (the server binds `0.0.0.0`, and open registration would let any device on the LAN mint an account). To add users, have an admin create them in **Settings → Users** (or via `POST /api/users`); if you truly need open self-registration, an admin can enable it with `PUT /api/settings/registration`.
+:::
+
 > Skipping LLM configuration is fine — the first time you use AI Chat or create an Agent, the system guides you through it again. For details on built-in local models, see [Configure LLM Backend](./2-configure-llm.md).
 
 ## Server One-Line Install (Linux / macOS)
@@ -246,7 +250,21 @@ systemctl status neomind.service
 
 For common issues (port conflicts, LLM connection failures, MQTT unreachable), see [Troubleshooting](./10-troubleshooting.md).
 
-## CLI & API Key
+## Data Backup & Restore
+
+NeoMind includes scheduled backups: **Settings → Preferences → Data Backup** lets you toggle scheduled backups, adjust the interval (6h–weekly) and retention count (default 3), and shows the last backup's time and size; admins can also trigger one immediately with **Back up now**.
+
+- What's backed up: every database in the data directory (devices, agents, dashboards, telemetry, …) plus the key files
+- Where: `data/backups/backup-<timestamp>/` — every backup is verified as restorable; a failed verification discards the whole copy
+- Env vars seed the defaults: `NEOMIND_BACKUP_INTERVAL_SECS` (`0` disables), `NEOMIND_BACKUP_KEEP`
+
+**Restoring** (deliberately manual — an automated rollback could silently revert to stale data): stop the server → copy the files from a backup directory back into the data directory → start the server.
+
+## Extension Marketplace Source
+
+The default extension marketplace is hosted on GitHub (`raw.githubusercontent.com`), which some networks cannot reach directly. Admins can switch to a mirror in **Settings → Preferences → Extension Marketplace** (e.g. `https://ghfast.top/https://raw.githubusercontent.com/camthink-ai/NeoMind-Extensions`); it takes effect on the next marketplace request with no restart. `NEOMIND_EXTENSION_MARKET_URL` seeds the default. **Note**: after switching, package integrity (SHA256) is verified against the mirror's artifacts.
+
+## CLI API Key Setup
 
 `neomind` CLI and external integrations authenticate to the Server API with an **API key** (auto-generated on first start, format `nmk_xxx`). When run from the project root, the CLI auto-authenticates with no setup.
 

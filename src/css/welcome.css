@@ -1439,8 +1439,11 @@
 }
 
 .slide-image-container img {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     height: auto;
+    /* 竖版产品图（如 NE302 674x1210）限高，防止撑爆轮播容器；横图由 max-width 约束，行为不变 */
+    max-height: 400px;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
     transition: transform 0.3s ease;
 }

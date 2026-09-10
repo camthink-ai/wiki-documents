@@ -1,12 +1,14 @@
 ---
-description: NE503 核心处理板（Hailo15H）硬件资源与接口定义，涵盖 SoC 内建资源、板载 I2C 设备、高速接口及通过连接器扩展的功能接口。
-keywords: [NE503, Hailo15H, 核心处理板, IO配置, 引脚定义, LPDDR4, eMMC, IMX678, 硬件连接]
-tags: [NE503, 核心处理板, IO配置, Hailo15H]
+description: NE503 核心处理板的硬件资源、接口连接和主要电气参数，涵盖存储、总线、传感器与调试引脚。
+keywords: [NE503, 核心处理板, IO配置, 引脚定义, LPDDR4, eMMC, 硬件连接]
+tags: [NE503, 核心处理板, IO配置, 硬件连接]
 ---
 
 # Core Board
 
-核心处理板承载 Hailo15H SoC、NPU、内存、存储子系统，通过板对板连接器（Board-to-Board Connectors）与接口板互联，引出 SoC 原生高速接口和扩展引脚。本文档从 chip-level 视角描述核心板上的硬件资源及引脚定义。
+核心处理板提供 SoC、NPU、内存、存储及连接接口板的高速接口和扩展引脚。
+
+> 器件型号供查阅数据手册、驱动和调试资料；硬件变更以 BOM 和原理图为准。
 
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/core-board-connection/core-board-annotation.png" alt="NE503 核心处理板接口标注" style={{ width: '60%', height: 'auto' }} />
 
@@ -14,13 +16,13 @@ tags: [NE503, 核心处理板, IO配置, Hailo15H]
 
 NE503 由以下物理模组组成：
 
-| 模组 | 主控芯片 | 说明 |
-|:-----|:---------|:-----|
-| 核心处理板 | Hailo15H SoC | SoC、NPU、内存、存储、I2C 传感器、PCIe 时钟、以太网 PHY |
-| 接口板 | STM32G0B0RET6 | MCU 管理外部 IO、电源、外设控制，板上集成 TF 卡座（详见 [Interface Board](./2-aipc-board-connection.md)） |
-| 传感器板 | IMX678-AAQR1-C | 4K CMOS 图像传感器，通过 FPC 连接器接入 |
-| 灯板 | — | 双光灯板（白光/红光 PWM）+ 红外灯板（近/远红外 PWM） |
-| 镜头模组 | AN41908A-VBA | AF 自动变焦与自动对焦镜头驱动 |
+| 模组 | 说明 |
+|:-----|:-----|
+| 核心处理板 | SoC、NPU、内存、存储、I2C 传感器、PCIe 时钟、以太网 PHY |
+| 接口板 | MCU 管理外部 IO、电源、外设控制，板上集成 TF 卡座（详见 [接口板](./2-aipc-board-connection.md)） |
+| 传感器板 | 4K CMOS 图像传感器，通过 FPC 连接器接入 |
+| 灯板 | 双光灯板（白光/红光 PWM）+ 红外灯板（近/远红外 PWM） |
+| 镜头模组 | 可选 `AF Lens (44.5° HFOV)` 或 `Motorized Zoom (110° HFOV)`；驱动器件与控制能力以具体配置为准 |
 
 核心板与接口板通过板对板连接器互联：核心板提供 SoC 原生引脚，接口板上的设备通过连接器挂接到这些引脚。
 
@@ -32,38 +34,38 @@ NE503 由以下物理模组组成：
 
 **核心板板载资源** — 物理焊接在核心处理板上：
 
-| # | 功能 | 芯片型号 | 类别 |
+| # | 功能 | 主要参数 | 类别 |
 |:--|:-----|:---------|:-----|
-| 1 | LPDDR4 | MT53E2G32D4DE-046 WT:C | SoC 内建 |
-| 2 | eMMC | SDINBDA6-64G-H | SoC 内建 |
-| 3 | QSPI Flash | IS25WP064D-JKLE | SoC 内建 |
-| 4 | 温度传感器 | TMP1075DSGR | 板载 I2C |
-| 5 | 陀螺仪 | LSM6DSR | 板载 I2C |
-| 6 | EEPROM | AT24C02D | 板载 I2C |
-| 7 | PCIe 时钟 | PI6CG18201 | 板载 I2C |
-| 8 | PCIe & USB | Hailo15H 内置 | SoC 高速接口 |
-| 9 | 以太网 PHY | LAN8720AI | 板载 RMII |
+| 1 | LPDDR4 | 4 GB / 8 GB | SoC 内建 |
+| 2 | eMMC | 64 GB | SoC 内建 |
+| 3 | QSPI Flash | 8 MB，四线 SPI | SoC 内建 |
+| 4 | 温度传感器 | I2C1，12 bit，0.0625°C | 板载 I2C |
+| 5 | 陀螺仪 | I2C2，±16 g / ±4000 dps | 板载 I2C |
+| 6 | EEPROM | I2C1，2 Kb | 板载 I2C |
+| 7 | PCIe 时钟 | I2C1，25 MHz，0.3 ps | 板载 I2C |
+| 8 | PCIe & USB | 原生 PCIe Gen4 与 USB | SoC 高速接口 |
+| 9 | 以太网 PHY | 10/100M RMII，IO 1.6V ~ 3.6V | 板载 RMII |
 
 **通过连接器扩展的资源** — 物理位于接口板或外部模组，通过核心板连接器引脚挂接：
 
-| # | 功能 | 芯片/模组 | 连接方式 | 类别 |
-|:--|:-----|:----------|:---------|:-----|
-| 10 | 图像传感器 | IMX678-AAQR1-C | MIPI CSI-2 + I2C0 | 内部预留 |
+| # | 功能 | 主要参数 | 连接方式 | 类别 |
+|:--|:-----|:---------|:---------|:-----|
+| 10 | 图像传感器 | 4K CMOS | MIPI CSI-2 + I2C0 | 内部预留 |
 | 11 | TF 卡 | — | SDIO0 + GPIO | 整机接口 |
 | 12 | 调试串口 | — | UART0 | 调试接口 |
 | 13 | BOOT 模式 | — | BOOT0/BOOT1 | 调试接口 |
-| 14 | 镜头驱动 | AN41908A-VBA | SPI（CS1） | 内部预留 |
-| 15 | 音频编解码 | NAU88C10 | I2S + I2C0 | 内部预留 |
+| 14 | 镜头驱动 | — | SPI（CS1） | 内部预留 |
+| 15 | 音频编解码 | I2C0 地址 0x1A | I2S + I2C0 | 内部预留 |
 | 16 | 雷达模组 | — | UART2 + GPIO | 内部预留 |
-| 17 | MCU 复位控制 | SN74LVC1G14DCK | GPIO | 内部预留 |
+| 17 | MCU 复位控制 | 双向复位 | GPIO | 内部预留 |
 
 ## SoC 内建资源
 
 以下资源通过 SoC 原生接口直连，物理焊接在核心处理板上。
 
-### LPDDR4（MT53E2G32D4DE-046 WT:C）
+### LPDDR4（当前记录的 8 GB 配置：MT53E2G32D4DE-046 WT:C）
 
-8 GB LPDDR4，4266 Mb/s，8.5 GB/s 单通道带宽。
+NE503 提供 4 GB 和 8 GB LPDDR4 配置。当前记录的 8 GB 配置使用 MT53E2G32D4DE-046 WT:C，速率为 4266 Mb/s，单通道带宽为 8.5 GB/s；4 GB 配置参数以对应 BOM 为准。
 
 | 引脚 | 功能 |
 |:---|:---|
@@ -101,7 +103,7 @@ NE503 由以下物理模组组成：
 
 ### PCIe & USB
 
-Hailo15H SoC 原生 PCIe Gen4 与 USB 接口。PCIe 时钟由板载 PI6CG18201 提供。
+Hailo-15H SoC 原生 PCIe Gen4 与 USB 接口。PCIe 时钟由板载 PI6CG18201 提供。
 
 ### 以太网 PHY（LAN8720AI）
 
@@ -183,9 +185,9 @@ I2C1 从设备地址 **0x6A**，25 MHz，PCIe Gen4 低抖动 0.3 ps。
 | H_I2C0_SDA | I2C0 数据线 |
 | H_I2C0_SCL | I2C0 时钟线 |
 
-### 镜头驱动（SPI CS1）
+### 镜头驱动
 
-核心板 SPI 总线通过 CS1 片选引出，连接 AN41908A-VBA AF 自动变焦与自动对焦镜头驱动。与 QSPI Flash 共享 SPI 总线，通过不同片选区分。MCU 侧 SPI1 也连接同一芯片，负责镜头归零与限位保护（详见 [Interface Board](./2-aipc-board-connection.md)）。
+核心板 SPI 总线通过 CS1 片选引出，为镜头驱动提供控制路径，并与 QSPI Flash 共享 SPI 总线、通过不同片选区分。本文的板级记录对应 AN41908A-VBA 驱动器件；实际安装的镜头选项、驱动器件以及自动对焦/变焦能力以具体 SKU、BOM 和固件为准。MCU 侧 SPI1 负责镜头归零与限位保护（详见 [接口板](./2-aipc-board-connection.md)）。
 
 | 引脚 | 功能 |
 |:---|:---|
@@ -237,7 +239,7 @@ I2C1 从设备地址 **0x6A**，25 MHz，PCIe Gen4 低抖动 0.3 ps。
 
 ### GPIO（MCU 复位控制）
 
-核心板 GPIO18 引脚通过连接器引出，挂接 SN74LVC1G14DCK 复位芯片用于复位接口板 MCU（STM32G0B0）。反向地，MCU 也可通过 PD8（POWER_RST）复位核心处理板（详见 [Interface Board](./2-aipc-board-connection.md)）。
+核心板 GPIO18 引脚通过连接器引出，挂接 SN74LVC1G14DCK 复位芯片用于复位接口板 MCU（STM32G0B0）。反向地，MCU 也可通过 PD8（POWER_RST）复位核心处理板（详见 [接口板](./2-aipc-board-connection.md)）。
 
 | 引脚 | 功能 |
 |:---|:---|

@@ -223,6 +223,10 @@ cd web && npm run tauri:build
 
 跳过的项目随时补配：[配置 LLM 后端](./2-configure-llm.md)、[接入设备](./3-onboard-device.md)。完成后即可用 [AI Chat](./5-ai-chat.md) 对话、搭 [仪表板](./4-use-dashboard.md)、建自动化规则。
 
+:::note 自助注册默认关闭
+`POST /api/auth/register` 出于安全考虑默认关闭（服务器默认监听 `0.0.0.0`，开放的注册意味着局域网内任何设备都能创建账号）。添加用户请由管理员在 **Settings → Users** 中创建（或调用 `POST /api/users`）；如确需开放自助注册，管理员可调用 `PUT /api/settings/registration` 开启。
+:::
+
 ## 用户与角色
 
 - **首个管理员**来自首次启动向导，拥有全部权限
@@ -246,7 +250,21 @@ systemctl status neomind.service
 
 常见问题（端口占用、LLM 连接失败、MQTT 不通）见 [故障排查](./10-troubleshooting.md)。
 
-## CLI 与 API Key
+## 数据备份与恢复
+
+NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可开关定时备份、调整备份间隔（6 小时～每周）与保留份数（默认 3 份），并显示最近一次备份的时间与大小；管理员还可点击 **立即备份** 手动触发。
+
+- 备份内容：数据目录下全部数据库（设备、Agent、仪表板、遥测等）与密钥文件
+- 备份位置：`data/backups/backup-<时间戳>/`，每个备份都经过可恢复性验证，验证失败会整体丢弃不留半成品
+- 也可用环境变量做初始默认：`NEOMIND_BACKUP_INTERVAL_SECS`（`0` 关闭）、`NEOMIND_BACKUP_KEEP`
+
+**恢复**（刻意设计为手动操作，避免自动回滚到过期数据）：停止服务 → 将备份目录内的文件拷回数据目录 → 启动服务。
+
+## 扩展市场源
+
+默认扩展市场托管在 GitHub(`raw.githubusercontent.com`),部分网络无法直连。管理员可在 **Settings → Preferences → 扩展市场源** 切换为镜像地址(例如 `https://ghfast.top/https://raw.githubusercontent.com/camthink-ai/NeoMind-Extensions`),保存后下一次市场请求即生效,无需重启;也可用环境变量 `NEOMIND_EXTENSION_MARKET_URL` 作为初始默认。**注意**:切换后安装包的完整性校验(SHA256)针对镜像源的产物生效。
+
+## CLI API Key 配置
 
 `neomind` CLI 与外部系统调用 Server API 需要有效的 API Key（首次启动自动生成，格式 `nmk_xxx`）。本地开发在项目根目录运行 CLI 可免配置（auto-auth）。
 

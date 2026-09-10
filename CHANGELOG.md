@@ -6,6 +6,82 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-09-09]
+
+### Changed
+- **NeoEyes NE503 AI Demo download**: The Model Showcase bundle is now distributed as `.neoapp` instead of `.tar.gz`. Quick Start, Resources, and the Parking Lot Cookbook now point to the current `neoruntime-apps` release assets, and the install steps upload the `.neoapp` file directly via Import → Upload Package without manual extraction (full bilingual support).
+- **NeoEyes NE302 Interface Board images**: Replaced the interface board photos on the product overview, components overview, hardware connection, build & flash, and quick start pages with the latest board revision shots (annotated programming/storage maps and the board-assembly photo), and aligned connector names in the text with the new callouts (`N6_UART`, `N6_STLINK`); added an IR-CUT header row noting its control path as unverified (full bilingual support).
+
+## [2026-09-01]
+
+### Changed
+- **NeoEyes NE101 Hardware Connection**: Consolidated version-specific wiring guidance into the affected interface tables. The power-control, PIR, and V2.0 RTC tables now identify their applicable board revisions and GPIO assignments, including the V2.0 TF-card/module-power sharing constraint and RTC I2C sharing with the camera (full bilingual support).
+- **NeoEyes NE301 Hardware Documentation**: Added revision-aware wiring for V1.0–V1.3 across the product overview, component overview, and hardware connection guide. The update distinguishes Wi-Fi/J12 SPI mappings, battery and Wi-Fi power-control GPIOs, U0 availability, UART VCC_IN compatibility, PIR/ISP wiring, and the V1.3 IR-CUT header (full bilingual support).
+
+## [2026-08-26]
+
+### Added
+- **NE503 Resources**: Added an Application Guide entry page linking to the NeoRuntime platform, SDKs, sample apps, APIs, Event Bus protocol, and prebuilt application bundles on GitHub.
+
+### Changed
+- **NE503 Application Guide structure adjusted**: Removed the `1-app-development/` subdirectory and moved the Hello World, AI-assisted development, and HEF model compilation pages to the Application Guide root.
+
+### Removed
+- **NE503 Application Guide Reference documents**: Removed the former App, SDK, examples, REST API, and event-integration references under `4-application-guide/3-reference/`; use the Resources entry for those materials.
+- **NE503 SDK Workflow**: Removed the SDK Workflow page under app development; use the Resources entry for SDK, API, sample, and event-protocol material.
+- **NE503 Version Matrix**: Removed the Software Guide version-baseline and compatibility-matrix page; use the corresponding GitHub repositories and release records for current versions and compatibility material.
+
+## [2026-08-19]
+
+### Changed
+- **NeoEyes NE503 Application Guide restructured**: `4-application-guide/` reorganized into three sections: `1-app-development` (teaches how to develop apps; person-detection moved out), `2-cookbook` (real-world app project recipes with a seven-element template), `3-reference` (lookup-style reference merging the former `reference/` App/SDK/examples trio and the former `2-3rd-party-integration` REST/video/event trio). The `2-3rd-party-integration/` and `1-app-development/reference/` directories were removed; person-detection was rewritten from a tutorial into the Cookbook seven-element recipe style (goal/model & data flow/config/core code/deploy/verify/common errors, with a verification record block); parking-lot renamed to `0-` and last-updated date fixed. The documentation guide (0.5) integrator/developer role paths updated accordingly. Batch-① Cookbook entries (region intrusion / people counting / helmet detection / RTSP→NVR / event→cloud) are reserved in plan only — no empty files created.
+
+### Added
+- **NeoEyes NE503 Troubleshooting FAQ**: New product-root page merging the previous three troubleshooting docs (the software-guide Troubleshooting Guide at 379 lines, the app-development guide at 224 lines, and the user-guide CLI & troubleshooting page at 92 lines) into a **single symptom-oriented entry** — 8 symptom domains (device & network / video & streams / AI & models / apps & containers / events & integrations / storage & disk / flashing & peripherals / system & services), each entry starting with "symptom → cause → quick fix" followed by deep-dive diagnostic commands; flashing faults are entry items linking to System Flashing §8 anchors (no content duplication); appendices include the error code table (with the high-risk note that DELETE model also deletes the file) and a diagnostic command reference. The aipc-cli command reference moved into the Platform Services Overview CLI section (full CN/EN support).
+
+### Changed
+- **NE503 aipc-cli command reference relocated**: The Platform Services Overview (software-guide) CLI section expanded from a one-line summary to a full command reference (system / app / device / stream / model modules + output formats) as the single source of truth; the Deployment & Operations page (user-guide) keeps a one-line navigation link.
+
+
+### Changed (cont'd)
+- **NE503 model lifecycle packaging/subscription split**: The model training page adds a "where your HEF comes from" three-source table (preloaded / custom / third-party) with the 384×640 matching constraint, a HEF naming convention (the filename is the registered model_id), the §7 API deployment path (scp → `POST /ai/models/scan` → `POST /ai/models/{id}/load`), and an appendix section on pruning classes via torch surgery (multi-class to single-class without retraining, device-verified); the SDK Reference `subscribe` gains a `raw_output_only` and custom-trained models section (B-path rationale + minimal NMS self-decode example); the two duplicated raw_output_only explanations in the training page collapse into links (full CN/EN support).
+- **NE503 System Management / Deployment & Operations dedup**: Production advice for timezone / static IP / MAC binding / post-IP-change updates now has its single home in Deployment & Operations; the System Management page compresses those spots to one-line links (operation warnings stay in place).
+
+### Removed
+- **NE503 legacy troubleshooting docs retired**: `3-software-guide/4-reference/1-troubleshooting.md`, `4-application-guide/1-app-development/reference/troubleshooting.md`, and `2-user-guide/5-cli-and-troubleshooting.md` were deleted; all content (deduplicated) merged into the new Troubleshooting FAQ; all inbound links (quick-start / developer-guide / video-integration / sdk-workflow / sdk-examples / parking-lot / deployment-and-ops / platform-services, 8 spots in CN and EN) now point to the new page anchors.
+
+## [2026-08-17]
+
+### Added
+- **NeoEyes NE503 Cookbook: Parking Lot**: New Cookbook page — a reproducible multi-model application walkthrough built on the `neoruntime-apps` parking-lot showcase: four-model manifest (`yolov5m_vehicles` / `scdepthv3` / `license_plate_det` / `plate_recognition`) with dynamic model registration (`allow_register_model`), the `sub.raw` video permission and video-to-event data flow, core SDK code for model registration and event publishing, bundle install/start steps, three-way validation (live MJPEG page, Event Bus WebSocket, app logs), and a symptom→cause→fix table. Includes the required `HD_PREVIEW_ENABLED=0` mitigation for the HD-preview black screen on shipping firmware (platform-api loopback-only). Verified live on device 2026-08: vehicles detected at ~22 FPS with 4 models registered; plate recognition honestly marked as not triggered in the test scene (full bilingual support).
+- **NeoEyes NE503 Version Compatibility Matrix**: New reference page in the software guide — component version table (OS 1.12.0 / platform services v1.0.0 / SDK 0.3.0 / MCU 0.1.7.0 / board_tools 1.10.1, verified against a live device on the 2026-08 firmware), the six OS-upgrade compatibility gates (machine / product / hardware-compatibility / aipc-compat-level / data-schema / min-recovery-version), the factory preload list of 14 models plus the preinstalled model-showcase app (VLM not bundled by default), and DFC/HEF compatibility notes (full bilingual support).
+- **NeoEyes NE503 Deployment & Operations Guide**: New user-guide page — a 10-item first-deployment checklist, static IP and NTP planning, three-channel log collection (Web / API / SSH) with measured disk-space planning (root 3.3G / data 54G / model library / app images / log cleanup), and dual-layer firmware upgrade with rollback and recovery (deploy.sh --rollback, A/B double-copy, MCU OTA; no one-click factory reset in the current firmware — reflash to fully reset) (full bilingual support).
+- **NeoEyes NE503 Security Hardening Guide**: New user-guide page — factory default credential checklist (Web/API, SSH, unauthenticated RTSP, static token) with first-change actions, the three-surface port exposure and protection principles, credential management, container least privilege and trusted images, and relayed remote-access patterns; grounded in live-device testing on 2026-08 firmware (unauthenticated RTSP and no forced password change are documented as measured facts) (full bilingual support).
+- **NeoEyes NE503 Product Wiring & Power Guide**: New user-guide page — PoE vs DC power selection criteria, alarm input (1 channel) with Wiegand / RS-485 expansion interfaces, audio interfaces, and debug-port entry points (UART recovery DIP switch, ST-LINK / SWD, serial console, linking to System Flashing photos); real wiring photos to follow in a later batch (full bilingual support).
+
+### Changed
+- **NE503 Quick Start adds role-based reading paths**: §7 rebuilt into a role→path matrix (evaluator / app developer / integrator / model engineer / platform developer); the platform-developer path bridges to the open-source neoruntime design docs for the first time.
+- **NE503 System Architecture adds an end-to-end data path**: New §2 — a sensor→ISP→three-stream pipeline diagram covering encoding/RTSP and AI inference, the three-stream role table, how detections stay aligned with frames/events/overlay (frame_sequence + stream_map), and a five-layer sandbox isolation overview; subsequent sections renumbered.
+
+### Fixed
+- **NE503 external access protocol corrections across the board**: `http://<device-ip>:8080` → `https://<device-ip>` (nginx exposes only 443 externally; 8080 is loopback-only), `ws://` → `wss://`, curl examples now carry `-k` (self-signed device certificate), wscat gains `--no-check` — 10 documents updated in both languages.
+- **NE503 source repo migration and install-path corrections**: The dead `camthink-ai/ne503` repo replaced by side-by-side clones of `neoruntime-sdks` + `neoruntime-apps`, with the unified `scripts/build_app.sh` as the sample build entry; `/opt/aipc` normalized to the actual deployment root `/data/aipc` (compatibility note kept for the auto-remapped legacy prefix); flashing tool version 1.9.0 → 1.10.1.
+- **NE503 main-stream resolution corrected**: The main stream is corrected to 3840x2160@30 (4K) per factory configuration, in both the System Architecture and Video Integration pages (the repo-default 1080p does not match factory firmware).
+- **NE503 Wiegand and alarm-input facts corrected (user-guide review)**: Verified against source (neoruntime + MCU firmware) — Wiegand CH0/CH1 are pure output channels (relay + level); the wrong "connect card readers / swipe data to Event Bus" description removed. Alarm-input signal reporting (event bus / API) is not yet available in the current firmware and the trigger-level option is not yet effective — both now stated honestly. "AI detection → alarm output" clarified as not a built-in linkage.
+- **NE503 API authentication model corrected**: The login token is now documented as a session credential (randomly issued per login; invalidated on password change or service restart — scripts must handle 401 and re-login). A separate built-in static integration key (accepted via X-API-Key / Bearer) is unaffected by password changes and its factory default is public in the open-source repo — must be rotated before production. Password change requires only a valid session, no old password. REST API Reference and Security Hardening updated (verified live on device).
+- **NE503 user-guide stale-claim cleanup**: Removed "clean up recordings / recording file names" wording that conflicts with the verified "no local recording" conclusion (Dashboard / System Management / Troubleshooting); main-stream advice aligned to factory 4K (Video and Imaging); forgot-password guidance corrected to real, available paths (aipc-cli has no password-reset command); Product Wiring tags corrected to User Guide after its section move.
+- **NE503 user-guide link hygiene**: Removed the fully duplicated "Related Documentation" sections in Deployment & Operations and Product Wiring plus one duplicate entry in Security Hardening; added a missing Troubleshooting link; the 80% storage-cleanup advice now converges on the disk-planning section of Deployment & Operations.
+
+## [2026-08-14]
+
+### Added
+- **NeoEyes NE302 Documentation**: A new 10-page documentation section for the compact STM32N6 AI camera, covering product information, quick start, capture and storage, data transmission, AI model validation, system maintenance, hardware components and connections, development environment setup, and build/flash workflows. Images are served from CDN and the full section is available in English and Simplified Chinese.
+
+## [2026-08-12]
+
+### Added
+- **NeoEyes NE503 User Guide**: A new 6-page Web UI user guide section under NE503 — Dashboard (overview & navigation), Video and Imaging (live view, image quality, overlay & image control, VLC RTSP verification), AI Apps and Models (app management, AI Model Showcase, install wizard), Peripherals, System Management (device info, time, network, storage, logs, file manager, terminal, process manager), and Troubleshooting (CLI reference & diagnostics). Every page is grounded in real-device screenshots served from CDN, covering the full NE503 web console surface (full bilingual support).
+
 ## [2026-07-21]
 
 ### Added

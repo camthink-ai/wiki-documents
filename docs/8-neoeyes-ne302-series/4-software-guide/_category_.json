@@ -1,0 +1,5 @@
+{
+  "label": "Software Guide",
+  "position": 4,
+  "link": { "type": "generated-index", "description": "Set up the NE302 source tree, then build, package, flash and update its firmware components." }
+}

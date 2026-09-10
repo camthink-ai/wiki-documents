@@ -51,6 +51,7 @@ API Keys are independent of user sessions and can be scoped and set to expire.
 A handful of endpoints are open:
 
 - `/api/health` / `/health/status` / `/health/live` / `/health/ready`
+- `/api/metrics` (Prometheus text-format runtime metrics: HTTP request counters, EventBus dropped events, uptime and version — point a Prometheus scraper at it)
 - `/api/system/network-info`
 - `/api/auth/status` / `/auth/verify`
 - `/api/auth/login` / `/auth/register`
