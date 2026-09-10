@@ -8,8 +8,9 @@ sidebar_label: "yolo-device-inference"
 # yolo-device-inference：AI 推理扩展
 
 :::note
-本案例源码剖析完成于市场 **v2.7.6** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference)为准。
-注：2026-09 起版本已推进至 2.7.8（`builds` 新增 jetson / cuda 目标，`src/` 备份文件清理为 17 个），正文行号相应偏移，以仓库为准。
+
+本案例剖析基于市场 **v2.7.6**，行号以 audit 时点为准，以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference)为准。2026-09 起版本推进至 2.7.8（`builds` 新增 jetson / cuda 目标），行号相应偏移。
+
 :::
 
 > **阅读提示**：全篇约 540 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。

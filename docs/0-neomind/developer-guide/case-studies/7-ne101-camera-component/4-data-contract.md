@@ -405,7 +405,9 @@ if (typeof vDet === 'string') { try { vDet = JSON.parse(vDet); } catch(e) { vDet
 - **理由**：静默 null 是**最安全的降级**——用户至少能看到图像和电池等标量指标，只是检测框消失了。调试时开发者可以在 DevTools 里手动检查 `vDet` 的值来判断是否触发了这个 catch。
 
 :::note 防御性解析的设计权衡
-如果 detections 的 JSON 格式有 bug（比如后端写入了截断的 JSON），用户会无声无息地丢失所有检测框，且没有任何 UI 提示。这个代价被认为可接受，因为**检测框丢失是「视觉降级」而非「数据损坏」**——图像、电池、时间戳等标量指标不受影响。
+
+若 detections 的 JSON 损坏（如截断），检测框会无声丢失且无 UI 提示。这一代价被认为可接受：**丢框是「视觉降级」而非「数据损坏」**——图像、电池、时间戳等标量指标不受影响。
+
 :::
 
 **OCR polygon 格式兼容**：commit `403c0f1`（`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`）修复了另一个相关的格式坑。

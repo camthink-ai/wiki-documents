@@ -8,8 +8,9 @@ sidebar_label: "weather-forecast"
 # weather-forecast: Starter Data Extension
 
 :::note
-This source-code audit was completed at market version **v2.7.6** (the extension was named `weather-forecast-v2` at the time and has since been renamed to `weather-forecast`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast).
-Note: since 2026-09 `src/lib.rs` has been refactored — state fields moved into a `WeatherInner` struct wrapped in `Arc`, HTTP calls now go through `tokio::task::spawn_blocking`, and the runtime name dropped the V2 suffix; section 4.1's "blocking call thread" trade-off and the struct walkthrough describe the pre-refactor code, and the version has moved to 2.7.7. Also, the upstream main branch has not yet picked up the renamed directory (still `weather-forecast-v2`), so deep links will 404 until that lands upstream.
+
+This audit reflects market **v2.7.6** (the extension was named `weather-forecast-v2` then, now `weather-forecast`; the upstream main branch has not adopted the new folder name yet, so deep links 404 until merged). Line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/weather-forecast). Since 2026-09, `src/lib.rs` has been refactored (state moved into an `Arc`-wrapped `WeatherInner`, HTTP calls via `spawn_blocking`) and the version advanced to 2.7.7; section 4.1's trade-off analysis maps to the pre-refactor code.
+
 :::
 
 > **Reading tip**: This article is about 540 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standards in Practice → Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.

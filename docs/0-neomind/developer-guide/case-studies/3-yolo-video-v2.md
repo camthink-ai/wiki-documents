@@ -8,8 +8,9 @@ sidebar_label: "yolo-video"
 # yolo-video：流式扩展
 
 :::note
-本案例源码剖析完成于市场 **v2.7.6** 时点（该扩展当时名为 `yolo-video-v2`，现已更名为 `yolo-video`，文中仓库路径已同步更新）。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video)为准。
-注：2026-09 起该扩展已继续重构——`src/lib.rs` 现约 3700 行、`src/video_source.rs` 约 600 行，`src/` 下的备份文件已清理，版本已推进至 2.7.8；另上游 `camthink-ai` main 分支暂未同步新目录名（仍为 `yolo-video-v2`），本文深链在上游合并前会 404。
+
+本案例剖析基于市场 **v2.7.6**（扩展原名 `yolo-video-v2`，现更名 `yolo-video`；上游 main 尚未同步新目录名，深链在合并前会 404）。行号以 audit 时点为准，以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video)为准。2026-09 起版本推进至 2.7.8（`src/lib.rs` 约 3700 行、备份文件已清理），行号相应偏移。
+
 :::
 
 > **阅读提示**：全篇约 950 行，涵盖 案例背景 → 架构总览 → 核心实现剖析 → 关键设计决策 → 与 NeoMind 主体的集成 → 测试与验证策略 → 部署运维与排障；时间有限可先读 案例背景 与 关键设计决策。

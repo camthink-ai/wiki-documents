@@ -20,7 +20,9 @@ ne101_camera 的 `components/ne101_camera/` 目录里**同时**发布两份 JS�
 这种「**组件自带测试**」的纪律是 NeoMind 市场对上架组件的软性要求，也是 ne101_camera 区别于其它 5 个案例的显著特征。
 
 :::tip 工程教训
-IIFE 范式没有模块入口，无法被 Jest/Vitest 直接 `import`。ne101_camera 的解法是「正则提取 + 沙箱 eval」——用括号计数定位内部函数源码，再用 `new Function(...)` 在隔离作用域求值。这套范式只测纯函数的数学正确性，把几何运算从运行时观察转为离线断言，是零依赖测试的最佳实践。
+
+IIFE 产物无法被 Jest/Vitest 直接 `import`。ne101_camera 的解法是「正则提取 + 沙箱 eval」：括号计数定位函数源码，`new Function(...)` 隔离求值——把几何运算从运行时观察转为离线断言，实现零依赖测试。
+
 :::
 
 **测试哲学的第一性原理来自 IIFE 范式**：`bundle.js` 是一个 `var NE101CameraPanel = (function(){ ... })()` 形式的立即调用表达式，没有 `module.exports`、没有 `export`、没有可被 Jest/Vitest `import` 的入口。**直接 `require('bundle.js')` 会报 `NE101CameraPanel is not defined`**（因为 `window` 在 Node.js 里不存在）。
@@ -534,7 +536,9 @@ graph LR
 - **代价**：如果某条流的数据有错（如 WS 推了一个错误的 `ts`），错误的字段会通过固定顺序传播到合并结果。这要求每条流的「自洁」逻辑（如 WS 的 ts 必须是数字、REST 的 imageUrl 必须是字符串）在进入 `Object.assign` 之前完成，不能依赖合并后的守卫。
 
 :::tip 最佳实践
-多通道数据合并时，固定 `Object.assign` 顺序（而非 last-writer-wins）让合并结果成为输入的确定性函数。每条流在进入合并前必须完成自洁（类型校验、字段过滤），不能依赖合并后的守卫。commit `b0be12b` + `0eedd27` 的经验表明：任何「谁先到先用谁」的优化都会引入难以复现的时序 bug。
+
+多通道合并时固定 `Object.assign` 顺序（而非 last-writer-wins），让结果成为输入的确定性函数；每条流进合并前先自洁（类型校验、字段过滤）。教训来自 commit `b0be12b`：「谁先到先用谁」的优化会引入难以复现的时序 bug。
+
 :::
 
 ---
@@ -559,7 +563,9 @@ graph LR
 这种工程哲学与 IIFE 范式本身的「零构建、零依赖、零隐藏行为」原则一脉相承——在没有任何运行时工具（type checker、linter、bundler）兜底的场景下，确定性是唯一的防线。
 
 :::tip 工程教训
-在没有 type checker、linter、bundler 兜底的 IIFE 范式下，「确定性」是唯一的防线。6 个设计决策的共同模式：用「可预测、可复现、可枚举」替换「灵活但易错」——shape assertion 只验形状、参数化矩阵覆盖所有边界、穷举有向完全图不漏组合、严格时间戳匹配拒绝鬼影、固定合并顺序消除竞态。
+
+没有 type checker、linter、bundler 兜底时，「确定性」是唯一防线：shape assertion 只验形状、参数化矩阵覆盖边界、穷举有向完全图不漏组合、严格时间戳匹配拒绝鬼影、固定合并顺序消除竞态——共同点是用「可预测、可复现」替换「灵活但易错」。
+
 :::
 
 ### 关键 commit 索引

@@ -346,7 +346,9 @@ This is one line of code but contains a **design decision**:
 - **Cost**: If the detections JSON has a format bug (e.g., the backend wrote truncated JSON), users silently lose all detection boxes with no UI indication. This cost is considered acceptable because losing detection boxes is a "visual degradation," not "data corruption."
 
 :::note The Design Tradeoff of Defensive Parsing
-If the detections JSON has a format bug (e.g., the backend wrote truncated JSON), users will silently lose all detection boxes with no UI indication. This cost is considered acceptable because **losing detection boxes is a "visual degradation," not "data corruption"** — the image, battery, timestamp, and other scalar metrics are unaffected.
+
+If the detections JSON is malformed (e.g. truncated), boxes are silently lost with no UI hint. The cost was accepted: **losing boxes is visual degradation, not data corruption** — image, battery and timestamp metrics are unaffected.
+
 :::
 
 **OCR polygon format compatibility**: Commit `403c0f1` (`fix(ne101): handle {x,y} object format for OCR polygon detection boxes`) fixed another related format pitfall. The `polygon` field returned by OCR extensions (array of polygon vertices) comes in two formats: `[[x,y], ...]` (array pairs) and `[{x, y}, ...]` (object arrays). The frontend renderer must handle both formats simultaneously, otherwise polygon drawing crashes. This is because `ocr-device-inference` and `locate-anything`'s `text_detection` mode serialize polygons inconsistently — the former uses object arrays (consistent with PaddleOCR's native output), the latter uses array pairs (consistent with COCO format).

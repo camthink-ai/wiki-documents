@@ -680,11 +680,9 @@ uink-rms-bridge's `src/` directory contains **only `lib.rs`, totaling 2250 lines
 Contrast with [Case 4 onvif-bridge](./4-onvif-bridge.md) which splits the protocol into 5 files (lib.rs 1646 lines + discovery.rs 211 lines + soap_client.rs 516 lines + ptz.rs 214 lines + types.rs 78 lines), each with single responsibility and manageable line count.
 
 :::tip Engineering lesson
-**When to split? When is a single file acceptable?** uink-rms-bridge's rationale for a single file: all its logic revolves around a **single vendor cloud API** (Uink-RMS v1.0.1), where auth / device / image / display are just different endpoints of the same API, highly cohesive, and splitting would increase cross-file navigation cost.
 
-While onvif-bridge is **multiple independent protocol stacks** (WS-Discovery is UDP multicast, SOAP is HTTP, PTZ is command encapsulation), naturally separable.
+Whether to split depends on coupling: uink-rms-bridge's auth / device / image are all endpoints of **one vendor cloud API** — highly cohesive, so a single file is fine (sectioned with `// ===` comments, see [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40) and the other markers); onvif-bridge's stacks are independent protocol families (WS-Discovery / SOAP / PTZ share little state), so splitting is natural.
 
-Rule of thumb: if modules share little state and few types (like WS-Discovery and SOAP), split; if all modules revolve around the same external API's different endpoints (like uink's auth + device + image), a single file is acceptable, but use `// ===` comment dividers (this extension does, see [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40), [L161](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L161), [L231](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L231), etc.).
 :::
 
 ### Troubleshooting Table

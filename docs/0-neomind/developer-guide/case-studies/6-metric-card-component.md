@@ -8,9 +8,9 @@ sidebar_label: "metric card"
 # metric card：入门仪表板组件
 
 :::note
-本案例源码剖析完成于**组件版本 v1.7.0** 时点。正文中的代码行号以 audit 时点为准，当前版本如有漂移，请以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card)为准。
 
-注：commit `19af1e9`（2026-06-25）已将毛玻璃容器替换为纯色卡片表面（`bg-card`），正文「毛玻璃容器设计（OKLCH + CSS 变量）」一节引用的 OKLCH 渐变 + `mc-shimmer` 动画 + `blur(16px)` 样式已不在当前 v1.7.0 的 bundle.js 中。
+本案例剖析基于组件 **v1.7.0**，行号以 audit 时点为准，以[仓库实际代码](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card)为准。commit `19af1e9`（2026-06-25）已将毛玻璃容器替换为纯色卡片表面，正文「毛玻璃容器设计（OKLCH + CSS 变量）」一节对应的 `mc-shimmer` 动画与 `blur(16px)` 样式已不在当前 bundle.js 中。
+
 :::
 
 > **阅读提示**：全篇约 590 行，涵盖 案例背景 → 架构总览 → 实现剖析 → 设计权衡 → 技术栈拆解 → 标准落地 → 常见坑与最佳实践；时间有限可先读 案例背景 与 设计权衡。

@@ -8,8 +8,9 @@ sidebar_label: "yolo-video"
 # yolo-video: Streaming Extension
 
 :::note
-This source-code audit was completed at market version **v2.7.6** (the extension was named `yolo-video-v2` at the time and has since been renamed to `yolo-video`; repo paths in this document have been updated accordingly). Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video).
-Note: since 2026-09 the extension has been further refactored — `src/lib.rs` is now about 3700 lines and `src/video_source.rs` about 600 lines, the backup files under `src/` have been cleaned up, and the version has moved to 2.7.8. Also, the upstream `camthink-ai` main branch has not yet picked up the renamed directory (still `yolo-video-v2`), so deep links in this document will 404 until that lands upstream.
+
+This audit reflects market **v2.7.6** (the extension was named `yolo-video-v2` then, now `yolo-video`; upstream main has not adopted the new folder name, so deep links 404 until merged). Line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-video). Since 2026-09 the version advanced to 2.7.8 (`src/lib.rs` ~3,700 lines, backup files cleaned); line numbers have shifted accordingly.
+
 :::
 
 > **Reading tip**: This article is about 870 lines, covering Case Background → Architecture Overview → Core Implementation → Key Design Decisions → Integration with NeoMind Core → Testing & Verification → Deployment / Ops / Troubleshooting; if you are short on time, read Case Background and Key Design Decisions first.

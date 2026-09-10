@@ -304,7 +304,9 @@ var setEditingIdx = editingIdxState[1];
 条件渲染（如 ROI canvas 是否显示）发生在 hooks 之后的 JSX return 里，用 `roiEnabled && jsx(...)` 守卫，而不是在 hook 调用层做条件分支。
 
 :::tip 工程教训
-**为什么这个陷阱是 IIFE 特有的**：在一个正常的 ESM + Vite + ESLint 项目里，`react-hooks/rules-of-hooks` 插件会在**构建时**扫描所有 hooks 调用，发现「useState 在 if 块里」就报 lint error，代码根本提交不进去。而 IIFE 范式没有 ESLint（没有 `.eslintrc` 配置、没有构建步骤），这个规则只能靠开发者自觉——一旦疏忽，错误只会在运行时（用户切换 ROI 开关的瞬间）才暴露。这是「零构建」范式的隐性代价，也是为什么 ne101_camera 要维护 `test_bundle.js` 做逻辑测试。
+
+ESM + Vite + ESLint 项目里，`react-hooks/rules-of-hooks` 会在构建期拦下「useState 写在 if 块里」这类错误；IIFE 没有 ESLint，同样的错误只会在运行时才暴露。这就是 ne101_camera 要维护 `test_bundle.js` 做逻辑测试的原因。
+
 :::
 
 **设计决策：无条件顶层 hooks vs 条件 hooks + 守卫**
@@ -558,11 +560,9 @@ Source: [`bundle.js` L1371-L1446](https://github.com/camthink-ai/NeoMind-Dashboa
 | **shadcn CSS 类复刻** | 逐字复制 className 字符串（[L1321-L1348](https://github.com/camthink-ai/NeoMind-Dashboard-Components/blob/main/components/ne101_camera/bundle.js#L1321-L1348)） | 内联样式 / 请求平台组件 API | Tailwind JIT 全局扫描让复刻类名获得一致样式；内联样式无法匹配 hover/focus 伪类 |
 
 :::tip 核心原则
-**在「零构建」的约束下选择最简方案**。IIFE 范式放弃了打包器带来的 tree-shaking、类型检查、linting，换来的是极简的部署模型（一个 `.js` 文件 + 一个 `.json` manifest）。
 
-在这个约束下，每一个工程决策都在寻找「不依赖构建工具就能正确工作」的路径——函数提升替代模块解析、闭包替代 import/export、className 复刻替代组件库、uncontrolled input 替代 controlled state。
+**在「零构建」约束下选最简方案**：放弃 tree-shaking、类型检查与 linting，换来单文件部署。每个决策都走「不依赖构建工具也能正确工作」的路径——函数提升替代模块解析、闭包替代 import/export、className 复刻替代组件库、uncontrolled input 替代 controlled state。这是组件市场维持「零构建步骤、单文件部署」的根本。
 
-这种「回到浏览器原语」的工程哲学，是 NeoMind 组件市场能够维持「6 个组件零构建步骤、单文件部署」的根本原因。
 :::
 
 ### 关键 commit 索引

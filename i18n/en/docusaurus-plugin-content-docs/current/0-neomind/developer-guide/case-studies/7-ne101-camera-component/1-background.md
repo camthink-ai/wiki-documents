@@ -201,7 +201,9 @@ These four decisions share a common theme: **push complexity to the edges and ke
 This **"thin component + thick contract"** philosophy is the core design principle of the NeoMind component marketplace, and it is why a 1972-line component can be called "flagship" rather than "bloated": the vast majority of those 1972 lines are glue code that "exposes choice correctly", not monolithic logic that "does everything itself".
 
 :::tip Engineering lesson
-The **"thin component + thick contract"** philosophy is the core design principle of the NeoMind component marketplace. Push complexity to the edges — outsource AI to extensions, use device binding instead of pretending to be a data source, use IoU instead of locking to center-point detection, use backward-compatible config formats instead of forcing migration. Every decision leaves the choice to the user or downstream, and that is why 1972 lines of code are called "flagship" rather than "bloated".
+
+**Thin component, thick contract** is the marketplace's core principle: AI goes to extensions, data comes from device binding instead of fake sources, detection uses IoU instead of a hardcoded center point, config stays backward compatible — every choice leaves options to downstream. That's why 1,972 lines read as "flagship", not "bloated".
+
 :::
 
 Later sections (especially 3 Extension Side and 6 Component Build) will return to this theme repeatedly.

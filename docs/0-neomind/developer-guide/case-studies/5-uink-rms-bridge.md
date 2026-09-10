@@ -729,11 +729,9 @@ uink-rms-bridge 的 `src/` 目录**只有 `lib.rs` 一个文件，共 2250 行**
 对比 [案例 4 onvif-bridge](./4-onvif-bridge.md) 把协议拆成 5 个文件（lib.rs 1646 行 + discovery.rs 211 行 + soap_client.rs 516 行 + ptz.rs 214 行 + types.rs 78 行），每个文件职责单一、行数可控。
 
 :::tip 工程教训
-**何时该拆分？何时单文件可接受？** uink-rms-bridge 选择单文件的理由是：它的所有逻辑围绕**单一厂商云 API**展开（Uink-RMS v1.0.1），auth / device / image / display 都是这个 API 的不同 endpoint，逻辑高度内聚，拆开反而增加跨文件跳转成本。
 
-而 onvif-bridge 是**多个独立协议栈**（WS-Discovery 是 UDP 多播、SOAP 是 HTTP、PTZ 是命令封装），天然分离。
+**拆分与否取决于模块间耦合**：uink-rms-bridge 的 auth / device / image 都是**同一厂商 API** 的不同 endpoint，高度内聚，单文件即可——用 `// ===` 注释分区（见 [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40) 等分区标记）；而 onvif-bridge 是多个独立协议栈（WS-Discovery / SOAP / PTZ 几乎不共享状态），天然该拆。
 
-经验法则：如果模块之间共享很少的状态和类型（如 WS-Discovery 和 SOAP），拆分；如果所有模块都围绕同一个外部 API 的不同 endpoint（如 uink 的 auth + device + image），单文件可接受，但建议用 `// ===` 注释分区（本扩展确实这样做了，见 [L40](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L40)、[L161](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L161)、[L231](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/uink-rms-bridge/src/lib.rs#L231) 等）。
 :::
 
 ### 排障表

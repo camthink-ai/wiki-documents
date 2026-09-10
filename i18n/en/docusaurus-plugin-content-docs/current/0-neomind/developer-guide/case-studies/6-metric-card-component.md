@@ -8,9 +8,9 @@ sidebar_label: "metric card"
 # metric card: Introductory Dashboard Component
 
 :::note
-This source-code audit was completed at component version **v1.7.0**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card).
 
-Note: commit `19af1e9` (2026-06-25) replaced the frosted-glass container with a flat card surface (`bg-card`); the OKLCH gradient + `mc-shimmer` animation + `blur(16px)` styling quoted in "Glass Container Design (OKLCH + CSS Variables)" no longer exists in the current v1.7.0 bundle.js.
+This audit reflects component **v1.7.0**; line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Dashboard-Components/tree/main/components/metric_card). Commit `19af1e9` (2026-06-25) replaced the frosted-glass container with a solid card surface, so the `mc-shimmer` animation and `blur(16px)` styles referenced in "Frosted container design (OKLCH + CSS variables)" are no longer in the current bundle.js.
+
 :::
 
 > **Reading tip**: This article is about 590 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standards in Practice → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.

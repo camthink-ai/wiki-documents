@@ -874,7 +874,9 @@ This contrasts sharply with [Case 2 yolo-device-inference](./2-yolo-device-infer
 onvif-bridge serves as a **positive example** for source code governance — a clean `src/` directory ensures that `grep` / `rg` search results are not polluted by noise, making code reviews more focused.
 
 :::tip Engineering lesson
-**Separation of protocol bridging and stream processing responsibilities** is the core design philosophy of onvif-bridge. onvif-bridge only returns the RTSP URL string and never touches any video frame — subsequent stream pulling, decoding, and inference are handled by other extensions. This orthogonal architecture lets protocol bridging and AI inference evolve independently, and is a model of NeoMind ecosystem composability.
+
+onvif-bridge only returns an RTSP URL string and never touches video frames — pulling, decoding and inference belong to other extensions. Protocol bridging and AI inference therefore evolve independently, a model example of NeoMind's composability.
+
 :::
 
 ### Troubleshooting Quick Reference
@@ -936,7 +938,9 @@ onvif-bridge implements complete ONVIF Profile S core capabilities in approximat
 From a source code governance perspective, onvif-bridge's `src/` directory (5 files, zero backup files) is the cleanest case study in this series and can serve as a positive reference for code hygiene.
 
 :::tip Engineering lesson
-**Adapt to the protocol, not to the vendor** — this is the key strategy for reducing integration costs. One codebase built on the ONVIF open standard is compatible with all Profile S devices (Hikvision, Dahua, Vivotek, etc.), avoiding the maintenance burden of N vendor SDKs. Hand-writing the ~2700-line protocol stack loses type-safe WSDL bindings but gains full control over vendor non-standard implementations.
+
+**Adapt to the protocol, not the vendor**: one ONVIF-based stack works with every Profile S device (Hikvision, Dahua, Uniview...), avoiding N vendor SDKs. The ~2,700-line handwritten stack trades WSDL type safety for full control over vendor quirks.
+
 :::
 
 Recommended reading order: [Overview](./0-overview.md) → [Case 2 yolo-device-inference](./2-yolo-device-inference.md) → [Case 3 yolo-video](./3-yolo-video-v2.md) → **this article (4 onvif-bridge)** → [Case 5 uink-rms-bridge](./5-uink-rms-bridge.md).

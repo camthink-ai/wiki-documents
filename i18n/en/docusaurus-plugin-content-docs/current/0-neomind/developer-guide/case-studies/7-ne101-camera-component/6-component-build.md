@@ -306,7 +306,9 @@ The comment `// ROI hooks — MUST be called unconditionally, before any conditi
 The IIFE pattern has no ESLint (no `.eslintrc` config, no build step), so this rule relies entirely on developer discipline — once neglected, the error surfaces only at runtime (the instant the user toggles the ROI switch). This is the hidden cost of the "zero-build" paradigm, and why ne101_camera maintains `test_bundle.js` for logic testing.
 
 :::tip Engineering Lesson
-**Why this pitfall is IIFE-specific**: in a normal ESM + Vite + ESLint project, the `react-hooks/rules-of-hooks` plugin scans all hook calls **at build time** and flags "useState inside an if block" as a lint error — the code cannot even be committed. The IIFE pattern has no ESLint, so this rule relies entirely on developer discipline. This is the hidden cost of the "zero-build" paradigm, and the reason `test_bundle.js` exists for logic testing.
+
+In an ESM + Vite + ESLint project, `react-hooks/rules-of-hooks` catches a `useState` inside an `if` block at build time. IIFE has no ESLint, so the same mistake only surfaces at runtime — which is why ne101_camera maintains `test_bundle.js` for logic tests.
+
 :::
 
 **Design decision: unconditional top-level hooks vs conditional hooks with guards**
@@ -560,7 +562,9 @@ The IIFE pattern trades away tree-shaking, type checking, and linting for an ult
 This engineering philosophy of "returning to browser primitives" is the fundamental reason the NeoMind component marketplace can sustain "6 components, zero build steps, single-file deployment."
 
 :::tip Core Principle
-**Under the "zero-build" constraint, choose the simplest approach that works.** The IIFE pattern trades away tree-shaking, type checking, and linting for an ultra-minimal deployment model (one `.js` file + one `.json` manifest). Every engineering decision seeks a path that "works correctly without build tools" — function hoisting substitutes for module resolution, closures substitute for import/export, className replica substitutes for a component library, uncontrolled input substitutes for controlled state. This "return to browser primitives" philosophy is the fundamental reason NeoMind's component marketplace can sustain "6 components, zero build steps, single-file deployment."
+
+**Choose the simplest approach under the zero-build constraint**: giving up tree-shaking, type checking and linting buys a single-file deployment. Every decision favors what works without build tools — function hoisting over module resolution, closures over import/export, className re-creation over component libraries, uncontrolled inputs over controlled state. This is how the marketplace sustains "zero build steps, single-file deployment".
+
 :::
 
 ### Key commit index

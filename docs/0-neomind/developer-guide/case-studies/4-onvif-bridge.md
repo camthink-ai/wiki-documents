@@ -896,7 +896,9 @@ src/
 onvif-bridge 可以作为**源码治理的正例**——干净的 `src/` 目录让 `grep` / `rg` 的搜索结果不被噪音污染，让代码审查更聚焦。
 
 :::tip 工程教训
-**协议桥接与流处理职责分离**是 onvif-bridge 的核心设计哲学。onvif-bridge 只返回 RTSP URL 字符串，不触碰任何视频帧——后续拉流、解码、推理由其他扩展完成。这种正交架构让协议桥接和 AI 推理可以独立演进，是 NeoMind 生态可组合性的典范。
+
+onvif-bridge 只返回 RTSP URL 字符串，不触碰视频帧——拉流、解码、推理由其他扩展完成。协议桥接与 AI 推理因此可独立演进，是 NeoMind 生态可组合性的典范。
+
 :::
 
 ### 排障速查表
@@ -958,7 +960,9 @@ onvif-bridge 在约 2700 行 Rust 代码中实现了完整的 ONVIF Profile S �
 从源码治理角度看，onvif-bridge 的 `src/` 目录（5 个文件，零备份文件）是本系列中最干净的案例，可以作为代码卫生的正例参照。
 
 :::tip 工程教训
-**适配协议而非适配厂商**是降低集成成本的关键策略。一套基于 ONVIF 开放标准的代码兼容所有 Profile S 设备（海康、大华、宇视等），避免了 N 个厂商 SDK 的维护负担。手写协议栈约 2700 行虽然失去类型安全 WSDL 绑定，但获得了对厂商非标准实现的完全控制力。
+
+**适配协议而非适配厂商**：一套基于 ONVIF 标准的代码兼容全部 Profile S 设备（海康、大华、宇视等），免去 N 套厂商 SDK 的维护负担；手写协议栈约 2700 行，换来对厂商非标准实现的完全控制。
+
 :::
 
 推荐阅读顺序：[总览](./0-overview.md) → [案例 2 yolo-device-inference](./2-yolo-device-inference.md) → [案例 3 yolo-video](./3-yolo-video-v2.md) → **本文（4 onvif-bridge）** → [案例 5 uink-rms-bridge](./5-uink-rms-bridge.md)。

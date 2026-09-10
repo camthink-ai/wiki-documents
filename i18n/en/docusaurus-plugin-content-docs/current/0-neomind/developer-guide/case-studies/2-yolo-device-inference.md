@@ -8,8 +8,9 @@ sidebar_label: "yolo-device-inference"
 # yolo-device-inference: AI Inference Extension
 
 :::note
-This source-code audit was completed at market version **v2.7.6**. Code line numbers in the body reflect the audit-time snapshot — if they have drifted in the current version, defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference).
-Note: since 2026-09 the version has moved to 2.7.8 (the `builds` field gained jetson / cuda targets, and the `src/` backup files were cleaned down to 17), so line numbers in the body have shifted accordingly — defer to the repository.
+
+This audit reflects market **v2.7.6**; line numbers reflect the audit snapshot — defer to the [actual code in the repository](https://github.com/camthink-ai/NeoMind-Extensions/tree/main/extensions/yolo-device-inference). Since 2026-09 the version advanced to 2.7.8 (`builds` gained jetson / cuda targets); line numbers have shifted accordingly.
+
 :::
 
 > **Reading tip**: This article is about 540 lines, covering Case Background → Architecture Overview → Implementation Walkthrough → Design Trade-offs → Tech Stack Breakdown → Standard Compliance → Common Pitfalls & Best Practices; if you are short on time, read Case Background and Design Trade-offs first.
