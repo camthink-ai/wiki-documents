@@ -43,7 +43,7 @@ cd Linux_for_Tegra/source/
 ./source_sync.sh -t jetson_36.4
 ```
 
-4. Deploying NVIDIA Tegra components​​
+4. Deploying NVIDIA Tegra components
 
 ```shell
 cd Linux_for_Tegra
@@ -180,7 +180,7 @@ ping google.com
 
 1. On a Windows computer, press `win+R` to open the `Run` dialog box.
 
-2. Input `powershell`，and then press ​**​Enter​**​
+2. Input `powershell`，and then press **Enter**
 
 3. Connect to AIBOX via SSH using the following commands:
 

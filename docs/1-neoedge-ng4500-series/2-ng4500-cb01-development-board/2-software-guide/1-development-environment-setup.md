@@ -44,7 +44,7 @@ cd Linux_for_Tegra/source/
 ./source_sync.sh -t jetson_36.4
 ```
 
-4. 部署NVIDIA Tegra组件​​
+4. 部署NVIDIA Tegra组件
 
 ```shell
 cd Linux_for_Tegra
@@ -181,7 +181,7 @@ ping google.com
 
 1. windows电脑下，按`win+R`，打开“运行”对话框
 
-2. 输入 `powershell`，然后按 ​**​Enter键​**​
+2. 输入 `powershell`，然后按 **Enter键**
 
 3. 然后通过ssh连接到AIBOX，参考下述指令如下：
 

@@ -8,7 +8,7 @@ description: "NeoMind 版本发布说明(自动同步自官方 CHANGELOG):最新
 
 # 版本发布说明
 
-本页由 [NeoMind 官方 CHANGELOG](https://github.com/camthink-ai/NeoMind/blob/main/CHANGELOG.md) 自动生成并随 wiki 部署同步,摘要保留英文原文。升级步骤见 [安装与升级](../user-guide/install-setup.md)。
+本页由 [NeoMind 官方 CHANGELOG](https://github.com/camthink-ai/NeoMind/blob/main/CHANGELOG.md) 自动生成并随 wiki 部署同步,摘要保留英文原文。升级步骤见 [安装与升级](../user-guide/install-setup)。
 
 ## 当前版本:NeoMind 0.9.23(2026-09-09)
 

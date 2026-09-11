@@ -8,7 +8,7 @@ description: "NeoMind release notes — auto-synced highlights from the official
 
 # Release Notes
 
-This page is generated from the [official NeoMind CHANGELOG](https://github.com/camthink-ai/NeoMind/blob/main/CHANGELOG.md) and refreshed on every wiki deploy. For upgrade steps see [Install & Upgrade](../user-guide/install-setup.md).
+This page is generated from the [official NeoMind CHANGELOG](https://github.com/camthink-ai/NeoMind/blob/main/CHANGELOG.md) and refreshed on every wiki deploy. For upgrade steps see [Install & Upgrade](../user-guide/install-setup).
 
 ## Current: NeoMind 0.9.23 (2026-09-09)
 

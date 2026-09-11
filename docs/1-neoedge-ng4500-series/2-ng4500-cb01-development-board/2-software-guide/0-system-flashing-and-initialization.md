@@ -27,7 +27,7 @@ sudo apt install -y build-essential git wget curl python3 python3-pip \
   unzip bzip2 zstd
 ```
 
-## 硬件准备​
+## 硬件准备
 
 **在进行软件烧录前，请完成以下硬件连接与设置：**
 
@@ -73,7 +73,7 @@ sudo ./tools/kernel_flash/l4t_initrd_flash.sh --network usb0 --flash-only --show
 
 **注： 确认设备硬件版本方法**
 
-**A. ​系统已启动并可访问的情况下**​
+**A. 系统已启动并可访问的情况下**
 
 - 可通过以下命令获取设备型号信息
 
@@ -86,13 +86,13 @@ NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super
 
 **B. 系统未启动且无法访问时**
 
-- 查看设备标签或包装盒型号​确认
+- 查看设备标签或包装盒型号确认
 
-- 检查模组模组背面二维码下方，有一串 ​**​15 位数字组合​**​（如 `900-13767-0030-000`）。具体可以参考下述表格
+- 检查模组模组背面二维码下方，有一串 **15 位数字组合**（如 `900-13767-0030-000`）。具体可以参考下述表格
   
-  - **`3767` → Orin 相关设备​**​（如 AGX Orin、Orin NX、Orin Nano）
+  - **`3767` → Orin 相关设备**（如 AGX Orin、Orin NX、Orin Nano）
   
-  - **`0030` → Jetson Nano（8GB RAM）​**
+  - **`0030` → Jetson Nano（8GB RAM）**
 
 | SKU  | 设备类型                         | 设备名称                             |
 | ---- | ---------------------------- | -------------------------------- |

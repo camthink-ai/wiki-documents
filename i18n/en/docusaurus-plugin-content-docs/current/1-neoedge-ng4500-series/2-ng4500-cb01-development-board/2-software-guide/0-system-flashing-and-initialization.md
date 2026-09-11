@@ -90,8 +90,8 @@ NVIDIA Jetson Orin Nano Engineering Reference Developer Kit Super
 - Verify model via device label or packaging box
 - Inspect the **15-digit combination** below the QR code on the back of the module (e.g., 900-13767-0030-000). Refer to the decoding table below:
   
-  - **`3767` → Orin related equipment​**​（如 AGX Orin、Orin NX、Orin Nano）
-  - **`0030` → Jetson Nano（8GB RAM）​**
+  - **`3767` → Orin related equipment**（如 AGX Orin、Orin NX、Orin Nano）
+  - **`0030` → Jetson Nano（8GB RAM）**
 
 
 

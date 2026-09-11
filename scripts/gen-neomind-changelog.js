@@ -99,7 +99,7 @@ description: "NeoMind 版本发布说明(自动同步自官方 CHANGELOG):最新
 
 # 版本发布说明
 
-本页由 [NeoMind 官方 CHANGELOG](${CHANGELOG_PAGE}) 自动生成并随 wiki 部署同步,摘要保留英文原文。升级步骤见 [安装与升级](../user-guide/install-setup.md)。
+本页由 [NeoMind 官方 CHANGELOG](${CHANGELOG_PAGE}) 自动生成并随 wiki 部署同步,摘要保留英文原文。升级步骤见 [安装与升级](../user-guide/install-setup)。
 
 ## 当前版本:NeoMind ${latest.ver}(${latest.date})
 
@@ -136,7 +136,7 @@ description: "NeoMind release notes — auto-synced highlights from the official
 
 # Release Notes
 
-This page is generated from the [official NeoMind CHANGELOG](${CHANGELOG_PAGE}) and refreshed on every wiki deploy. For upgrade steps see [Install & Upgrade](../user-guide/install-setup.md).
+This page is generated from the [official NeoMind CHANGELOG](${CHANGELOG_PAGE}) and refreshed on every wiki deploy. For upgrade steps see [Install & Upgrade](../user-guide/install-setup).
 
 ## Current: NeoMind ${latest.ver} (${latest.date})
 
