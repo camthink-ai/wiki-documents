@@ -186,7 +186,7 @@ export default function Home(): JSX.Element {
                             </div>
                         </Link>
 
-                        <Link to="/docs/neoeyes-ne301-series/application-guide/ai-tool-stack/" className="neomind-block">
+                        <Link to="/docs/software/ai-tool-stack" className="neomind-block">
                             <div className="neomind-block-head">
                                 <span className="neomind-block-title"><Translate id="homepage.stack.mw.toolstack">AI ToolStack</Translate></span>
                                 <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.toolsub">Full model lifecycle · training / quantization / conversion / deployment</Translate></span>
