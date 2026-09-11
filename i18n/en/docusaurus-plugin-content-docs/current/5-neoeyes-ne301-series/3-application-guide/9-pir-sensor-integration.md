@@ -145,7 +145,7 @@ The dashboard shows:
 
 ### 5.3 Further Configuration
 
-For detailed NeoMind platform configuration and usage, refer to the [NeoMind Quick Start](https://wiki.camthink.ai/docs/ai-application/neomind-quick-start).
+For detailed NeoMind platform configuration and usage, refer to the [NeoMind Quick Start](https://wiki.camthink.ai/docs/neomind/quick-start/five-minute-guide).
 
 ---
 
@@ -175,7 +175,7 @@ After completing all configurations above, verify the pipeline as follows:
 
 ### References
 
-- [NeoMind Quick Start](https://wiki.camthink.ai/docs/ai-application/neomind-quick-start)
+- [NeoMind Quick Start](https://wiki.camthink.ai/docs/neomind/quick-start/five-minute-guide)
 
 ### PIR Sensor Specifications (Example)
 

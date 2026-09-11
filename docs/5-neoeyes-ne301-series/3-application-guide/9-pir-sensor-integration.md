@@ -145,7 +145,7 @@ NeoMind 平台通过 MQTT 协议自动发现和注册 NE301 设备，提供设�
 
 ### 4.3 更多配置
 
-关于 NeoMind 平台的详细配置和使用方法，请参考 [NeoMind 快速入门](https://wiki.camthink.ai/docs/ai-application/neomind-quick-start)，本文不再赘述。
+关于 NeoMind 平台的详细配置和使用方法，请参考 [NeoMind 快速入门](https://wiki.camthink.ai/docs/neomind/quick-start/five-minute-guide)，本文不再赘述。
 
 ---
 
@@ -175,7 +175,7 @@ NeoMind 平台通过 MQTT 协议自动发现和注册 NE301 设备，提供设�
 
 ### 参考资源
 
-- [NeoMind 快速入门](https://wiki.camthink.ai/docs/ai-application/neomind-quick-start)
+- [NeoMind 快速入门](https://wiki.camthink.ai/docs/neomind/quick-start/five-minute-guide)
 
 
 ### PIR 传感器规格（示例）

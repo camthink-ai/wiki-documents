@@ -48,6 +48,13 @@ const configuredPlugins = [
           from: '/docs/neoeyes-ne503-series/application-guide/hello-world',
           to: '/docs/neoeyes-ne503-series/application-guide/cookbook/hello-world',
         },
+        // AI Application 栏目已并入 NG4500 系列（2026-09）
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/quick-start', to: '/docs/neoedge-ng4500-series/application-guide/cinfer-inference-service/quick-start' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/user-guide', to: '/docs/neoedge-ng4500-series/application-guide/cinfer-inference-service/user-guide' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/dev-guide', to: '/docs/neoedge-ng4500-series/application-guide/cinfer-inference-service/dev-guide' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/application-integration/beaveriot-integration', to: '/docs/neoedge-ng4500-series/application-guide/cinfer-inference-service/application-integration/beaveriot-integration' },
+        { from: '/docs/ai-application/ai-box-appliction-expansion/fighting-and-Iterative-model-deployment', to: '/docs/neoedge-ng4500-series/application-guide/ai-box-application-expansion/fighting-and-Iterative-model-deployment' },
+        { from: '/docs/ai-application', to: '/docs/neoedge-ng4500-series/overview' },
       ],
     }
   ],
