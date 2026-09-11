@@ -310,10 +310,18 @@
   color: var(--ifm-color-primary) !important;
 }
 
-/* 图标 SVG 内层硬编码了 fill,用 currentColor 接管以跟随悬停变色 */
-.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg g,
-.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg path {
-  fill: currentColor;
+/* 原生实心双箭头过粗:隐藏,改用细线双箭头(stroke 风格),颜色跟随 currentColor */
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg[class*="collapseSidebarButtonIcon"] {
+  display: none;
+}
+
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"]::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 17 5-5-5-5'/%3E%3Cpath d='m13 17 5-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 17 5-5-5-5'/%3E%3Cpath d='m13 17 5-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 /* —— 折叠后左缘悬浮的展开按钮:品牌色圆角 + 投影 —— */
