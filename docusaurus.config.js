@@ -197,6 +197,7 @@ const config = {
               { label: 'NG4500', to: '/docs/neoedge-ng4500-series/overview' },
               { label: 'NE503', to: '/docs/neoeyes-ne503-series/overview' },
               { label: 'NE301', to: '/docs/neoeyes-ne301-series/overview' },
+              { label: 'NE302', to: '/docs/neoeyes-ne302-series/ne302-overview' },
               { label: 'NE101', to: '/docs/neoeyes-ne101-series/overview' },
               { label: 'NeoMind', to: '/docs/neomind/product-overview/what-is-neomind' },
             ]
