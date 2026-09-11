@@ -30,7 +30,7 @@ tags: [AI应用, 行为分析, 边缘计算, 安全监控, NG4500]
 
 ## AI BOX 端算法部署
 
-> 请确保已经完成NG4500Series 设备初始化，如果不了解设备初始化，可查阅[NG4500Series-快速开始](../../1-neoedge-ng4500-series/1-quick-start.md)
+> 请确保已经完成NG4500Series 设备初始化，如果不了解设备初始化，可查阅[NG4500Series-快速开始](/docs/neoedge-ng4500-series/quick-start)
 
 ### 步骤一：打开 WinSCP
 

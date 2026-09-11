@@ -30,7 +30,7 @@ The figure above shows the complete workflow. The IPC collects video on the edge
 
 ## Deploying the AI Model on AI BOX
 
-> Make sure the NG4500 Series device has been initialized. If not, refer to the [NG4500 Series Quick Start](../../1-neoedge-ng4500-series/1-quick-start.md).
+> Make sure the NG4500 Series device has been initialized. If not, refer to the [NG4500 Series Quick Start](/docs/neoedge-ng4500-series/quick-start).
 
 ### Step 1. Launch WinSCP
 

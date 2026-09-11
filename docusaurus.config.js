@@ -55,10 +55,10 @@ const configuredPlugins = [
         { from: '/docs/ai-application/cinfer-ai-Inference-service/application-integration/beaveriot-integration', to: '/docs/neomind/product-overview/what-is-neomind' },
         { from: '/docs/ai-application/ai-box-appliction-expansion/fighting-and-Iterative-model-deployment', to: '/docs/neoedge-ng4500-series/application-guide/ai-box-application-expansion/fighting-and-Iterative-model-deployment' },
         { from: '/docs/ai-application', to: '/docs/neoedge-ng4500-series/overview' },
-        { from: '/docs/neoeyes-ne301-series/application-guide/ai-tool-stack', to: '/docs/software/ai-tool-stack' },
+        { from: '/docs/neoeyes-ne301-series/application-guide/ai-tool-stack', to: '/docs/software/ai-tool-stack/overview' },
         { from: '/docs/ai-application/neomind-quick-start', to: '/docs/neomind/quick-start/five-minute-guide' },
         { from: '/docs/tags/ai-application', to: '/docs/neoedge-ng4500-series/overview' },
-        { from: '/docs/tags/ai-tool-stack', to: '/docs/software/ai-tool-stack' },
+        { from: '/docs/tags/ai-tool-stack', to: '/docs/software/ai-tool-stack/overview' },
       ],
     }
   ],
