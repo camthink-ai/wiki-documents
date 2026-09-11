@@ -1,6 +1,6 @@
 ---
 sidebar_label: "AI Model"
-description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
+description: "CamThink 水表识别解决方案——NE101 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
 ---
 # 模型与识别
 
@@ -16,7 +16,7 @@ description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMin
 
 ```mermaid
 flowchart LR
-    A["NE101/NE301 抓拍原图"] --> B["ne101_camera 组件<br/>ROI 叠加显示"]
+    A["NE101 抓拍原图"] --> B["ne101_camera 组件<br/>ROI 叠加显示"]
     B -->|processingExtensionId| C["paddle-ocr-v6<br/>本地 OCR"]
     C --> D["读数文本 + 置信度"]
     D --> E["Transform 规则<br/>提取数字・校验量程"]
@@ -26,11 +26,3 @@ flowchart LR
 - **ROI(感兴趣区域)**:在仪表板组件上框选字轮区域,OCR 只识别该区域,抗背景干扰并提速
 - **读数校验**:用 Transform 把 OCR 文本解析为数字,并做量程/单调性校验(读数倒退、超量程标记为异常),详见 [数据变换](/docs/neomind/user-guide/7b-data-transforms)
 
-## 端侧推理变体(NE301)
-
-若现场供电/网络受限、或单点表计量大,可改走 **NE301 本地推理**:用 [AI ToolStack](/docs/software/ai-tool-stack/overview) 完成 数据采集 → 标注 → YOLOv8 训练 → 量化,模型包直接刷入 NE301,端侧输出读数/定位,仅回传结构化结果。适合:
-
-- 无稳定上行带宽(只回传数字不回传图)
-- 需要分钟级高频识别(不依赖平台算力)
-
-两条路线不互斥:同一项目可"近端 NE301 本地识别 + 远端 NE101 平台识别"混合部署。

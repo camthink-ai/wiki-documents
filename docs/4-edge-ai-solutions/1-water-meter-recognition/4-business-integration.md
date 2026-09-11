@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Business Integration"
-description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
+description: "CamThink 水表识别解决方案——NE101 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
 ---
 # 业务集成
 

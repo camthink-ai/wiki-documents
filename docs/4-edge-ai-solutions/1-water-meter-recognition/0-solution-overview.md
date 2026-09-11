@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Solution Overview"
-description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
+description: "CamThink 水表识别解决方案——NE101 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
 ---
 # 方案概述
 
@@ -16,7 +16,7 @@ description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMin
 
 ```mermaid
 flowchart LR
-    M["水表/电表/燃气表"] -->|支架安装・定时抓拍| C["NeoEyes 相机<br/>NE101(电池)/ NE301(高质量)"]
+    M["水表/电表/燃气表"] -->|支架安装・定时抓拍| C["NeoEyes NE101 相机<br/>电池供电・定时抓拍"]
     C -->|Wi-Fi / Cat.1 上传| N["NeoMind 平台<br/>设备接入・本地 OCR・规则校验"]
     N -->|OpenAPI / Data Push| B["营收 / 工单 / 大屏"]
     N -->|异常告警| U["邮件 / IM / Webhook"]
@@ -29,7 +29,6 @@ flowchart LR
 | 组件 | 选型 | 数量 | 说明 |
 |---|---|---|---|
 | 相机 | NeoEyes NE101 | 每表 1 台 | 电池供电,默认低功耗配置每日 5 拍、Wi-Fi 模式续航 2.4~6.2 年(理论值,[续航实测表](/docs/neoeyes-ne101-series/overview)) |
-| 相机(可选) | NeoEyes NE301 | 每表 1 台 | 近距离供电方便、需要更高成像质量或本地推理时选型 |
 | 表计支架 | NE101 水表支架(官方配件) | 每表 1 套 | 固定镜头与表盘的相对位置 |
 | 平台 | NeoMind | 1 套 | Linux 主机/服务器/NG4500 均可部署 |
 | OCR 扩展 | paddle-ocr-v6 | 1 个 | 市场一键安装,内置 tiny 档模型 |

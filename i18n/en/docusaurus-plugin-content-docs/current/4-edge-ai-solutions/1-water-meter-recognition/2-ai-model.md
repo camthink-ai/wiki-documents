@@ -1,6 +1,6 @@
 ---
 sidebar_label: "AI Model"
-description: "CamThink water-meter recognition solution: NE101/NE301 cameras + on-host NeoMind OCR for automatic meter reading and business push."
+description: "CamThink water-meter recognition solution: NE101 cameras + on-host NeoMind OCR for automatic meter reading and business push."
 ---
 # AI Model
 
@@ -16,7 +16,7 @@ Recommended path: **host-side recognition** — the camera only captures and upl
 
 ```mermaid
 flowchart LR
-    A["NE101/NE301 snapshot"] --> B["ne101_camera component<br/>ROI overlay"]
+    A["NE101 snapshot"] --> B["ne101_camera component<br/>ROI overlay"]
     B -->|processingExtensionId| C["paddle-ocr-v6<br/>local OCR"]
     C --> D["reading text + confidence"]
     D --> E["Transform rules<br/>parse digits · range check"]
@@ -26,6 +26,3 @@ flowchart LR
 - **ROI**: frame only the digit-wheel area — faster and robust to background clutter
 - **Validation**: Transforms parse OCR text into numbers and check range/monotonicity (backward jumps and out-of-range flagged), see [Data Transforms](/docs/neomind/user-guide/7b-data-transforms)
 
-## On-Device Variant (NE301)
-
-When power/uplink is constrained or a site has many meters: run inference on the NE301 itself — use [AI ToolStack](/docs/software/ai-tool-stack/overview) for capture → annotation → YOLOv8 training → quantization, flash the model package, and only structured readings leave the device. Both paths can coexist in one project.

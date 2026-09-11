@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Platform Configuration"
-description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
+description: "CamThink 水表识别解决方案——NE101 相机 + NeoMind 本地 OCR,自动抄读与业务推送。"
 ---
 # NeoMind 平台配置
 
@@ -8,7 +8,7 @@ description: "CamThink 水表识别解决方案——NE101/NE301 相机 + NeoMin
 
 ## 1. 设备接入
 
-- NE101/NE301 抓拍图经 **Webhook 或 MQTT** 进入 NeoMind;NeoMind 内置 MQTT Broker 与 Webhook 接入,无需外部中间件
+- NE101 抓拍图经 **Webhook 或 MQTT** 进入 NeoMind;NeoMind 内置 MQTT Broker 与 Webhook 接入,无需外部中间件
 - 接入操作见 [设备接入指南](/docs/neomind/user-guide/onboard-device);首次接入会进入待审核列表,审核时关联设备类型模板
 
 ## 2. 摄像头组件 + OCR 流水线

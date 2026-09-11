@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Solution Overview"
-description: "CamThink water-meter recognition solution: NE101/NE301 cameras + on-host NeoMind OCR for automatic meter reading and business push."
+description: "CamThink water-meter recognition solution: NE101 cameras + on-host NeoMind OCR for automatic meter reading and business push."
 ---
 # Solution Overview
 
@@ -16,7 +16,7 @@ Automatic meter reading for water/electricity/gas meters: CamThink low-power cam
 
 ```mermaid
 flowchart LR
-    M["Water / electricity / gas meter"] -->|bracket mount · scheduled capture| C["NeoEyes camera<br/>NE101 (battery) / NE301 (high quality)"]
+    M["Water / electricity / gas meter"] -->|bracket mount · scheduled capture| C["NeoEyes NE101 camera<br/>battery · scheduled capture"]
     C -->|Wi-Fi / Cat.1 upload| N["NeoMind<br/>onboarding · on-host OCR · rule validation"]
     N -->|OpenAPI / Data Push| B["Billing / work-order / dashboard"]
     N -->|anomaly alerts| U["Email / IM / Webhook"]
@@ -29,7 +29,6 @@ All inference runs **locally on the NeoMind host** (paddle-ocr-v6 ships with a b
 | Component | Choice | Qty | Notes |
 |---|---|---|---|
 | Camera | NeoEyes NE101 | 1/meter | Battery powered; default low-power profile = 5 captures/day, 2.4–6.2 yr Wi-Fi battery life (theoretical, see [NE101 overview](/docs/neoeyes-ne101-series/overview)) |
-| Camera (alt.) | NeoEyes NE301 | 1/meter | When power is available nearby or higher imaging quality / on-device inference is needed |
 | Meter bracket | NE101 water-meter bracket (official accessory) | 1/meter | Fixes lens-to-dial geometry |
 | Platform | NeoMind | 1 | Any Linux host / server / NG4500 |
 | OCR extension | paddle-ocr-v6 | 1 | One-click install from marketplace, tiny model built in |

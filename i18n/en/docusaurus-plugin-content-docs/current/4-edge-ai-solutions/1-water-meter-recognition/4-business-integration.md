@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Business Integration"
-description: "CamThink water-meter recognition solution: NE101/NE301 cameras + on-host NeoMind OCR for automatic meter reading and business push."
+description: "CamThink water-meter recognition solution: NE101 cameras + on-host NeoMind OCR for automatic meter reading and business push."
 ---
 # Business Integration
 

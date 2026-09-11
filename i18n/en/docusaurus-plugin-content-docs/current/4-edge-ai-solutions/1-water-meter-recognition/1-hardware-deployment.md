@@ -1,25 +1,22 @@
 ---
 sidebar_label: "Hardware & Deployment"
-description: "CamThink water-meter recognition solution: NE101/NE301 cameras + on-host NeoMind OCR for automatic meter reading and business push."
+description: "CamThink water-meter recognition solution: NE101 cameras + on-host NeoMind OCR for automatic meter reading and business push."
 ---
 # Hardware & Deployment
 
-## Camera Selection
+## Why NE101
 
-| Dimension | NE101 (recommended start) | NE301 |
-|---|---|---|
-| Power | Battery (7.2V), no wiring | DC/USB, for rooms with power |
-| Imaging | Fine for close-up dials | Higher quality for distant / small digits |
-| Network | Wi-Fi / Cat.1 / Wi-Fi HaLow swappable | Wi-Fi / wired |
-| Capture | Deep sleep + scheduled wake; 5/day for 2.4–6.2 yr (Wi-Fi, theoretical) | Powered, high frequency possible |
-| On-device inference | No (images uploaded) | Optional (NPU) |
+**NE101 across the board**, because:
 
-Most meter-reading cases need **1–4 reads/day** — NE101's scheduled capture is enough; choose NE301 only for minute-level monitoring or easy power.
+- **Battery powered, no wiring**: 7.2V pack + deep sleep — 5 captures/day for 2.4–6.2 yr on Wi-Fi (theoretical); installs even in unpowered wells/pump rooms
+- **Three radios to choose from**: Wi-Fi / Cat.1 / Wi-Fi HaLow modules cover near, remote and cellular-only sites
+- **Scheduled capture is enough**: settlement needs 1–4 reads/day; capture frequency trades linearly with battery life
+- **Recognition stays on the host**: the camera just captures a clear image — model iterations never touch field devices
 
 ## Installation Essentials
 
 - Use the **official water-meter bracket**; lens square to the digit wheels to avoid distortion
-- Keep lens-to-dial distance within the bracket spec; small-digit legacy dials favor NE301
+- Keep lens-to-dial distance within the bracket spec
 - In wells/pump rooms watch for condensation: lens facing down or with a hood
 - Enable NE101 fill light for dark environments (built-in firmware feature, see [NE101 overview](/docs/neoeyes-ne101-series/overview))
 

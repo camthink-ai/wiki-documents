@@ -1,6 +1,6 @@
 ---
 sidebar_label: "Platform Configuration"
-description: "CamThink water-meter recognition solution: NE101/NE301 cameras + on-host NeoMind OCR for automatic meter reading and business push."
+description: "CamThink water-meter recognition solution: NE101 cameras + on-host NeoMind OCR for automatic meter reading and business push."
 ---
 # NeoMind Platform Configuration
 
@@ -8,7 +8,7 @@ Goal: devices online → snapshots & readings flow in → dashboards → alerts.
 
 ## 1. Device Onboarding
 
-- NE101/NE301 snapshots arrive via **Webhook or MQTT**; NeoMind ships both endpoints (built-in broker), no extra middleware
+- NE101 snapshots arrive via **Webhook or MQTT**; NeoMind ships both endpoints (built-in broker), no extra middleware
 - See [device onboarding](/docs/neomind/user-guide/onboard-device); first-seen devices land in the pending list for approval
 
 ## 2. Camera Component + OCR Pipeline
