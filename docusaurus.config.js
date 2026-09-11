@@ -167,18 +167,19 @@ const config = {
             label: 'Docs',
           },
           {
-            href: 'https://www.camthink.ai/',
+            // 外链统一带 CamThink Wiki 来源标识（与 src/utils/utm.cjs 的参数保持一致）
+            href: 'https://www.camthink.ai/?utm_source=CamThink%20Wiki&utm_medium=referral&utm_content=navbar',
             position: 'right',
             label: 'Home',
             className: 'home-button'
           },
           {
-            href: 'https://www.camthink.ai/store/',
+            href: 'https://www.camthink.ai/store/?utm_source=CamThink%20Wiki&utm_medium=referral&utm_content=navbar',
             position: 'right',
             label: 'Store',
             className: 'store-button'
           },
-          { href: 'https://github.com/camthink-ai', position: 'right', label: 'GitHub' },
+          { href: 'https://github.com/camthink-ai?utm_source=CamThink%20Wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub' },
           { type: 'localeDropdown', position: 'right' },
         ],
       },

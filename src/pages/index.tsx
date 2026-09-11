@@ -8,6 +8,8 @@ import { Icon } from '@site/src/components/icons';
 // 站内文档链接统一取自数据文件，目录重构后只改 siteLinks.cjs
 // @ts-ignore — CommonJS 数据文件，无类型声明（构建时由 webpack 解析）
 import LINKS from '@site/src/data/siteLinks.cjs';
+// @ts-ignore — CommonJS 工具，无类型声明
+import { withWikiUtm } from '@site/src/utils/utm.cjs';
 import '../css/welcome.css';
 
 /** 按场景快速开始 —— 全部链接已对照构建产物核实 */
@@ -122,7 +124,7 @@ export default function Home(): JSX.Element {
                             <a href="#products" className="btn-hero-ghost">
                                 <Translate id="homepage.hero.cta.products">选硬件产品</Translate>
                             </a>
-                            <Link to="https://github.com/camthink-ai" className="btn-github">
+                            <Link to={withWikiUtm('https://github.com/camthink-ai', 'home-hero')} className="btn-github">
                                 <Icon.Github size={18} className="btn-github-icon" />
                                 <Translate id="homepage.hero.cta.github">GitHub Star</Translate>
                             </Link>
@@ -240,21 +242,21 @@ export default function Home(): JSX.Element {
                         </div>
 
                         <div className="community-grid">
-                            <Link href="https://discord.gg/a8NbPGAJw9" className="community-card">
+                            <Link href={withWikiUtm('https://discord.gg/a8NbPGAJw9', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Discord /></div>
                                 <h3>Discord Server</h3>
                                 <p><Translate id="homepage.community.discord">加入实时讨论，获取技术支持</Translate></p>
                                 <span className="community-link-text">Join Server <Icon.ArrowRight size={14} /></span>
                             </Link>
 
-                            <Link href="https://github.com/camthink-ai/community/discussions" className="community-card">
+                            <Link href={withWikiUtm('https://github.com/camthink-ai/community/discussions', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Github /></div>
                                 <h3>GitHub Discussions</h3>
                                 <p><Translate id="homepage.community.github">提交 Issue，参与功能提案</Translate></p>
                                 <span className="community-link-text">View Discussions <Icon.ArrowRight size={14} /></span>
                             </Link>
 
-                            <Link href="https://www.camthink.ai/company/contact-us/" className="community-card">
+                            <Link href={withWikiUtm('https://www.camthink.ai/company/contact-us/', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Mail /></div>
                                 <h3>Contact Us</h3>
                                 <p><Translate id="homepage.community.contact">产品咨询与商业合作</Translate></p>

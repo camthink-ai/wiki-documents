@@ -654,33 +654,11 @@
     "message": "Edge AI Solutions",
     "description": "Footer column title"
   },
-  "footer.col.resources": {
-    "message": "Resources & Support",
-    "description": "Footer column title"
-  },
-  "footer.item.neomind": {
-    "message": "NeoMind Platform"
-  },
-  "footer.item.quickstart": {
-    "message": "Quick Start"
-  },
-  "footer.item.devguide": {
-    "message": "Developer Guide"
-  },
   "footer.item.waterMeter": {
     "message": "Water Meter Recognition"
   },
   "footer.item.smartGym": {
     "message": "Smart Gym"
-  },
-  "footer.item.docsHome": {
-    "message": "Documentation Hub"
-  },
-  "footer.item.firmware": {
-    "message": "Firmware & Releases"
-  },
-  "footer.item.ne503Faq": {
-    "message": "NE503 Troubleshooting"
   },
   "footer.item.website": {
     "message": "Website"
@@ -690,5 +668,12 @@
   },
   "footer.item.contact": {
     "message": "Contact Us"
+  },
+  "footer.col.company": {
+    "message": "Company",
+    "description": "Footer column title"
+  },
+  "footer.item.neomind": {
+    "message": "NeoMind Platform"
   }
 }

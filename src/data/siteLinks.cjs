@@ -8,6 +8,8 @@
  * 约定：
  *  - 只放链接路径，展示文案（标题/图标）留在各组件里；
  *  - 路径是构建后的路由（目录/文件名的数字前缀会被 Docusaurus 剥离）；
+ *  - softwareSections / solutionCases 镜像 docs/ 的二级目录（_category_.json），
+ *    新增二级目录或方案案例时在此追加一项，Footer 自动跟进；
  *  - 修改后运行 `yarn check:links`，脚本会把每个路径与 docs/ 生成的真实路由比对。
  */
 module.exports = {
@@ -48,16 +50,29 @@ module.exports = {
     aiToolStack: '/docs/software/ai-tool-stack/overview',
   },
 
-  solutions: {
-    waterMeter: '/docs/edge-ai-solutions/water-meter-recognition/solution-overview',
-    smartGym: '/docs/edge-ai-solutions/smart-gym/solution-overview',
-  },
+  /**
+   * Footer「软件平台」列 —— 只列 Software Platform 组的大类
+   * （NeoMind 平台与 AI ToolStack，与侧边栏二级一致）。
+   */
+  softwareSections: [
+    { id: 'neomind', path: '/docs/neomind/product-overview/what-is-neomind' },
+    { id: 'aiToolStack', path: '/docs/software/ai-tool-stack/overview' },
+  ],
 
   useCases: {
     detection: '/docs/neomind/use-cases/object-detection',
     ocr: '/docs/neomind/use-cases/ocr-text-extraction',
     voice: '/docs/neomind/use-cases/voice',
   },
+
+  /**
+   * Footer「解决方案」列 —— 镜像 docs/4-edge-ai-solutions/ 的二级目录（案例），
+   * 每项指向案例的 solution-overview。
+   */
+  solutionCases: [
+    { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition/solution-overview' },
+    { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym/solution-overview' },
+  ],
 
   /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */
   latest: {
@@ -66,12 +81,6 @@ module.exports = {
     ne503Faq: '/docs/neoeyes-ne503-series/troubleshooting',
     ne302Docs: '/docs/neoeyes-ne302-series/ne302-overview',
     ne503Hef: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
-  },
-
-  resources: {
-    // Firmware & Releases 板块已在 2026-09 目录重构中移除；若日后恢复，
-    // 注意旧页面的 frontmatter slug 自带数字前缀（/docs/7-release-notes/firmware）。
-    ne503Troubleshooting: '/docs/neoeyes-ne503-series/troubleshooting',
   },
 
   community: {
