@@ -34,6 +34,8 @@ flowchart LR
 | 平台 | NeoMind | 1 套 | Linux 主机/服务器/NG4500 均可部署 |
 | OCR 扩展 | paddle-ocr-v6 | 1 个 | 市场一键安装,内置 tiny 档模型 |
 
+> 起步配置(10 块表以内):**每表 1 台 NE101(含水表支架)+ 1 台运行 NeoMind 的 Linux 主机**即可上线;表数增长时只增加相机,平台不变。
+
 ## 效果与指标
 
 - 表盘读数识别准确率可达 **99%**(以 [NE101 官方场景数据](/docs/neoeyes-ne101-series/overview)为参考,实际以现场表型与安装条件为准)
