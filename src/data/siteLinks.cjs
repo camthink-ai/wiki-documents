@@ -1,0 +1,87 @@
+/**
+ * 全站文档链接单一来源（single source of truth）。
+ *
+ * 首页 (src/pages/index.tsx)、产品矩阵 (src/components/ProductMatrix.tsx)、
+ * 自定义 Footer (src/theme/Footer) 的站内文档链接全部从这里取，
+ * 目录结构调整时只需更新本文件。
+ *
+ * 约定：
+ *  - 只放链接路径，展示文案（标题/图标）留在各组件里；
+ *  - 路径是构建后的路由（目录/文件名的数字前缀会被 Docusaurus 剥离）；
+ *  - 修改后运行 `yarn check:links`，脚本会把每个路径与 docs/ 生成的真实路由比对。
+ */
+module.exports = {
+  docsHome: '/docs/',
+
+  products: {
+    ng4500: {
+      overview: '/docs/neoedge-ng4500-series/overview',
+      quickStart: '/docs/neoedge-ng4500-series/quick-start',
+    },
+    ne503: {
+      overview: '/docs/neoeyes-ne503-series/overview',
+      quickStart: '/docs/neoeyes-ne503-series/quick-start',
+    },
+    ne301: {
+      overview: '/docs/neoeyes-ne301-series/overview',
+      quickStart: '/docs/neoeyes-ne301-series/quick-start',
+    },
+    ne302: {
+      overview: '/docs/neoeyes-ne302-series/ne302-overview',
+      quickStart: '/docs/neoeyes-ne302-series/ne302-quick-start',
+    },
+    ne101: {
+      overview: '/docs/neoeyes-ne101-series/overview',
+      quickStart: '/docs/neoeyes-ne101-series/quick-start',
+    },
+  },
+
+  neomind: {
+    overview: '/docs/neomind/product-overview/what-is-neomind',
+    quickStart: '/docs/neomind/quick-start/five-minute-guide',
+    userGuide: '/docs/neomind/user-guide/install-setup',
+    devGuide: '/docs/neomind/developer-guide/overview',
+    onboardDevice: '/docs/neomind/user-guide/onboard-device',
+  },
+
+  software: {
+    aiToolStack: '/docs/software/ai-tool-stack/overview',
+  },
+
+  solutions: {
+    waterMeter: '/docs/edge-ai-solutions/water-meter-recognition/solution-overview',
+    smartGym: '/docs/edge-ai-solutions/smart-gym/solution-overview',
+  },
+
+  useCases: {
+    detection: '/docs/neomind/use-cases/object-detection',
+    ocr: '/docs/neomind/use-cases/ocr-text-extraction',
+    voice: '/docs/neomind/use-cases/voice',
+  },
+
+  /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */
+  latest: {
+    // 该页 slug 即 /docs/neoeyes-ne503-series/application-guide/，充当应用指南落地页
+    ne503Resources: '/docs/neoeyes-ne503-series/application-guide/',
+    ne503Faq: '/docs/neoeyes-ne503-series/troubleshooting',
+    ne302Docs: '/docs/neoeyes-ne302-series/ne302-overview',
+    ne503Hef: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
+  },
+
+  resources: {
+    // Firmware & Releases 板块已在 2026-09 目录重构中移除；若日后恢复，
+    // 注意旧页面的 frontmatter slug 自带数字前缀（/docs/7-release-notes/firmware）。
+    ne503Troubleshooting: '/docs/neoeyes-ne503-series/troubleshooting',
+  },
+
+  community: {
+    website: 'https://www.camthink.ai',
+    store: 'https://www.camthink.ai/store/',
+    contact: 'https://www.camthink.ai/company/contact-us/',
+    github: 'https://github.com/camthink-ai',
+    discussions: 'https://github.com/camthink-ai/community/discussions',
+    discord: 'https://discord.gg/a8NbPGAJw9',
+    x: 'https://x.com/CamThinkAI',
+    youtube: 'https://www.youtube.com/@CamThink',
+  },
+};

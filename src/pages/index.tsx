@@ -5,6 +5,9 @@ import Link from '@docusaurus/Link';
 import Translate from '@docusaurus/Translate';
 import ProductMatrix from '@site/src/components/ProductMatrix';
 import { Icon } from '@site/src/components/icons';
+// 站内文档链接统一取自数据文件，目录重构后只改 siteLinks.cjs
+// @ts-ignore — CommonJS 数据文件，无类型声明（构建时由 webpack 解析）
+import LINKS from '@site/src/data/siteLinks.cjs';
 import '../css/welcome.css';
 
 /** 按场景快速开始 —— 全部链接已对照构建产物核实 */
@@ -13,7 +16,7 @@ const USE_CASES = [
         id: 'detection',
         title: <Translate id="homepage.usecase.detection.title">目标检测</Translate>,
         desc: <Translate id="homepage.usecase.detection.desc">YOLO 系列模型训练与相机端部署推理</Translate>,
-        url: '/docs/neomind/use-cases/object-detection',
+        url: LINKS.useCases.detection,
         icon: (
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v2M12 17v2M5 12h2M17 12h2M7.7 7.7l1.4 1.4M14.9 14.9l1.4 1.4M7.7 16.3l1.4-1.4M14.9 9.1l1.4-1.4" /><circle cx="12" cy="12" r="3" /></svg>
         ),
@@ -22,7 +25,7 @@ const USE_CASES = [
         id: 'ocr',
         title: <Translate id="homepage.usecase.ocr.title">OCR 文字识别</Translate>,
         desc: <Translate id="homepage.usecase.ocr.desc">相机抓拍图片的文字提取与结构化</Translate>,
-        url: '/docs/neomind/use-cases/ocr-text-extraction',
+        url: LINKS.useCases.ocr,
         icon: (
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>
         ),
@@ -31,7 +34,7 @@ const USE_CASES = [
         id: 'voice',
         title: <Translate id="homepage.usecase.voice.title">语音交互</Translate>,
         desc: <Translate id="homepage.usecase.voice.desc">ASR → LLM → TTS 全链路语音方案</Translate>,
-        url: '/docs/neomind/use-cases/voice',
+        url: LINKS.useCases.voice,
         icon: (
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 19v3" /></svg>
         ),
@@ -40,7 +43,7 @@ const USE_CASES = [
         id: 'onboard',
         title: <Translate id="homepage.usecase.onboard.title">设备接入</Translate>,
         desc: <Translate id="homepage.usecase.onboard.desc">MQTT/BLE/Webhook 设备接入 NeoMind 平台</Translate>,
-        url: '/docs/neomind/user-guide/onboard-device',
+        url: LINKS.neomind.onboardDevice,
         icon: (
             <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" /></svg>
         ),
@@ -53,23 +56,23 @@ const LATEST_DOCS = [
         badge: 'NEW',
         title: <Translate id="latest.resources.title">NE503 Resources</Translate>,
         date: '2026-08-26',
-        url: '/docs/neoeyes-ne503-series/application-guide/',
+        url: LINKS.latest.ne503Resources,
     },
     {
         badge: 'NEW',
         title: <Translate id="latest.faq.title">NE503 故障排查 FAQ</Translate>,
         date: '2026-08-19',
-        url: '/docs/neoeyes-ne503-series/troubleshooting',
+        url: LINKS.latest.ne503Faq,
     },
     {
         title: <Translate id="latest.ne302.title">NeoEyes NE302 文档</Translate>,
         date: '2026-08-14',
-        url: '/docs/neoeyes-ne302-series/ne302-overview',
+        url: LINKS.latest.ne302Docs,
     },
     {
         title: <Translate id="latest.hef.title">NE503 模型训练与 HEF 转换</Translate>,
         date: '2026-07-21',
-        url: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
+        url: LINKS.latest.ne503Hef,
     },
 ];
 
@@ -111,7 +114,7 @@ export default function Home(): JSX.Element {
                         </p>
 
                         <div className="hero-actions">
-                            <Link to="/docs/" className="btn-primary">
+                            <Link to={LINKS.docsHome} className="btn-primary">
                                 <Translate id="homepage.hero.cta.docs">文档中心</Translate>
                                 <Icon.ArrowRight size={16} className="btn-arrow" />
                             </Link>
@@ -171,7 +174,7 @@ export default function Home(): JSX.Element {
                     </div>
 
                     <div className="neomind-layer-grid">
-                        <Link to="/docs/neomind/product-overview/what-is-neomind" className="neomind-block">
+                        <Link to={LINKS.neomind.overview} className="neomind-block">
                             <div className="neomind-block-head">
                                 <span className="neomind-block-title"><Translate id="homepage.stack.mw.neomind">NeoMind</Translate></span>
                                 <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.platformsub">Edge AI platform · device management & application runtime</Translate></span>
@@ -186,7 +189,7 @@ export default function Home(): JSX.Element {
                             </div>
                         </Link>
 
-                        <Link to="/docs/software/ai-tool-stack" className="neomind-block">
+                        <Link to={LINKS.software.aiToolStack} className="neomind-block">
                             <div className="neomind-block-head">
                                 <span className="neomind-block-title"><Translate id="homepage.stack.mw.toolstack">AI ToolStack</Translate></span>
                                 <span className="neomind-block-sub"><Translate id="homepage.stack.neomind.toolsub">Full model lifecycle · training / quantization / conversion / deployment</Translate></span>

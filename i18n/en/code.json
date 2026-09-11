@@ -637,5 +637,58 @@
   },
   "latest.faq.title": {
     "message": "NE503 Troubleshooting FAQ"
+  },
+  "footer.tagline": {
+    "message": "Open hardware × open software — build your edge AI applications in one place.",
+    "description": "Footer brand tagline"
+  },
+  "footer.col.hardware": {
+    "message": "Hardware",
+    "description": "Footer column title"
+  },
+  "footer.col.software": {
+    "message": "Software",
+    "description": "Footer column title"
+  },
+  "footer.col.solutions": {
+    "message": "Edge AI Solutions",
+    "description": "Footer column title"
+  },
+  "footer.col.resources": {
+    "message": "Resources & Support",
+    "description": "Footer column title"
+  },
+  "footer.item.neomind": {
+    "message": "NeoMind Platform"
+  },
+  "footer.item.quickstart": {
+    "message": "Quick Start"
+  },
+  "footer.item.devguide": {
+    "message": "Developer Guide"
+  },
+  "footer.item.waterMeter": {
+    "message": "Water Meter Recognition"
+  },
+  "footer.item.smartGym": {
+    "message": "Smart Gym"
+  },
+  "footer.item.docsHome": {
+    "message": "Documentation Hub"
+  },
+  "footer.item.firmware": {
+    "message": "Firmware & Releases"
+  },
+  "footer.item.ne503Faq": {
+    "message": "NE503 Troubleshooting"
+  },
+  "footer.item.website": {
+    "message": "Website"
+  },
+  "footer.item.store": {
+    "message": "Store"
+  },
+  "footer.item.contact": {
+    "message": "Contact Us"
   }
 }
