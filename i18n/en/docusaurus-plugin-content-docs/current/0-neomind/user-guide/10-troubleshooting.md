@@ -293,6 +293,32 @@ journalctl -u neomind.service -p err
 journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 ```
 
+## Crash & Performance Analysis
+
+The Linux server tarball omits DWARF debug info to keep the download small, but retains the function symbol table — so routine triage (panic backtraces in logs, hot functions in `perf report`) needs **no extra files**. When you need **source-line** information — line-accurate perf flame graphs, gdb on a core dump, `addr2line` — download the matching optional symbols package and extract it next to the binaries:
+
+```bash
+VERSION=0.9.24   # keep this identical to the running version (check with neomind --version)
+ARCH=amd64       # adjust for your platform; use arm64 on ARM devices
+
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}-debug-symbols.tar.gz
+
+# Extract into the binaries' directory: each binary embeds a .gnu_debuglink,
+# so perf/gdb automatically pick up the .debug file sitting next to it
+sudo tar xzf neomind-server-linux-${ARCH}-debug-symbols.tar.gz -C /usr/local/bin/
+
+# Verify: reports now show file names and line numbers
+perf record -g -p $(pidof neomind) -- sleep 10
+perf report
+```
+
+:::info
+- The symbols package only affects **offline analysis**: DWARF is never loaded into memory — install it, delete it, whenever; the service behaves identically either way.
+- Symbols for both `neomind` and `neomind-extension-runner` live in the same package.
+- There is no macOS symbols package — darwin binaries never embed DWARF in the first place, so nothing extra is needed.
+- If the Release assets list has no such file, your version predates the package (introduced 2026-09); upgrade to get it.
+:::
+
 ## Still Stuck?
 
 - Search [GitHub Issues](https://github.com/camthink-ai/NeoMind/issues) for the same symptom
@@ -301,4 +327,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-11*

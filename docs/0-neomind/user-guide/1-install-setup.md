@@ -171,6 +171,10 @@ sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 ./neomind serve
 ```
 
+:::note 调试符号包（可选，仅 Linux）
+主包为了控制下载体积只含二进制（不带 DWARF 调试信息），但保留了函数符号表，日常运维与日志排查不需要任何额外文件。需要**源码行号**级的崩溃分析（core dump）或性能剖析（perf 火焰图）时，另行下载同版本的 `neomind-server-linux-${ARCH}-debug-symbols.tar.gz`，解压到二进制所在目录即可被工具自动识别，详见[故障排查 · 崩溃与性能分析](/docs/neomind/user-guide/troubleshooting)。
+:::
+
 ### 配合 nginx 反向代理
 
 对外只暴露 80 端口，9375 限定本机访问：
@@ -343,4 +347,4 @@ NeoMind 已跑起来了？接下来按顺序：
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-11*

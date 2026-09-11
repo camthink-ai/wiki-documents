@@ -304,6 +304,31 @@ journalctl -u neomind.service -p err
 journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 ```
 
+## 崩溃与性能分析
+
+Linux 服务器主包为了控制体积不携带 DWARF 调试信息，但保留了函数符号表，所以常规排查（看日志里的 panic 栈、`perf report` 看热点函数）**不需要任何额外文件**。需要**源码行号**信息时——perf 火焰图精确到行、gdb 解析 core dump、`addr2line`——下载同版本的可选符号包，解压到二进制旁边：
+
+```bash
+VERSION=0.9.24   # 与正在运行的版本保持一致（neomind --version 查看）
+ARCH=amd64       # 按平台调整，arm64 设备改为 arm64
+
+wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}-debug-symbols.tar.gz
+
+# 解压到二进制同目录：二进制内嵌 .gnu_debuglink，perf/gdb 会自动关联同目录的 .debug 文件
+sudo tar xzf neomind-server-linux-${ARCH}-debug-symbols.tar.gz -C /usr/local/bin/
+
+# 验证：火焰图/报告现在能给出文件名与行号
+perf record -g -p $(pidof neomind) -- sleep 10
+perf report
+```
+
+:::info
+- 符号包只影响**离线分析**：DWARF 不会被加载进内存，装不装、装完后何时删，服务行为完全一致。
+- `neomind` 与 `neomind-extension-runner` 两个二进制的符号在同一个符号包里。
+- macOS 服务器包没有对应符号包——macOS 二进制本就不内嵌 DWARF，无需额外文件。
+- 若 Release 资产列表里找不到该文件，说明所用版本早于符号包引入（2026-09），升级后即可获得。
+:::
+
 ## 还没解决？
 
 - 查 [GitHub Issues](https://github.com/camthink-ai/NeoMind/issues) 搜同款问题
@@ -312,4 +337,4 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-11*
