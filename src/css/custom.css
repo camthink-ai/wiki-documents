@@ -289,25 +289,31 @@
 /* ============================================================ */
 
 /* —— 底部「Collapse sidebar」按钮:从素 outline 按钮改为轻量 ghost 风格 —— */
-/* —— 桌面侧边栏底部「Collapse sidebar」按钮:轻量 ghost 风格 —— */
+/* —— 桌面侧边栏底部「Collapse sidebar」:纯图标按钮 → 贴底通栏 + 顶部分隔线 —— */
 .theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] {
-  height: 38px !important;
-  padding: 0 12px !important;
-  margin: 8px 12px 12px !important;
-  border-radius: 10px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-top: 1px solid var(--ifm-color-emphasis-200) !important;
+  border-radius: 0 !important;
   background: transparent !important;
-  border: 1px solid var(--ifm-color-emphasis-300) !important;
-  color: var(--ifm-color-emphasis-600) !important;
-  font-size: 0.78rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.02em;
-  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+  color: var(--ifm-color-emphasis-500) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s ease, background-color 0.18s ease;
 }
 
 .theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"]:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 7%, transparent) !important;
   color: var(--ifm-color-primary) !important;
-  border-color: var(--ifm-color-primary) !important;
-  background: color-mix(in srgb, var(--ifm-color-primary) 8%, transparent) !important;
+}
+
+/* 图标 SVG 内层硬编码了 fill,用 currentColor 接管以跟随悬停变色 */
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg g,
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg path {
+  fill: currentColor;
 }
 
 /* —— 折叠后左缘悬浮的展开按钮:品牌色圆角 + 投影 —— */
