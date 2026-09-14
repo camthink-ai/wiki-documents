@@ -1,5 +1,6 @@
 ---
 title: 文档中心
+sidebar_label: "Documentation Hub"
 description: 欢迎来到 CamThink Wiki 中心！探索边缘智能，获取 NeoEyes NE101、NE301、NE302、NE503 和 NeoEdge NG4500 系列产品的详细技术文档、快速入门指南及 AIoT 应用教程。
 keywords: [CamThink, 边缘智能, AIoT, 开发者社区, 边缘计算, 技术文档, 视觉感知, 边缘 AI]
 tags: [产品入门, 边缘 AI, 硬件指南, 开发者资源, 品牌介绍]
