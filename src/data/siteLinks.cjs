@@ -67,11 +67,11 @@ module.exports = {
 
   /**
    * Footer「解决方案」列 —— 镜像 docs/4-edge-ai-solutions/ 的二级目录（案例）。
-   * 案例页结构尚在规划（团队手写中），暂指向各案例根页；
-   * 正式方案页定稿后改回 solution-overview 之类的内容页。
+   * 案例页结构尚在规划（团队手写中），暂指向「方案说明」子页；
+   * 正式内容定稿后按需调整。
    */
   solutionCases: [
-    { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition' },
+    { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition/solution-description' },
     { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym' },
   ],
 
