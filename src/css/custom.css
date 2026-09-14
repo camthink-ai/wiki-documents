@@ -406,3 +406,13 @@ ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
     margin: 8px 12px;
   }
 }
+
+/* —— 方案 BOM 表格内的产品小图 —— */
+article table img[src*="/img/Overview/"],
+article table img[src*="solutions"] {
+  width: auto;
+  height: 56px;
+  max-width: 90px;
+  object-fit: contain;
+  border-radius: 6px;
+}
