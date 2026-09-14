@@ -175,6 +175,10 @@ sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 ./neomind serve
 ```
 
+:::note Debug symbols package (optional, Linux only)
+The main tarball ships binaries only — no DWARF debug info, to keep the download small — but function symbols are retained, so everyday operations and log triage need nothing extra. For **source-line-level** crash analysis (core dumps) or performance profiling (perf flame graphs), download the matching `neomind-server-linux-${ARCH}-debug-symbols.tar.gz` and extract it next to the binaries; tools pick it up automatically. See [Troubleshooting · Crash & Performance Analysis](/docs/neomind/user-guide/troubleshooting).
+:::
+
 ### With nginx Reverse Proxy
 
 Expose only port 80 externally; keep 9375 loopback-only:
@@ -343,4 +347,4 @@ NeoMind is running? Here's the recommended order:
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-11*

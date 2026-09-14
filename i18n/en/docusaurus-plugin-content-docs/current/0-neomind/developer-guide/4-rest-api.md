@@ -13,10 +13,14 @@ The NeoMind backend serves a REST API on Axum. This page is an **integrator's ov
 | Item | Value |
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
+| Interactive API docs | `http://<SERVER_IP>:9375/api/docs` (Swagger-style, 339 routes, try-it-out) |
+| Machine-readable route list | `GET /api/docs/routes.json` |
 | Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
 | Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
 
 > **Every endpoint path starts with `/api`.** The endpoint lists below omit the `/api` prefix.
+>
+> **Start at `/api/docs`**: since 0.9.24 an interactive API console is built in — every route grouped by auth class, expandable, and executable via Try it out (add your API Key to the request headers). This page covers contracts and pitfalls; the console is faster for per-endpoint exploration.
 
 ## Authentication
 
@@ -113,11 +117,11 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 |--------|------|-------------|
 | GET | `/devices` | List devices |
 | POST | `/devices` | Create device (requires `connection_config: {}` even if empty) |
-| GET | `/devices/:id` | Device detail (metrics + commands) |
+| GET | `/devices/:id` | Device detail (metrics + commands; `status` is three-state: `online` / `offline` (seen before, timed out) / `disconnected` (never seen)) |
 | GET | `/devices/:id/current` | Current values for all device metrics |
-| PUT | `/devices/:id` | Update device |
+| PUT | `/devices/:id` | Update device. `offline_timeout_secs` tri-state: **absent** = keep current, `null` = clear override (fall back to template/global), number = set (30–86400 seconds) |
 | DELETE | `/devices/:id` | Delete device |
-| GET | `/devices/:id/telemetry` | Device telemetry history (`?metric=&start=&end=`) |
+| GET | `/devices/:id/telemetry` | Device telemetry history — see [Telemetry query contract](#telemetry-query-contract) |
 | GET | `/telemetry` | Cross-device telemetry query (`?source=&metric=&start=&end=&limit=&offset=`; `offset` skips the newest N items for server-side pagination; the response carries an exact `total_count`) |
 | POST | `/devices/:id/command/:command` | Send command (body is the params object, e.g. `{"offset": 1}`) |
 | POST | `/devices/:id/webhook` | Push data via webhook (no auth) |
@@ -125,6 +129,25 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | POST | `/device-types` | Create device type |
 | GET | `/devices/drafts` | Pending drafts (auto-discovered) |
 | POST | `/devices/drafts/:id/approve` | Approve a draft |
+
+### Telemetry query contract
+
+Query parameters for `GET /devices/:id/telemetry` (timestamps are always **Unix seconds**):
+
+| Parameter | Semantics |
+|-----------|------------|
+| `metric` | A specific metric; omit for all metrics of the device |
+| `start` / `end` | Time window (seconds). **`hours=N`** (1–720) derives the window when `start` is absent (honored since 0.9.24; previously ignored) |
+| `aggregate` | `avg` / `min` / `max` / `sum` / `last` — **the `value` field reflects the requested function** (since 0.9.24; previously always avg); unknown values return 400; the raw fields (min/max/sum/count) always ride along |
+| `limit` | Points per page, 1–5000, default 100 |
+| `offset` | Skip the newest N points (offset pagination) |
+| `cursor` | Cursor pagination: the previous page's oldest timestamp; the next page returns **strictly older** points (no boundary duplicates). `pagination.next_cursor` being `null` in the response means last page (short-page signal) — stop paginating |
+| `history=true` | Access to a **deleted device's** archived data — an unknown device 404s here (consistent with `/devices/:id`); this flag reads the archive |
+| `bucketed` | Server-side downsampling; returns at most `limit` evenly-spaced points for charts |
+
+> **Polling note for integrators**: when a device is deleted by another client (CLI, second session), this endpoint changes from 200+empty to 404 — pollers should handle 404 and stop polling that device, or switch to `history=true` for the archive.
+
+`GET /telemetry` (cross-device) additionally supports `count` for `aggregate`; unknown values are likewise a 400.
 
 ### Dashboards
 
@@ -211,6 +234,8 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | GET | `/extensions/:id/commands` | List extension commands |
 | POST | `/extensions/:id/command` | Execute an extension command |
 | GET | `/extensions/:id/components` | Dashboard components provided by the extension |
+
+> **Marketplace component install** (`POST /frontend-components/market/install`, since 0.9.24): failures return real 4xx/5xx (component not found, marketplace unreachable, …) instead of HTTP 200 wrapping `success:false` — clients branching on status codes are now reliable.
 | GET / WS | `/extensions/:id/stream` | Extension stream session (Push-mode real-time frames; see [Realtime API](#realtime-api)) |
 
 ### Data Push
@@ -285,4 +310,4 @@ else:
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-14*

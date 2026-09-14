@@ -14,10 +14,14 @@ NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API �
 | 项 | 值 |
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
+| 交互式 API 文档 | `http://<SERVER_IP>:9375/api/docs`（Swagger 风格，339 条路由可浏览、可直接调试） |
+| 路由清单（机器可读） | `GET /api/docs/routes.json` |
 | 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
 | 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
 
 > **所有端点路径以 `/api` 开头**。下文的端点列表都省略 `/api` 前缀。
+>
+> **先开 `/api/docs`**：0.9.24 起内置交互式 API 控制台——全部路由按鉴权类分组、展开即见说明、**Try it out 可直接发请求**（记得先在页面请求头里带上你的 API Key）。本页讲契约与陷阱；每个端点的即时探索用控制台更快。
 
 ## 认证
 
@@ -91,6 +95,8 @@ API Key 不依赖用户会话，可设过期时间与权限范围。
 
 HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `error.message` 提取可读信息。
 
+> **0.9.24 起错误信封全端统一**：认证失败（401/403）与限流（429）此前是另一种形状（`error` 为字符串、无 `success` 字段），现在与上述格式一致——`code` 分别为 `UNAUTHORIZED` / `FORBIDDEN` / `RATE_LIMITED`。用一个反序列化结构就能处理全部错误路径。限流响应同时带 `Retry-After` 头。
+
 ## 字段命名约定
 
 > **重要陷阱**：后端返回 **snake_case**（如 `data_source`），前端使用 **camelCase**（如 `dataSource`）。前端所有 API 响应都经 `web/src/store/persistence/types.ts::fromDashboardDTO()` 转换。集成商自己解析 JSON 时，字段以**后端原样 snake_case** 为准。
@@ -113,12 +119,12 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/devices` | 列出设备 |
-| POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空） |
-| GET | `/devices/:id` | 设备详情（含 metrics + commands） |
+| POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空）。**注意 upsert 语义**：若 `device_id` 已存在会**替换**原设备的名称与配置，响应含 `updated_existing: true` 标明是覆盖而非新建 |
+| GET | `/devices/:id` | 设备详情（含 metrics + commands；`status` 三态：`online` / `offline`（曾在线但超时）/ `disconnected`（从未上线）） |
 | GET | `/devices/:id/current` | 设备全部指标当前值 |
-| PUT | `/devices/:id` | 更新设备 |
+| PUT | `/devices/:id` | 更新设备。`offline_timeout_secs` 三态：**缺省**＝保留现值、`null`＝清除覆盖（回退模板/全局默认）、数字＝设置（30–86400 秒） |
 | DELETE | `/devices/:id` | 删除设备 |
-| GET | `/devices/:id/telemetry` | 设备遥测历史（`?metric=&start=&end=`） |
+| GET | `/devices/:id/telemetry` | 设备遥测历史，参数见下方[遥测查询契约](#遥测查询契约) |
 | GET | `/telemetry` | 跨设备遥测查询（`?source=&metric=&start=&end=&limit=&offset=`；`offset` 为跳过最新 N 条，用于服务端分页，响应含精确 `total_count`） |
 | POST | `/devices/:id/command/:command` | 下发指令（body 为参数对象，如 `{"offset": 1}`） |
 | POST | `/devices/:id/webhook` | Webhook 推数据（无需认证） |
@@ -126,6 +132,25 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | POST | `/device-types` | 创建设备类型 |
 | GET | `/devices/drafts` | 待审批草稿（自动发现） |
 | POST | `/devices/drafts/:id/approve` | 审批草稿 |
+
+### 遥测查询契约
+
+`GET /devices/:id/telemetry` 的查询参数（时间戳一律 **Unix 秒**）：
+
+| 参数 | 语义 |
+|------|------|
+| `metric` | 指定指标名；缺省返回该设备全部指标 |
+| `start` / `end` | 时间窗（秒）。**`hours=N`**（1–720）在 `start` 缺省时推导窗口（0.9.24 起生效，此前被忽略） |
+| `aggregate` | `avg` / `min` / `max` / `sum` / `last`——**`value` 字段反映请求的函数**（0.9.24 起，此前恒为 avg）；未知值返回 400；原始字段（min/max/sum/count）始终随行返回 |
+| `limit` | 每页点数，1–5000，默认 100 |
+| `offset` | 跳过最新 N 条（偏移分页） |
+| `cursor` | 游标分页：上一页最旧点的时间戳；下一页返回**严格更旧**的点（边界点不重复）。响应里 `pagination.next_cursor` 为 `null` 即最后一页（短页信号），可直接停止 |
+| `history=true` | **设备已删除**的历史数据访问口——设备不存在时本端点 404（与 `/devices/:id` 一致），加此参数可查存档数据 |
+| `bucketed` | 服务端降采样，图表场景返回至多 `limit` 个均匀分布的点 |
+
+> **第三方轮询注意**：设备被其他客户端（CLI、另一会话）删除后，遥测端点从 200+空数据变为 404——轮询方需处理 404 并停止该设备的轮询，或改用 `history=true` 读取存档。
+
+`GET /telemetry`（跨设备）的 `aggregate` 另支持 `count`；未知值同样 400。
 
 ### Dashboards（仪表板）
 
@@ -212,6 +237,8 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/extensions/:id/commands` | 扩展命令列表 |
 | POST | `/extensions/:id/command` | 执行扩展命令（body `{"command": "...", "args": {...}}`） |
 | GET | `/extensions/:id/components` | 扩展提供的 Dashboard 组件 |
+
+> **组件市场安装**（`POST /frontend-components/market/install`，0.9.24 起）：失败返回真实的 4xx/5xx（组件不存在、市场不可达等），不再用 HTTP 200 包 `success:false`——按状态码分支处理的客户端从此可靠。
 | GET / WS | `/extensions/:id/stream` | 扩展流会话（Push 模式实时帧；见[实时 API](#实时-api)） |
 
 ### Data Push（数据推送）
@@ -293,4 +320,4 @@ else:
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-14*
