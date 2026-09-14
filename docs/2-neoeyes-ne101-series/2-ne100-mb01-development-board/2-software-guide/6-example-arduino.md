@@ -80,6 +80,7 @@ delay(100); // 等待电源稳定
 NE101 的摄像头电源由 `GPIO 3` 独立控制。在使用摄像头之前（即调用 `esp_camera_init` 之前），**必须**先拉高该引脚，否则摄像头无法初始化。
 
 *   **摄像头电源 (CAM_PWR)**: `GPIO 3` (高电平有效)
+*   **MCLK (CSI_MCLK)**: 当前 NE101 生产配置为 `5MHz`。OV5640 模组通用输入规格为 `6–27MHz`，典型值为 `24MHz`；传感器端逻辑域跟随 DOVDD，NE101 为 `2.8V`。`5MHz` 是针对 NE101 本板连接和信号完整性验证的板级配置，不代表通用模组的额定输入范围。
 
 
 ## 3. 代码适配
@@ -215,7 +216,7 @@ void setup() {
   config.pin_sccb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 10000000; // NE101 建议 10MHz 或 20MHz，如果画面有条纹可尝试降低
+  config.xclk_freq_hz = 5000000; // 当前 NE101 验证配置；通用 OV5640 规格为 6–27MHz，典型值 24MHz
   config.frame_size = FRAMESIZE_UXGA;
   config.pixel_format = PIXFORMAT_JPEG; 
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
