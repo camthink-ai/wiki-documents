@@ -51,16 +51,16 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 | 1      | NC       | -    | 未连接                     |
 | 2      | AGND     | 地   | 模拟地                     |
 | 3      | SDA      | I/O  | SCCB 接口数据线            |
-| 4      | AVDD     | 电源 | 模拟供电（2.8V）           |
+| 4      | AVDD     | 电源 | 模拟供电（2.6–3.0V，典型值 2.8V；NE101 使用 2.8V） |
 | 5      | SCL      | I/O  | SCCB 接口时钟线            |
-| 6      | RESET    | 输入 | 硬件复位（高电平有效）     |
+| 6      | RESET    | 输入 | 硬件复位（低电平有效）     |
 | 7      | VSYNC    | 输出 | 垂直同步信号               |
-| 8      | PWDN     | 输入 | 电源关闭控制（高电平有效） |
+| 8      | PWDN     | 输入 | 电源关闭控制（高电平有效，默认低电平） |
 | 9      | HSYNC    | 输出 | 行有效信号                 |
 | 10     | DVDD     | 电源 | 数字核心供电（1.5V）       |
-| 11     | DOVDD    | 电源 | 数字输出供电（1.8V）       |
+| 11     | DOVDD    | 电源 | 数字 I/O 供电（1.8–2.8V；NE101 使用 2.8V） |
 | 12     | D9       | 输出 | 图像数据输出（D9）         |
-| 13     | MCLK     | 输入 | 主时钟输入（24MHz）        |
+| 13     | MCLK     | 输入 | 主时钟输入（6–27MHz，典型值 24MHz；传感器端逻辑域随 DOVDD，NE101 为 2.8V） |
 | 14     | D8       | 输出 | 图像数据输出（D8）         |
 | 15     | GND      | 地   | 数字地                     |
 | 16     | D7       | 输出 | 图像数据输出（D7）         |
@@ -72,6 +72,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 | 22     | D4       | 输出 | 图像数据输出（D4）         |
 | 23     | NC       | -    | 未连接                     |
 | 24     | NC       | -    | 未连接                     |
+
+> **当前发货模组说明**：以上电气参数适用于当前发货的 60°/15cm OV5640 模组。NE101 使用 AVDD `2.8V`、DVDD `1.5V` 和 DOVDD `2.8V`；原理图网络名 `1V2` 是 DVDD 标注错误。RESET 低电平有效，PWDN 高电平有效。OV5640 的 MCLK（XVCLK）芯片规格为 `6–27MHz`，典型值为 `24MHz`，传感器端逻辑电平属于 DOVDD I/O 域（NE101 为 `2.8V`）。NE101 当前生产配置使用 `5MHz` MCLK，这是针对本板连接和信号完整性验证的板级配置，不代表通用模组的额定输入范围。
 
 ---
 
@@ -97,4 +99,3 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 外形尺寸
 ![NG45_PCBA_IO_Bottom](https://resources.camthink.ai/wiki/img/hardware-dev-resources/ov5640-camera-module/OV5640_Module_Outline.png)
-

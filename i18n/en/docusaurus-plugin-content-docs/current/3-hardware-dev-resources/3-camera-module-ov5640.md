@@ -51,16 +51,16 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 | 1       | NC          | -      | Not connected                         |
 | 2       | AGND        | GND    | Analog ground                         |
 | 3       | SDA         | I/O    | SCCB interface data line              |
-| 4       | AVDD        | Power  | Analog power supply (2.8V)            |
+| 4       | AVDD        | Power  | Analog power supply (2.6–3.0V; 2.8V typical; NE101 uses 2.8V) |
 | 5       | SCL         | I/O    | SCCB interface clock line             |
-| 6       | RESET       | Input  | Hardware reset (active high)          |
+| 6       | RESET       | Input  | Hardware reset (active low)           |
 | 7       | VSYNC       | Output | Vertical sync signal                  |
-| 8       | PWDN        | Input  | Power-down control (active high)      |
+| 8       | PWDN        | Input  | Power-down control (active high; default low) |
 | 9       | HSYNC       | Output | Horizontal sync signal                |
 | 10      | DVDD        | Power  | Digital core power supply (1.5V)      |
-| 11      | DOVDD       | Power  | Digital output power supply (1.8V)    |
+| 11      | DOVDD       | Power  | Digital I/O power supply (1.8–2.8V; NE101 uses 2.8V) |
 | 12      | D9          | Output | Image data output (D9)                |
-| 13      | MCLK        | Input  | Master clock input (24MHz)            |
+| 13      | MCLK        | Input  | Master clock input (6–27MHz; 24MHz typical; sensor-side DOVDD logic domain, 2.8V on NE101) |
 | 14      | D8          | Output | Image data output (D8)                |
 | 15      | GND         | GND    | Digital ground                        |
 | 16      | D7          | Output | Image data output (D7)                |
@@ -72,6 +72,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 | 22      | D4          | Output | Image data output (D4)                |
 | 23      | NC          | -      | Not connected                         |
 | 24      | NC          | -      | Not connected                         |
+
+> **Current shipped module**: The electrical parameters above apply to the current shipped 60°/15cm OV5640 module. NE101 uses AVDD `2.8V`, DVDD `1.5V`, and DOVDD `2.8V`; the `1V2` schematic net name is a DVDD labeling error. RESET is active low, and PWDN is active high. The OV5640 MCLK (XVCLK) sensor specification is `6–27MHz`, with `24MHz` typical; the sensor-side logic domain follows DOVDD (`2.8V` on NE101). The current NE101 production configuration uses `5MHz` MCLK. This is a board-level configuration validated for this board's interconnect and signal integrity; it is not the generic module-rated input range.
 
 ---
 
@@ -97,4 +99,3 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Outline Dimensions
 ![NG45_PCBA_IO_Bottom](https://resources.camthink.ai/wiki/img/hardware-dev-resources/ov5640-camera-module/OV5640_Module_Outline.png)
-

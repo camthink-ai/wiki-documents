@@ -80,6 +80,7 @@ delay(100); // Wait for power to stabilize
 NE101's camera power is independently controlled by `GPIO 3`. Before using the camera (i.e., before calling `esp_camera_init`), you **must** pull this pin high first, otherwise the camera cannot initialize.
 
 *   **Camera Power (CAM_PWR)**: `GPIO 3` (Active High)
+*   **MCLK (CSI_MCLK)**: The current NE101 production configuration is `5MHz`. The generic OV5640 module input specification is `6–27MHz`, with `24MHz` typical; the sensor-side logic domain follows DOVDD, which is `2.8V` on NE101. `5MHz` is a board-level configuration validated for NE101's interconnect and signal integrity, not the generic module-rated input range.
 
 
 ## 3. Code Adaptation
@@ -215,7 +216,7 @@ void setup() {
   config.pin_sccb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 10000000; // NE101 recommends 10MHz or 20MHz, reduce if stripes appear
+  config.xclk_freq_hz = 5000000; // Current NE101 validated setting; generic OV5640 specification: 6–27MHz, 24MHz typical
   config.frame_size = FRAMESIZE_UXGA;
   config.pixel_format = PIXFORMAT_JPEG; 
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
