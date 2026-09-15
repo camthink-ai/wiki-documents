@@ -271,10 +271,10 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <h3>GitHub</h3>
       <p>Open-source firmware, sample code and issue tracking.</p>
     </a>
-    <a href="https://www.camthink.ai/blog" target="_blank" rel="noopener noreferrer" className="hub-community-card">
-      <span className="cc-icon" style={{background: 'rgba(255,160,66,0.16)', color: '#E8790A'}}><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="19" r="2.4"/><path d="M3 10.5A10.5 10.5 0 0 1 13.5 21h-3.2A7.3 7.3 0 0 0 3 13.7v-3.2z"/><path d="M3 3a18 18 0 0 1 18 18h-3.2A14.8 14.8 0 0 0 3 6.2V3z"/></svg></span>
-      <h3>Official Blog</h3>
-      <p>Product news, technical deep-dives and use cases.</p>
+    <a href="https://qm.qq.com/q/8kDj7SpZ84" target="_blank" rel="noopener noreferrer" className="hub-community-card">
+      <span className="cc-icon" style={{background: 'rgba(18,183,245,0.12)', color: '#12B7F5'}}><strong style={{fontSize: '0.8rem', fontWeight: 800, letterSpacing: '-0.02em'}}>QQ</strong></span>
+      <h3>QQ Group</h3>
+      <p>Join the CamThink developer QQ group for community support in Chinese.</p>
     </a>
   </div>
 
