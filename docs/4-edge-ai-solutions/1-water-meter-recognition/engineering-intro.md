@@ -100,27 +100,33 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ## 5. 方案搭建
 
-选型与组网确认后,按本章完成设备入网、平台安装、联调验证与业务对接。
+按以下顺序完成搭建:先安装 NeoMind(NG4500 / 个人电脑),再在平台添加 NE101 设备,然后配置设备上报数据,最后联调与业务对接。
 
-### 5.1 设备入网设置
+### 5.1 安装 NeoMind(NG4500 / 个人电脑)
 
-1. 长按 NE101 拍照键 2s 开启设备 WiFi AP,使用电脑或手机连接
-2. 进入 NE101 Web UI → **System Settings → Communications**,选择现场路由 WiFi,确保设备可访问 NeoMind 主机
-3. 进入 **Application Management**,填写 Data Reporting Topic 与 Server Address(取自平台侧摄像头组件顶部的 MQTT 信息),点击 **connect**
-4. 之后每次按动拍照键,图像自动上传至绑定的项目中
+方案主机推荐 **NG4500 AI Box**;评估阶段也可将 NeoMind 装在个人电脑或任意 Linux 主机。
 
-![设备上报后进入待审核列表](https://resources.camthink.ai/NeoMind/v0923/devices-pending.png)
-
-详细步骤与截图见 [OCR 用例 — 让 NE101 采集图像](/docs/neomind/use-cases/camera-ocr);设备激活与 Web UI 配置见 [NE101 快速入门](/docs/neoeyes-ne101-series/quick-start)。
-
-### 5.2 NeoMind 安装与扩展安装
-
-- **NeoMind 安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](/docs/neomind/user-guide/install-setup)
+- **平台安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](/docs/neomind/user-guide/install-setup)
 - **扩展安装**:NeoMind 扩展市场一键安装 **paddle-ocr-v6**(OCR 识别);确认 **ne101_camera** 组件可用,见 [安装扩展与组件](/docs/neomind/use-cases/camera-ocr)
 
 ![扩展市场](https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png)
 
-### 5.3 联调
+### 5.2 NeoMind 添加 NE101 设备
+
+在平台侧 **ne101_camera** 摄像头组件中添加 NE101 并绑定项目,记录组件顶部的 MQTT 信息——**Server Address** 与 **Data Reporting Topic**,下一步设备侧配置要用。完整步骤见 [OCR 用例 — 让 NE101 采集图像](/docs/neomind/use-cases/camera-ocr)。
+
+### 5.3 NE101 设备上报数据
+
+1. 长按 NE101 拍照键 2s 开启设备 WiFi AP,使用电脑或手机连接
+2. 进入 NE101 Web UI → **System Settings → Communications**,选择现场路由 WiFi,确保设备可访问 NeoMind 主机
+3. 进入 **Application Management**,填写 Data Reporting Topic 与 Server Address(即 5.2 记录的 MQTT 信息),点击 **connect**
+4. 之后每次按动拍照键,图像自动上传至绑定的项目中
+
+![设备上报后进入待审核列表](https://resources.camthink.ai/NeoMind/v0923/devices-pending.png)
+
+设备激活与 Web UI 配置详见 [NE101 快速入门](/docs/neoeyes-ne101-series/quick-start)。
+
+### 5.4 联调
 
 按以下顺序逐环验证,任一环不通先排查该环:
 
@@ -129,7 +135,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标
 4. **转发**:验证 Data Push / Webhook 已将读数推送到业务端点
 
-### 5.4 数据存储和展示
+### 5.5 数据存储和展示
 
 - **抓拍原图**:存储于 NeoMind 主机,保留周期在数据保留设置中控制,到期自动清理
 - **读数指标**:入库为虚拟指标(如 `meter_reading`),支持历史查询
@@ -137,7 +143,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ![仪表板示例](https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png)
 
-### 5.5 数据转发
+### 5.6 数据转发
 
 读数与告警对外转发两种方式,按实时性要求选择:
 
