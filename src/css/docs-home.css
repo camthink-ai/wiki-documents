@@ -682,18 +682,18 @@
 }
 
 .community-card {
-    border: 1px solid var(--ifm-color-emphasis-200);
     border-radius: 12px;
     padding: 1rem 1.1rem;
-    background: var(--ifm-card-background-color, #fff);
-    transition: box-shadow 0.2s;
     color: inherit;
 }
 
 .community-card:hover {
     text-decoration: none;
     color: inherit;
-    border-color: var(--ct-color-primary, #F24A00);
+}
+
+.community-card:hover h3 {
+    color: var(--ct-color-primary, #F24A00);
 }
 
 .community-card .cc-icon {
