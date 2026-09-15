@@ -59,46 +59,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NE101 + NeoMind 本地 OCR：旧表不改，读数自动入库，全量留痕可回溯。</div>
       </div>
     </Link>
-    <Link to="/docs/edge-ai-solutions/smart-gym" className="solution-card is-placeholder">
-      <img src="/img/home/hw/ne503.webp" alt="" style={{objectFit: 'contain', background: '#fff', padding: '20px 40px', boxSizing: 'border-box', height: '140px', width: '100%'}} />
-      <div className="sol-body">
-        <div className="sol-title">智慧健身房</div>
-        <div className="sol-desc">基于 NE503 的健身房方案。</div>
-        <div className="sol-soon">敬请期待</div>
-      </div>
-    </Link>
-    <Link to="/docs/edge-ai-solutions/smart-retail" className="solution-card is-placeholder">
-      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
-      <div className="sol-body">
-        <div className="sol-title">智慧零售</div>
-        <div className="sol-desc">零售场景的视觉识别方案。</div>
-        <div className="sol-soon">敬请期待</div>
-      </div>
-    </Link>
-    <Link to="/docs/edge-ai-solutions/people-counting" className="solution-card is-placeholder">
-      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
-      <div className="sol-body">
-        <div className="sol-title">人数统计</div>
-        <div className="sol-desc">客流检测与统计分析方案。</div>
-        <div className="sol-soon">敬请期待</div>
-      </div>
-    </Link>
-    <Link to="/docs/edge-ai-solutions/face-recognition" className="solution-card is-placeholder">
-      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
-      <div className="sol-body">
-        <div className="sol-title">人脸识别</div>
-        <div className="sol-desc">人脸检测与识别应用方案。</div>
-        <div className="sol-soon">敬请期待</div>
-      </div>
-    </Link>
-    <Link to="/docs/edge-ai-solutions/label-detection" className="solution-card is-placeholder">
-      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
-      <div className="sol-body">
-        <div className="sol-title">标签检测</div>
-        <div className="sol-desc">商品标签与铭牌识别方案。</div>
-        <div className="sol-soon">敬请期待</div>
-      </div>
-    </Link>
   </div>
 
   {/* ================= Products ================= */}
