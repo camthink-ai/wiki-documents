@@ -9,7 +9,7 @@
  */
 
 /** 无 placement 时的兜底参数 */
-const WIKI_UTM_SOURCE = 'CamThink Wiki';
+const WIKI_UTM_SOURCE = 'wiki';
 const WIKI_UTM_MEDIUM = 'referral';
 
 function withWikiUtm(url, placement) {
