@@ -681,22 +681,22 @@
     margin-bottom: 2rem;
 }
 
-.community-card {
+.hub-community-card {
     border-radius: 12px;
     padding: 1rem 1.1rem;
     color: inherit;
 }
 
-.community-card:hover {
+.hub-community-card:hover {
     text-decoration: none;
     color: inherit;
 }
 
-.community-card:hover h3 {
+.hub-community-card:hover h3 {
     color: var(--ct-color-primary, #F24A00);
 }
 
-.community-card .cc-icon {
+.hub-community-card .cc-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -706,17 +706,17 @@
     margin-bottom: 0.7rem;
 }
 
-.community-card .cc-icon svg {
+.hub-community-card .cc-icon svg {
     width: 22px;
     height: 22px;
 }
 
-.community-card h3 {
+.hub-community-card h3 {
     font-size: 0.95rem;
     margin: 0 0 0.3rem;
 }
 
-.community-card p {
+.hub-community-card p {
     font-size: 0.8rem;
     opacity: 0.7;
     margin: 0;
