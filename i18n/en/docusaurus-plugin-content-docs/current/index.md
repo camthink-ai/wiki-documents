@@ -303,7 +303,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   ]} />
 
   {/* ================= Community ================= */}
-  <h2 className="docs-section-title">Join the Community</h2>
+  <h2 className="docs-section-title" style={{marginTop: '4rem'}}>Join the Community</h2>
   <div className="community-grid">
     <a href="https://discord.gg/a8NbPGAJw9" target="_blank" rel="noopener noreferrer" className="community-card">
       <span className="cc-icon" style={{background: 'rgba(88,101,242,0.12)', color: '#5865F2'}}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/><circle cx="9" cy="10.5" r="1.4" fill="#fff"/><circle cx="15" cy="10.5" r="1.4" fill="#fff"/></svg></span>
@@ -322,6 +322,5 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     </a>
   </div>
 
-  <p className="brand-line">CamThink — an edge AI brand under Milesight, making edge intelligence more imaginative.</p>
 
 </div>
