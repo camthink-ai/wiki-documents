@@ -28,23 +28,23 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title">从开箱到首次部署</h2>
   <div className="build-path-grid">
     <Link to="#solutions" className="build-step">
-      <h3>明确你的场景</h3>
-      <p>要检测或识别什么？部署在哪、供电与网络条件如何？先从现成方案里找参考。</p>
+      <h3>解决方案</h3>
+      <p>按场景找完整参考：架构、清单与搭建步骤，照着做即可落地。</p>
       <span className="step-link">浏览解决方案 →</span>
     </Link>
     <Link to="#products" className="build-step">
-      <h3>设备快速上手</h3>
-      <p>开箱、激活与首次启动，各产品系列的 Quick Start 十分钟跑通第一帧画面。</p>
+      <h3>硬件</h3>
+      <p>五款 AI 相机与边缘计算主机的选型、规格与快速入门。</p>
       <span className="step-link">查看产品入口 →</span>
     </Link>
-    <Link to="/docs/neomind/use-cases/object-detection" className="build-step">
-      <h3>跑通现成示例</h3>
-      <p>平台内置用例与 Cookbook：从目标检测到 OCR 识别，开箱即用。</p>
-      <span className="step-link">浏览应用用例 →</span>
+    <Link to="#oss" className="build-step">
+      <h3>固件与 SDK</h3>
+      <p>开源固件、SDK、原理图与数据表，按产品直接下载。</p>
+      <span className="step-link">获取开源资源 →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
-      <h3>接入平台规模化</h3>
-      <p>用 NeoMind 管理设备、运行本地推理、把数据推送到你的业务系统。</p>
+      <h3>NeoMind</h3>
+      <p>安装平台、接入设备、本地识别，并把数据对接到业务系统。</p>
       <span className="step-link">NeoMind 五分钟入门 →</span>
     </Link>
   </div>
@@ -179,7 +179,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   </div>
 
   {/* ================= Open-Source Resources ================= */}
-  <h2 className="docs-section-title">开源资源（固件与 SDK）</h2>
+  <h2 className="docs-section-title" id="oss">开源资源（固件与 SDK）</h2>
   <div className="oss-list">
     <div className="oss-row">
       <span className="oss-product">NE101</span>

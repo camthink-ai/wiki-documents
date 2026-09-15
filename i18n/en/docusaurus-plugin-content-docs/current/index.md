@@ -28,23 +28,23 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title">From Unboxing to First Deployment</h2>
   <div className="build-path-grid">
     <Link to="#solutions" className="build-step">
-      <h3>Define your scenario</h3>
-      <p>What do you need to detect or recognize? Where will it run, with what power and network? Start from a ready-made reference.</p>
+      <h3>Solutions</h3>
+      <p>Find a complete reference for your scenario — architecture, BOM and build steps included.</p>
       <span className="step-link">Browse solutions →</span>
     </Link>
     <Link to="#products" className="build-step">
-      <h3>Quick-start your device</h3>
-      <p>Unbox, activate and boot — each product series' Quick Start gets your first frame running in minutes.</p>
+      <h3>Hardware</h3>
+      <p>Five AI cameras and an edge host — selection, specs and quick starts.</p>
       <span className="step-link">See products →</span>
     </Link>
-    <Link to="/docs/neomind/use-cases/object-detection" className="build-step">
-      <h3>Run working code</h3>
-      <p>Built-in use cases and cookbooks — from object detection to OCR, ready to run.</p>
-      <span className="step-link">Browse use cases →</span>
+    <Link to="#oss" className="build-step">
+      <h3>Firmware &amp; SDKs</h3>
+      <p>Open-source firmware, SDKs, schematics and datasheets — downloadable per product.</p>
+      <span className="step-link">Get the resources →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
-      <h3>Deploy at scale</h3>
-      <p>Use NeoMind to manage devices, run local inference and push data into your business systems.</p>
+      <h3>NeoMind</h3>
+      <p>Install the platform, onboard devices, run local inference and integrate your business.</p>
       <span className="step-link">NeoMind in 5 minutes →</span>
     </Link>
   </div>
@@ -179,7 +179,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   </div>
 
   {/* ================= Open-Source Resources ================= */}
-  <h2 className="docs-section-title">Open-Source Resources (Firmware &amp; SDKs)</h2>
+  <h2 className="docs-section-title" id="oss">Open-Source Resources (Firmware &amp; SDKs)</h2>
   <div className="oss-list">
     <div className="oss-row">
       <span className="oss-product">NE101</span>
