@@ -521,19 +521,15 @@
 .build-step {
     display: block;
     color: inherit;
-    border: 1px solid var(--ifm-color-emphasis-200);
-    border-radius: 12px;
-    padding: 1.25rem 1.1rem 1.1rem;
-    background: var(--ifm-card-background-color, #fff);
-    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
 }
 
 .build-step:hover {
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-    border-color: rgba(242, 74, 0, 0.35);
+}
+
+.build-step:hover h3 {
+    color: var(--ct-color-primary, #F24A00);
 }
 
 .build-step .step-link {
@@ -543,17 +539,11 @@
 }
 
 .build-step .step-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--ct-color-primary, #F24A00);
-    color: #fff;
+    display: inline-block;
     font-weight: 700;
     font-size: 0.9rem;
-    margin-bottom: 0.6rem;
+    color: var(--ct-color-primary, #F24A00);
+    margin-bottom: 0.5rem;
 }
 
 .build-step h3 {
