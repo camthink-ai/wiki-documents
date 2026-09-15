@@ -1,6 +1,7 @@
 ---
 sidebar_label: "Engineering Implementation"
 sidebar_position: 2
+description: "水表自动抄读方案工程实施:场景与选型、BOM、组网拓扑、NeoMind 搭建、联调验证与业务数据对接。"
 ---
 
 # 工程实施
@@ -40,7 +41,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ### 高频拍摄(定制)
 
-如需分钟级甚至持续的高频拍摄,电池模式不再适用——可联系 CamThink 定制 **Type-C 直供电版本** NE101(取消电池、Type-C 口直接供电),配合高频采集长期运行;定制需求请通过 [联系我们](https://www.camthink.ai/company/contact-us/) 与技术支持团队对接。
+如需分钟级甚至持续的高频拍摄,电池模式不再适用——可联系 CamThink 定制 **Type-C 直供电版本** NE101(取消电池、Type-C 口直接供电),配合高频采集长期运行;定制需求请通过 [联系我们](https://www.camthink.ai/company/contact-us/) 与技术支持团队对接,详见 [技术支持](#6-技术支持)。
 
 ## 2. 表计类型与选型
 
@@ -67,7 +68,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ### 支架选型
 
-- 使用**官方水表支架**:一次性固定镜头与字轮的距离、角度和视野——这是识别稳定的前提
+- 使用**[官方水表支架](https://www.camthink.ai/store/mounting-ne101/)**:一次性固定镜头与字轮的距离、角度和视野——这是识别稳定的前提
 - 免打孔、单表约 10 分钟完成安装;换电池复装不会跑偏
 
 ## 3. 方案组成(BOM)
@@ -78,6 +79,8 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 | <img src="/img/solutions/ne101-bracket.webp" alt="支架" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 2 | [水表支架](https://www.camthink.ai/store/mounting-ne101/) | NE101 官方配件 | 每表 1 套 | 固定镜头与表盘相对位置 |
 | <img src="/img/Overview/NG45xx/NG45XX.png" alt="NG4500" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 3 | [平台主机 NG4500 AI Box](https://www.camthink.ai/product/neoedge-ai-box-ng4500/) | Linux 主机 / NG4500 | 1 台 | 运行 NeoMind:接收、OCR、规则、数据出口 |
 | <div style={{textAlign: 'center'}}>—</div> | 4 | 电池 | 4 节 AA 电池 | 每相机 1 组 | 供电 |
+| <div style={{textAlign: 'center'}}>—</div> | 5 | Wi-Fi HaLow 网关 | 按需:HaLow 回传场景 | 1 台 | 远距离回传接入局域网 |
+| <div style={{textAlign: 'center'}}>—</div> | 6 | SIM 物联网卡 | 按需:Cat.1 回传场景 | 每相机 1 张 | 蜂窝网络回传 |
 
 > 起步配置(≤10 块表):**每表 1 台 NE101(含支架)+ 1 台运行 NeoMind 的 Linux 主机**;表数增长时只增加相机,平台按承载量横向扩充。
 
@@ -93,10 +96,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ![组网拓扑:Wi-Fi / Wi-Fi HaLow / Cat.1 三种回传方式](/img/solutions/water-meter-network-topology.svg)
 
-通用要求:NE101 需可路由至 NeoMind 的 MQTT 端口(内置 Broker,默认 TCP 1883,可启用 MQTTS);读数识别与入库均在主机本地完成,业务系统通过 OpenAPI / Data Push / Webhook 对接。
-
-- NE101 与 NeoMind 主机需处于**同一网络或路由可达**,主机侧 1883(MQTT)端口对设备开放
-- 读数识别与入库均在主机本地完成,业务系统只对接 NeoMind 的对外接口
+通用要求:NE101 需可路由至 NeoMind 的 MQTT 端口(内置 Broker,默认 TCP 1883,可启用 MQTTS,主机侧需对设备网段放行);读数识别与入库均在主机本地完成,业务系统通过 OpenAPI / Data Push / Webhook 对接。
 
 ## 5. 方案搭建
 
@@ -135,7 +135,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 1. **抓拍**:手动按动 NE101 拍照键,确认图像到达 NeoMind(组件图片列表可见)
 2. **识别**:确认 OCR 流水线产出读数字段(仪表板组件可见识别结果)
-3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标
+3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标(见 [数据转换](/docs/neomind/user-guide/data-transforms))
 4. **转发**:验证 Data Push / Webhook 已将读数推送到业务端点
 
 ### 5.5 数据存储和展示
@@ -156,10 +156,9 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 | **OpenAPI 拉取** | 业务系统按结算周期调用 REST API 拉取读数 | 日结/月结系统 |
 
 - 配置方法:[数据转发](/docs/neomind/user-guide/7c-data-push) / [平台 API](/docs/neomind/developer-guide/rest-api)
+- 读数异常、低电量、设备离线等**告警事件**走 [消息通知](/docs/neomind/user-guide/notifications) 的 Webhook / IM / 邮件渠道
 
 ![Data Push 配置列表](https://resources.camthink.ai/NeoMind/v0923/data-push-list.png)
-
-- 读数异常、低电量、设备离线等**告警事件**走 [消息通知](/docs/neomind/user-guide/notifications) 的 Webhook / IM / 邮件渠道
 
 **字段映射示例**:表号 ↔ 设备 ID;读数 ↔ `meter_reading`;抄表时间 ↔ 数据点时间戳;凭证 ↔ 抓拍原图 URL。
 
