@@ -141,7 +141,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 - **读数指标**:入库为虚拟指标(如 `meter_reading`),支持历史查询
 - **仪表板**:建议三块——读数卡片(最新读数 + 时间)、用水趋势曲线(日/周/月)、设备健康(电池 / 信号 / 在线);搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
 
-![仪表板示例](https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png)
+![仪表板示例:NE101 抓拍与 OCR 读数实时展示](https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp)
 
 ### 5.6 数据转发
 
