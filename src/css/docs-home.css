@@ -711,6 +711,23 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-decoration: none;
     color: inherit;
+    transform: translateY(-2px);
+    border-color: var(--ifm-color-emphasis-300);
+}
+
+.community-card .cc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 0.7rem;
+}
+
+.community-card .cc-icon svg {
+    width: 22px;
+    height: 22px;
 }
 
 .community-card h3 {
