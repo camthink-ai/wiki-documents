@@ -223,6 +223,16 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · runtime</a>
       <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · official extensions</a>
       </div>
+    <div className="oss-row">
+      <span className="oss-product">Datasheets</span>
+      <div className="oss-pills">
+      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne101_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE101 datasheet (PDF)</a>
+      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne301_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE301 datasheet (PDF)</a>
+      <a href="https://resources.camthink.ai/download/datasheets/neoeyes-ne503-product-brochure.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE503 brochure (PDF)</a>
+      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoedge_ng4500_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NG4500 datasheet (PDF)</a>
+      <a href="https://resources.camthink.ai/download/datasheets/camthink_product_catalogue.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">Product catalogue (PDF)</a>
+      </div>
+    </div>
     </div>
   </div>
 
