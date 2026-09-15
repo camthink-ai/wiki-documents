@@ -98,7 +98,11 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 - NE101 与 NeoMind 主机需处于**同一网络或路由可达**,主机侧 1883(MQTT)端口对设备开放
 - 读数识别与入库均在主机本地完成,业务系统只对接 NeoMind 的对外接口
 
-## 5. 设备入网设置
+## 方案搭建
+
+选型与组网确认后,按本章完成设备入网、平台安装、联调验证与业务对接。
+
+### 5. 设备入网设置
 
 1. 长按 NE101 拍照键 2s 开启设备 WiFi AP,使用电脑或手机连接
 2. 进入 NE101 Web UI → **System Settings → Communications**,选择现场路由 WiFi,确保设备可访问 NeoMind 主机
@@ -109,14 +113,14 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 详细步骤与截图见 [OCR 用例 — 让 NE101 采集图像](/docs/neomind/use-cases/camera-ocr);设备激活与 Web UI 配置见 [NE101 快速入门](/docs/neoeyes-ne101-series/quick-start)。
 
-## 6. NeoMind 安装与扩展安装
+### 6. NeoMind 安装与扩展安装
 
 - **NeoMind 安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](/docs/neomind/user-guide/install-setup)
 - **扩展安装**:NeoMind 扩展市场一键安装 **paddle-ocr-v6**(OCR 识别);确认 **ne101_camera** 组件可用,见 [安装扩展与组件](/docs/neomind/use-cases/camera-ocr)
 
 ![扩展市场](https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png)
 
-## 7. 联调
+### 7. 联调
 
 按以下顺序逐环验证,任一环不通先排查该环:
 
@@ -125,7 +129,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标
 4. **转发**:验证 Data Push / Webhook 已将读数推送到业务端点
 
-## 8. 数据存储和展示
+### 8. 数据存储和展示
 
 - **抓拍原图**:存储于 NeoMind 主机,保留周期在数据保留设置中控制,到期自动清理
 - **读数指标**:入库为虚拟指标(如 `meter_reading`),支持历史查询
@@ -133,7 +137,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ![仪表板示例](https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png)
 
-## 9. 数据转发
+### 9. 数据转发
 
 读数与告警对外转发两种方式,按实时性要求选择:
 
