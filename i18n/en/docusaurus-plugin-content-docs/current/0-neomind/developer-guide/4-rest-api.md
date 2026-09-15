@@ -1,22 +1,90 @@
 ---
-description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
-keywords: [NeoMind, REST API, HTTP, JWT, API Key]
+description: "NeoMind REST API reference: OpenAPI spec and tooling (Scalar console / code generation / Apifox import), auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
+keywords: [NeoMind, REST API, OpenAPI, Swagger, HTTP, JWT, API Key, code generation]
 tags: [NeoMind, Developer Guide]
 ---
 
 # REST API Reference
 
-The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. The authoritative endpoint list lives in `crates/neomind-api/src/server/router.rs`.
+The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: OpenAPI spec and tooling, base URL, auth, unified response format, and endpoint groups by business domain.
 
 ## Entry Points
 
 | Item | Value |
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
+| Interactive API console | `http://<SERVER_IP>:9375/api/docs` (Scalar — browse and debug) |
+| OpenAPI 3 spec | `GET /api/docs/openapi.json` (354 operations, 278 paths, 136 schemas) |
+| Machine-readable route list (with auth classes) | `GET /api/docs/routes.json` |
 | Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
 | Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
 
 > **Every endpoint path starts with `/api`.** The endpoint lists below omit the `/api` prefix.
+
+## OpenAPI Spec & Tooling
+
+As of **0.9.24** the OpenAPI 3.0 spec covers **every** REST operation — 334/338 handlers carry full annotations (the other 4 are wildcard routes; see "Honest limits" below), all 136 schemas are registered and every one of the 135 `$ref`s resolves. You can import the spec into any standards-compliant tool or generate a typed client directly.
+
+### Download the spec
+
+```bash
+curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
+```
+
+~230 KB. A CI drift test guards it: every annotated path must actually exist in the router, so the spec cannot silently rot.
+
+### The online console (Scalar)
+
+Open `/api/docs` in a browser — nothing to install:
+
+1. The left tree groups endpoints by domain tag (devices, rules, agents, dashboards … 37 groups); expand any endpoint to see its parameters, request-body schema and documented response codes;
+2. Click an endpoint → **Try it out** → fill in parameters/body → **Execute**; the real response (headers and timing included) appears on the right;
+3. **Auth**: the spec itself embeds no security definitions (auth classes are in the table below; the per-endpoint authority is `routes.json`). When debugging protected endpoints, add the header manually — in the console's parameter area add `X-API-Key: <your key>` (or `Authorization: Bearer <jwt>`) to the request;
+4. The console's top-right corner exports the spec file (OpenAPI JSON).
+
+### Import into Apifox / Postman
+
+**Apifox**:
+
+1. Project settings → **Import Data** → choose **OpenAPI/Swagger**;
+2. Use URL mode with `http://<SERVER_IP>:9375/api/docs/openapi.json` (or the file downloaded above);
+3. All endpoints, request-body structures and enums arrive ready; put `X-API-Key` into an Apifox environment variable for bulk auth.
+
+**Postman**: Import → paste the URL or drop the file — same result.
+
+### Generate a typed client
+
+```bash
+# Once
+npm install @openapitools/openapi-generator-cli -g
+
+# TypeScript + axios
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g typescript-axios -o src/api-generated
+
+# Python
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g python -o ./neomind-client
+```
+
+The output includes per-endpoint functions and full request/response typings (enums and required constraints included). React projects can use [orval](https://orval.dev/) (`npx orval --input neomind-openapi.json --output src/api.ts --client axios`) to generate React Query hooks.
+
+### Auth-class quick reference (from routes.json)
+
+| Class | Meaning | Header |
+|-------|---------|--------|
+| `public` | No auth | none |
+| `jwt-or-api-key` | Web session **or** API Key | `X-API-Key: <key>` or `Authorization: Bearer <jwt>` |
+| `jwt-only` | Admin JWT only — **API Keys not accepted** | `Authorization: Bearer <jwt>` |
+| `webhook` / `ws` / `debug` | Special channels (signature check / WebSocket upgrade) | see the endpoint |
+
+Unsure about an endpoint? Every entry in `GET /api/docs/routes.json` carries `method`, `path` and `auth`.
+
+### Honest limits (what the spec does not contain)
+
+- **4 wildcard routes** (`GET /api/images/*path`, `GET /api/docs/*rest`, `GET /api/extensions/:id/assets/*asset_path`, `ANY /api/share/:token/proxy/*path`) cannot be expressed as OpenAPI path templates — they exist only in `routes.json`;
+- **Auth metadata** is not embedded in the spec (use the table above);
+- **Long-running endpoints** (`builtin-llm/download`, `upload-model`, `import-local`) can hold a connection for minutes to tens of minutes — give generated clients a dedicated timeout.
 
 ## Authentication
 
@@ -113,11 +181,11 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 |--------|------|-------------|
 | GET | `/devices` | List devices |
 | POST | `/devices` | Create device (requires `connection_config: {}` even if empty) |
-| GET | `/devices/:id` | Device detail (metrics + commands) |
+| GET | `/devices/:id` | Device detail (metrics + commands; `status` is three-state: `online` / `offline` (seen before, timed out) / `disconnected` (never seen)) |
 | GET | `/devices/:id/current` | Current values for all device metrics |
-| PUT | `/devices/:id` | Update device |
+| PUT | `/devices/:id` | Update device. `offline_timeout_secs` tri-state: **absent** = keep current, `null` = clear override (fall back to template/global), number = set (30–86400 seconds) |
 | DELETE | `/devices/:id` | Delete device |
-| GET | `/devices/:id/telemetry` | Device telemetry history (`?metric=&start=&end=`) |
+| GET | `/devices/:id/telemetry` | Device telemetry history — see [Telemetry query contract](#telemetry-query-contract) |
 | GET | `/telemetry` | Cross-device telemetry query (`?source=&metric=&start=&end=&limit=&offset=`; `offset` skips the newest N items for server-side pagination; the response carries an exact `total_count`) |
 | POST | `/devices/:id/command/:command` | Send command (body is the params object, e.g. `{"offset": 1}`) |
 | POST | `/devices/:id/webhook` | Push data via webhook (no auth) |
@@ -125,6 +193,25 @@ HTTP status codes follow convention: 4xx client errors, 5xx server errors. Pull 
 | POST | `/device-types` | Create device type |
 | GET | `/devices/drafts` | Pending drafts (auto-discovered) |
 | POST | `/devices/drafts/:id/approve` | Approve a draft |
+
+### Telemetry query contract
+
+Query parameters for `GET /devices/:id/telemetry` (timestamps are always **Unix seconds**):
+
+| Parameter | Semantics |
+|-----------|------------|
+| `metric` | A specific metric; omit for all metrics of the device |
+| `start` / `end` | Time window (seconds). **`hours=N`** (1–720) derives the window when `start` is absent (honored since 0.9.24; previously ignored) |
+| `aggregate` | `avg` / `min` / `max` / `sum` / `last` — **the `value` field reflects the requested function** (since 0.9.24; previously always avg); unknown values return 400; the raw fields (min/max/sum/count) always ride along |
+| `limit` | Points per page, 1–5000, default 100 |
+| `offset` | Skip the newest N points (offset pagination) |
+| `cursor` | Cursor pagination: the previous page's oldest timestamp; the next page returns **strictly older** points (no boundary duplicates). `pagination.next_cursor` being `null` in the response means last page (short-page signal) — stop paginating |
+| `history=true` | Access to a **deleted device's** archived data — an unknown device 404s here (consistent with `/devices/:id`); this flag reads the archive |
+| `bucketed` | Server-side downsampling; returns at most `limit` evenly-spaced points for charts |
+
+> **Polling note for integrators**: when a device is deleted by another client (CLI, second session), this endpoint changes from 200+empty to 404 — pollers should handle 404 and stop polling that device, or switch to `history=true` for the archive.
+
+`GET /telemetry` (cross-device) additionally supports `count` for `aggregate`; unknown values are likewise a 400.
 
 ### Dashboards
 
@@ -211,6 +298,8 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | GET | `/extensions/:id/commands` | List extension commands |
 | POST | `/extensions/:id/command` | Execute an extension command |
 | GET | `/extensions/:id/components` | Dashboard components provided by the extension |
+
+> **Marketplace component install** (`POST /frontend-components/market/install`, since 0.9.24): failures return real 4xx/5xx (component not found, marketplace unreachable, …) instead of HTTP 200 wrapping `success:false` — clients branching on status codes are now reliable.
 | GET / WS | `/extensions/:id/stream` | Extension stream session (Push-mode real-time frames; see [Realtime API](#realtime-api)) |
 
 ### Data Push
@@ -285,4 +374,4 @@ else:
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-09-14*

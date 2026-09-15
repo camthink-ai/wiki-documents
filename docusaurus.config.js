@@ -48,6 +48,20 @@ const configuredPlugins = [
           from: '/docs/neoeyes-ne503-series/application-guide/hello-world',
           to: '/docs/neoeyes-ne503-series/application-guide/cookbook/hello-world',
         },
+        // AI Application 栏目已并入 NG4500 系列（2026-09）
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/quick-start', to: '/docs/neomind/product-overview/what-is-neomind' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/user-guide', to: '/docs/neomind/product-overview/what-is-neomind' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/dev-guide', to: '/docs/neomind/product-overview/what-is-neomind' },
+        { from: '/docs/ai-application/cinfer-ai-Inference-service/application-integration/beaveriot-integration', to: '/docs/neomind/product-overview/what-is-neomind' },
+        { from: '/docs/ai-application/ai-box-appliction-expansion/fighting-and-Iterative-model-deployment', to: '/docs/neoedge-ng4500-series/application-guide/ai-box-application-expansion/fighting-and-Iterative-model-deployment' },
+        { from: '/docs/ai-application', to: '/docs/neoedge-ng4500-series/overview' },
+        { from: '/docs/neoeyes-ne301-series/application-guide/ai-tool-stack', to: '/docs/software/ai-tool-stack/overview' },
+        { from: '/docs/ai-application/neomind-quick-start', to: '/docs/neomind/quick-start/five-minute-guide' },
+        // Release Notes 栏目已下架
+        { from: '/7-release-notes/firmware', to: '/docs/neoedge-ng4500-series/overview' },
+        { from: '/7-release-notes/hardware', to: '/docs/neoedge-ng4500-series/overview' },
+        { from: '/docs/tags/ai-application', to: '/docs/neoedge-ng4500-series/overview' },
+        { from: '/docs/tags/ai-tool-stack', to: '/docs/software/ai-tool-stack/overview' },
       ],
     }
   ],
@@ -150,21 +164,22 @@ const config = {
           {
             to: '/docs',
             position: 'left',
-            label: 'Docs',
+            label: 'Documentation',
           },
           {
-            href: 'https://www.camthink.ai/',
+            // 外链统一带 wiki 来源标识（与 src/utils/utm.cjs 的参数保持一致）
+            href: 'https://www.camthink.ai/?utm_source=wiki&utm_medium=referral&utm_content=navbar',
             position: 'right',
             label: 'Home',
             className: 'home-button'
           },
           {
-            href: 'https://www.camthink.ai/store/',
+            href: 'https://www.camthink.ai/store/?utm_source=wiki&utm_medium=referral&utm_content=navbar',
             position: 'right',
             label: 'Store',
             className: 'store-button'
           },
-          { href: 'https://github.com/camthink-ai', position: 'right', label: 'GitHub' },
+          { href: 'https://github.com/camthink-ai?utm_source=wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub' },
           { type: 'localeDropdown', position: 'right' },
         ],
       },
@@ -181,36 +196,7 @@ const config = {
       },
       mermaid: { theme: { light: 'neutral', dark: 'forest' } },
       colorMode: { defaultMode: 'light', disableSwitch: false, respectPrefersColorScheme: true },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Wiki', items: [
-              { label: 'Wiki', to: '/docs/' },
-              { label: 'NG4500', to: '/docs/neoedge-ng4500-series/overview' },
-              { label: 'NE503', to: '/docs/neoeyes-ne503-series/overview' },
-              { label: 'NE301', to: '/docs/neoeyes-ne301-series/overview' },
-              { label: 'NE101', to: '/docs/neoeyes-ne101-series/overview' },
-              { label: 'NeoMind', to: '/docs/neomind/product-overview/what-is-neomind' },
-            ]
-          },
-          {
-            title: 'Community', items: [
-              { label: 'Discord', href: 'https://discord.gg/a8NbPGAJw9' },
-              { label: 'X', href: 'https://x.com/CamThinkAI' },
-              { label: 'Youtube', href: 'https://www.youtube.com/@CamThink' },
-            ],
-          },
-          {
-            title: 'More', items: [
-              { label: 'WebSite', href: 'https://www.camthink.ai' },
-              { label: 'Store', href: 'https://www.camthink.ai/store/' },
-              { label: 'GitHub', href: 'https://github.com/camthink-ai' }
-            ]
-          },
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} CamThink Technology Co., Ltd. All Rights Reserved.`,
-      },
+      // Footer 由 src/theme/Footer 自定义渲染（链接数据在 src/data/siteLinks.cjs）
       prism: { theme: prismThemes.github, darkTheme: prismThemes.dracula },
     }),
 };

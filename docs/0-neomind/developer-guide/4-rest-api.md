@@ -1,23 +1,91 @@
 ---
-description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
-keywords: [NeoMind, REST API, HTTP, JWT, API Key, 端点]
+description: "NeoMind REST API 参考：OpenAPI 规范与工具链（Scalar 控制台 / 代码生成 / Apifox 导入）、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
+keywords: [NeoMind, REST API, OpenAPI, Swagger, HTTP, JWT, API Key, 端点, 代码生成]
 tags: [NeoMind, 开发指南]
 sidebar_label: "REST API Reference"
 ---
 
 # REST API 参考
 
-NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整端点清单以源码 `crates/neomind-api/src/server/router.rs` 为准。
+NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：OpenAPI 规范与工具链、base URL、认证、统一响应格式、各业务域端点分组。
 
 ## 入口
 
 | 项 | 值 |
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
+| 交互式 API 控制台 | `http://<SERVER_IP>:9375/api/docs`（Scalar，可浏览可调试） |
+| OpenAPI 3 规范 | `GET /api/docs/openapi.json`（354 个操作、278 个路径、136 个 schema） |
+| 路由清单（机器可读，含鉴权类） | `GET /api/docs/routes.json` |
 | 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
 | 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
 
 > **所有端点路径以 `/api` 开头**。下文的端点列表都省略 `/api` 前缀。
+
+## OpenAPI 规范与工具链
+
+自 **0.9.24** 起，OpenAPI 3.0 规范覆盖**全部** REST 操作——334/338 个 handler 带完整注解（其余 4 个是通配路由，见下文"诚实边界"），136 个 schema 全部注册、135 个 `$ref` 全部可解析。这意味着你可以直接把规范导入任何标准工具，或生成强类型客户端。
+
+### 下载规范文件
+
+```bash
+curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
+```
+
+约 230 KB。规范由 CI 漂移测试守护：每个注解路径必须真实存在于路由表，注解与实现不会悄悄脱节。
+
+### 在线控制台（Scalar）
+
+浏览器打开 `/api/docs` 即用，无需安装任何东西：
+
+1. 左侧按业务域 tag 分组（devices、rules、agents、dashboards……共 37 组），点开展开每个端点的参数、请求体 schema 与响应码说明；
+2. 点击任一端点 → **Try it out** → 填参数/请求体 → **Execute**，右侧直接看到真实响应（含响应头与耗时）；
+3. **鉴权**：规范本身不内嵌 security 定义（鉴权类见下表，端点粒度的权威来源是 `routes.json`），调试受保护端点时需手动加请求头——在控制台的请求参数区给该请求添加 Header `X-API-Key: <你的key>`（或 `Authorization: Bearer <JWT>`）；
+4. 控制台右上角可导出规范文件（OpenAPI JSON）。
+
+### 导入 Apifox / Postman
+
+**Apifox**（推荐国内团队）：
+
+1. 项目设置 → **导入数据** → 选 **OpenAPI/Swagger**；
+2. 数据源选"URL"填 `http://<SERVER_IP>:9375/api/docs/openapi.json`（或用上面下载的文件）；
+3. 导入后所有端点、请求体结构、枚举值直接可用，可在 Apifox 环境变量里配 `X-API-Key` 批量鉴权。
+
+**Postman**：Import → 支持直接粘贴该 URL 或拖入文件，效果相同。
+
+### 生成强类型客户端
+
+```bash
+# 安装一次
+npm install @openapitools/openapi-generator-cli -g
+
+# TypeScript + axios 客户端
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g typescript-axios -o src/api-generated
+
+# Python 客户端
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g python -o ./neomind-client
+```
+
+生成物包含每个端点的函数、全部请求/响应类型定义（含枚举与必填约束）。前端项目也可用 [orval](https://orval.dev/)（`npx orval --input neomind-openapi.json --output src/api.ts --client axios`）生成 React Query 钩子。
+
+### 鉴权类速查（来自 routes.json）
+
+| 类 | 含义 | 请求头 |
+|----|------|--------|
+| `public` | 无需鉴权 | 无 |
+| `jwt-or-api-key` | Web 会话 **或** API Key 均可 | `X-API-Key: <key>` 或 `Authorization: Bearer <jwt>` |
+| `jwt-only` | 仅管理员 JWT，**API Key 不适用** | `Authorization: Bearer <jwt>` |
+| `webhook` / `ws` / `debug` | 特殊通道（签名校验 / WebSocket 升级） | 见各端点说明 |
+
+对某个端点拿不准时：`GET /api/docs/routes.json` 里每个条目都带 `method`、`path`、`auth` 三个字段。
+
+### 诚实边界（规范里没有的东西）
+
+- **4 个通配路由**（`GET /api/images/*path`、`GET /api/docs/*rest`、`GET /api/extensions/:id/assets/*asset_path`、`ANY /api/share/:token/proxy/*path`）无法用 OpenAPI 路径模板表达——它们只在 `routes.json` 里；
+- **鉴权元数据**不在规范内（见上表）；
+- **长任务接口**（`builtin-llm/download`、`upload-model`、`import-local`）单次调用可能占用连接数分钟到数十分钟，代码生成客户端时建议单独设置超时。
 
 ## 认证
 
@@ -91,6 +159,8 @@ API Key 不依赖用户会话，可设过期时间与权限范围。
 
 HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `error.message` 提取可读信息。
 
+> **0.9.24 起错误信封全端统一**：认证失败（401/403）与限流（429）此前是另一种形状（`error` 为字符串、无 `success` 字段），现在与上述格式一致——`code` 分别为 `UNAUTHORIZED` / `FORBIDDEN` / `RATE_LIMITED`。用一个反序列化结构就能处理全部错误路径。限流响应同时带 `Retry-After` 头。
+
 ## 字段命名约定
 
 > **重要陷阱**：后端返回 **snake_case**（如 `data_source`），前端使用 **camelCase**（如 `dataSource`）。前端所有 API 响应都经 `web/src/store/persistence/types.ts::fromDashboardDTO()` 转换。集成商自己解析 JSON 时，字段以**后端原样 snake_case** 为准。
@@ -113,12 +183,12 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/devices` | 列出设备 |
-| POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空） |
-| GET | `/devices/:id` | 设备详情（含 metrics + commands） |
+| POST | `/devices` | 创建设备（需 `connection_config: {}` 即使为空）。**注意 upsert 语义**：若 `device_id` 已存在会**替换**原设备的名称与配置，响应含 `updated_existing: true` 标明是覆盖而非新建 |
+| GET | `/devices/:id` | 设备详情（含 metrics + commands；`status` 三态：`online` / `offline`（曾在线但超时）/ `disconnected`（从未上线）） |
 | GET | `/devices/:id/current` | 设备全部指标当前值 |
-| PUT | `/devices/:id` | 更新设备 |
+| PUT | `/devices/:id` | 更新设备。`offline_timeout_secs` 三态：**缺省**＝保留现值、`null`＝清除覆盖（回退模板/全局默认）、数字＝设置（30–86400 秒） |
 | DELETE | `/devices/:id` | 删除设备 |
-| GET | `/devices/:id/telemetry` | 设备遥测历史（`?metric=&start=&end=`） |
+| GET | `/devices/:id/telemetry` | 设备遥测历史，参数见下方[遥测查询契约](#遥测查询契约) |
 | GET | `/telemetry` | 跨设备遥测查询（`?source=&metric=&start=&end=&limit=&offset=`；`offset` 为跳过最新 N 条，用于服务端分页，响应含精确 `total_count`） |
 | POST | `/devices/:id/command/:command` | 下发指令（body 为参数对象，如 `{"offset": 1}`） |
 | POST | `/devices/:id/webhook` | Webhook 推数据（无需认证） |
@@ -126,6 +196,25 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | POST | `/device-types` | 创建设备类型 |
 | GET | `/devices/drafts` | 待审批草稿（自动发现） |
 | POST | `/devices/drafts/:id/approve` | 审批草稿 |
+
+### 遥测查询契约
+
+`GET /devices/:id/telemetry` 的查询参数（时间戳一律 **Unix 秒**）：
+
+| 参数 | 语义 |
+|------|------|
+| `metric` | 指定指标名；缺省返回该设备全部指标 |
+| `start` / `end` | 时间窗（秒）。**`hours=N`**（1–720）在 `start` 缺省时推导窗口（0.9.24 起生效，此前被忽略） |
+| `aggregate` | `avg` / `min` / `max` / `sum` / `last`——**`value` 字段反映请求的函数**（0.9.24 起，此前恒为 avg）；未知值返回 400；原始字段（min/max/sum/count）始终随行返回 |
+| `limit` | 每页点数，1–5000，默认 100 |
+| `offset` | 跳过最新 N 条（偏移分页） |
+| `cursor` | 游标分页：上一页最旧点的时间戳；下一页返回**严格更旧**的点（边界点不重复）。响应里 `pagination.next_cursor` 为 `null` 即最后一页（短页信号），可直接停止 |
+| `history=true` | **设备已删除**的历史数据访问口——设备不存在时本端点 404（与 `/devices/:id` 一致），加此参数可查存档数据 |
+| `bucketed` | 服务端降采样，图表场景返回至多 `limit` 个均匀分布的点 |
+
+> **第三方轮询注意**：设备被其他客户端（CLI、另一会话）删除后，遥测端点从 200+空数据变为 404——轮询方需处理 404 并停止该设备的轮询，或改用 `history=true` 读取存档。
+
+`GET /telemetry`（跨设备）的 `aggregate` 另支持 `count`；未知值同样 400。
 
 ### Dashboards（仪表板）
 
@@ -212,6 +301,8 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | GET | `/extensions/:id/commands` | 扩展命令列表 |
 | POST | `/extensions/:id/command` | 执行扩展命令（body `{"command": "...", "args": {...}}`） |
 | GET | `/extensions/:id/components` | 扩展提供的 Dashboard 组件 |
+
+> **组件市场安装**（`POST /frontend-components/market/install`，0.9.24 起）：失败返回真实的 4xx/5xx（组件不存在、市场不可达等），不再用 HTTP 200 包 `success:false`——按状态码分支处理的客户端从此可靠。
 | GET / WS | `/extensions/:id/stream` | 扩展流会话（Push 模式实时帧；见[实时 API](#实时-api)） |
 
 ### Data Push（数据推送）
@@ -293,4 +384,4 @@ else:
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-09-14*

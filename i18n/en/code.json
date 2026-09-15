@@ -489,12 +489,11 @@
     "message": "Explore, create, and share with developers worldwide"
   },
   "homepage.community.discord": {
-    "message": "Join real-time discussions, get technical support"
+    "message": "Chat with developers and get technical support"
   },
   "homepage.community.github": {
-    "message": "Submit Issues, participate in feature proposals"
-  },
-  "homepage.community.contact": {
+    "message": "Open-source firmware, sample code and issue tracking"
+  },    "homepage.community.contact": {
     "message": "Product consultation and business cooperation"
   },
   "carousel.ne302.title": {
@@ -637,5 +636,43 @@
   },
   "latest.faq.title": {
     "message": "NE503 Troubleshooting FAQ"
+  },
+  "footer.tagline": {
+    "message": "Open hardware × open software — build your edge AI applications in one place.",
+    "description": "Footer brand tagline"
+  },
+  "footer.col.hardware": {
+    "message": "Hardware",
+    "description": "Footer column title"
+  },
+  "footer.col.software": {
+    "message": "Software",
+    "description": "Footer column title"
+  },
+  "footer.col.solutions": {
+    "message": "Edge AI Solutions",
+    "description": "Footer column title"
+  },
+  "footer.item.waterMeter": {
+    "message": "Water Meter Recognition"
+  },
+  "footer.item.smartGym": {
+    "message": "Smart Gym"
+  },
+  "footer.item.website": {
+    "message": "Website"
+  },
+  "footer.item.store": {
+    "message": "Store"
+  },
+  "footer.item.contact": {
+    "message": "Contact Us"
+  },
+  "footer.col.company": {
+    "message": "Company",
+    "description": "Footer column title"
+  },
+  "footer.item.neomind": {
+    "message": "NeoMind Platform"
   }
 }

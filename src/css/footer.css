@@ -1,0 +1,153 @@
+/* 全站自定义 Footer（src/theme/Footer）。
+ * 常暗配色，与首页 welcome 页的深色体系（#161616 / #F24A00）保持一致；
+ * 两种主题模式下外观相同，无需 [data-theme] 分支。 */
+
+.ct-footer {
+  --ctf-bg: #161616;
+  --ctf-text: #a1a1a6;
+  --ctf-text-strong: #ffffff;
+  --ctf-text-dim: #6e6e73;
+  --ctf-border: rgba(255, 255, 255, 0.08);
+  --ctf-accent: #fd6407;
+
+  background: var(--ctf-bg);
+  color: var(--ctf-text);
+  font-size: 0.9rem;
+}
+
+.ct-footer a {
+  text-decoration: none;
+}
+
+.ct-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem 0;
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, minmax(0, 1fr));
+  gap: 2.5rem;
+}
+
+/* ---------- 品牌块 ---------- */
+
+.ct-footer__logo {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+.ct-footer__tagline {
+  margin: 1.1rem 0 1.4rem;
+  line-height: 1.7;
+  max-width: 30ch;
+}
+
+.ct-footer__socials {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.ct-footer__social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--ctf-text);
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.ct-footer__social:hover {
+  color: var(--ctf-text-strong);
+  border-color: var(--ctf-accent);
+  background: rgba(253, 100, 7, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ---------- 链接列 ---------- */
+
+.ct-footer__col-title {
+  color: var(--ctf-text-strong);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.35rem 0 1.05rem;
+}
+
+.ct-footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  /* 内容按二级目录自动增长，限制高度避免列无限堆积 */
+  max-height: 11.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.ct-footer__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ct-footer__list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+}
+
+.ct-footer__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ct-footer__link {
+  color: var(--ctf-text);
+  transition: color 0.15s ease;
+}
+
+.ct-footer__link:hover {
+  color: var(--ctf-accent);
+}
+
+/* ---------- 底栏 ---------- */
+
+.ct-footer__bottom {
+  max-width: 1200px;
+  margin: 3.25rem auto 0;
+  padding: 1.3rem 2rem 1.6rem;
+  border-top: 1px solid var(--ctf-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ctf-text-dim);
+}
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 996px) {
+  .ct-footer__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 3rem;
+  }
+
+  .ct-footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .ct-footer__inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

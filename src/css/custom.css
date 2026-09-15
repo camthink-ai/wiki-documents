@@ -283,3 +283,127 @@
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E");
 }
+
+/* ============================================================ */
+/* Docs sidebar polish(侧边栏样式优化)                            */
+/* ============================================================ */
+
+/* —— 底部「Collapse sidebar」按钮:从素 outline 按钮改为轻量 ghost 风格 —— */
+/* —— 桌面侧边栏底部「Collapse sidebar」:纯图标按钮 → 贴底通栏 + 顶部分隔线 —— */
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] {
+  height: 36px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-top: 1px solid var(--ifm-color-emphasis-200) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ifm-color-emphasis-500) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"]:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 7%, transparent) !important;
+  color: var(--ifm-color-primary) !important;
+}
+
+/* 原生实心双箭头过粗:隐藏,改用细线双箭头(stroke 风格),颜色跟随 currentColor */
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"] svg[class*="collapseSidebarButtonIcon"] {
+  display: none;
+}
+
+.theme-doc-sidebar-container .collapseSidebarButton[class*="collapseSidebarButton"]::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 17 5-5-5-5'/%3E%3Cpath d='m13 17 5-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 17 5-5-5-5'/%3E%3Cpath d='m13 17 5-5-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* —— 折叠后左缘悬浮的展开按钮:品牌色圆角 + 投影 —— */
+.expandSidebarButton[class*="expandSidebarButton"] {
+  background: var(--ifm-color-primary) !important;
+  color: #fff !important;
+  border: none !important;
+  width: 26px !important;
+  height: 44px !important;
+  border-radius: 0 10px 10px 0 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+  transition: filter 0.18s ease, width 0.15s ease;
+}
+
+.expandSidebarButton[class*="expandSidebarButton"]:hover {
+  filter: brightness(1.08);
+  width: 32px;
+}
+
+/* —— 菜单项:圆角、间距、过渡 —— */
+.theme-doc-sidebar-menu .menu__link,
+.theme-doc-sidebar-menu .menu__list-item-collapsible {
+  border-radius: 8px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-doc-sidebar-menu .menu__link {
+  margin: 1px 8px;
+  padding: 6px 10px;
+}
+
+/* —— 当前文档:主题色胶囊高亮 —— */
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist):not(.menu__link--sublist-caret) {
+  background: color-mix(in srgb, var(--ifm-color-primary) 11%, transparent) !important;
+  color: var(--ifm-color-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* —— 分类折叠箭头:平滑旋转 —— */
+.theme-doc-sidebar-menu .menu__link--sublist-caret::after {
+  transition: transform 0.18s ease !important;
+  transform: rotate(-90deg) !important;   /* 收起:指向右 */
+}
+
+li.menu__list-item:not(.menu__list-item--collapsed)
+  > .menu__list-item-collapsible
+  .menu__link--sublist-caret::after {
+  transform: rotate(0deg) !important;  /* 展开:指向下 */
+}
+
+/* —— 顶级分组标题加重,层级更清晰 —— */
+ul.menu__list > li.theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible
+  > a.menu__link {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ifm-color-emphasis-800);
+}
+
+/* 文档首页项(Documentation Hub)与一级分组同等视觉权重 */
+ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ifm-color-emphasis-800);
+}
+
+[data-theme='dark']
+  ul.menu__list
+  > li.theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible
+  > a.menu__link,
+[data-theme='dark']
+  ul.menu__list
+  > li.theme-doc-sidebar-item-link-level-1
+  > a.menu__link {
+  color: var(--ifm-color-emphasis-200);
+}
+
+/* —— 移动端抽屉里的按钮同步 —— */
+@media (max-width: 997px) {
+  .navbar-sidebar__item .collapseSidebarButton[class*="collapseSidebarButton"] {
+    margin: 8px 12px;
+  }
+}
+

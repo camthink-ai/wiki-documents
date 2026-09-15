@@ -144,7 +144,7 @@ The introduction of how to deploy and run the NanoOWL real-time visual reasoning
 
 ### Software Environment
 
-- **Supported ​​JetPack versions**​​：
+- **Supported JetPack versions**：
   - [JetPack 5 (L4T r35.x)](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
   - [JetPack 6 (L4T r36.x)](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags) （by default）
 

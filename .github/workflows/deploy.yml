@@ -101,8 +101,12 @@ jobs:
       - name: 3. Install dependencies
         run: yarn install --frozen-lockfile
 
-      # 4. 构建 Docusaurus 静态网站 (生产服务器版本)
-      - name: 4. Build website for Production Server
+      # 4. 同步 NeoMind CHANGELOG 生成版本发布说明页(网络失败自动回退基线)
+      - name: 4. Generate NeoMind release notes from upstream CHANGELOG
+        run: node scripts/gen-neomind-changelog.js
+
+      # 5. 构建 Docusaurus 静态网站 (生产服务器版本)
+      - name: 5. Build website for Production Server
         env:
           NODE_ENV: production
           GITHUB_ACTIONS: true
@@ -111,7 +115,11 @@ jobs:
           SITE_URL: https://wiki.camthink.ai
         run: yarn build
 
-      # 5. 使用 rsync 部署到生产服务器
+      # 5.1 清洗产物 HTML 中的 NUL 字节(Docusaurus SSR 偶发注入,会导致链接 404)
+      - name: 5.1 Strip NUL bytes from built HTML
+        run: python3 scripts/strip-nul-bytes.py build
+
+      # 6. 使用 rsync 部署到生产服务器
       - name: 5. Deploy to Production Server via SSH (rsync)
         uses: burnett01/rsync-deployments@5.2
         with:

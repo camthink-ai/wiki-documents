@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="680" viewBox="0 0 900 680" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#F24A00"/>
+    </marker>
+  </defs>
+
+  <!-- 现场端 -->
+  <rect x="60" y="24" width="780" height="140" rx="14" fill="#FFF7F2" stroke="#F24A00" stroke-opacity="0.35" stroke-width="1.5"/>
+  <text x="80" y="52" font-size="14" font-weight="700" fill="#F24A00">现场端 · 表井 / 泵房 / 楼道</text>
+  <rect x="100" y="66" width="250" height="72" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="225" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">存量水表 · 电表 · 燃气表</text>
+  <text x="225" y="120" text-anchor="middle" font-size="12" fill="#6B7280">机械表 · 无需改造</text>
+  <rect x="420" y="66" width="380" height="72" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="610" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">NeoEyes NE101 相机</text>
+  <text x="610" y="120" text-anchor="middle" font-size="12" fill="#6B7280">官方支架安装 · 对准字轮 · 电池供电 · 定时唤醒抓拍</text>
+
+  <!-- 上传箭头 -->
+  <line x1="280" y1="164" x2="280" y2="224" stroke="#F24A00" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="296" y="198" font-size="12.5" fill="#C2410C">Wi-Fi / Cat.1 抓拍图像上传</text>
+
+  <!-- NeoMind 平台 -->
+  <rect x="60" y="224" width="780" height="170" rx="14" fill="#FFF7F2" stroke="#F24A00" stroke-opacity="0.35" stroke-width="1.5"/>
+  <text x="80" y="252" font-size="14" font-weight="700" fill="#F24A00">NeoMind 平台 · 本地推理(数据不出场)</text>
+  <rect x="100" y="268" width="300" height="100" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="250" y="300" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">本地 OCR 识别</text>
+  <text x="250" y="326" text-anchor="middle" font-size="12" fill="#6B7280">paddle-ocr-v6 扩展</text>
+  <text x="250" y="348" text-anchor="middle" font-size="12" fill="#6B7280">无需 GPU / 无需外网</text>
+  <rect x="440" y="268" width="360" height="100" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="620" y="300" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">读数校验</text>
+  <text x="620" y="326" text-anchor="middle" font-size="12" fill="#6B7280">量程 / 单调性 / 置信度检查</text>
+  <text x="620" y="348" text-anchor="middle" font-size="12" fill="#6B7280">异常读数标记为可疑</text>
+  <line x1="400" y1="318" x2="440" y2="318" stroke="#F24A00" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 输出箭头 -->
+  <line x1="280" y1="394" x2="280" y2="454" stroke="#F24A00" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="296" y="428" font-size="12.5" fill="#C2410C">读数 + 原图凭证</text>
+
+  <!-- 业务系统 -->
+  <rect x="60" y="454" width="780" height="170" rx="14" fill="#FFF7F2" stroke="#F24A00" stroke-opacity="0.35" stroke-width="1.5"/>
+  <text x="80" y="482" font-size="14" font-weight="700" fill="#F24A00">业务系统</text>
+  <rect x="100" y="498" width="220" height="100" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="210" y="536" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">营收结算</text>
+  <text x="210" y="562" text-anchor="middle" font-size="12" fill="#6B7280">读数自动入库</text>
+  <rect x="340" y="498" width="220" height="100" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="450" y="536" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">工单 / 运维</text>
+  <text x="450" y="562" text-anchor="middle" font-size="12" fill="#6B7280">异常读数复核</text>
+  <rect x="580" y="498" width="220" height="100" rx="10" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="690" y="536" text-anchor="middle" font-size="15" font-weight="600" fill="#1C1E21">抄表大屏 / 报表</text>
+  <text x="690" y="562" text-anchor="middle" font-size="12" fill="#6B7280">曲线 · 覆盖率 · 留痕查询</text>
+</svg>

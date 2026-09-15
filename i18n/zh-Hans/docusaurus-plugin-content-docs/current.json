@@ -1,0 +1,138 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Hardware Products": {
+    "message": "Hardware Products",
+    "description": "The label for category Hardware Products in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoEdge NG4500 Series": {
+    "message": "NeoEdge NG4500 Series",
+    "description": "The label for category NeoEdge NG4500 Series in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NG4500-CB01 Development Board": {
+    "message": "NG4500-CB01 Development Board",
+    "description": "The label for category NG4500-CB01 Development Board in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Hardware Guide": {
+    "message": "Hardware Guide",
+    "description": "The label for category Hardware Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Software Guide": {
+    "message": "Software Guide",
+    "description": "The label for category Software Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Driver Installation And Updates": {
+    "message": "Driver Installation And Updates",
+    "description": "The label for category Driver Installation And Updates in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Software Frameworks And Tools": {
+    "message": "Software Frameworks And Tools",
+    "description": "The label for category Software Frameworks And Tools in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Application Guide": {
+    "message": "Application Guide",
+    "description": "The label for category Application Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.AI Box Application Expansion": {
+    "message": "AI Box Application Expansion",
+    "description": "The label for category AI Box Application Expansion in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoEyes NE503 Series": {
+    "message": "NeoEyes NE503 Series",
+    "description": "The label for category NeoEyes NE503 Series in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.User Guide": {
+    "message": "User Guide",
+    "description": "The label for category User Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Cookbook": {
+    "message": "Cookbook",
+    "description": "The label for category Cookbook in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoEyes NE301 Series": {
+    "message": "NeoEyes NE301 Series",
+    "description": "The label for category NeoEyes NE301 Series in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NE300-MB01 Development Board": {
+    "message": "NE300-MB01 Development Board",
+    "description": "The label for category NE300-MB01 Development Board in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoEyes NE302 Series": {
+    "message": "NeoEyes NE302 Series",
+    "description": "The label for category NeoEyes NE302 Series in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.User Guide.link.generated-index.description": {
+    "message": "Configure and operate the NE302 Web console.",
+    "description": "The generated-index page description for category User Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Hardware Guide.link.generated-index.description": {
+    "message": "Understand the NE302 main board, interface board and supported hardware boundaries.",
+    "description": "The generated-index page description for category Hardware Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Software Guide.link.generated-index.description": {
+    "message": "Set up the NE302 source tree, then build, package, flash and update its firmware components.",
+    "description": "The generated-index page description for category Software Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoEyes NE101 Series": {
+    "message": "NeoEyes NE101 Series",
+    "description": "The label for category NeoEyes NE101 Series in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NE100-MB01 Development Board": {
+    "message": "NE100-MB01 Development Board",
+    "description": "The label for category NE100-MB01 Development Board in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Hardware Dev Resources": {
+    "message": "Hardware Dev Resources",
+    "description": "The label for category Hardware Dev Resources in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Software Platform": {
+    "message": "Software Platform",
+    "description": "The label for category Software Platform in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NeoMind Edge AI Platform": {
+    "message": "NeoMind Edge AI Platform",
+    "description": "The label for category NeoMind Edge AI Platform in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Product Overview": {
+    "message": "Product Overview",
+    "description": "The label for category Product Overview in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Quick Start": {
+    "message": "Quick Start",
+    "description": "The label for category Quick Start in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Concepts": {
+    "message": "Concepts",
+    "description": "The label for category Concepts in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Developer Guide": {
+    "message": "Developer Guide",
+    "description": "The label for category Developer Guide in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Case Studies": {
+    "message": "Case Studies",
+    "description": "The label for category Case Studies in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.NE101 Camera Flagship": {
+    "message": "NE101 Camera Flagship",
+    "description": "The label for category NE101 Camera Flagship in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Use Cases": {
+    "message": "Use Cases",
+    "description": "The label for category Use Cases in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.AI ToolStack": {
+    "message": "AI ToolStack",
+    "description": "The label for category AI ToolStack in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Edge AI Solutions": {
+    "message": "Edge AI Solutions",
+    "description": "The label for category Edge AI Solutions in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Water Meter Recognition": {
+    "message": "Water Meter Recognition",
+    "description": "The label for category Water Meter Recognition in sidebar tutorialSidebar"
+  }
+}

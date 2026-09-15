@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="560" viewBox="0 0 880 560" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="dimarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/>
+    </marker>
+    <marker id="flowarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#F24A00"/>
+    </marker>
+  </defs>
+
+  <!-- 相机 -->
+  <rect x="390" y="28" width="100" height="64" rx="10" fill="#1C1E21"/>
+  <text x="440" y="58" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">NE101</text>
+  <circle cx="440" cy="92" r="16" fill="#F24A00"/>
+  <circle cx="440" cy="92" r="8" fill="#1C1E21"/>
+  <text x="500" y="52" font-size="12" fill="#6B7280">镜头朝向表盘</text>
+
+  <!-- FOV 锥角(60°) -->
+  <polygon points="440,100 265,430 615,430" fill="#F24A00" fill-opacity="0.07"/>
+  <line x1="440" y1="100" x2="265" y2="430" stroke="#F24A00" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="440" y1="100" x2="615" y2="430" stroke="#F24A00" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="462" y="140" font-size="12" fill="#C2410C">FOV 60°</text>
+
+  <!-- 工作距离标注(左侧尺寸线) -->
+  <line x1="185" y1="105" x2="185" y2="430" stroke="#6B7280" stroke-width="1.2" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
+  <line x1="177" y1="105" x2="193" y2="105" stroke="#6B7280" stroke-width="1.2"/>
+  <line x1="177" y1="430" x2="193" y2="430" stroke="#6B7280" stroke-width="1.2"/>
+  <text x="150" y="270" font-size="12.5" fill="#374151" text-anchor="middle" transform="rotate(-90 150 270)">标称工作距离 d = 15cm(60° FOV)</text>
+
+  <!-- 表盘(字轮) -->
+  <rect x="290" y="382" width="300" height="96" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5"/>
+  <circle cx="370" cy="430" r="20" fill="#F3F4F6" stroke="#1C1E21" stroke-width="1.5"/>
+  <text x="370" y="436" text-anchor="middle" font-size="16" font-weight="700" fill="#1C1E21">0</text>
+  <circle cx="417" cy="430" r="20" fill="#F3F4F6" stroke="#1C1E21" stroke-width="1.5"/>
+  <text x="417" y="436" text-anchor="middle" font-size="16" font-weight="700" fill="#1C1E21">0</text>
+  <circle cx="464" cy="430" r="20" fill="#F3F4F6" stroke="#1C1E21" stroke-width="1.5"/>
+  <text x="464" y="436" text-anchor="middle" font-size="16" font-weight="700" fill="#1C1E21">1</text>
+  <circle cx="511" cy="430" r="20" fill="#F3F4F6" stroke="#1C1E21" stroke-width="1.5"/>
+  <text x="511" y="436" text-anchor="middle" font-size="16" font-weight="700" fill="#1C1E21">8</text>
+  <text x="440" y="466" text-anchor="middle" font-size="12" fill="#6B7280">水表字轮(示例读数 0018)</text>
+
+  <!-- 覆盖宽度标注 -->
+  <line x1="265" y1="486" x2="615" y2="486" stroke="#6B7280" stroke-width="1.2" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
+  <text x="440" y="510" text-anchor="middle" font-size="12.5" fill="#374151">画面覆盖宽 ≈ 17cm(W = 2·d·tan 30°)</text>
+
+  <!-- 推荐说明 -->
+  <rect x="640" y="380" width="220" height="60" rx="10" fill="#FFF1EA"/>
+  <text x="750" y="404" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">推荐:字轮占画面</text>
+  <text x="750" y="424" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">宽度的 50%~80%</text>
+</svg>

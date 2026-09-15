@@ -144,7 +144,7 @@ sudo jtop
 
 ### 软件环境
 
-- **支持​​JetPack版本**​​：
+- **支持JetPack版本**：
   - [JetPack 5 (L4T r35.x)](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags)
   - [JetPack 6 (L4T r36.x)](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-jetpack/tags) （系统默认版本）
 
