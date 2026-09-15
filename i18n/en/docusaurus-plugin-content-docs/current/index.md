@@ -185,9 +185,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <span className="oss-product">NE101</span>
       <div className="oss-pills">
       <a href="https://github.com/camthink-ai/lowpower_camera" target="_blank" rel="noopener noreferrer" className="oss-pill">lowpower_camera · camera firmware</a>
-      <a href="https://github.com/camthink-ai/esp-who" target="_blank" rel="noopener noreferrer" className="oss-pill">esp-who · face recognition framework</a>
-      <a href="https://github.com/camthink-ai/easyio-lib-for-esp32" target="_blank" rel="noopener noreferrer" className="oss-pill">easyio-lib-for-esp32 · ESP32 dev library</a>
-      <a href="https://github.com/camthink-ai/iot_samples" target="_blank" rel="noopener noreferrer" className="oss-pill">iot_samples · sample code</a>
       </div>
     </div>
     <div className="oss-row">
@@ -222,18 +219,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · sample apps</a>
       <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · runtime</a>
       <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · official extensions</a>
-      </div>
-    <div className="oss-row">
-      <span className="oss-product">Datasheets</span>
-      <div className="oss-pills">
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne101_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE101 datasheet (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne301_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE301 datasheet (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/neoeyes-ne503-product-brochure.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE503 brochure (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoedge_ng4500_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NG4500 datasheet (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_product_catalogue.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">Product catalogue (PDF)</a>
-      </div>
-    </div>
-    </div>
+      </div>    </div>
   </div>
 
   {/* ================= Software Platforms ================= */}

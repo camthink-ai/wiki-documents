@@ -185,9 +185,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <span className="oss-product">NE101</span>
       <div className="oss-pills">
       <a href="https://github.com/camthink-ai/lowpower_camera" target="_blank" rel="noopener noreferrer" className="oss-pill">lowpower_camera · 相机固件</a>
-      <a href="https://github.com/camthink-ai/esp-who" target="_blank" rel="noopener noreferrer" className="oss-pill">esp-who · 人脸识别框架</a>
-      <a href="https://github.com/camthink-ai/easyio-lib-for-esp32" target="_blank" rel="noopener noreferrer" className="oss-pill">easyio-lib-for-esp32 · ESP32 开发库</a>
-      <a href="https://github.com/camthink-ai/iot_samples" target="_blank" rel="noopener noreferrer" className="oss-pill">iot_samples · 示例代码</a>
       </div>
     </div>
     <div className="oss-row">
@@ -222,18 +219,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · 示例应用</a>
       <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · 运行时</a>
       <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · 官方扩展</a>
-      </div>
-    <div className="oss-row">
-      <span className="oss-product">数据表与手册</span>
-      <div className="oss-pills">
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne101_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE101 数据表 (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoeyes_ne301_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE301 数据表 (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/neoeyes-ne503-product-brochure.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NE503 产品手册 (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_neoedge_ng4500_datasheet.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">NG4500 数据表 (PDF)</a>
-      <a href="https://resources.camthink.ai/download/datasheets/camthink_product_catalogue.pdf" target="_blank" rel="noopener noreferrer" className="oss-pill">全线产品目录 (PDF)</a>
-      </div>
-    </div>
-    </div>
+      </div>    </div>
   </div>
 
   {/* ================= Software Platforms ================= */}
