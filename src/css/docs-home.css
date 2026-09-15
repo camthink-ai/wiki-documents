@@ -683,8 +683,14 @@
 
 .hub-community-card {
     border-radius: 12px;
-    padding: 1rem 1.1rem;
+    padding: 1.2rem 1.2rem 1.1rem;
     color: inherit;
+    background: var(--ifm-color-emphasis-100);
+    transition: background 0.2s;
+}
+
+.hub-community-card:hover {
+    background: var(--ifm-color-emphasis-200);
 }
 
 .hub-community-card:hover {
