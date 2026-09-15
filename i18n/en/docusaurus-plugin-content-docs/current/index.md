@@ -191,7 +191,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <span className="oss-product">NE301</span>
       <div className="oss-pills">
       <a href="https://github.com/camthink-ai/ne301" target="_blank" rel="noopener noreferrer" className="oss-pill">ne301 · camera firmware</a>
-      <a href="https://github.com/camthink-ai/ne301-model-converter" target="_blank" rel="noopener noreferrer" className="oss-pill">ne301-model-converter · model converter</a>
       </div>
     </div>
     <div className="oss-row">
@@ -215,10 +214,10 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     <div className="oss-row">
       <span className="oss-product">Platform SDK</span>
       <div className="oss-pills">
-      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-sdks · SDKs</a>
-      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · sample apps</a>
-      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · runtime</a>
-      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · official extensions</a>
+      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-sdks · NE503 platform SDKs</a>
+      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · NE503 sample apps</a>
+      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · NE503 runtime</a>
+      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · official NeoMind extensions</a>
       </div>    </div>
   </div>
 

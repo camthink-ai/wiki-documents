@@ -191,7 +191,6 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <span className="oss-product">NE301</span>
       <div className="oss-pills">
       <a href="https://github.com/camthink-ai/ne301" target="_blank" rel="noopener noreferrer" className="oss-pill">ne301 · 相机固件</a>
-      <a href="https://github.com/camthink-ai/ne301-model-converter" target="_blank" rel="noopener noreferrer" className="oss-pill">ne301-model-converter · 模型转换工具</a>
       </div>
     </div>
     <div className="oss-row">
@@ -215,10 +214,10 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     <div className="oss-row">
       <span className="oss-product">平台 SDK</span>
       <div className="oss-pills">
-      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-sdks · SDK</a>
-      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · 示例应用</a>
-      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · 运行时</a>
-      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · 官方扩展</a>
+      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-sdks · NE503 平台 SDK</a>
+      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime-apps · NE503 示例应用</a>
+      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="oss-pill">neoruntime · NE503 运行时</a>
+      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="oss-pill">NeoMind-Extensions · NeoMind 官方扩展</a>
       </div>    </div>
   </div>
 
