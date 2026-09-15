@@ -493,11 +493,7 @@
   },
   "homepage.community.github": {
     "message": "Open-source firmware, sample code and issue tracking"
-  },
-  "homepage.community.modelzoo": {
-      "message": "128+ scenario-tuned models, PT / ONNX / TFLite ready to deploy"
-    },
-    "homepage.community.contact": {
+  },    "homepage.community.contact": {
     "message": "Product consultation and business cooperation"
   },
   "carousel.ne302.title": {
