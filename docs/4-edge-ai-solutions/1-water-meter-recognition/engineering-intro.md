@@ -107,7 +107,10 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 方案主机推荐 **NG4500 AI Box**;评估阶段也可将 NeoMind 装在个人电脑或任意 Linux 主机。
 
 - **平台安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](/docs/neomind/user-guide/install-setup)
-- **扩展安装**:NeoMind 扩展市场一键安装 **paddle-ocr-v6**(OCR 识别);确认 **ne101_camera** 组件可用,见 [安装扩展与组件](/docs/neomind/use-cases/camera-ocr)
+- **安装 OCR 扩展**:在扩展市场一键安装 **paddle-ocr-v6**——本地 OCR 识别引擎,负责把 NE101 抓拍的表盘图像识别成读数
+- **确认摄像头组件**:确认内置组件 **ne101_camera** 可用——负责接收 NE101 上报的抓拍图像,并把图像送入识别扩展
+
+详细安装步骤见 [安装扩展与组件](/docs/neomind/use-cases/camera-ocr)。
 
 ![扩展市场](https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png)
 
