@@ -178,6 +178,49 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     </div>
   </div>
 
+  {/* ================= Open-Source Resources ================= */}
+  <h2 className="docs-section-title">开源资源（固件与 SDK）</h2>
+  <div className="oss-grid">
+    <div className="oss-card">
+      <h3>NE101</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/lowpower_camera" target="_blank" rel="noopener noreferrer" className="cat-link-item">lowpower_camera · 相机固件</a>
+      <a href="https://github.com/camthink-ai/esp-who" target="_blank" rel="noopener noreferrer" className="cat-link-item">esp-who · 人脸识别框架</a>
+      <a href="https://github.com/camthink-ai/easyio-lib-for-esp32" target="_blank" rel="noopener noreferrer" className="cat-link-item">easyio-lib-for-esp32 · ESP32 开发库</a>
+      <a href="https://github.com/camthink-ai/iot_samples" target="_blank" rel="noopener noreferrer" className="cat-link-item">iot_samples · 示例代码</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE301</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/ne301" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne301 · 相机固件</a>
+      <a href="https://github.com/camthink-ai/ne301-model-converter" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne301-model-converter · 模型转换工具</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE302</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/ne302" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne302 · 嵌入式固件</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE503 / NG4500</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/meta-hailo-os" target="_blank" rel="noopener noreferrer" className="cat-link-item">meta-hailo-os · 系统构建层</a>
+      <a href="https://github.com/camthink-ai/jetson-containers" target="_blank" rel="noopener noreferrer" className="cat-link-item">jetson-containers · ML 容器</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>平台 SDK（跨硬件）</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime-sdks · SDK</a>
+      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime-apps · 示例应用</a>
+      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime · 运行时</a>
+      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="cat-link-item">NeoMind-Extensions · 官方扩展</a>
+      </div>
+    </div>
+  </div>
+
   {/* ================= Software Platforms ================= */}
   <h2 className="docs-section-title">软件平台</h2>
   <div className="platform-grid">

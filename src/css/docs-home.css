@@ -722,3 +722,17 @@
     margin: 0;
 }
 
+
+/* ================= OPEN-SOURCE RESOURCES ================= */
+.oss-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.oss-card h3 {
+    font-size: 0.95rem;
+    margin: 0 0 0.6rem;
+    color: var(--ifm-color-emphasis-800);
+}

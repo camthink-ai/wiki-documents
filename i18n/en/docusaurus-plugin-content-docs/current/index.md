@@ -178,6 +178,49 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     </div>
   </div>
 
+  {/* ================= Open-Source Resources ================= */}
+  <h2 className="docs-section-title">Open-Source Resources (Firmware &amp; SDKs)</h2>
+  <div className="oss-grid">
+    <div className="oss-card">
+      <h3>NE101</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/lowpower_camera" target="_blank" rel="noopener noreferrer" className="cat-link-item">lowpower_camera · camera firmware</a>
+      <a href="https://github.com/camthink-ai/esp-who" target="_blank" rel="noopener noreferrer" className="cat-link-item">esp-who · face recognition framework</a>
+      <a href="https://github.com/camthink-ai/easyio-lib-for-esp32" target="_blank" rel="noopener noreferrer" className="cat-link-item">easyio-lib-for-esp32 · ESP32 dev library</a>
+      <a href="https://github.com/camthink-ai/iot_samples" target="_blank" rel="noopener noreferrer" className="cat-link-item">iot_samples · sample code</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE301</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/ne301" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne301 · camera firmware</a>
+      <a href="https://github.com/camthink-ai/ne301-model-converter" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne301-model-converter · model converter</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE302</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/ne302" target="_blank" rel="noopener noreferrer" className="cat-link-item">ne302 · embedded firmware</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>NE503 / NG4500</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/meta-hailo-os" target="_blank" rel="noopener noreferrer" className="cat-link-item">meta-hailo-os · OS build layer</a>
+      <a href="https://github.com/camthink-ai/jetson-containers" target="_blank" rel="noopener noreferrer" className="cat-link-item">jetson-containers · ML containers</a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>Platform SDKs (cross-hardware)</h3>
+      <div className="cat-links">
+      <a href="https://github.com/camthink-ai/neoruntime-sdks" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime-sdks · SDKs</a>
+      <a href="https://github.com/camthink-ai/neoruntime-apps" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime-apps · sample apps</a>
+      <a href="https://github.com/camthink-ai/neoruntime" target="_blank" rel="noopener noreferrer" className="cat-link-item">neoruntime · runtime</a>
+      <a href="https://github.com/camthink-ai/NeoMind-Extensions" target="_blank" rel="noopener noreferrer" className="cat-link-item">NeoMind-Extensions · official extensions</a>
+      </div>
+    </div>
+  </div>
+
   {/* ================= Software Platforms ================= */}
   <h2 className="docs-section-title">Software Platforms</h2>
   <div className="platform-grid">
