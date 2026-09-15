@@ -256,6 +256,13 @@ export default function Home(): JSX.Element {
                                 <span className="community-link-text">View Discussions <Icon.ArrowRight size={14} /></span>
                             </Link>
 
+                            <Link href={withWikiUtm('https://www.camthink.ai/developer-center/models/', 'home-community')} className="community-card">
+                                <div className="community-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M12 22V12M3.5 7.2 12 12l8.5-4.8"/></svg></div>
+                                <h3>AI Model Zoo</h3>
+                                <p><Translate id="homepage.community.modelzoo">128+ 场景调优模型，PT / ONNX / TFLite 开箱即用</Translate></p>
+                                <span className="community-link-text">Explore Models <Icon.ArrowRight size={14} /></span>
+                            </Link>
+
                             <Link href={withWikiUtm('https://www.camthink.ai/company/contact-us/', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Mail /></div>
                                 <h3>Contact Us</h3>
