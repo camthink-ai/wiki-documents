@@ -99,7 +99,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     {/* NE503 */}
     <div className="category-card">
       <Link to="/docs/neoeyes-ne503-series/overview" className="cat-header">
-        <img src="/img/home/hw/ne503.webp" style={{height: '80px', pointerEvents: 'none'}} alt="NE503" />
+        <img src="/img/home/hw/ne503.webp" style={{height: '80px', padding: '10px', boxSizing: 'border-box', pointerEvents: 'none'}} alt="NE503" />
       </Link>
       <div className="cat-body">
         <div className="cat-title">NeoEyes NE503</div>
