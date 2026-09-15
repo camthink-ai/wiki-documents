@@ -26,7 +26,7 @@ description: "基于 NE101 低功耗相机与 NeoMind 本地 OCR 的水表自动
 ![水表自动抄读方案架构:NE101 定时抓拍 → NeoMind 本地 OCR 与读数校验 → 营收/工单/大屏](/img/solutions/water-meter-architecture.svg)
 
 
-方案的详细组成清单、产品特点与适用对象,见 [工程介绍](./engineering-intro)。
+方案的详细组成清单、产品特点与适用对象,见 [工程实施](./engineering-intro)。
 
 ## 工作流程
 
@@ -53,4 +53,4 @@ description: "基于 NE101 低功耗相机与 NeoMind 本地 OCR 的水表自动
 
 ## 了解更多
 
-方案的详细硬件组成、产品特点与适用对象,见 [工程介绍](./engineering-intro)。
+方案的详细硬件组成、产品特点与适用对象,见 [工程实施](./engineering-intro)。
