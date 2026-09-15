@@ -168,3 +168,4 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 - **社区支持**:[Discord](https://discord.gg/a8NbPGAJw9) / [GitHub Discussions](https://github.com/camthink-ai/community/discussions)
 - **方案定制与批量部署**:[联系我们](https://www.camthink.ai/company/contact-us/),由 CamThink 技术支持团队对接
 - **高频拍摄 / Type-C 直供电版本定制**:同上,请在需求中注明采集频率与部署规模
+- **支架定制**:非标表型、特殊安装位(尺寸受限 / 多表共架)可定制,同上,请注明表型尺寸与现场安装照片
