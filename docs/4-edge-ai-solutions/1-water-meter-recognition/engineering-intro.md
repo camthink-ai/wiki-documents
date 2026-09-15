@@ -75,7 +75,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 | 示意图 | # | 采购项 | 型号/规格 | 数量 | 用途 |
 |---|---|---|---|---|---|
 | <img src="/img/Overview/NE101/NE101.png" alt="NE101" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 1 | [**NE101 AI 相机**](https://www.camthink.ai/product/neoeyes-ai-camera-ne101/) | 电池供电(4 节 AA)・定时抓拍・Wi-Fi/Cat.1/HaLow 可选 | 每表 1 台 | 表盘抓拍 |
-| <img src="/img/solutions/ne101-bracket.webp" alt="支架" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 2 | [水表支架](https://www.camthink.ai/product/neoeyes-ai-camera-ne101/) | NE101 官方配件 | 每表 1 套 | 固定镜头与表盘相对位置 |
+| <img src="/img/solutions/ne101-bracket.webp" alt="支架" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 2 | [水表支架](https://www.camthink.ai/store/mounting-ne101/) | NE101 官方配件 | 每表 1 套 | 固定镜头与表盘相对位置 |
 | <img src="/img/Overview/NG45xx/NG45XX.png" alt="NG4500" width="40" style={{display: 'block', margin: '0 auto', borderRadius: '6px'}} /> | 3 | [平台主机 NG4500 AI Box](https://www.camthink.ai/product/neoedge-ai-box-ng4500/) | Linux 主机 / NG4500 | 1 台 | 运行 NeoMind:接收、OCR、规则、数据出口 |
 | <div style={{textAlign: 'center'}}>—</div> | 4 | 电池 | 4 节 AA 电池 | 每相机 1 组 | 供电 |
 
