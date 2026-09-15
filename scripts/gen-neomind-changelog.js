@@ -178,8 +178,15 @@ ${old.map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title |
   }
   fs.mkdirSync(path.dirname(ZH_OUT), { recursive: true });
   fs.mkdirSync(path.dirname(EN_OUT), { recursive: true });
-  fs.writeFileSync(ZH_OUT, renderZh(versions));
-  fs.writeFileSync(EN_OUT, renderEn(versions));
+  // MDX 安全转义:正文里所有花括号/尖括号统一转成 HTML 实体(跳过 frontmatter)
+  const mdxSafe = (md) => {
+    const i = md.indexOf('---', 3) >= 0 ? md.indexOf('\n---', 3) + 5 : 0;
+    return md.slice(0, i) + md.slice(i)
+      .replace(/\{/g, '&#123;').replace(/\}/g, '&#125;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
+  fs.writeFileSync(ZH_OUT, mdxSafe(renderZh(versions)));
+  fs.writeFileSync(EN_OUT, mdxSafe(renderEn(versions)));
   console.log('[changelog] generated release notes for ' + versions.length +
     ' versions (latest ' + versions[0].ver + ', ' + versions[0].date + ')');
 })().catch((e) => {
