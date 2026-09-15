@@ -1,27 +1,91 @@
 ---
-description: "NeoMind REST API 参考：base URL、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
-keywords: [NeoMind, REST API, HTTP, JWT, API Key, 端点]
+description: "NeoMind REST API 参考：OpenAPI 规范与工具链（Scalar 控制台 / 代码生成 / Apifox 导入）、认证（JWT + API Key）、统一响应格式、主要端点分组（设备 / 仪表板 / 规则 / Agent / 消息 / 扩展 / 数据推送 / LLM 后端）、公开端点与错误格式。"
+keywords: [NeoMind, REST API, OpenAPI, Swagger, HTTP, JWT, API Key, 端点, 代码生成]
 tags: [NeoMind, 开发指南]
 sidebar_label: "REST API Reference"
 ---
 
 # REST API 参考
 
-NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：base URL、认证、统一响应格式、各业务域端点分组。完整端点清单以源码 `crates/neomind-api/src/server/router.rs` 为准。
+NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API 总览**：OpenAPI 规范与工具链、base URL、认证、统一响应格式、各业务域端点分组。
 
 ## 入口
 
 | 项 | 值 |
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| 交互式 API 文档 | `http://<SERVER_IP>:9375/api/docs`（Swagger 风格，339 条路由可浏览、可直接调试） |
-| 路由清单（机器可读） | `GET /api/docs/routes.json` |
+| 交互式 API 控制台 | `http://<SERVER_IP>:9375/api/docs`（Scalar，可浏览可调试） |
+| OpenAPI 3 规范 | `GET /api/docs/openapi.json`（354 个操作、278 个路径、136 个 schema） |
+| 路由清单（机器可读，含鉴权类） | `GET /api/docs/routes.json` |
 | 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
 | 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
 
 > **所有端点路径以 `/api` 开头**。下文的端点列表都省略 `/api` 前缀。
->
-> **先开 `/api/docs`**：0.9.24 起内置交互式 API 控制台——全部路由按鉴权类分组、展开即见说明、**Try it out 可直接发请求**（记得先在页面请求头里带上你的 API Key）。本页讲契约与陷阱；每个端点的即时探索用控制台更快。
+
+## OpenAPI 规范与工具链
+
+自 **0.9.24** 起，OpenAPI 3.0 规范覆盖**全部** REST 操作——334/338 个 handler 带完整注解（其余 4 个是通配路由，见下文"诚实边界"），136 个 schema 全部注册、135 个 `$ref` 全部可解析。这意味着你可以直接把规范导入任何标准工具，或生成强类型客户端。
+
+### 下载规范文件
+
+```bash
+curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
+```
+
+约 230 KB。规范由 CI 漂移测试守护：每个注解路径必须真实存在于路由表，注解与实现不会悄悄脱节。
+
+### 在线控制台（Scalar）
+
+浏览器打开 `/api/docs` 即用，无需安装任何东西：
+
+1. 左侧按业务域 tag 分组（devices、rules、agents、dashboards……共 37 组），点开展开每个端点的参数、请求体 schema 与响应码说明；
+2. 点击任一端点 → **Try it out** → 填参数/请求体 → **Execute**，右侧直接看到真实响应（含响应头与耗时）；
+3. **鉴权**：规范本身不内嵌 security 定义（鉴权类见下表，端点粒度的权威来源是 `routes.json`），调试受保护端点时需手动加请求头——在控制台的请求参数区给该请求添加 Header `X-API-Key: <你的key>`（或 `Authorization: Bearer <JWT>`）；
+4. 控制台右上角可导出规范文件（OpenAPI JSON）。
+
+### 导入 Apifox / Postman
+
+**Apifox**（推荐国内团队）：
+
+1. 项目设置 → **导入数据** → 选 **OpenAPI/Swagger**；
+2. 数据源选"URL"填 `http://<SERVER_IP>:9375/api/docs/openapi.json`（或用上面下载的文件）；
+3. 导入后所有端点、请求体结构、枚举值直接可用，可在 Apifox 环境变量里配 `X-API-Key` 批量鉴权。
+
+**Postman**：Import → 支持直接粘贴该 URL 或拖入文件，效果相同。
+
+### 生成强类型客户端
+
+```bash
+# 安装一次
+npm install @openapitools/openapi-generator-cli -g
+
+# TypeScript + axios 客户端
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g typescript-axios -o src/api-generated
+
+# Python 客户端
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g python -o ./neomind-client
+```
+
+生成物包含每个端点的函数、全部请求/响应类型定义（含枚举与必填约束）。前端项目也可用 [orval](https://orval.dev/)（`npx orval --input neomind-openapi.json --output src/api.ts --client axios`）生成 React Query 钩子。
+
+### 鉴权类速查（来自 routes.json）
+
+| 类 | 含义 | 请求头 |
+|----|------|--------|
+| `public` | 无需鉴权 | 无 |
+| `jwt-or-api-key` | Web 会话 **或** API Key 均可 | `X-API-Key: <key>` 或 `Authorization: Bearer <jwt>` |
+| `jwt-only` | 仅管理员 JWT，**API Key 不适用** | `Authorization: Bearer <jwt>` |
+| `webhook` / `ws` / `debug` | 特殊通道（签名校验 / WebSocket 升级） | 见各端点说明 |
+
+对某个端点拿不准时：`GET /api/docs/routes.json` 里每个条目都带 `method`、`path`、`auth` 三个字段。
+
+### 诚实边界（规范里没有的东西）
+
+- **4 个通配路由**（`GET /api/images/*path`、`GET /api/docs/*rest`、`GET /api/extensions/:id/assets/*asset_path`、`ANY /api/share/:token/proxy/*path`）无法用 OpenAPI 路径模板表达——它们只在 `routes.json` 里；
+- **鉴权元数据**不在规范内（见上表）；
+- **长任务接口**（`builtin-llm/download`、`upload-model`、`import-local`）单次调用可能占用连接数分钟到数十分钟，代码生成客户端时建议单独设置超时。
 
 ## 认证
 

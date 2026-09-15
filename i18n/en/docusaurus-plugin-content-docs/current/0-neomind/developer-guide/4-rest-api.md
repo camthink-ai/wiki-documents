@@ -1,26 +1,90 @@
 ---
-description: "NeoMind REST API reference: base URL, auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
-keywords: [NeoMind, REST API, HTTP, JWT, API Key]
+description: "NeoMind REST API reference: OpenAPI spec and tooling (Scalar console / code generation / Apifox import), auth (JWT + API Key), unified response format, main endpoint groups (devices / dashboards / rules / agents / messages / extensions / data-push / LLM backends), public endpoints, error format."
+keywords: [NeoMind, REST API, OpenAPI, Swagger, HTTP, JWT, API Key, code generation]
 tags: [NeoMind, Developer Guide]
 ---
 
 # REST API Reference
 
-The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: base URL, auth, unified response format, and endpoint groups by business domain. The authoritative endpoint list lives in `crates/neomind-api/src/server/router.rs`.
+The NeoMind backend serves a REST API on Axum. This page is an **integrator's overview**: OpenAPI spec and tooling, base URL, auth, unified response format, and endpoint groups by business domain.
 
 ## Entry Points
 
 | Item | Value |
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
-| Interactive API docs | `http://<SERVER_IP>:9375/api/docs` (Swagger-style, 339 routes, try-it-out) |
-| Machine-readable route list | `GET /api/docs/routes.json` |
+| Interactive API console | `http://<SERVER_IP>:9375/api/docs` (Scalar — browse and debug) |
+| OpenAPI 3 spec | `GET /api/docs/openapi.json` (354 operations, 278 paths, 136 schemas) |
+| Machine-readable route list (with auth classes) | `GET /api/docs/routes.json` |
 | Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
 | Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
 
 > **Every endpoint path starts with `/api`.** The endpoint lists below omit the `/api` prefix.
->
-> **Start at `/api/docs`**: since 0.9.24 an interactive API console is built in — every route grouped by auth class, expandable, and executable via Try it out (add your API Key to the request headers). This page covers contracts and pitfalls; the console is faster for per-endpoint exploration.
+
+## OpenAPI Spec & Tooling
+
+As of **0.9.24** the OpenAPI 3.0 spec covers **every** REST operation — 334/338 handlers carry full annotations (the other 4 are wildcard routes; see "Honest limits" below), all 136 schemas are registered and every one of the 135 `$ref`s resolves. You can import the spec into any standards-compliant tool or generate a typed client directly.
+
+### Download the spec
+
+```bash
+curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
+```
+
+~230 KB. A CI drift test guards it: every annotated path must actually exist in the router, so the spec cannot silently rot.
+
+### The online console (Scalar)
+
+Open `/api/docs` in a browser — nothing to install:
+
+1. The left tree groups endpoints by domain tag (devices, rules, agents, dashboards … 37 groups); expand any endpoint to see its parameters, request-body schema and documented response codes;
+2. Click an endpoint → **Try it out** → fill in parameters/body → **Execute**; the real response (headers and timing included) appears on the right;
+3. **Auth**: the spec itself embeds no security definitions (auth classes are in the table below; the per-endpoint authority is `routes.json`). When debugging protected endpoints, add the header manually — in the console's parameter area add `X-API-Key: <your key>` (or `Authorization: Bearer <jwt>`) to the request;
+4. The console's top-right corner exports the spec file (OpenAPI JSON).
+
+### Import into Apifox / Postman
+
+**Apifox**:
+
+1. Project settings → **Import Data** → choose **OpenAPI/Swagger**;
+2. Use URL mode with `http://<SERVER_IP>:9375/api/docs/openapi.json` (or the file downloaded above);
+3. All endpoints, request-body structures and enums arrive ready; put `X-API-Key` into an Apifox environment variable for bulk auth.
+
+**Postman**: Import → paste the URL or drop the file — same result.
+
+### Generate a typed client
+
+```bash
+# Once
+npm install @openapitools/openapi-generator-cli -g
+
+# TypeScript + axios
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g typescript-axios -o src/api-generated
+
+# Python
+openapi-generator-cli generate \
+  -i neomind-openapi.json -g python -o ./neomind-client
+```
+
+The output includes per-endpoint functions and full request/response typings (enums and required constraints included). React projects can use [orval](https://orval.dev/) (`npx orval --input neomind-openapi.json --output src/api.ts --client axios`) to generate React Query hooks.
+
+### Auth-class quick reference (from routes.json)
+
+| Class | Meaning | Header |
+|-------|---------|--------|
+| `public` | No auth | none |
+| `jwt-or-api-key` | Web session **or** API Key | `X-API-Key: <key>` or `Authorization: Bearer <jwt>` |
+| `jwt-only` | Admin JWT only — **API Keys not accepted** | `Authorization: Bearer <jwt>` |
+| `webhook` / `ws` / `debug` | Special channels (signature check / WebSocket upgrade) | see the endpoint |
+
+Unsure about an endpoint? Every entry in `GET /api/docs/routes.json` carries `method`, `path` and `auth`.
+
+### Honest limits (what the spec does not contain)
+
+- **4 wildcard routes** (`GET /api/images/*path`, `GET /api/docs/*rest`, `GET /api/extensions/:id/assets/*asset_path`, `ANY /api/share/:token/proxy/*path`) cannot be expressed as OpenAPI path templates — they exist only in `routes.json`;
+- **Auth metadata** is not embedded in the spec (use the table above);
+- **Long-running endpoints** (`builtin-llm/download`, `upload-model`, `import-local`) can hold a connection for minutes to tens of minutes — give generated clients a dedicated timeout.
 
 ## Authentication
 
