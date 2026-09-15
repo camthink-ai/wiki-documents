@@ -691,11 +691,9 @@
 }
 
 .community-card:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-decoration: none;
     color: inherit;
-    transform: translateY(-2px);
-    border-color: var(--ifm-color-emphasis-300);
+    border-color: var(--ct-color-primary, #F24A00);
 }
 
 .community-card .cc-icon {
