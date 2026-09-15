@@ -37,10 +37,10 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <p>Unbox, activate and boot — each product series' Quick Start gets your first frame running in minutes.</p>
       <span className="step-link">See products →</span>
     </Link>
-    <Link to="https://github.com/camthink-ai" className="build-step">
+    <Link to="/docs/neomind/use-cases/object-detection" className="build-step">
       <h3>Run working code</h3>
-      <p>Open-source examples and cookbooks on GitHub — from object detection to OCR, clone and run.</p>
-      <span className="step-link">Visit GitHub →</span>
+      <p>Built-in use cases and cookbooks — from object detection to OCR, ready to run.</p>
+      <span className="step-link">Browse use cases →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
       <h3>Deploy at scale</h3>

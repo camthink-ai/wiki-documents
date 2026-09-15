@@ -37,10 +37,10 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <p>开箱、激活与首次启动，各产品系列的 Quick Start 十分钟跑通第一帧画面。</p>
       <span className="step-link">查看产品入口 →</span>
     </Link>
-    <Link to="https://github.com/camthink-ai" className="build-step">
+    <Link to="/docs/neomind/use-cases/object-detection" className="build-step">
       <h3>跑通现成示例</h3>
-      <p>GitHub 开源示例与 Cookbook：从目标检测到 OCR 识别，clone 即用。</p>
-      <span className="step-link">访问 GitHub →</span>
+      <p>平台内置用例与 Cookbook：从目标检测到 OCR 识别，开箱即用。</p>
+      <span className="step-link">浏览应用用例 →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
       <h3>接入平台规模化</h3>
