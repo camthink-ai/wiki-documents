@@ -10,7 +10,7 @@ sidebar_label: "Engineering Introduction"
 
 本方案面对的现场以**水表间、下水道、泵房、楼道表箱**为代表——潮湿、无光、无市电、信号衰减是共同特征,选型与部署围绕这些条件展开。
 
-![水表识别场景:NE101 定时抓拍表盘](https://paddlepaddle-static.cdn.bcebos.com/paddle-wechat-image/mmbiz.qpic.cn/mmbiz_jpg/sKia1FKFiafggJl2ia9vZspq5HEUD40PZ45jncMjpzAkFTS2rGdUgKUVRbv6BEv6pVHrUxCgib0EGRGWX8ewYMZL4A/image)
+![水表识别场景:NE101 现场部署,相机对准表计](https://resources.camthink.ai/official-site/nexascent/ne101-sensor-camera-deployment-03.png)
 
 ### 典型安装环境
 
@@ -42,8 +42,6 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 如需分钟级甚至持续的高频拍摄,电池模式不再适用——可联系 CamThink 定制 **Type-C 直供电版本** NE101(取消电池、Type-C 口直接供电),配合高频采集长期运行;定制需求请通过 [技术支持](#10-技术支持) 联系我们。
 
 ## 2. 表计类型与选型
-
-![NE101 现场部署:相机对准表计安装](https://resources.camthink.ai/official-site/nexascent/ne101-sensor-camera-deployment-03.png)
 
 ### 镜头选型
 
