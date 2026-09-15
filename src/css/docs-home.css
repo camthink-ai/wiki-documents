@@ -511,3 +511,212 @@
            Let's stick to the CSS implementation for now. */
     }
 }
+/* ================= BUILD PATH (从开箱到首次部署) ================= */
+.build-path-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+}
+
+.build-step {
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 12px;
+    padding: 1.25rem 1.1rem 1.1rem;
+    background: var(--ifm-card-background-color, #fff);
+}
+
+.build-step .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ct-color-primary, #F24A00);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+}
+
+.build-step h3 {
+    font-size: 1rem;
+    margin: 0 0 0.4rem;
+}
+
+.build-step p {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    margin: 0 0 0.6rem;
+}
+
+.build-step a {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ================= SOLUTION CARDS ================= */
+.solution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.solution-card {
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--ifm-card-background-color, #fff);
+    transition: box-shadow 0.2s, transform 0.2s;
+    display: block;
+    color: inherit;
+}
+
+.solution-card:hover {
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.solution-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+.solution-card .sol-body {
+    padding: 0.9rem 1rem 1rem;
+}
+
+.solution-card .sol-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.solution-card .sol-desc {
+    font-size: 0.85rem;
+    opacity: 0.75;
+}
+
+.solution-card.is-placeholder {
+    display: flex;
+    align-items: center;
+}
+
+.solution-card.is-placeholder .sol-body {
+    padding: 1rem;
+}
+
+.sol-soon {
+    font-size: 0.78rem;
+    color: var(--ct-color-primary, #F24A00);
+    font-weight: 600;
+}
+
+/* ================= SPEC CHIPS ================= */
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.5rem 0 0.7rem;
+}
+
+.chip {
+    font-size: 0.72rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--ifm-color-emphasis-100);
+    color: var(--ifm-color-emphasis-700);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    white-space: nowrap;
+}
+
+/* ================= PLATFORM CARDS ================= */
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.platform-card {
+    display: flex;
+    gap: 1rem;
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 12px;
+    padding: 1.1rem;
+    background: var(--ifm-card-background-color, #fff);
+    transition: box-shadow 0.2s;
+    color: inherit;
+}
+
+.platform-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+.platform-card img {
+    width: 120px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 8px;
+    align-self: center;
+}
+
+.platform-card h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+}
+
+.platform-card p {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    margin: 0 0 0.5rem;
+}
+
+/* ================= COMMUNITY ================= */
+.community-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.community-card {
+    border: 1px solid var(--ifm-color-emphasis-200);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    background: var(--ifm-card-background-color, #fff);
+    transition: box-shadow 0.2s;
+    color: inherit;
+}
+
+.community-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+.community-card h3 {
+    font-size: 0.95rem;
+    margin: 0 0 0.3rem;
+}
+
+.community-card p {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin: 0;
+}
+
+/* ================= BRAND LINE ================= */
+.brand-line {
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.55;
+    margin-top: 3rem;
+}
