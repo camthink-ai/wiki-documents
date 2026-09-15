@@ -23,7 +23,7 @@ Mount one CamThink **NeoEyes NE101** low-power AI camera next to each water mete
 
 The entire recognition process runs **locally** on the NeoMind server — no GPU, no dependency on external AI services. Every reading is bound to its capture photo as evidence: when a reading is disputed, one photo beats any explanation.
 
-![Water meter reading architecture: scheduled NE101 capture → NeoMind local OCR and validation → billing / work orders / dashboards](/img/solutions/water-meter-architecture.svg)
+![Water meter reading architecture: scheduled NE101 capture → NeoMind local OCR and validation → billing / work orders / dashboards](/img/solutions/water-meter-architecture-en.svg)
 
 For hardware selection, the BOM and the deployment process, see [Engineering Implementation](./engineering-intro).
 

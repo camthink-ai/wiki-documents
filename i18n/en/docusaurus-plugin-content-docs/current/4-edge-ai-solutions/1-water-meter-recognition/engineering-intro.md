@@ -60,7 +60,7 @@ Both lenses are factory fixed-focus; the **nominal working distance** is the foc
 | 60° FOV | **15cm** | ≈17cm | Standard residential / industrial meters, single-meter close-up (recommended) |
 | 120° FOV | **8cm** | ≈28cm | Large dials, multi-meter overview |
 
-![Mounting distance diagram: NE101 working distance and frame coverage](/img/solutions/water-meter-install-distance.svg)
+![Mounting distance diagram: NE101 working distance and frame coverage](/img/solutions/water-meter-install-distance-en.svg)
 
 **Principle**: coverage width ≈ 2 × nominal working distance × tan(FOV/2). At 15cm the 60° lens covers ≈17cm; at 8cm the 120° lens covers ≈28cm. The higher the digit share of the frame, the denser the OCR pixels.
 
@@ -94,7 +94,7 @@ Network requirements differ by communication option — confirm them before depl
 | **Wi-Fi HaLow** | Requires a **HaLow gateway**: NE101 → HaLow gateway → the network where NeoMind lives; for long range and obstructed sites |
 | **Cat.1** | NE101 connects **directly to the cloud** over cellular; we recommend deploying NeoMind **in the cloud** (public reachable) — for scattered meters without a LAN |
 
-![Network topology: Wi-Fi / Wi-Fi HaLow / Cat.1 backhaul options](/img/solutions/water-meter-network-topology.svg)
+![Network topology: Wi-Fi / Wi-Fi HaLow / Cat.1 backhaul options](/img/solutions/water-meter-network-topology-en.svg)
 
 General requirement: NE101 must be able to route to NeoMind's MQTT port (built-in broker, TCP 1883 by default, MQTTS supported — the host must open this port to the device subnet); recognition and ingestion complete locally on the host, and business systems integrate via OpenAPI / Data Push / Webhook.
 
