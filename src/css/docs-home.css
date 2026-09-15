@@ -538,13 +538,6 @@
     color: var(--ct-color-primary, #F24A00);
 }
 
-.build-step .step-num {
-    display: inline-block;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--ct-color-primary, #F24A00);
-    margin-bottom: 0.5rem;
-}
 
 .build-step h3 {
     font-size: 1rem;

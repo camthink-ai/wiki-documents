@@ -28,25 +28,21 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title">从开箱到首次部署</h2>
   <div className="build-path-grid">
     <Link to="#solutions" className="build-step">
-      <span className="step-num">1</span>
       <h3>明确你的场景</h3>
       <p>要检测或识别什么？部署在哪、供电与网络条件如何？先从现成方案里找参考。</p>
       <span className="step-link">浏览解决方案 →</span>
     </Link>
     <Link to="#products" className="build-step">
-      <span className="step-num">2</span>
       <h3>设备快速上手</h3>
       <p>开箱、激活与首次启动，各产品系列的 Quick Start 十分钟跑通第一帧画面。</p>
       <span className="step-link">查看产品入口 →</span>
     </Link>
     <Link to="https://github.com/camthink-ai" className="build-step">
-      <span className="step-num">3</span>
       <h3>跑通现成示例</h3>
       <p>GitHub 开源示例与 Cookbook：从目标检测到 OCR 识别，clone 即用。</p>
       <span className="step-link">访问 GitHub →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
-      <span className="step-num">4</span>
       <h3>接入平台规模化</h3>
       <p>用 NeoMind 管理设备、运行本地推理、把数据推送到你的业务系统。</p>
       <span className="step-link">NeoMind 五分钟入门 →</span>

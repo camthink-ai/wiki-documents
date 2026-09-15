@@ -28,25 +28,21 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title">From Unboxing to First Deployment</h2>
   <div className="build-path-grid">
     <Link to="#solutions" className="build-step">
-      <span className="step-num">1</span>
       <h3>Define your scenario</h3>
       <p>What do you need to detect or recognize? Where will it run, with what power and network? Start from a ready-made reference.</p>
       <span className="step-link">Browse solutions →</span>
     </Link>
     <Link to="#products" className="build-step">
-      <span className="step-num">2</span>
       <h3>Quick-start your device</h3>
       <p>Unbox, activate and boot — each product series' Quick Start gets your first frame running in minutes.</p>
       <span className="step-link">See products →</span>
     </Link>
     <Link to="https://github.com/camthink-ai" className="build-step">
-      <span className="step-num">3</span>
       <h3>Run working code</h3>
       <p>Open-source examples and cookbooks on GitHub — from object detection to OCR, clone and run.</p>
       <span className="step-link">Visit GitHub →</span>
     </Link>
     <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
-      <span className="step-num">4</span>
       <h3>Deploy at scale</h3>
       <p>Use NeoMind to manage devices, run local inference and push data into your business systems.</p>
       <span className="step-link">NeoMind in 5 minutes →</span>
