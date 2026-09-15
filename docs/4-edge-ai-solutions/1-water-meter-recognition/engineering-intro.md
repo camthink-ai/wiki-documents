@@ -90,6 +90,8 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 | **Wi-Fi HaLow** | 需部署 **HaLow 网关**:NE101 → HaLow 网关 → NeoMind 所在网络,适合远距离、障碍物多的站点 |
 | **Cat.1** | NE101 经蜂窝**直连上云**,建议将 NeoMind **部署在云端**(公网可达),适合无局域网的分散表计 |
 
+![组网拓扑:Wi-Fi / Wi-Fi HaLow / Cat.1 三种回传方式](/img/solutions/water-meter-network-topology.svg)
+
 通用要求:NE101 需可路由至 NeoMind 的 MQTT 端口(内置 Broker,默认 TCP 1883,可启用 MQTTS);读数识别与入库均在主机本地完成,业务系统通过 OpenAPI / Data Push / Webhook 对接。
 
 - NE101 与 NeoMind 主机需处于**同一网络或路由可达**,主机侧 1883(MQTT)端口对设备开放
