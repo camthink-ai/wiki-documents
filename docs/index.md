@@ -101,7 +101,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     {/* NE503 */}
     <div className="category-card">
       <Link to="/docs/neoeyes-ne503-series/overview" className="cat-header">
-        <img src="https://resources.camthink.ai/official-site/menu/ne503.png" style={{height: '80px', pointerEvents: 'none'}} alt="NE503" />
+        <img src="/img/home/hw/ne503.webp" style={{height: '80px', pointerEvents: 'none'}} alt="NE503" />
       </Link>
       <div className="cat-body">
         <div className="cat-title">NeoEyes NE503</div>
