@@ -245,14 +245,14 @@ export default function Home(): JSX.Element {
                             <Link href={withWikiUtm('https://discord.gg/a8NbPGAJw9', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Discord /></div>
                                 <h3>Discord Server</h3>
-                                <p><Translate id="homepage.community.discord">加入实时讨论，获取技术支持</Translate></p>
+                                <p><Translate id="homepage.community.discord">与开发者实时交流，获取技术支持</Translate></p>
                                 <span className="community-link-text">Join Server <Icon.ArrowRight size={14} /></span>
                             </Link>
 
-                            <Link href={withWikiUtm('https://github.com/camthink-ai/community/discussions', 'home-community')} className="community-card">
+                            <Link href={withWikiUtm('https://github.com/camthink-ai', 'home-community')} className="community-card">
                                 <div className="community-icon"><Icon.Github /></div>
-                                <h3>GitHub Discussions</h3>
-                                <p><Translate id="homepage.community.github">提交 Issue，参与功能提案</Translate></p>
+                                <h3>GitHub</h3>
+                                <p><Translate id="homepage.community.github">开源固件、示例代码与问题反馈</Translate></p>
                                 <span className="community-link-text">View Discussions <Icon.ArrowRight size={14} /></span>
                             </Link>
 
