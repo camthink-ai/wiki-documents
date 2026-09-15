@@ -519,10 +519,27 @@
 }
 
 .build-step {
+    display: block;
+    color: inherit;
     border: 1px solid var(--ifm-color-emphasis-200);
     border-radius: 12px;
     padding: 1.25rem 1.1rem 1.1rem;
     background: var(--ifm-card-background-color, #fff);
+    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+
+.build-step:hover {
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: rgba(242, 74, 0, 0.35);
+}
+
+.build-step .step-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ct-color-primary, #F24A00);
 }
 
 .build-step .step-num {
@@ -548,11 +565,6 @@
     font-size: 0.85rem;
     opacity: 0.75;
     margin: 0 0 0.6rem;
-}
-
-.build-step a {
-    font-size: 0.85rem;
-    font-weight: 600;
 }
 
 /* ================= SOLUTION CARDS ================= */
