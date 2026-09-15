@@ -164,7 +164,7 @@ const config = {
           {
             to: '/docs',
             position: 'left',
-            label: 'Docs',
+            label: 'Documentation',
           },
           {
             // 外链统一带 CamThink Wiki 来源标识（与 src/utils/utm.cjs 的参数保持一致）
