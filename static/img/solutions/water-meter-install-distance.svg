@@ -25,7 +25,7 @@
   <line x1="185" y1="105" x2="185" y2="430" stroke="#6B7280" stroke-width="1.2" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
   <line x1="177" y1="105" x2="193" y2="105" stroke="#6B7280" stroke-width="1.2"/>
   <line x1="177" y1="430" x2="193" y2="430" stroke="#6B7280" stroke-width="1.2"/>
-  <text x="150" y="270" font-size="12.5" fill="#374151" text-anchor="middle" transform="rotate(-90 150 270)">工作距离 d = 15cm(60° FOV)</text>
+  <text x="150" y="270" font-size="12.5" fill="#374151" text-anchor="middle" transform="rotate(-90 150 270)">标称工作距离 d = 15cm(60° FOV)</text>
 
   <!-- 表盘(字轮) -->
   <rect x="290" y="382" width="300" height="96" rx="10" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5"/>
