@@ -64,6 +64,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/smart-gym" className="solution-card is-placeholder">
+      <img src="/img/home/hw/ne503.webp" alt="" style={{objectFit: 'contain', background: '#fff', padding: '20px 40px', boxSizing: 'border-box', height: '140px', width: '100%'}} />
       <div className="sol-body">
         <div className="sol-title">Smart Gym</div>
         <div className="sol-desc">A gym solution built on NE503.</div>
@@ -71,6 +72,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/smart-retail" className="solution-card is-placeholder">
+      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
       <div className="sol-body">
         <div className="sol-title">Smart Retail</div>
         <div className="sol-desc">Visual recognition for retail scenarios.</div>
@@ -78,6 +80,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/people-counting" className="solution-card is-placeholder">
+      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
       <div className="sol-body">
         <div className="sol-title">People Counting</div>
         <div className="sol-desc">Footfall detection and analytics.</div>
@@ -85,6 +88,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/face-recognition" className="solution-card is-placeholder">
+      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
       <div className="sol-body">
         <div className="sol-title">Face Recognition</div>
         <div className="sol-desc">Face detection and recognition applications.</div>
@@ -92,6 +96,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/label-detection" className="solution-card is-placeholder">
+      <img src="/img/solutions/case-placeholder.svg" alt="" style={{height: '140px', width: '100%'}} />
       <div className="sol-body">
         <div className="sol-title">Label Detection</div>
         <div className="sol-desc">Product label and nameplate recognition.</div>
