@@ -730,44 +730,69 @@
 
 
 /* ================= OPEN-SOURCE RESOURCES ================= */
-.oss-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.oss-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
     margin-bottom: 4rem;
 }
 
-.oss-row {
+.oss-card {
+    background: var(--ifm-color-emphasis-100);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    transition: background 0.2s;
+}
+
+.oss-card:hover {
+    background: var(--ifm-color-emphasis-200);
+}
+
+.oss-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+    margin: 0 0 0.7rem;
+    color: var(--ifm-color-emphasis-900);
+}
+
+.oss-card h3 svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.oss-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.oss-link {
     display: flex;
     align-items: baseline;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.oss-product {
-    flex: 0 0 130px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--ifm-color-emphasis-800);
-}
-
-.oss-pills {
-    display: flex;
-    flex-wrap: wrap;
     gap: 0.45rem;
-}
-
-.oss-pill {
-    font-size: 0.78rem;
-    padding: 0.18rem 0.7rem;
-    border-radius: 999px;
-    background: var(--ifm-color-emphasis-100);
+    font-size: 0.83rem;
+    padding: 0.32rem 0.55rem;
+    margin: 0 -0.55rem;
+    border-radius: 8px;
     color: var(--ifm-color-emphasis-800);
     transition: color 0.15s, background 0.15s;
 }
 
-.oss-pill:hover {
-    background: rgba(242, 74, 0, 0.1);
+.oss-link:hover {
+    background: rgba(242, 74, 0, 0.09);
     color: var(--ct-color-primary, #F24A00);
     text-decoration: none;
+}
+
+.oss-link .repo {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.oss-link .repo-desc {
+    opacity: 0.62;
+    font-size: 0.78rem;
 }
