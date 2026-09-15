@@ -410,9 +410,11 @@ ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
 /* —— 方案 BOM 表格内的产品小图 —— */
 article table img[src*="/img/Overview/"],
 article table img[src*="solutions"] {
+  display: block;
   width: auto;
-  height: 40px;
-  max-width: 64px;
+  height: 32px;
+  max-width: 48px;
+  margin: 0 auto;
   object-fit: contain;
   border-radius: 6px;
 }
