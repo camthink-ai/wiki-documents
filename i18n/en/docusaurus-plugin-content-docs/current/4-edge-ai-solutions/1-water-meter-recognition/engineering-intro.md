@@ -135,7 +135,7 @@ Verify link by link; if one fails, troubleshoot that link first:
 
 1. **Capture**: press the NE101 shutter manually and confirm the image reaches NeoMind (visible in the component's image list)
 2. **Recognition**: confirm the OCR pipeline produces the reading field (visible in the dashboard component)
-3. **Rules**: confirm the reading is parsed into a number by Transform and stored as the `meter_reading` metric (see [Data Transforms](/docs/neomind/user-guide/data-transforms))
+3. **Rules**: confirm the reading is parsed into a number by Transform and stored as the `meter_reading` metric (see [Data Transforms](/docs/neomind/user-guide/7b-data-transforms))
 4. **Egress**: verify Data Push / Webhook delivers readings to the business endpoint
 
 ### 5.5 Data Storage & Display

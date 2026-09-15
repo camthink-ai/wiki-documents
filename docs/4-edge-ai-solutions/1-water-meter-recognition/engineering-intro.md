@@ -135,7 +135,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 1. **抓拍**:手动按动 NE101 拍照键,确认图像到达 NeoMind(组件图片列表可见)
 2. **识别**:确认 OCR 流水线产出读数字段(仪表板组件可见识别结果)
-3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标(见 [数据转换](/docs/neomind/user-guide/data-transforms))
+3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标(见 [数据转换](/docs/neomind/user-guide/7b-data-transforms))
 4. **转发**:验证 Data Push / Webhook 已将读数推送到业务端点
 
 ### 5.5 数据存储和展示
