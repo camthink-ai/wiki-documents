@@ -411,8 +411,8 @@ ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
 article table img[src*="/img/Overview/"],
 article table img[src*="solutions"] {
   width: auto;
-  height: 56px;
-  max-width: 90px;
+  height: 40px;
+  max-width: 64px;
   object-fit: contain;
   border-radius: 6px;
 }
