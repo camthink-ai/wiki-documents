@@ -43,7 +43,7 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 ## 2. 表计类型与选型
 
-![NE101 现场部署:相机对准表计安装](/img/solutions/ne101-deployment.webp)
+![NE101 现场部署:相机对准表计安装](https://resources.camthink.ai/official-site/nexascent/ne101-sensor-camera-deployment-03.png)
 
 ### 镜头选型
 
