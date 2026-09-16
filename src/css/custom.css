@@ -341,6 +341,15 @@
   width: 32px;
 }
 
+/* —— 暗模式:侧边栏菜单链接提亮(分类折叠项在暗底下对比不足,需 !important 压过层级规则) —— */
+[data-theme='dark'] .theme-doc-sidebar-menu .menu__link:not(.menu__link--active) {
+  color: var(--ifm-color-emphasis-800) !important;
+}
+
+[data-theme='dark'] .theme-doc-sidebar-menu .menu__link:not(.menu__link--active):hover {
+  color: var(--ifm-color-emphasis-000) !important;
+}
+
 /* —— 菜单项:圆角、间距、过渡 —— */
 .theme-doc-sidebar-menu .menu__link,
 .theme-doc-sidebar-menu .menu__list-item-collapsible {
