@@ -416,3 +416,12 @@ ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
   }
 }
 
+
+/* —— 移动端/窄屏:内容表格横向滚动,避免溢出裁切 —— */
+@media (max-width: 996px) {
+  .markdown table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
