@@ -1,6 +1,7 @@
 ---
-title: 智慧健身房
-sidebar_label: "Smart Gym"
+title: 方案说明
+sidebar_label: "Solution Description"
+sidebar_position: 1
 description: "基于 NeoEyes NE503 与 NeoMind 的智慧健身房方案:会员身份识别、区域与器械使用分析、姿态动作计数与个人训练报告,数据全程本地化。"
 ---
 
