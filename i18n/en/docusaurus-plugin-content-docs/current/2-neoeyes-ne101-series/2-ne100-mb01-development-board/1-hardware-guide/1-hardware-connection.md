@@ -122,16 +122,16 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 | 1    | Null      |              |          |              |               |
 | 2    | GND       | GND          | S        |              |               |
 | 3    | I2C_SDA   | I2C_Data     | I/O      | PU 4K7       | GPIO4         |
-| 4    | AVDD      | 2.8V         | S        |              |               |
+| 4    | AVDD      | 2.8V (actual NE101 supply) | S        |              |               |
 | 5    | I2C_SCL   | I2C_Clock    | O        | PU 4K7       | GPIO5         |
-| 6    | CAM_RST   | Reset#low    |          |              | RC circuit    |
+| 6    | CAM_RST   | Hardware reset (active low) |          |              | RC circuit    |
 | 7    | CSI_VSYNC | V-Sync       | I        |              | GPIO6         |
-| 8    | CSI_PWDN  |              |          | PD 1K        |               |
+| 8    | CSI_PWDN  | Power-down control (active high) |          | PD 1K        |               |
 | 9    | CSI_HSYNC | H-Sync       | I        |              | GPIO7         |
-| 10   | DVDD      | 1V2          | S        |              |               |
-| 11   | DOVDD     | 2V8          | S        |              |               |
+| 10   | DVDD      | 1.5V         | S        |              |               |
+| 11   | DOVDD     | 2.8V (actual NE101 supply) | S        |              |               |
 | 12   | CSI_D7    | Data_Bit7    | I        |              | GPIO16        |
-| 13   | CSI_MCLK  | Clock_output | O        |              | GPIO15        |
+| 13   | CSI_MCLK  | MCLK clock output | O        |              | GPIO15        |
 | 14   | CSI_D6    | Data_Bit6    | I        |              | GPIO17        |
 | 15   | GND       | GND          | S        |              |               |
 | 16   | CSI_D5    | Data_Bit5    | I        |              | GPIO18        |
@@ -146,6 +146,10 @@ Camera Module OV5640 support 8-bit paralle input interface. The IOs of main boar
 
 
 > Note: Before use, set the camera power-control GPIO high for the installed revision; see [Peripherals power Ctrl](#peripherals-power-ctrl).
+
+> **OV5640 electrical parameters**: The current shipped 60°/15cm OV5640 module supports AVDD `2.6–3.0V` (`2.8V` typical), DVDD `1.5V`, and DOVDD `1.8–2.8V`. The NE101 main board supplies AVDD `2.8V`, DVDD `1.5V`, and DOVDD `2.8V`. The `1V2` schematic net name is a DVDD labeling error and must not be treated as the actual supply voltage.
+>
+> `CAM_RST`/RESET is active low, and `CSI_PWDN`/PWDN is active high. The OV5640 MCLK (XVCLK) sensor specification is `6–27MHz`, with `24MHz` typical; the sensor-side logic domain follows DOVDD (`2.8V` on NE101). The current NE101 production configuration outputs `5MHz` on GPIO15. This is a board-level configuration validated for this board's interconnect and signal integrity; it is not the generic module-rated input range.
 
 ### Flash and Light Sensor IOs
 

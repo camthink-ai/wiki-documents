@@ -125,16 +125,16 @@ V1.0、V1.1 和 V1.2 没有板载 RTC。V2.0 的 RTC 与摄像头共用 I2C 总�
 | 1   | Null      |        |      |        |             |
 | 2   | GND       | 地      | S    |        |             |
 | 3   | I2C_SDA   | I2C_数据 | I/O  | PU 4K7 | GPIO4       |
-| 4   | AVDD      | 2.8V   | S    |        |             |
+| 4   | AVDD      | 2.8V（NE101 实际供电） | S    |        |             |
 | 5   | I2C_SCL   | I2C_时钟 | O    | PU 4K7 | GPIO5       |
-| 6   | CAM_RST   | 复位#低   |      |        | RC 电路       |
+| 6   | CAM_RST   | 硬件复位（低电平有效）   |      |        | RC 电路       |
 | 7   | CSI_VSYNC | V同步    | I    |        | GPIO6       |
-| 8   | CSI_PWDN  |        |      | PD 1K  |             |
+| 8   | CSI_PWDN  | 电源关闭控制（高电平有效） |      | PD 1K  |             |
 | 9   | CSI_HSYNC | H同步    | I    |        | GPIO7       |
-| 10  | DVDD      | 1V2    | S    |        |             |
-| 11  | DOVDD     | 2V8    | S    |        |             |
+| 10  | DVDD      | 1.5V   | S    |        |             |
+| 11  | DOVDD     | 2.8V（NE101 实际供电） | S    |        |             |
 | 12  | CSI_D7    | 数据位7   | I    |        | GPIO16      |
-| 13  | CSI_MCLK  | 时钟输出   | O    |        | GPIO15      |
+| 13  | CSI_MCLK  | MCLK 时钟输出   | O    |        | GPIO15      |
 | 14  | CSI_D6    | 数据位6   | I    |        | GPIO17      |
 | 15  | GND       | 地      | S    |        |             |
 | 16  | CSI_D5    | 数据位5   | I    |        | GPIO18      |
@@ -149,6 +149,10 @@ V1.0、V1.1 和 V1.2 没有板载 RTC。V2.0 的 RTC 与摄像头共用 I2C 总�
 
 
 > 注意: 使用前请按本页的外设电源控制表置高对应版本的相机供电控制 GPIO。
+
+> **OV5640 电气参数说明**：当前发货的 60°/15cm OV5640 模组支持 AVDD `2.6–3.0V`（典型值 `2.8V`）、DVDD `1.5V` 和 DOVDD `1.8–2.8V`；NE101 主板实际提供 AVDD `2.8V`、DVDD `1.5V` 和 DOVDD `2.8V`。原理图中的 `1V2` 是 DVDD 网络标注错误，不能作为实际供电值。
+>
+> `CAM_RST`/RESET 为低电平有效，`CSI_PWDN`/PWDN 为高电平有效。OV5640 的 MCLK（XVCLK）芯片规格为 `6–27MHz`，典型值为 `24MHz`，传感器端逻辑电平属于 DOVDD I/O 域（NE101 为 `2.8V`）；NE101 当前生产配置在 GPIO15 输出 `5MHz`，这是针对本板连接和信号完整性验证的板级配置，不代表通用模组的额定输入范围。
 
 ### 闪光灯和光传感器 IO
 
