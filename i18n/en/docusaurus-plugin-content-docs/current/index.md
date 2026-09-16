@@ -308,6 +308,11 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Community ================= */}
   <h2 className="docs-section-title" style={{marginTop: '4rem'}}>Resources &amp; Community</h2>
   <div className="community-grid">
+    <a href="https://www.camthink.ai/developer-center/" target="_blank" rel="noopener noreferrer" className="hub-community-card">
+      <span className="cc-icon" style={{background: 'rgba(13,148,136,0.10)', color: '#0D9488'}}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg></span>
+      <h3>Developer Center</h3>
+      <p>Firmware, schematics, datasheets and developer resources in one place.</p>
+    </a>
     <a href="https://discord.gg/a8NbPGAJw9" target="_blank" rel="noopener noreferrer" className="hub-community-card">
       <span className="cc-icon" style={{background: 'rgba(88,101,242,0.12)', color: '#5865F2'}}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/><circle cx="9" cy="10.5" r="1.4" fill="#fff"/><circle cx="15" cy="10.5" r="1.4" fill="#fff"/></svg></span>
       <h3>Discord</h3>
