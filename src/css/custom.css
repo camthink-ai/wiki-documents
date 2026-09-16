@@ -342,11 +342,11 @@
 }
 
 /* —— 暗模式:侧边栏菜单链接提亮(分类折叠项在暗底下对比不足,需 !important 压过层级规则) —— */
-[data-theme='dark'] .theme-doc-sidebar-menu .menu__link:not(.menu__link--active) {
+[data-theme='dark'] .theme-doc-sidebar-menu .menu__link {
   color: var(--ifm-color-emphasis-800) !important;
 }
 
-[data-theme='dark'] .theme-doc-sidebar-menu .menu__link:not(.menu__link--active):hover {
+[data-theme='dark'] .theme-doc-sidebar-menu .menu__link:hover {
   color: var(--ifm-color-emphasis-000) !important;
 }
 
