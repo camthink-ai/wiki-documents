@@ -277,6 +277,14 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | DELETE | `/llm-backends/:id` | 删除后端 |
 | PATCH | `/llm-backends/:id/capabilities` | 手动覆盖能力（body `{"multimodal": true}` / `false` / `null`，null 清除覆盖） |
 
+### Sessions（聊天会话）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/sessions/:id/history` | 会话历史消息，支持分页（见下方契约） |
+
+> **历史分页契约（0.9.24+）**：`?limit=N&before=<游标>` 向前翻页，`before` 取上一页最旧一条的原始索引，响应含 `total` 与 `has_more`。分页边界带碎片保护——翻页起点回退到最近一条 `user` 消息，一轮对话（1 条 user + 3 条 assistant 记录）不会从中间切开。不传参数返回全部历史，老客户端无需改动。
+
 ### Messages（消息通知）
 
 | 方法 | 路径 | 说明 |

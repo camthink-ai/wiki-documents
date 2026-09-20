@@ -45,6 +45,14 @@ Global defaults for new agents and AI Chat (individual agents can override in th
 Once a retention period applies, telemetry older than it is **physically deleted** and unrecoverable. Pair it with [automatic backups](./10-troubleshooting.md#data--storage) for anything important.
 :::
 
+### Chat Session Retention
+
+Retention for AI Chat session records (`session_retention_hours`): **forever** by default. Once set, the server prunes expired sessions every hour, keeping `sessions.redb` from growing without bound on long-running edge deployments.
+
+:::warning Also physical deletion
+Expired sessions and their messages are physically deleted and unrecoverable; export anything you need to keep, or raise the retention window.
+:::
+
 ### Backup Schedule
 
 
@@ -83,4 +91,4 @@ The marketplace index is fetched from GitHub by default. For restricted networks
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-09-20*
