@@ -38,26 +38,25 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 | 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-ne503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
 | 2 | PoE switch | Gigabit, ports = cameras + 1 | 1 | camera power + network |
 | 3 | [**NG4500 AI Box**](https://www.camthink.ai/product/neoedge-ai-box-ng4500/)(or any Linux/macOS host) | 4GB+ RAM, Docker | 1 | runs NeoMind platform + gym-tracker extension |
-| 4 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
-| 5 | Ethernet cables | Cat5e or better | as needed | camera → PoE switch → host |
 
-> Starter setup (single zone, ≤20 people): **1 × NE503 + 1 × PoE switch + 1 × NG4500**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
+> Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind deployed on the customer's own host**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
 
 ## 3. Network Topology
 
 ```
-┌────────┐  PoE cable  ┌───────────┐    LAN     ┌──────────────────┐
-│ NE503  │────────────▶│ PoE switch │──────────▶│ NG4500 (NeoMind) │
-│ cam ×N │             └───────────┘            │ gym-tracker ext  │
-└────────┘                                      └────────┬─────────┘
-                                                         │ OpenAPI / Data Push
-                                                 (optional)▶ business / CRM systems
+┌────────┐  PoE cable  ┌─────────────────────────┐
+│ NE503  │────────────▶│ Customer host (NeoMind) │
+│ cam ×N │     LAN     │ gym-tracker ext         │
+└────────┘             └────────────┬────────────┘
+                                    │ OpenAPI / Data Push
+                            (optional)▶ business / CRM systems
 ```
 
 General requirements:
 
 - Camera and host on the **same LAN**; the host needs no public IP
-- Bandwidth: video uses the 720p sub-stream (~2–4Mbps) per camera plus an event stream under 100KB/s — one Gigabit switch is ample for 4 cameras
+- Bandwidth: video uses the 720p sub-stream (~2–4Mbps) per camera plus an event stream under 100KB/s — a regular LAN handles 4 cameras easily
+- Power: cameras are PoE-powered from the customer-side network (PoE switch or injector) — no separate power cabling needed
 - The camera uses self-signed HTTPS; set `tls_insecure: true` on the edge side
 - All data stays on-premises; nothing is sent outside the venue unless you integrate a business system (see 4.6)
 
@@ -65,9 +64,9 @@ General requirements:
 
 Work in this order: platform first, then the extension bound to the camera, then the one-command camera install, then the four-link commissioning.
 
-### 4.1 Install the NeoMind Platform (NG4500 / personal computer)
+### 4.1 Install the NeoMind Platform (customer host)
 
-The recommended host is the NG4500 AI Box; for evaluation, a Mac mini or any Linux host works.
+NeoMind runs on the customer's own host — a Linux server or Mac mini with Docker and 4GB+ RAM.
 
 ```bash
 # with Docker installed
@@ -189,7 +188,7 @@ Tuning tip: prefer smaller zones — overlapping adjacent zones double-count peo
 | Symptom | Action |
 |---|---|
 | No dashboard data over 10 min | camera web → Apps → gym-native → Stop/Start |
-| Video stutter | check bandwidth and switch; confirm sub-stream |
+| Video stutter | check bandwidth and network; confirm sub-stream |
 | Camera unreachable | check PoE power; power-cycle the camera |
 | Need logs | camera web → Logs → gym-native |
 
