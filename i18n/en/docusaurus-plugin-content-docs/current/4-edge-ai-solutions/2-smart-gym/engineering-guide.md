@@ -248,7 +248,7 @@ Verify in order; if a link fails, debug that link first:
 1. **Streaming**: camera web → Apps → gym-native shows `stats: xx fps` (≥15) — on-camera inference healthy
 2. **Events**: the platform extension is green with no reconnect alerts — the event stream reaches the platform
 3. **Detection**: walk into frame and wave; skeleton + bbox appear within 1s — the tracking chain works
-4. **Recognition**: face the camera 3s → an "unrecognized person" card appears → register a name → the name shows on the next appearance — the recognition chain works
+4. **Recognition**: walk past the camera naturally → an "unrecognized person" card appears → register a name → the name shows on the next appearance — the recognition chain works
 
 All four green = site acceptance passed.
 
@@ -429,7 +429,7 @@ All camera-side operations go through the HTTPS API (no SSH). Log keyword quick 
 |---|---|
 | Detection frame rate | ~20fps (720p sub-stream, rotating 2×2 tiling) |
 | Full-field refresh | ~200ms |
-| Face recognition latency | within 1s |
+| Identity recognition latency | within 1s |
 | Coverage per camera | 10–20 members, mid-size venue |
 | Self-healing | stream loss \~2 min; power loss \~30s |
 | Bandwidth per camera | video 2–4Mbps + event stream under 100KB/s |
