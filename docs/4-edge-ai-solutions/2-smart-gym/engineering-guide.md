@@ -47,14 +47,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 ## 3. 组网拓扑
 
-```
-┌────────┐  PoE 网线   ┌──────────────────┐
-│ NE503  │───────────▶│ 客户主机(NeoMind) │
-│ 相机×N │   局域网    │ gym-tracker 扩展  │
-└────────┘             └────────┬─────────┘
-                                │ OpenAPI / Data Push
-                        (可选)──▶ 业务系统 / 会员管理系统
-```
+![组网拓扑:NE503 相机 → NeoMind 客户主机 → 业务系统](/img/solutions/smart-gym/network-topology.svg)
 
 通用要求:
 

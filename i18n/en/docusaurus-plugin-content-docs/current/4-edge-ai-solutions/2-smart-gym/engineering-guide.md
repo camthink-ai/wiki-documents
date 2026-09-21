@@ -47,14 +47,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 
 ## 3. Network Topology
 
-```
-┌────────┐  PoE cable  ┌─────────────────────────┐
-│ NE503  │────────────▶│ Customer host (NeoMind) │
-│ cam ×N │     LAN     │ gym-tracker ext         │
-└────────┘             └────────────┬────────────┘
-                                    │ OpenAPI / Data Push
-                            (optional)▶ business / CRM systems
-```
+![Network topology: NE503 cameras → NeoMind customer host → business systems](/img/solutions/smart-gym/network-topology-en.svg)
 
 General requirements:
 
