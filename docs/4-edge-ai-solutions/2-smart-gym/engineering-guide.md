@@ -38,12 +38,12 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 | # | 采购项 | 型号 / 规格 | 数量 | 用途 |
 |---|---|---|---|---|
-| 1 | [**NE503 AI 相机**](https://www.camthink.ai/product/neoeyes-ne503/) | Hailo-15H 20 TOPS・PoE・4K+720p 双码流 | 每区域 1 台 | 姿态/人脸/重识别端侧推理 |
-| 2 | **NeoMind 平台**(部署在客户自有主机) | Docker 镜像,含 gym-tracker 扩展 | 1 套 | 设备接入、姿态/人脸识别、仪表板与训练报告 |
+| 1 | [**NE503 AI 相机**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p 双码流 | 每区域 1 台 | 姿态/人脸/重识别端侧推理 |
+| 2 | **NeoMind 平台**(部署在客户电脑或 NE503) | Docker 镜像,含 gym-tracker 扩展 | 1 套 | 设备接入、姿态/人脸识别、仪表板与训练报告 |
 | 3 | 健身房安装包 | `gym-suite-&lt;版本&gt;.tar.gz`(向 CamThink 获取) | 1 套 | 一键安装(含应用镜像、模型、手册) |
 | 4 | 网线 | Cat5e 以上 | 按需 | 相机 PoE 供电与数据回传 |
 
-> 起步配置(单区域 ≤20 人):**1 台 NE503(PoE 供电)+ NeoMind 部署在客户自有主机**;场馆扩大时按区域增加相机,扩展配置里添加设备即可(单扩展建议 ≤4 路)。
+> 起步配置(单区域 ≤20 人):**1 台 NE503(PoE 供电)+ NeoMind 部署在客户电脑或 NE503**;场馆扩大时按区域增加相机,扩展配置里添加设备即可(单扩展建议 ≤4 路)。
 
 ## 3. 组网拓扑
 
@@ -142,9 +142,9 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 - **停止/启动**:一键操作,无需 SSH
 - **卸载**:移除应用(模型文件保留)
 
-### 4.2 安装 NeoMind 平台(客户主机)
+### 4.2 安装 NeoMind 平台(客户电脑或 NE503)
 
-NeoMind 部署在客户自有主机:Linux 服务器或 Mac mini 均可(Docker 环境,4GB+ 内存)。
+NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker 环境,4GB+ 内存),也可直接**部署在 NE503 上**。
 
 **方式一:Docker Compose(推荐)**
 

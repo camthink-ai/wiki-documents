@@ -38,7 +38,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
-| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-ne503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
+| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
 | 2 | **NeoMind platform** (deployed on the customer's own host) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
 | 3 | Gym installer package | `gym-suite-&lt;version&gt;.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 4 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
