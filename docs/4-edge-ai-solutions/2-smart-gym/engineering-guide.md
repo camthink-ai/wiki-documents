@@ -165,6 +165,14 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 - **本地导入(离线交付)**:平台 Web → **扩展管理 → 导入** → 选择安装包内 `gym-tracker-*.nep` → 导入成功后出现在扩展列表
 - **市场安装(在线)**:平台 Web → **扩展市场** → 搜索 "Gym Tracker" → 点击安装(扩展已上架市场时可用)
 
+![扩展市场:Gym Tracker 一键安装](/img/solutions/smart-gym/extension-marketplace.webp)
+
+*扩展市场:搜索 Gym Tracker 一键安装;离线交付用 Upload Extension 导入 .nep 包*
+
+![上传扩展:拖入 .nep 包即可安装](/img/solutions/smart-gym/extension-upload.webp)
+
+*离线交付:Upload Extension 对话框,拖入或点选 `.nep` 包,Upload & Install 一步完成*
+
 **配置相机连接:**
 
 1. 扩展列表中点击 gym-tracker 的**配置**
@@ -180,6 +188,14 @@ device:
 
 3. 保存;约 5 秒后扩展状态变绿,表示已与相机事件流(WSS)建立连接
 4. 若状态反复变红:检查相机 IP 是否可达(`ping &lt;相机IP&gt;`)、密码是否正确
+
+![扩展详情:运行状态与健康检查](/img/solutions/smart-gym/extension-detail.webp)
+
+*扩展详情页:Running (Isolated) 运行状态、健康检查、Config / Commands / Metrics / Logs 页签*
+
+![扩展配置:界面语言与隐私选项](/img/solutions/smart-gym/extension-config.webp)
+
+*扩展配置页:界面语言(默认英文)、人脸打码默认开关,Save Reload 生效*
 
 **界面语言:** 扩展看板默认英文;在扩展配置 `ui.language: zh` 可切中文。
 
@@ -201,6 +217,14 @@ device:
 - **会员库 / 区域配置 / 训练记录**:存于 NeoMind 主机数据卷,每日自动备份;相机侧无持久业务数据,换相机重跑安装脚本即可
 - **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频
 - **仪表板**:建议三块——在场人数与占用总览、器械区域利用率热力、会员训练报告入口;搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
+
+![健身房看板:实时监控与器械占用](/img/solutions/smart-gym/dashboard-top.webp)
+
+*看板顶部:实时视频(骨架/检测框/分区叠加)、器械占用面板(0/15 busy)、训练概况、人流趋势*
+
+![健身房看板完整视图](/img/solutions/smart-gym/dashboard-full.webp)
+
+*完整看板:进出场 Door Flow、热力 Heatmap、轨迹 Trails、告警(跌倒疑似)、会员到店、在场人数*
 
 ### 4.6 数据转发(可选)
 

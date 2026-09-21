@@ -164,6 +164,14 @@ Full platform installation details (manual deploy / HTTPS reverse proxy / volume
 - **Local import (offline delivery)**: platform web → **Extensions → Import** → select `gym-tracker-*.nep` from the package → it appears in the extension list after import
 - **Marketplace (online)**: platform web → **Extension Marketplace** → search "Gym Tracker" → Install (available once the extension is published)
 
+![Extension marketplace: one-click Gym Tracker install](/img/solutions/smart-gym/extension-marketplace.webp)
+
+*Marketplace: search "Gym Tracker" and install in one click; offline delivery uses Upload Extension*
+
+![Upload extension: drop the .nep package to install](/img/solutions/smart-gym/extension-upload.webp)
+
+*Offline delivery: the Upload Extension dialog — drop or pick the `.nep` package, Upload & Install*
+
 **Configure the camera connection:**
 
 1. Open gym-tracker **config** from the extension list
@@ -179,6 +187,14 @@ device:
 
 3. Save; the extension turns green within ~5s once the camera event stream (WSS) connects
 4. If it keeps flipping red: verify the camera IP is reachable (`ping &lt;camera-ip&gt;`) and the password is correct
+
+![Extension detail: run state and health](/img/solutions/smart-gym/extension-detail.webp)
+
+*Extension detail: Running (Isolated) state, health check, Config / Commands / Metrics / Logs tabs*
+
+![Extension config: UI language and privacy options](/img/solutions/smart-gym/extension-config.webp)
+
+*Extension config: UI language (English default), face-mosaic default, Save Reload*
 
 **UI language**: extension dashboards default to English; set `ui.language: zh` in the extension config for Chinese.
 
@@ -200,6 +216,14 @@ All four green = site acceptance passed.
 - **Member library / zone config / training records**: stored in the NeoMind host data volume, auto-backed up daily; the camera holds no persistent business data — replacing a camera is just a re-install
 - **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video
 - **Dashboards**: recommended trio — live headcount & occupancy overview, equipment-zone utilization, member training report entry; see [Using Dashboards](/docs/neomind/user-guide/use-dashboard)
+
+![Smart gym dashboard: live monitoring and equipment occupancy](/img/solutions/smart-gym/dashboard-top.webp)
+
+*Dashboard top: live video (skeleton/boxes/zone overlay), equipment occupancy panel (0/15 busy), workout summary, traffic trend*
+
+![Smart gym dashboard — full view](/img/solutions/smart-gym/dashboard-full.webp)
+
+*Full dashboard: door flow, heatmap, trails, alerts (fall suspects), member visits, live headcount*
 
 ### 4.6 Data Forwarding (optional)
 
