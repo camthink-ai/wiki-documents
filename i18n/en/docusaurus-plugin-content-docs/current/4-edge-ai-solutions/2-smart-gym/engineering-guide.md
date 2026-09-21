@@ -325,9 +325,9 @@ Keep zones small — overlapping equipment zones double-count people standing be
 - The traffic card shows the presence curve over the last N hours
 - The door-flow card shows today's in / out / net-inside: crossings accumulate automatically once a count line is drawn, logged daily, with previous/next day paging
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="Traffic trend: presence curve over the last N hours" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="Door flow: today in / out / net inside with daily history" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="Traffic trend: presence curve over the last N hours" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="Door flow: today in / out / net inside with daily history" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.5 Workout Summary & Equipment Rank (Workout Summary / Equipment Rank)
@@ -336,9 +336,9 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 **How to operate**: the summary card shows total time, sessions, visiting members, a presence timeline and equipment usage duration (explicitly flagged when a day has no records); the rank card bars today's per-machine usage duration.
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="Workout summary: total time / sessions / presence timeline / equipment usage" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="Equipment rank: today per-machine usage duration" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="Workout summary: total time / sessions / presence timeline / equipment usage" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="Equipment rank: today per-machine usage duration" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.6 Member Report & Member Management (Member Report)
@@ -372,9 +372,9 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 **How to operate**: the trails card draws recent trails in blue (blue line = recent trail) with replay and day paging — drag to the right end for live; the heat card renders zone density by sample count and marks today's peak. Footprint logs accumulate from activation.
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="Trails card: recent flow line with replay" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="Heat card: zone heat with today peak" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="Trails card: recent flow line with replay" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="Heat card: zone heat with today peak" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.9 Optional Tuning

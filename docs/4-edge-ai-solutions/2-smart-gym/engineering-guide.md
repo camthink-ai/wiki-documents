@@ -326,9 +326,9 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 - 人流趋势卡选择"近 N 小时"窗口查看在场人数曲线
 - 进出场卡显示今日进场 / 出场 / 净在场:画好计数线后会员过线自动累计,按天留档,支持"前一天 / 后一天"翻看
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="人流趋势:近 N 小时在场人数曲线" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="进出场:今日进场/出场/净在场与按天统计" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="人流趋势:近 N 小时在场人数曲线" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="进出场:今日进场/出场/净在场与按天统计" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.5 运动概况与器械排行(Workout Summary / Equipment Rank)
@@ -337,9 +337,9 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 **怎么操作**:运动概况卡展示总时长、训练场次、到访会员、到店时间轴与器材使用时长(当日无记录会明确提示);器械排行卡以横向条形展示今日各器械使用时长排行。
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="运动概况:总时长/训练场次/到店时间轴/器材使用时长" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="器械使用排行:今日各器械使用时长" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="运动概况:总时长/训练场次/到店时间轴/器材使用时长" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="器械使用排行:今日各器械使用时长" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.6 会员训练报告与会员管理(Member Report)
@@ -373,9 +373,9 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 **怎么操作**:轨迹卡以蓝线绘制最近轨迹,支持回看与按天切换,拖到时间轴最右即实时;热力卡按样本密度呈现区域热度并标注今日峰值。足迹日志自启用起累积。
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="轨迹卡片:最近动线蓝线与回看" style={{ maxWidth: '48%', height: 'auto' }} />
-  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="热力卡片:区域热度与今日峰值" style={{ maxWidth: '48%', height: 'auto' }} />
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="轨迹卡片:最近动线蓝线与回看" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
+  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="热力卡片:区域热度与今日峰值" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
 </div>
 
 ### 5.9 参数微调(可选)
