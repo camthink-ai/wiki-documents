@@ -80,7 +80,7 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 1. Plug one end of the cable into the camera's PoE port until the clip clicks; the other end goes to the customer-side PoE switch / injector
 2. Power the camera via PoE and wait ~2 minutes for boot
-3. Find the camera IP from the router (or the CamThink discovery tool)
+3. Find the camera IP from the router (or the [CamThink discovery tool](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2), shipped in the neoruntime package)
 4. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
 
 #### 4.1.2 Initial Security Setup
@@ -212,7 +212,7 @@ Full platform installation details (manual deploy / HTTPS reverse proxy / volume
 
 ```yaml
 device:
-  host: 192.168.x.x        # camera IP (check the router, or use the CamThink discovery tool)
+  host: 192.168.x.x        # camera IP (check the router, or use the [CamThink discovery tool](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2))
   username: admin
   password: &lt;camera password&gt;
   tls_insecure: true       # camera self-signed cert — keep true

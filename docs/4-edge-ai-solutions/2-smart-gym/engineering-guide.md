@@ -82,7 +82,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 1. 网线一端插入相机 PoE 网口,听到卡扣到位声;另一端接客户侧 PoE 交换机 / 注入器
 2. 等约 2 分钟完成启动(蓝色状态灯常亮)
-3. 从路由器后台(或 CamThink 发现工具)找到相机 IP
+3. 从路由器后台(或 [CamThink 发现工具](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2),随 neoruntime 安装包发布)找到相机 IP
 4. 浏览器访问 `https://&lt;相机IP&gt;`(自签证书,点击"继续前往")——出现相机 Web 界面即上线成功
 
 #### 4.1.2 初始安全设置
@@ -213,7 +213,7 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 
 ```yaml
 device:
-  host: 192.168.x.x        # 相机 IP(路由器后台查看,或用 CamThink 发现工具)
+  host: 192.168.x.x        # 相机 IP(路由器后台查看,或用 [CamThink 发现工具](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2))
   username: admin
   password: &lt;相机密码&gt;
   tls_insecure: true       # 相机自签证书,保持 true
