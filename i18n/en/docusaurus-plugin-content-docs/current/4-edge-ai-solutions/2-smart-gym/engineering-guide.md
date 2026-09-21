@@ -288,17 +288,25 @@ The gym-tracker extension surfaces on the NeoMind dashboard as a set of "cards",
 
 Keep zones small — overlapping equipment zones double-count people standing between machines.
 
+![Live view card: skeleton & box overlay with zone / count-line / exclusion / mosaic toolbar](/img/solutions/smart-gym/cards/51-video.webp)
+
 ### 5.2 Live Presence & Track List (Live State)
 
 **What it solves**: answers "how many people are in the gym right now, who are they, where".
 
 **How to operate**: the card header shows the live headcount; the list shows everyone present (member name / guest, current equipment zone, pose state) — click to locate them in the 5.1 view.
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/52-live.webp" alt="Live presence card: headcount and track list" style={{ maxWidth: '70%', height: 'auto' }} />
+</div>
+
 ### 5.3 Equipment Occupancy Board (Equipment Grid)
 
 **What it solves**: whether each machine is busy / on gear / idle at a glance — steer members to free equipment, review utilization.
 
 **How to operate**: one cell per machine with live color and status text (requires zones from 5.1); the header strip summarizes overall occupancy.
+
+![Equipment board: busy / on gear / idle per machine](/img/solutions/smart-gym/cards/53-grid.webp)
 
 ### 5.4 Traffic Trend & Door Flow (Traffic Chart / Door Flow)
 
@@ -309,11 +317,21 @@ Keep zones small — overlapping equipment zones double-count people standing be
 - The traffic card shows the presence curve over the last N hours
 - The door-flow card shows today's in / out / net-inside: crossings accumulate automatically once a count line is drawn, logged daily, with previous/next day paging
 
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="Traffic trend: presence curve over the last N hours" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="Door flow: today in / out / net inside with daily history" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
+
 ### 5.5 Workout Summary & Equipment Rank (Workout Summary / Equipment Rank)
 
 **What it solves**: today at a glance — how many visitors, how long they trained, which machines are most popular.
 
 **How to operate**: the summary card shows total time, sessions, visiting members, a presence timeline and equipment usage duration (explicitly flagged when a day has no records); the rank card bars today's per-machine usage duration.
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="Workout summary: total time / sessions / presence timeline / equipment usage" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="Equipment rank: today per-machine usage duration" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
 
 ### 5.6 Member Report & Member Management (Member Report)
 
@@ -326,17 +344,30 @@ Keep zones small — overlapping equipment zones double-count people standing be
 - **Member management**: rename; use "merge" to fold a repeat enrollment / outfit change into one member; deleting a member removes their features and visit history (with confirmation)
 - Privacy: only irreversible face **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/57-members.webp" alt="Member visits: last 7 days per-member visits and duration" style={{ maxWidth: '85%', height: 'auto' }} />
+</div>
+
 ### 5.7 Live Alerts (Alerts)
 
 **What it solves**: fall detection and long-occupancy watch — immediate notification of safety events and operational anomalies.
 
 **How to operate**: alerts appear with time and message; click "mark handled / false positive" to close the loop. When there are none the card reads "all clear — fall detection & occupancy watch running".
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/58-alerts.webp" alt="Live alerts: fall detection and long-occupancy reminders" style={{ maxWidth: '70%', height: 'auto' }} />
+</div>
+
 ### 5.8 Trails & Heatmap (Trails / Heat)
 
 **What it solves**: member flow lines and zone heat — the basis for layout and circulation optimization.
 
 **How to operate**: the trails card draws recent trails in blue (blue line = recent trail) with replay and day paging — drag to the right end for live; the heat card renders zone density by sample count and marks today's peak. Footprint logs accumulate from activation.
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="Trails card: recent flow line with replay" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="Heat card: zone heat with today peak" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
 
 ### 5.9 Optional Tuning
 

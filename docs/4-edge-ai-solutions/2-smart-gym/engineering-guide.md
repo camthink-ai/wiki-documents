@@ -289,17 +289,25 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 区域宁小勿大——相邻器械区域重叠会把站在两台器械之间的人同时计入。
 
+![实时画面卡片:骨架与框叠加,工具栏含分区/计数线/无效区/打码](/img/solutions/smart-gym/cards/51-video.webp)
+
 ### 5.2 实时在场与人员列表(Live State)
 
 **解决什么**:随时回答"现在馆内几个人、都是谁、在哪个区域"。
 
 **怎么操作**:卡片顶部为实时在场人数;列表逐条显示在场人员(会员姓名 / 访客、当前所在器械区、姿态状态),点击可在 5.1 的画面中定位该人。
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/52-live.webp" alt="实时在场卡片:在场人数与人员列表" style={{ maxWidth: '70%', height: 'auto' }} />
+</div>
+
 ### 5.3 器械占用看板(Equipment Grid)
 
 **解决什么**:每台器械此刻"占用 / 使用中 / 空闲"一目了然——引导会员错峰,盘点利用率。
 
 **怎么操作**:每台器械一个格子,颜色与状态文字实时刷新(需先在 5.1 完成器械分区并命名);顶部汇总条给出整体占用统计。
+
+![器械占用看板:每台器械占用/使用中/空闲](/img/solutions/smart-gym/cards/53-grid.webp)
 
 ### 5.4 人流趋势与进出场(Traffic Chart / Door Flow)
 
@@ -310,11 +318,21 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 - 人流趋势卡选择"近 N 小时"窗口查看在场人数曲线
 - 进出场卡显示今日进场 / 出场 / 净在场:画好计数线后会员过线自动累计,按天留档,支持"前一天 / 后一天"翻看
 
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/54-traffic.webp" alt="人流趋势:近 N 小时在场人数曲线" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/59-doorflow.webp" alt="进出场:今日进场/出场/净在场与按天统计" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
+
 ### 5.5 运动概况与器械排行(Workout Summary / Equipment Rank)
 
 **解决什么**:当天运营速览——来了多少人、练了多久、哪些器械最受欢迎。
 
 **怎么操作**:运动概况卡展示总时长、训练场次、到访会员、到店时间轴与器材使用时长(当日无记录会明确提示);器械排行卡以横向条形展示今日各器械使用时长排行。
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/55-summary.webp" alt="运动概况:总时长/训练场次/到店时间轴/器材使用时长" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/56-rank.webp" alt="器械使用排行:今日各器械使用时长" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
 
 ### 5.6 会员训练报告与会员管理(Member Report)
 
@@ -327,17 +345,30 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 - **会员管理**:改名;同一人换装 / 重复录入用"并入"合并到店与特征;删除会员将一并移除其特征与到店历史(有二次确认)
 - 隐私说明:系统仅保存人脸**特征向量**(不可逆),不存原始画面;匿名访客不计入统计
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/57-members.webp" alt="会员到访列表:最近 7 天各会员到店次数与时长" style={{ maxWidth: '85%', height: 'auto' }} />
+</div>
+
 ### 5.7 实时告警(Alerts)
 
 **解决什么**:跌倒检测、器械久占监控——安全事件与运营异常即时提醒。
 
 **怎么操作**:有告警时逐条显示时间与信息,点击"标记已处理 / 误报"完成闭环;无告警时显示"一切正常——跌倒检测与器械久占监控运行中"。
 
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/58-alerts.webp" alt="实时告警:跌倒检测与器械久占提醒" style={{ maxWidth: '70%', height: 'auto' }} />
+</div>
+
 ### 5.8 轨迹与热力图(Trails / Heat)
 
 **解决什么**:会员动线与区域热度——器械布局与动线优化的依据。
 
 **怎么操作**:轨迹卡以蓝线绘制最近轨迹,支持回看与按天切换,拖到时间轴最右即实时;热力卡按样本密度呈现区域热度并标注今日峰值。足迹日志自启用起累积。
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="轨迹卡片:最近动线蓝线与回看" style={{ maxWidth: '48%', height: 'auto' }} />
+  <img src="/img/solutions/smart-gym/cards/60-heat.webp" alt="热力卡片:区域热度与今日峰值" style={{ maxWidth: '48%', height: 'auto' }} />
+</div>
 
 ### 5.9 参数微调(可选)
 
