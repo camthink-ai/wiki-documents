@@ -277,39 +277,81 @@ To integrate a member-management system / video wall / mini-program, choose by r
 - Configuration: [Data Push](/docs/neomind/user-guide/7c-data-push) / [Platform API](/docs/neomind/developer-guide/rest-api)
 - **Field mapping example**: member ↔ member ID + name; arrival/departure ↔ event timestamps; training detail ↔ exercise × reps; equipment usage ↔ zone name + duration
 
-## 5. Business Usage
+## 5. Business Usage (Extension Cards in Detail)
 
-### 5.1 Member Enrollment (face)
+The gym-tracker extension surfaces on the NeoMind dashboard as a set of "cards", one per business module. This section walks through each: the business need it solves and how to operate it. Every card supports `Live / Replay` switching; the UI language follows the extension config `ui.language` (overridable per card).
 
-1. The member walks naturally in front of the camera for 1–3s (1–3m, front face best)
-2. An "unrecognized person" card appears on the dashboard → click → enter name / phone → save
-3. From then on the member is recognized automatically (after front-face registration, side views and lowered heads also work)
-4. Bulk import of member photos is available from the admin console (contact CamThink)
+### 5.1 Live View & Skeleton Overlay (Video Overlay)
 
-Privacy note: the system stores only irreversible face **feature vectors**, never raw footage; admins can delete a member and all their data with one click.
+**What it solves**: the cockpit for floor walks and tuning — see directly what the AI sees: are skeletons complete, are zones framed right, is traffic being counted — while protecting privacy.
 
-### 5.2 Equipment Zone Configuration
+**How to operate**:
 
-1. Dashboard → **Zones → New zone**
-2. Draw the zone on the video snapshot and name it (e.g. "Treadmill 1", "Dumbbell Area"); rectangles and polygons supported
-3. Changes take effect immediately; usage starts when a person's foot points stay in a zone ≥3s (passing-by is filtered)
-4. Per zone the system reports: current occupancy, session duration, daily utilization, time-of-day distribution
+- Open the card for the live view with body boxes and 17-keypoint skeletons overlaid; switch `Live / Replay` for past windows
+- **Zones**: create/edit equipment ROIs on the frame (rectangle / polygon, named e.g. "Treadmill 1", "Dumbbell area"); saving takes effect immediately — a foot point inside a zone for ≥3s counts as "in use" (passers-by filtered)
+- **Count lines**: draw one line at the entrance; each crossing counts one entry/exit
+- **Exclusions**: mark pillars, mirrors and other noise areas as invalid to avoid false detections
+- **Mosaic toggle**: auto-mosaic non-relevant people for privacy
 
-Tuning tip: prefer smaller zones — overlapping adjacent zones double-count people standing between two machines.
+Keep zones small — overlapping equipment zones double-count people standing between machines.
 
-### 5.3 Training Reports
+### 5.2 Live Presence & Track List (Live State)
 
-- **Per member**: every session automatically produces a breakdown (duration, equipment, exercises and rep counts) with comparable history
-- **Per venue**: headcount curve, equipment occupancy ranking, time-of-day traffic — the basis for class scheduling and floor patrols
-- Rep counting: squat, bench press, bicep curl, row and other built-in exercises are counted by joint-angle state machines; partial-range reps are not counted
+**What it solves**: answers "how many people are in the gym right now, who are they, where".
 
-### 5.4 Optional Tuning
+**How to operate**: the card header shows the live headcount; the list shows everyone present (member name / guest, current equipment zone, pose state) — click to locate them in the 5.1 view.
 
-| Symptom | Adjustment |
+### 5.3 Equipment Occupancy Board (Equipment Grid)
+
+**What it solves**: whether each machine is busy / on gear / idle at a glance — steer members to free equipment, review utilization.
+
+**How to operate**: one cell per machine with live color and status text (requires zones from 5.1); the header strip summarizes overall occupancy.
+
+### 5.4 Traffic Trend & Door Flow (Traffic Chart / Door Flow)
+
+**What it solves**: time-slot traffic and net entry/exit flow — the basis for scheduling and staffing decisions.
+
+**How to operate**:
+
+- The traffic card shows the presence curve over the last N hours
+- The door-flow card shows today's in / out / net-inside: crossings accumulate automatically once a count line is drawn, logged daily, with previous/next day paging
+
+### 5.5 Workout Summary & Equipment Rank (Workout Summary / Equipment Rank)
+
+**What it solves**: today at a glance — how many visitors, how long they trained, which machines are most popular.
+
+**How to operate**: the summary card shows total time, sessions, visiting members, a presence timeline and equipment usage duration (explicitly flagged when a day has no records); the rank card bars today's per-machine usage duration.
+
+### 5.6 Member Report & Member Management (Member Report)
+
+**What it solves**: the per-member quantified view for coaches and members — per-session details, history trends and training suggestions, turning coaching from gut feeling into data.
+
+**How to operate**:
+
+- **Member enrollment (face)**: have the member walk naturally in front of the camera for 1–3s (1–3m, facing the lens) → the "unidentified person" card appears → fill in name / phone → save; they are auto-recognized afterwards (profile, side and lowered-head angles all work). Bulk photo enrollment is available via CamThink
+- **Read reports**: pick a member → per-session details (equipment, exercise, sets × reps), workout history (by day / last N days), exercise analysis, equipment split, visit log; the channel status shows "face + body ReID dual channel" or "body ReID only (face pending)"
+- **Member management**: rename; use "merge" to fold a repeat enrollment / outfit change into one member; deleting a member removes their features and visit history (with confirmation)
+- Privacy: only irreversible face **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
+
+### 5.7 Live Alerts (Alerts)
+
+**What it solves**: fall detection and long-occupancy watch — immediate notification of safety events and operational anomalies.
+
+**How to operate**: alerts appear with time and message; click "mark handled / false positive" to close the loop. When there are none the card reads "all clear — fall detection & occupancy watch running".
+
+### 5.8 Trails & Heatmap (Trails / Heat)
+
+**What it solves**: member flow lines and zone heat — the basis for layout and circulation optimization.
+
+**How to operate**: the trails card draws recent trails in blue (blue line = recent trail) with replay and day paging — drag to the right end for live; the heat card renders zone density by sample count and marks today's peak. Footprint logs accumulate from activation.
+
+### 5.9 Optional Tuning
+
+| Scenario | Adjustment |
 |---|---|
-| Occasional flickering boxes | raise `confidence_threshold` 0.6 → 0.7 in `GYM_POSE_VARIANT_JSON` |
-| Missing far-field small targets | contact CamThink to tune tiling parameters (2×2 coverage ratio / refresh cadence) |
-| Noticeable skeleton lag | check bandwidth; confirm the sub-stream is in use |
+| Occasional box flicker | `confidence_threshold` 0.6 → 0.7 in app config `GYM_POSE_VARIANT_JSON` |
+| Missed small far targets | ask CamThink to adjust tiling params (2×2 coverage ratio / refresh cadence) |
+| Visible skeleton lag | check network bandwidth; confirm the video uses the sub-stream |
 
 ## 6. Daily Operations
 
