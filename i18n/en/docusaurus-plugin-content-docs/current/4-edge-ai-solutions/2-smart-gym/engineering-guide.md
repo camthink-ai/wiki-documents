@@ -25,7 +25,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 ### Mounting Position
 
 - **Height**: 2.5–3.5m ceiling mount, 15–30° downward tilt
-- **Aim**: the frame must cover **the main equipment area and the entrance** — the entrance ensures members are identified on arrival, the equipment area drives occupancy stats
+- **Aim**: recommended **diagonal corner mount** — the frame cuts across the room covering **the main equipment area and the entrance** — the entrance ensures members are identified on arrival, the equipment area drives occupancy stats
 - **Avoid**: strong backlight from windows; pillars or pendant lights occluding key equipment
 - **Night**: confirm lighting stays on; NE503 supports IR, but face recognition works best with visible light
 
@@ -38,7 +38,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
 | 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-ne503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
-| 2 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
+| 2 | Gym installer package | `gym-suite-&lt;version&gt;.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 3 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
 > Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind deployed on the customer's own host**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
@@ -68,49 +68,119 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 ### 4.1 Install the NeoMind Platform (customer host)
 
-NeoMind runs on the customer's own host — a Linux server or Mac mini with Docker and 4GB+ RAM.
+NeoMind runs on the customer's own host: any Linux server or Mac mini (Docker, 4GB+ RAM). The NG4500 AI Box is recommended.
+
+**Option A: Docker Compose (recommended)**
 
 ```bash
-# with Docker installed
-cd edge/ && docker compose up -d
+# 1. Confirm Docker is installed (NG4500 ships with it)
+docker --version
+
+# 2. Use the compose file from the installer package (or the NeoMind repo)
+cd gym-suite-1.0.0/edge/
+docker compose up -d
+
+# 3. Wait for the first image pull and startup (~1-2 min)
+docker compose logs -f neomind    # ready when you see "listening on 0.0.0.0:9375"
 ```
 
-- After first start, browse to `http://<host-ip>:9375` and register the admin account
-- Full platform installation details (scripted / manual / HTTPS): see [Install & Upgrade](/docs/neomind/user-guide/install-setup)
+**Option B: One-line install script**
+
+```bash
+curl -fsSL https://get.neomind.camthink.ai | sh
+```
+
+**First-time setup:**
+
+1. Browse to `http://&lt;host-ip&gt;:9375`
+2. Register the admin account (email + password — keep it safe: platform encryption keys derive from it)
+3. Confirm the "Extensions" page in the left navigation opens correctly
+
+Full platform installation details (manual deploy / HTTPS reverse proxy / volume backup): see [Install & Upgrade](/docs/neomind/user-guide/install-setup).
 
 ### 4.2 Install the Gym Extension and Bind the Camera
 
-1. Platform web → **Extensions → Import**, select `gym-tracker-*.nep` from the package
-2. Open the extension **config** and fill in the camera connection:
+**Install the extension (two ways):**
+
+- **Local import (offline delivery)**: platform web → **Extensions → Import** → select `gym-tracker-*.nep` from the package → it appears in the extension list after import
+- **Marketplace (online)**: platform web → **Extension Marketplace** → search "Gym Tracker" → Install (available once the extension is published)
+
+**Configure the camera connection:**
+
+1. Open gym-tracker **config** from the extension list
+2. Fill in the camera connection:
 
 ```yaml
 device:
-  host: 192.168.x.x        # camera IP
+  host: 192.168.x.x        # camera IP (check the router, or use the CamThink discovery tool)
   username: admin
-  password: <camera password>
+  password: &lt;camera password&gt;
   tls_insecure: true       # camera self-signed cert — keep true
 ```
 
-3. Save; the extension turns green once the event stream connects
+3. Save; the extension turns green within ~5s once the camera event stream (WSS) connects
+4. If it keeps flipping red: verify the camera IP is reachable (`ping &lt;camera-ip&gt;`) and the password is correct
+
+**UI language**: extension dashboards default to English; set `ui.language: zh` in the extension config for Chinese.
 
 Multi-camera: add more `device` entries in the config, after each camera has completed 4.3.
 
-### 4.3 Camera-Side One-Command Install
+### 4.3 Deploy the Gym Application on the NE503
 
-On any laptop on the same network (requires curl + python3):
+#### 4.3.1 Bring the Camera Online (after physical install)
+
+1. Power the camera via PoE and wait ~2 minutes for boot
+2. Find the camera IP from the router (or the CamThink discovery tool)
+3. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
+
+#### 4.3.2 Initial Security Setup
+
+1. Log in with the factory default: `admin / password`
+2. **Top-right → System Settings → Change Password** — set a strong password and record it (the extension config uses it too)
+3. Confirm firmware >= v1.0.2 on the system info page; if older, request a firmware package from [CamThink](https://www.camthink.ai/company/contact-us/) and upload it via web **System Upgrade** (~10 min, auto-restarts)
+
+#### 4.3.3 Verify the View
+
+1. Web home → **live preview**: confirm the frame covers the equipment area + entrance, no occlusion, adequate lighting at night
+2. Adjust focus/tilt now if needed (see section 1 mounting guidance)
+
+#### 4.3.4 One-Command App Install
+
+On any laptop on the same network (requires curl + python3 — Mac/Linux/Windows+WSL all work):
 
 ```bash
 tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
-./camera-install.sh <camera-ip> <admin-password>
+./camera-install.sh &lt;camera-ip&gt; &lt;the new password from 4.3.2&gt;
 ```
 
-The script runs: login → upload models (pose S/M tiers) → install the app image → start → health check. Success looks like:
+The script runs:
+
+| Step | What | Time |
+|---|---|---|
+| 1 | Login to the camera API | under 1s |
+| 2 | Check firmware version | under 1s |
+| 3 | Upload models (pose S/M HEF tiers) | ~10s |
+| 4 | Upload and install the app container image | ~15s |
+| 5 | Start the app | ~2s |
+| 6 | Health check (wait for stream + fps stats) | ~40s |
+
+Success looks like:
 
 ```
-✅ Install OK! Producer running: stats: 19.8 fps
+Install OK! Producer running: stats: 19.8 fps
 ```
 
-Preconditions (the script checks too): firmware ≥ v1.0.2 and the admin password changed. The script is idempotent — re-running performs an overwrite upgrade.
+The script is idempotent — re-running performs an overwrite upgrade without touching member data.
+
+#### 4.3.5 App Management (web UI)
+
+After installation, manage the app from camera web → **Apps**:
+
+- **Status**: running / installed
+- **Logs**: open gym-native for live logs — `stats: xx fps, pub ok` is the healthy heartbeat
+- **Stop/Start**: one click, no SSH
+- **Uninstall**: removes the app (model files are kept)
+
 
 ### 4.4 Commissioning (Four-Link Verification)
 

@@ -1,48 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="570" viewBox="0 0 880 570" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
   <!-- room -->
   <rect x="50" y="70" width="780" height="400" rx="4" fill="#FAFAFB" stroke="#1C1E21" stroke-width="2.5"/>
-  <!-- glare window on top wall -->
-  <rect x="90" y="64" width="130" height="12" fill="#BFE3FF" stroke="#93C5FD"/>
-  <text x="155" y="102" font-size="11.5" fill="#2563EB">强逆光窗户 · 避免正对</text>
-  <!-- FOV trapezoid -->
-  <polygon points="340,90 540,90 810,470 70,470" fill="#F24A00" fill-opacity="0.06"/>
-  <line x1="340" y1="90" x2="70" y2="470" stroke="#F24A00" stroke-width="1.4" stroke-dasharray="6 4" stroke-opacity="0.55"/>
-  <line x1="540" y1="90" x2="810" y2="470" stroke="#F24A00" stroke-width="1.4" stroke-dasharray="6 4" stroke-opacity="0.55"/>
-  <!-- camera -->
-  <circle cx="440" cy="70" r="15" fill="#1C1E21"/>
-  <circle cx="440" cy="70" r="6" fill="#F24A00"/>
-  <text x="440" y="40" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1C1E21">NE503 顶装 · 高度 2.5~3.5m · 俯角 15~30°</text>
-  <!-- zones -->
-  <rect x="240" y="210" width="190" height="120" rx="8" fill="#FFFFFF" stroke="#F24A00" stroke-width="1.6" stroke-dasharray="7 4"/>
-  <text x="335" y="236" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">器械区 A · ROI</text>
-  <rect x="258" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
-  <rect x="302" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
-  <rect x="346" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
-  <rect x="450" y="210" width="190" height="120" rx="8" fill="#FFFFFF" stroke="#F24A00" stroke-width="1.6" stroke-dasharray="7 4"/>
-  <text x="545" y="236" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">器械区 B · ROI</text>
-  <rect x="468" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
-  <rect x="512" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
-  <rect x="556" y="252" width="34" height="60" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <!-- diagonal FOV wedge from top-left corner -->
+  <polygon points="110,140 830,270 830,470 150,470" fill="#F24A00" fill-opacity="0.06"/>
+  <line x1="110" y1="140" x2="830" y2="270" stroke="#F24A00" stroke-width="1.4" stroke-dasharray="6 4" stroke-opacity="0.55"/>
+  <line x1="110" y1="140" x2="150" y2="470" stroke="#F24A00" stroke-width="1.4" stroke-dasharray="6 4" stroke-opacity="0.55"/>
+  <!-- camera at top-left corner -->
+  <circle cx="110" cy="140" r="15" fill="#1C1E21"/>
+  <circle cx="110" cy="140" r="6" fill="#F24A00"/>
+  <text x="140" y="112" font-size="13.5" font-weight="700" fill="#1C1E21">NE503 斜对角顶装 · 高度 2.5~3.5m · 俯角 15~30°</text>
+  <!-- glare window top-right -->
+  <rect x="560" y="64" width="120" height="12" fill="#BFE3FF" stroke="#93C5FD"/>
+  <text x="620" y="110" text-anchor="middle" font-size="11.5" fill="#2563EB">强逆光窗户 · FOV 避开</text>
+  <!-- free area top-right corner (outside FOV) -->
+  <rect x="690" y="88" width="140" height="60" rx="6" fill="#F3F4F6" stroke="#9CA3AF" stroke-dasharray="5 4"/>
+  <text x="760" y="114" text-anchor="middle" font-size="11.5" fill="#6B7280">自由训练区</text>
+  <text x="760" y="132" text-anchor="middle" font-size="10" fill="#9CA3AF">(可选覆盖)</text>
+  <!-- zone A -->
+  <rect x="300" y="230" width="180" height="110" rx="8" fill="#FFFFFF" stroke="#F24A00" stroke-width="1.6" stroke-dasharray="7 4"/>
+  <text x="390" y="226" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">器械区 A · ROI</text>
+  <rect x="318" y="272" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <rect x="362" y="272" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <rect x="406" y="272" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <!-- zone B -->
+  <rect x="470" y="300" width="180" height="110" rx="8" fill="#FFFFFF" stroke="#F24A00" stroke-width="1.6" stroke-dasharray="7 4"/>
+  <text x="560" y="326" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">器械区 B · ROI</text>
+  <rect x="488" y="342" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <rect x="532" y="342" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
+  <rect x="576" y="342" width="34" height="54" rx="4" fill="#F3F4F6" stroke="#9CA3AF"/>
   <!-- members -->
   <g fill="#1C1E21" stroke="#F24A00" stroke-width="2.5">
-    <circle cx="300" cy="330" r="8"/>
-    <circle cx="560" cy="330" r="8"/>
-    <circle cx="440" cy="430" r="8"/>
+    <circle cx="390" cy="255" r="8"/>
+    <circle cx="560" cy="355" r="8"/>
+    <circle cx="700" cy="420" r="8"/>
   </g>
-  <text x="322" y="335" font-size="11" fill="#6B7280">会员</text>
-  <!-- free training area (outside FOV) -->
-  <rect x="70" y="210" width="80" height="190" rx="6" fill="#F3F4F6" stroke="#9CA3AF" stroke-dasharray="5 4"/>
-  <text x="110" y="290" text-anchor="middle" font-size="11.5" fill="#6B7280" transform="rotate(-90 110 290)">自由训练区</text>
-  <text x="110" y="418" text-anchor="middle" font-size="10" fill="#9CA3AF">(可选覆盖)</text>
-  <!-- entrance -->
-  <rect x="382" y="464" width="116" height="12" fill="#FAFAFB"/>
-  <line x1="382" y1="470" x2="392" y2="470" stroke="#1C1E21" stroke-width="2.5"/>
-  <line x1="488" y1="470" x2="830" y2="470" stroke="#1C1E21" stroke-width="2.5"/>
-  <line x1="392" y1="470" x2="488" y2="470" stroke="#1C1E21" stroke-width="2" stroke-dasharray="8 5"/>
-  <text x="440" y="500" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C2410C">入口 · 进场即识别</text>
-  <text x="440" y="518" text-anchor="middle" font-size="10.5" fill="#6B7280">3s 驻留去抖,过滤路过人员</text>
+  <text x="412" y="260" font-size="11" fill="#6B7280">会员</text>
+  <!-- entrance on right wall -->
+  <rect x="824" y="330" width="12" height="120" fill="#FAFAFB"/>
+  <line x1="830" y1="330" x2="830" y2="340" stroke="#1C1E21" stroke-width="2.5"/>
+  <line x1="830" y1="450" x2="830" y2="470" stroke="#1C1E21" stroke-width="2.5"/>
+  <line x1="830" y1="340" x2="830" y2="450" stroke="#1C1E21" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="812" y="312" text-anchor="end" font-size="12.5" font-weight="700" fill="#C2410C">入口 · 进场即识别</text>
+  <text x="812" y="294" text-anchor="end" font-size="10.5" fill="#6B7280">3s 驻留去抖,过滤路过人员</text>
   <!-- legend strip -->
   <rect x="50" y="505" width="780" height="52" rx="10" fill="#FFF7ED" stroke="#FDBA74"/>
-  <text x="68" y="527" font-size="12" fill="#9A3412">视野需同时覆盖:入口(进场识别)+ 主要器械区(占用统计)</text>
+  <text x="68" y="527" font-size="12" fill="#9A3412">推荐斜对角顶装:视野斜穿全场,同时覆盖入口(进场识别)与主要器械区(占用统计)</text>
   <text x="68" y="547" font-size="12" fill="#9A3412">安装验证:实时预览确认远端骨架完整、入口在画面内、无遮挡,再固定支架</text>
 </svg>
