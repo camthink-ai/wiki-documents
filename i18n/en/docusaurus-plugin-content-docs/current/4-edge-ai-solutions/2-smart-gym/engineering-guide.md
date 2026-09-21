@@ -67,14 +67,71 @@ General requirements:
 
 Work in this order: platform first, then the extension bound to the camera, then the one-command camera install, then the four-link commissioning.
 
-### 4.1 Install the NeoMind Platform (customer host)
+### 4.1 Deploy the Gym Application on the NE503
 
-NeoMind runs on the customer's own host: any Linux server or Mac mini (Docker, 4GB+ RAM). The NG4500 AI Box is recommended.
+#### 4.1.1 Bring the Camera Online (after physical install)
+
+1. Power the camera via PoE and wait ~2 minutes for boot
+2. Find the camera IP from the router (or the CamThink discovery tool)
+3. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
+
+#### 4.1.2 Initial Security Setup
+
+1. Log in with the factory default: `admin / password`
+2. **Top-right → System Settings → Change Password** — set a strong password and record it (the extension config uses it too)
+3. Confirm firmware >= v1.0.2 on the system info page; if older, request a firmware package from [CamThink](https://www.camthink.ai/company/contact-us/) and upload it via web **System Upgrade** (~10 min, auto-restarts)
+
+#### 4.1.3 Verify the View
+
+1. Web home → **live preview**: confirm the frame covers the equipment area + entrance, no occlusion, adequate lighting at night
+2. Adjust focus/tilt now if needed (see section 1 mounting guidance)
+
+#### 4.1.4 One-Command App Install
+
+On any laptop on the same network (requires curl + python3 — Mac/Linux/Windows+WSL all work):
+
+```bash
+tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+./camera-install.sh &lt;camera-ip&gt; &lt;the new password from 4.1.2&gt;
+```
+
+The script runs:
+
+| Step | What | Time |
+|---|---|---|
+| 1 | Login to the camera API | under 1s |
+| 2 | Check firmware version | under 1s |
+| 3 | Upload models (pose S/M HEF tiers) | ~10s |
+| 4 | Upload and install the app container image | ~15s |
+| 5 | Start the app | ~2s |
+| 6 | Health check (wait for stream + fps stats) | ~40s |
+
+Success looks like:
+
+```
+Install OK! Producer running: stats: 19.8 fps
+```
+
+The script is idempotent — re-running performs an overwrite upgrade without touching member data.
+
+#### 4.1.5 App Management (web UI)
+
+After installation, manage the app from camera web → **Apps**:
+
+- **Status**: running / installed
+- **Logs**: open gym-native for live logs — `stats: xx fps, pub ok` is the healthy heartbeat
+- **Stop/Start**: one click, no SSH
+- **Uninstall**: removes the app (model files are kept)
+
+
+### 4.2 Install the NeoMind Platform (customer host)
+
+NeoMind runs on the customer's own host: any Linux server or Mac mini (Docker, 4GB+ RAM). 
 
 **Option A: Docker Compose (recommended)**
 
 ```bash
-# 1. Confirm Docker is installed (NG4500 ships with it)
+# 1. Confirm Docker is installed 
 docker --version
 
 # 2. Use the compose file from the installer package (or the NeoMind repo)
@@ -99,7 +156,7 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 
 Full platform installation details (manual deploy / HTTPS reverse proxy / volume backup): see [Install & Upgrade](/docs/neomind/user-guide/install-setup).
 
-### 4.2 Install the Gym Extension and Bind the Camera
+### 4.3 Install the Gym Extension and Bind the Camera
 
 **Install the extension (two ways):**
 
@@ -125,63 +182,6 @@ device:
 **UI language**: extension dashboards default to English; set `ui.language: zh` in the extension config for Chinese.
 
 Multi-camera: add more `device` entries in the config, after each camera has completed 4.3.
-
-### 4.3 Deploy the Gym Application on the NE503
-
-#### 4.3.1 Bring the Camera Online (after physical install)
-
-1. Power the camera via PoE and wait ~2 minutes for boot
-2. Find the camera IP from the router (or the CamThink discovery tool)
-3. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
-
-#### 4.3.2 Initial Security Setup
-
-1. Log in with the factory default: `admin / password`
-2. **Top-right → System Settings → Change Password** — set a strong password and record it (the extension config uses it too)
-3. Confirm firmware >= v1.0.2 on the system info page; if older, request a firmware package from [CamThink](https://www.camthink.ai/company/contact-us/) and upload it via web **System Upgrade** (~10 min, auto-restarts)
-
-#### 4.3.3 Verify the View
-
-1. Web home → **live preview**: confirm the frame covers the equipment area + entrance, no occlusion, adequate lighting at night
-2. Adjust focus/tilt now if needed (see section 1 mounting guidance)
-
-#### 4.3.4 One-Command App Install
-
-On any laptop on the same network (requires curl + python3 — Mac/Linux/Windows+WSL all work):
-
-```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
-./camera-install.sh &lt;camera-ip&gt; &lt;the new password from 4.3.2&gt;
-```
-
-The script runs:
-
-| Step | What | Time |
-|---|---|---|
-| 1 | Login to the camera API | under 1s |
-| 2 | Check firmware version | under 1s |
-| 3 | Upload models (pose S/M HEF tiers) | ~10s |
-| 4 | Upload and install the app container image | ~15s |
-| 5 | Start the app | ~2s |
-| 6 | Health check (wait for stream + fps stats) | ~40s |
-
-Success looks like:
-
-```
-Install OK! Producer running: stats: 19.8 fps
-```
-
-The script is idempotent — re-running performs an overwrite upgrade without touching member data.
-
-#### 4.3.5 App Management (web UI)
-
-After installation, manage the app from camera web → **Apps**:
-
-- **Status**: running / installed
-- **Logs**: open gym-native for live logs — `stats: xx fps, pub ok` is the healthy heartbeat
-- **Stop/Start**: one click, no SSH
-- **Uninstall**: removes the app (model files are kept)
-
 
 ### 4.4 Commissioning (Four-Link Verification)
 
