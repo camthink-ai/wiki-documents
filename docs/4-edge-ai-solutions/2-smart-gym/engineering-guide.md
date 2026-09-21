@@ -40,7 +40,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 |---|---|---|---|---|
 | 1 | [**NE503 AI 相机**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p 双码流 | 每区域 1 台 | 姿态/人脸/重识别端侧推理 |
 | 2 | **NeoMind 平台**(部署在客户电脑或 NE503) | Docker 镜像,含 gym-tracker 扩展 | 1 套 | 设备接入、姿态/人脸识别、仪表板与训练报告 |
-| 3 | 健身房安装包 | `gym-suite-&lt;版本&gt;.tar.gz`(向 CamThink 获取) | 1 套 | 一键安装(含应用镜像、模型、手册) |
+| 3 | 健身房安装包 | `gym-suite-<版本>.tar.gz`(向 CamThink 获取) | 1 套 | 一键安装(含应用镜像、模型、手册) |
 | 4 | 网线 | Cat5e 以上 | 按需 | 相机 PoE 供电与数据回传 |
 
 > 起步配置(单区域 ≤20 人):**1 台 NE503(PoE 供电)+ NeoMind 部署在客户电脑或 NE503**;场馆扩大时按区域增加相机,扩展配置里添加设备即可(单扩展建议 ≤4 路)。
@@ -83,13 +83,21 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 1. 网线一端插入相机 PoE 网口,听到卡扣到位声;另一端接客户侧 PoE 交换机 / 注入器
 2. 等约 2 分钟完成启动(蓝色状态灯常亮)
 3. 从路由器后台(或 [CamThink 发现工具](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2),随 neoruntime 安装包发布)找到相机 IP
-4. 浏览器访问 `https://&lt;相机IP&gt;`(自签证书,点击"继续前往")——出现相机 Web 界面即上线成功
+4. 浏览器访问 `https://<相机IP>`(自签证书,点击"继续前往")——出现相机 Web 界面即上线成功
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-login.png" alt="相机 Web 登录页" style={{ maxWidth: '55%', height: 'auto' }} />
+</div>
 
 #### 4.1.2 初始安全设置
 
 1. 使用默认账号登录:`admin / password`
 2. **右上角 → 系统设置 → 修改密码**,设置强密码并记录(后续扩展配置也要用)
 3. 确认系统信息页固件版本 ≥ v1.0.2;低于则先 [联系 CamThink](https://www.camthink.ai/company/contact-us/) 获取固件包,Web **系统升级**页上传(约 10 分钟,升级后自动重启)
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-device-info.png" alt="系统信息页:固件版本确认" style={{ maxWidth: '55%', height: 'auto' }} />
+</div>
 
 #### 4.1.3 画面确认
 
@@ -98,13 +106,13 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 #### 4.1.4 一键安装应用
 
-**应用包在哪里:**即 BOM 第 3 项的健身房安装包 `gym-suite-&lt;版本&gt;.tar.gz`——由 CamThink 随订单交付,先拷贝到任一**与相机同网段**的电脑上(需已装 curl + python3,Mac/Linux/Windows+WSL 均可),然后在该电脑的终端里执行:
+**应用包在哪里:**即 BOM 第 3 项的健身房安装包 `gym-suite-<版本>.tar.gz`——由 CamThink 随订单交付,先拷贝到任一**与相机同网段**的电脑上(需已装 curl + python3,Mac/Linux/Windows+WSL 均可),然后在该电脑的终端里执行:
 
 **操作步骤:**解压安装包 → 进入目录 → 运行脚本(按提示输入相机 IP 与 4.1.2 设置的新密码):
 
 ```bash
 tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
-./camera-install.sh &lt;相机IP&gt; <4.1.2 设置的新密码>
+./camera-install.sh <相机IP> <4.1.2 设置的新密码>
 ```
 
 脚本依次完成:
@@ -185,7 +193,7 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 
 **首次配置:**
 
-1. 浏览器访问 `http://&lt;主机IP&gt;:9375`
+1. 浏览器访问 `http://<主机IP>:9375`
 2. 注册管理员账号(邮箱 + 密码,务必记牢——平台数据加密密钥与此绑定)
 3. 左侧导航确认"扩展"页面可正常打开
 
@@ -215,12 +223,12 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 device:
   host: 192.168.x.x        # 相机 IP(路由器后台查看,或用 [CamThink 发现工具](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2))
   username: admin
-  password: &lt;相机密码&gt;
+  password: <相机密码>
   tls_insecure: true       # 相机自签证书,保持 true
 ```
 
 3. 保存;约 5 秒后扩展状态变绿,表示已与相机事件流(WSS)建立连接
-4. 若状态反复变红:检查相机 IP 是否可达(`ping &lt;相机IP&gt;`)、密码是否正确
+4. 若状态反复变红:检查相机 IP 是否可达(`ping <相机IP>`)、密码是否正确
 
 ![扩展详情:运行状态与健康检查](/img/solutions/smart-gym/extension-detail.webp)
 

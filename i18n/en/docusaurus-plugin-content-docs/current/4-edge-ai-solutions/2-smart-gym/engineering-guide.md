@@ -40,7 +40,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 |---|---|---|---|---|
 | 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
 | 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
-| 3 | Gym installer package | `gym-suite-&lt;version&gt;.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
+| 3 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 4 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
 > Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind on the customer PC or the NE503**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
@@ -81,13 +81,21 @@ Work in this order: platform first, then the extension bound to the camera, then
 1. Plug one end of the cable into the camera's PoE port until the clip clicks; the other end goes to the customer-side PoE switch / injector
 2. Power the camera via PoE and wait ~2 minutes for boot
 3. Find the camera IP from the router (or the [CamThink discovery tool](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2), shipped in the neoruntime package)
-4. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
+4. Browse to `https://<camera-ip>` (self-signed cert — click "proceed") — the camera web UI confirms it is online
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-login.png" alt="Camera web login page" style={{ maxWidth: '55%', height: 'auto' }} />
+</div>
 
 #### 4.1.2 Initial Security Setup
 
 1. Log in with the factory default: `admin / password`
 2. **Top-right → System Settings → Change Password** — set a strong password and record it (the extension config uses it too)
 3. Confirm firmware >= v1.0.2 on the system info page; if older, request a firmware package from [CamThink](https://www.camthink.ai/company/contact-us/) and upload it via web **System Upgrade** (~10 min, auto-restarts)
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-device-info.png" alt="System info page: firmware version" style={{ maxWidth: '55%', height: 'auto' }} />
+</div>
 
 #### 4.1.3 Verify the View
 
@@ -96,13 +104,13 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 #### 4.1.4 One-Command App Install
 
-**Where is the package:** it is the smart gym installer `gym-suite-&lt;version&gt;.tar.gz` from BOM item 3 — delivered by CamThink with the order. Copy it to any laptop **on the same network as the camera** (requires curl + python3 — Mac/Linux/Windows+WSL all work), then in that laptop's terminal:
+**Where is the package:** it is the smart gym installer `gym-suite-<version>.tar.gz` from BOM item 3 — delivered by CamThink with the order. Copy it to any laptop **on the same network as the camera** (requires curl + python3 — Mac/Linux/Windows+WSL all work), then in that laptop's terminal:
 
 **How to run:** extract the package → enter the folder → run the script (enter the camera IP and the new password set in 4.1.2 when prompted):
 
 ```bash
 tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
-./camera-install.sh &lt;camera-ip&gt; &lt;the new password from 4.1.2&gt;
+./camera-install.sh <camera-ip> <the new password from 4.1.2>
 ```
 
 The script runs:
@@ -184,7 +192,7 @@ curl -fsSL https://get.neomind.camthink.ai | sh
 
 **First-time setup:**
 
-1. Browse to `http://&lt;host-ip&gt;:9375`
+1. Browse to `http://<host-ip>:9375`
 2. Register the admin account (email + password — keep it safe: platform encryption keys derive from it)
 3. Confirm the "Extensions" page in the left navigation opens correctly
 
@@ -214,12 +222,12 @@ Full platform installation details (manual deploy / HTTPS reverse proxy / volume
 device:
   host: 192.168.x.x        # camera IP (check the router, or use the [CamThink discovery tool](https://github.com/camthink-ai/neoruntime/releases/tag/v1.0.2))
   username: admin
-  password: &lt;camera password&gt;
+  password: <camera password>
   tls_insecure: true       # camera self-signed cert — keep true
 ```
 
 3. Save; the extension turns green within ~5s once the camera event stream (WSS) connects
-4. If it keeps flipping red: verify the camera IP is reachable (`ping &lt;camera-ip&gt;`) and the password is correct
+4. If it keeps flipping red: verify the camera IP is reachable (`ping <camera-ip>`) and the password is correct
 
 ![Extension detail: run state and health](/img/solutions/smart-gym/extension-detail.webp)
 
