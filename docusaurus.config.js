@@ -179,7 +179,7 @@ const config = {
             label: 'Store',
             className: 'store-button'
           },
-          { href: 'https://github.com/camthink-ai?utm_source=wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub' },
+          { href: 'https://github.com/camthink-ai?utm_source=wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub', className: 'github-button' },
           { type: 'localeDropdown', position: 'right' },
         ],
       },
