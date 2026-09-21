@@ -36,8 +36,8 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
 | 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-ne503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
-| 2 | PoE switch | Gigabit, ports = cameras + 1 | 1 | camera power + network |
-| 3 | [**NG4500 AI Box**](https://www.camthink.ai/product/neoedge-ai-box-ng4500/)(or any Linux/macOS host) | 4GB+ RAM, Docker | 1 | runs NeoMind platform + gym-tracker extension |
+| 2 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
+| 3 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
 > Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind deployed on the customer's own host**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
 
