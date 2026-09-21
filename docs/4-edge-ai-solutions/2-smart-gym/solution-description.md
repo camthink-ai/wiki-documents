@@ -49,6 +49,7 @@ description: "基于 NeoEyes NE503 与 NeoMind 的智慧健身房方案:会员�
 
 ## 了解更多
 
+- [工程指南:架构 / 搭建 / 安装 / 运维 / 使用](/docs/edge-ai-solutions/smart-gym/engineering-guide)
 - [NeoEyes NE503 产品概述](/docs/neoeyes-ne503-series/overview)
 - [NeoMind 平台文档](/docs/neomind/product-overview/what-is-neomind)
 - gym-tracker 扩展开源仓库:[github.com/camthink-ai/NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions)
