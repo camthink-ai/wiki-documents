@@ -70,7 +70,7 @@ In the NE301 sensor expansion board, the speaker serves as a **local alarm and v
 
 | Item | Specification |
 |:---|:---|
-| Standard Environment | Temperature 15~35°C, Humidity 25~85% |
+| Standard Environment | Temperature 15\~35°C, Humidity 25\~85% |
 | Reference Environment | Temperature 20±3°C, Humidity 60~70% |
 | Test Fixture | Input power 0.5W (2.0V), zero level |
 
