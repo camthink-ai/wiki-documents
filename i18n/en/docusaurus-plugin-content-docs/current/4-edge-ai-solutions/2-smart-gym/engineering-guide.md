@@ -26,6 +26,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 
 - **Height**: 2.5–3.5m ceiling mount, 15–30° downward tilt
 - **Aim**: recommended **diagonal corner mount** — the frame cuts across the room covering **the main equipment area and the entrance** — the entrance ensures members are identified on arrival, the equipment area drives occupancy stats
+- **Lens options**: if the standard lens doesn't cover the area (deep rooms / wider views needed), the NE503 supports **custom wider-FOV lenses** — contact CamThink for an on-site assessment
 - **Avoid**: strong backlight from windows; pillars or pendant lights occluding key equipment
 - **Night**: confirm lighting stays on; NE503 supports IR, but face recognition works best with visible light
 
