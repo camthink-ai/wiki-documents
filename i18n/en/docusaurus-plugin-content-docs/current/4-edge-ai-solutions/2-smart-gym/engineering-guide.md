@@ -368,9 +368,15 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 ### 5.8 Trails & Heatmap (Trails / Heat)
 
-**What it solves**: member flow lines and zone heat — the basis for layout and circulation optimization.
+**What it solves**: member flow lines and zone heat — answers "where do members move, when is it densest", the data basis for equipment layout, circulation optimization and new purchases.
 
-**How to operate**: the trails card draws recent trails in blue (blue line = recent trail) with replay and day paging — drag to the right end for live; the heat card renders zone density by sample count and marks today's peak. Footprint logs accumulate from activation.
+**How to operate**:
+
+- **Trails card**: draws members' recent flow lines on the gym view ("blue line = recent trail"); switch `Live / Replay`, page through history with "previous / next day" — drag the timeline to the right end for live
+- **Heat card**: renders zone density by sample count with a low→high color scale and marks today's peak window; switch dates to compare heat distribution across periods
+- **Data source**: footprint logs accumulate from extension activation; empty windows are explicitly flagged ("no footprints in this window")
+
+**Business use**: peak-hour heat concentrated on a few machines → consider adding units or re-layout; a chronically cold free-training area → optimize space utilization; dense crossing flow lines → watch for safety hazards.
 
 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="Trails card: recent flow line with replay" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
