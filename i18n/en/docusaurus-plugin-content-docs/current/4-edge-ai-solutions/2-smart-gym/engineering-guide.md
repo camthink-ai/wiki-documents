@@ -39,11 +39,11 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
 | 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
-| 2 | **NeoMind platform** (deployed on the customer's own host) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
+| 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
 | 3 | Gym installer package | `gym-suite-&lt;version&gt;.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 4 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
-> Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind deployed on the customer's own host**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
+> Starter setup (single zone, ≤20 people): **1 × NE503 (PoE powered) + NeoMind on the customer PC or the NE503**. To grow, add one camera per zone and register it in the extension config (≤4 cameras per extension recommended).
 
 ## 3. Network Topology
 
@@ -141,9 +141,9 @@ After installation, manage the app from camera web → **Apps**:
 - **Uninstall**: removes the app (model files are kept)
 
 
-### 4.2 Install the NeoMind Platform (customer host)
+### 4.2 Install the NeoMind Platform (customer PC or NE503)
 
-NeoMind runs on the customer's own host: any Linux server or Mac mini (Docker, 4GB+ RAM). 
+NeoMind can run on the **customer's own PC** — any Linux server or Mac mini (Docker, 4GB+ RAM) — or **directly on the NE503**. 
 
 **Option A: Docker Compose (recommended)**
 
