@@ -28,7 +28,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 - **Aim**: recommended **diagonal corner mount** — the frame cuts across the room covering **the main equipment area and the entrance** — the entrance ensures members are identified on arrival, the equipment area drives occupancy stats
 - **Lens options**: if the standard lens doesn't cover the area (deep rooms / wider views needed), the NE503 supports **custom wider-FOV lenses** — contact CamThink for an on-site assessment
 - **Avoid**: strong backlight from windows; pillars or pendant lights occluding key equipment
-- **Night**: confirm lighting stays on; NE503 supports IR, but face recognition works best with visible light
+- **Night**: confirm lighting stays on; NE503 supports IR, but recognition works best with visible light
 
 ![Mounting position: one ceiling-mounted NE503 covering the entrance and main equipment zones](/img/solutions/smart-gym/mounting-position-en.svg)
 
@@ -38,8 +38,8 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
-| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
-| 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
+| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/ReID inference |
+| 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose inference, dashboards & reports |
 | 3 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 4 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
@@ -235,7 +235,7 @@ device:
 
 ![Extension config: UI language and privacy options](/img/solutions/smart-gym/extension-config.webp)
 
-*Extension config: UI language (English default), face-mosaic default, Save Reload*
+*Extension config: UI language (English default), privacy-mosaic default, Save Reload*
 
 **UI language**: extension dashboards default to English; set `ui.language: zh` in the extension config for Chinese.
 
@@ -347,10 +347,10 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 **How to operate**:
 
-- **Member enrollment (face)**: have the member walk naturally in front of the camera for 1–3s (1–3m, facing the lens) → the "unidentified person" card appears → fill in name / phone → save; they are auto-recognized afterwards (profile, side and lowered-head angles all work). Bulk photo enrollment is available via CamThink
-- **Read reports**: pick a member → per-session details (equipment, exercise, sets × reps), workout history (by day / last N days), exercise analysis, equipment split, visit log; the channel status shows "face + body ReID dual channel" or "body ReID only (face pending)"
+- **Member enrollment (passive)**: have the member walk naturally in front of the camera for 1–3s (1–3m works best) → the "unidentified person" card appears → fill in name / phone → save; they are auto-recognized afterwards. Bulk enrollment is available via CamThink
+- **Read reports**: pick a member → per-session details (equipment, exercise, sets × reps), workout history (by day / last N days), exercise analysis, equipment split, visit log; the recognition channel status is shown on the card
 - **Member management**: rename; use "merge" to fold a repeat enrollment / outfit change into one member; deleting a member removes their features and visit history (with confirmation)
-- Privacy: only irreversible face **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
+- Privacy: only anonymous **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
 
 <div style={{ display: 'flex', justifyContent: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/57-members.webp" alt="Member visits: last 7 days per-member visits and duration" style={{ maxWidth: '85%', height: 'auto' }} />
