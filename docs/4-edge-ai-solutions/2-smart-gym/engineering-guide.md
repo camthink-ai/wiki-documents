@@ -74,9 +74,23 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 #### 4.1.1 相机上线(物理安装后)
 
-1. 相机 PoE 供电,等约 2 分钟完成启动
-2. 从路由器后台(或 CamThink 发现工具)找到相机 IP
-3. 浏览器访问 `https://&lt;相机IP&gt;`(自签证书,点击"继续前往")——出现相机 Web 界面即上线成功
+**接口与连线**——网线从机身的 PoE 网口接入(下图接口标注,侧一 / 侧二),另一端接入客户侧 PoE 交换机或注入器:
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+  <div style={{ flex: '1', minWidth: '220px' }}>
+    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-1.png" alt="NE503 接口板接口标注(侧一)" style={{ width: '100%', height: 'auto' }} />
+  </div>
+  <div style={{ flex: '1', minWidth: '220px' }}>
+    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-2.png" alt="NE503 接口板接口标注(侧二)" style={{ width: '100%', height: 'auto' }} />
+  </div>
+</div>
+
+**上线步骤:**
+
+1. 网线一端插入相机 PoE 网口,听到卡扣到位声;另一端接客户侧 PoE 交换机 / 注入器
+2. 等约 2 分钟完成启动(蓝色状态灯常亮)
+3. 从路由器后台(或 CamThink 发现工具)找到相机 IP
+4. 浏览器访问 `https://&lt;相机IP&gt;`(自签证书,点击"继续前往")——出现相机 Web 界面即上线成功
 
 #### 4.1.2 初始安全设置
 
@@ -91,7 +105,9 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 #### 4.1.4 一键安装应用
 
-在任一同网段电脑上(需 curl + python3,Mac/Linux/Windows+WSL 均可):
+**应用包在哪里:**即 BOM 第 3 项的健身房安装包 `gym-suite-&lt;版本&gt;.tar.gz`——由 CamThink 随订单交付,先拷贝到任一**与相机同网段**的电脑上(需已装 curl + python3,Mac/Linux/Windows+WSL 均可),然后在该电脑的终端里执行:
+
+**操作步骤:**解压安装包 → 进入目录 → 运行脚本(按提示输入相机 IP 与 4.1.2 设置的新密码):
 
 ```bash
 tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0

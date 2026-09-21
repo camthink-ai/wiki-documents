@@ -72,9 +72,23 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 #### 4.1.1 Bring the Camera Online (after physical install)
 
-1. Power the camera via PoE and wait ~2 minutes for boot
-2. Find the camera IP from the router (or the CamThink discovery tool)
-3. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
+**Port & cabling** — plug the Ethernet cable into the PoE port on the camera body (interface annotations below, side 1 / side 2); the other end goes into the customer-side PoE switch or injector:
+
+<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+  <div style={{ flex: '1', minWidth: '220px' }}>
+    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-1.png" alt="NE503 interface board annotation (side 1)" style={{ width: '100%', height: 'auto' }} />
+  </div>
+  <div style={{ flex: '1', minWidth: '220px' }}>
+    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-2.png" alt="NE503 interface board annotation (side 2)" style={{ width: '100%', height: 'auto' }} />
+  </div>
+</div>
+
+**Bring-online steps:**
+
+1. Plug one end of the cable into the camera's PoE port until the clip clicks; the other end goes to the customer-side PoE switch / injector
+2. Power the camera via PoE and wait ~2 minutes for boot
+3. Find the camera IP from the router (or the CamThink discovery tool)
+4. Browse to `https://&lt;camera-ip&gt;` (self-signed cert — click "proceed") — the camera web UI confirms it is online
 
 #### 4.1.2 Initial Security Setup
 
@@ -89,7 +103,9 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 #### 4.1.4 One-Command App Install
 
-On any laptop on the same network (requires curl + python3 — Mac/Linux/Windows+WSL all work):
+**Where is the package:** it is the smart gym installer `gym-suite-&lt;version&gt;.tar.gz` from BOM item 3 — delivered by CamThink with the order. Copy it to any laptop **on the same network as the camera** (requires curl + python3 — Mac/Linux/Windows+WSL all work), then in that laptop's terminal:
+
+**How to run:** extract the package → enter the folder → run the script (enter the camera IP and the new password set in 4.1.2 when prompted):
 
 ```bash
 tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
