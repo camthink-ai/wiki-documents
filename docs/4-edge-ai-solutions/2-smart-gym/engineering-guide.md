@@ -133,6 +133,30 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 
 脚本幂等——重复执行为覆盖升级,不影响会员数据。
 
+#### 4.1.4a 底层原理:一键脚本做了什么(可选阅读)
+
+`camera-install.sh` 的每一步都是调用相机原生的 REST API——无需 SSH,无需手动 Docker 命令。理解原理有助于排障或自定义:
+
+| 步骤 | REST API | 说明 |
+|---|---|---|
+| 登录 | `POST /api/login` | 获取 Bearer Token |
+| 检查固件 | `GET /api/v1/system/ota/status` | 确认 ≥ v1.0.2 |
+| 上传模型 | `POST /api/v1/files/upload` | HEF 文件 → `/data/aipc-data/gym-hefs/` |
+| 上传镜像 | `POST /api/v1/apps/upload-image` | 容器 tar → `/data/aipc/images/` |
+| 上传清单 | `POST /api/v1/apps/upload-manifest` | app.yaml → `/data/aipc/apps/manifests/` |
+| 安装应用 | `POST /api/v1/apps/install-package` | 镜像导入 containerd + 清单注册 |
+| 启动应用 | `POST /api/v1/apps/gym-native/start` | 创建容器并运行 |
+
+**应用是什么:** 一个 OCI 容器镜像(内含 gym-native C++ 二进制 + 启动脚本),由相机的 app-manager 服务管理生命周期(启动/停止/重启/日志)。容器通过清单声明的卷挂载访问 NPU(`/dev/h1x`)、视频流(`/run/aipc`)和模型文件。
+
+**自愈能力(内置,无需配置):**
+
+| 故障 | 系统行为 | 恢复时间 |
+|---|---|---|
+| 视频流闪断 | 自动重连 | 秒级 |
+| 断流超 30 秒 | 应用自动重启(内置看门狗) | 约 2 分钟 |
+| 相机断电重启 | 应用自启动,数据不丢 | 约 30 秒 |
+
 #### 4.1.5 应用管理(Web 界面)
 
 安装后可在相机 Web → **应用** 页管理:

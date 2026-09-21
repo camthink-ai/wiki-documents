@@ -131,6 +131,30 @@ Install OK! Producer running: stats: 19.8 fps
 
 The script is idempotent — re-running performs an overwrite upgrade without touching member data.
 
+#### Under the Hood: What the One-Command Script Does (optional reading)
+
+Every step in `camera-install.sh` calls the camera's native REST API — no SSH, no manual Docker commands. Understanding this helps with troubleshooting and customization:
+
+| Step | REST API | What it does |
+|---|---|---|
+| Login | `POST /api/login` | obtains a Bearer token |
+| Check firmware | `GET /api/v1/system/ota/status` | confirms >= v1.0.2 |
+| Upload models | `POST /api/v1/files/upload` | HEF files -> `/data/aipc-data/gym-hefs/` |
+| Upload image | `POST /api/v1/apps/upload-image` | container tar -> `/data/aipc/images/` |
+| Upload manifest | `POST /api/v1/apps/upload-manifest` | app.yaml -> `/data/aipc/apps/manifests/` |
+| Install | `POST /api/v1/apps/install-package` | imports image into containerd + registers manifest |
+| Start | `POST /api/v1/apps/gym-native/start` | creates and runs the container |
+
+**What is the app:** an OCI container image (containing the gym-native C++ binary and an entrypoint script), managed by the camera's app-manager service (start/stop/restart/logs). The container accesses the NPU (`/dev/h1x`), video streams (`/run/aipc`), and model files through volumes declared in the manifest.
+
+**Built-in self-healing (no configuration needed):**
+
+| Fault | System behavior | Recovery |
+|---|---|---|
+| Stream hiccup | auto-reconnect | seconds |
+| Stream dead >30s | app auto-restarts (built-in watchdog) | ~2 min |
+| Camera power cycle | app auto-starts, data preserved | ~30s |
+
 #### 4.1.5 App Management (web UI)
 
 After installation, manage the app from camera web → **Apps**:
