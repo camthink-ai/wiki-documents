@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="570" viewBox="0 0 880 570" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs><marker id="axarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F24A00"/></marker></defs>
   <!-- room -->
   <rect x="50" y="70" width="780" height="400" rx="4" fill="#FAFAFB" stroke="#1C1E21" stroke-width="2.5"/>
   <!-- diagonal FOV wedge from top-left corner -->
@@ -9,6 +10,8 @@
   <circle cx="110" cy="140" r="15" fill="#1C1E21"/>
   <circle cx="110" cy="140" r="6" fill="#F24A00"/>
   <text x="140" y="112" font-size="13.5" font-weight="700" fill="#1C1E21">NE503 斜对角顶装 · 高度 2.5~3.5m · 俯角 15~30°</text>
+  <line x1="150" y1="160" x2="806" y2="380" stroke="#F24A00" stroke-width="2" stroke-dasharray="10 7" marker-end="url(#axarrow)"/>
+  <text x="250" y="182" font-size="11" fill="#C2410C">主视轴对准入口</text>
   <!-- glare window top-right -->
   <rect x="560" y="64" width="120" height="12" fill="#BFE3FF" stroke="#93C5FD"/>
   <text x="620" y="110" text-anchor="middle" font-size="11.5" fill="#2563EB">强逆光窗户 · FOV 避开</text>
@@ -40,6 +43,8 @@
   <line x1="830" y1="330" x2="830" y2="340" stroke="#1C1E21" stroke-width="2.5"/>
   <line x1="830" y1="450" x2="830" y2="470" stroke="#1C1E21" stroke-width="2.5"/>
   <line x1="830" y1="340" x2="830" y2="450" stroke="#1C1E21" stroke-width="2" stroke-dasharray="8 5"/>
+  <line x1="830" y1="340" x2="772" y2="340" stroke="#1C1E21" stroke-width="2"/>
+  <path d="M772,340 A62,62 0 0 1 830,402" fill="none" stroke="#1C1E21" stroke-width="1.2" stroke-dasharray="4 3"/>
   <text x="812" y="312" text-anchor="end" font-size="12.5" font-weight="700" fill="#C2410C">入口 · 进场即识别</text>
   <text x="812" y="294" text-anchor="end" font-size="10.5" fill="#6B7280">3s 驻留去抖,过滤路过人员</text>
   <!-- legend strip -->
