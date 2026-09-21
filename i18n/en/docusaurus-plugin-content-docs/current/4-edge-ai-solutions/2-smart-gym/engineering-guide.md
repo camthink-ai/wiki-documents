@@ -29,6 +29,8 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 - **Avoid**: strong backlight from windows; pillars or pendant lights occluding key equipment
 - **Night**: confirm lighting stays on; NE503 supports IR, but face recognition works best with visible light
 
+![Mounting position: one ceiling-mounted NE503 covering the entrance and main equipment zones](/img/solutions/smart-gym/mounting-position-en.svg)
+
 **Install verification**: before locking the bracket, check the live preview in the camera web UI — far-side members are recognizable (full skeletons), the entrance is in frame, no major occlusion.
 
 ## 2. Bill of Materials
