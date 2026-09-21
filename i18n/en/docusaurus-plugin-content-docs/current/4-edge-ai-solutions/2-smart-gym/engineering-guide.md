@@ -70,6 +70,11 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 ### 4.1 Deploy the Gym Application on the NE503
 
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/official-site/ne503/ne503.png" alt="NeoEyes NE503 edge AI camera" style={{ maxWidth: '46%', height: 'auto' }} />
+</div>
+
 #### 4.1.1 Bring the Camera Online (after physical install)
 
 **Port & cabling** — plug the Ethernet cable into the PoE port on the camera body; the other end goes into the customer-side PoE switch or injector:

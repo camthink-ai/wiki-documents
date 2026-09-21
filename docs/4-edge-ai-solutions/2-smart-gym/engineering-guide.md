@@ -72,6 +72,11 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 ### 4.1 NE503 相机部署健身房应用
 
+
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/official-site/ne503/ne503.png" alt="NeoEyes NE503 边缘 AI 相机" style={{ maxWidth: '46%', height: 'auto' }} />
+</div>
+
 #### 4.1.1 相机上线(物理安装后)
 
 **接口与连线**——网线从机身的 PoE 网口接入,另一端接入客户侧 PoE 交换机或注入器:
