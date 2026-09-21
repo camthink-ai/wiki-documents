@@ -283,9 +283,11 @@ NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可�
 | 变量 | 说明 |
 |------|------|
 | `NEOMIND_DATA_DIR` | 数据目录（redb、扩展、备份等；默认 `./data` 或平台数据目录） |
+| `NEOMIND_STRICT_DATA_DIR` | 设为任意非空值：禁用旧版 cwd `data/` 回退探测，数据位置完全由 `NEOMIND_DATA_DIR` 决定（容器 / 多实例 / 测试环境推荐常设；见[故障排查 — DATA-DIR SPLIT](./10-troubleshooting.md#启动日志出现-data-dir-split-横幅)） |
 | `NEOMIND_PORT` / `--port` | HTTP API 端口（默认 9375） |
 | `NEOMIND_HOST` | 监听地址（默认 0.0.0.0） |
 | `NEOMIND_WEB_DIR` | 前端静态文件目录（默认 `/var/www/neomind`） |
+| `NEOMIND_TELEMETRY_CACHE_MB` | 遥测 redb 页缓存上限（默认 256 MB，小内存设备可调低） |
 | `NEOMIND_LOG_JSON` / `RUST_LOG` | 日志格式与级别 |
 
 **HTTPS 内置加密代理（0.9.21+）**
@@ -318,10 +320,11 @@ NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可�
 | `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | 扩展市场源覆盖 |
 | `NEOMIND_STRICT_PACKAGE_SHA256` | 设为 1 时拒绝无校验和的扩展包 |
 | `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | 扩展进程工作线程与 FFI 超时 |
+| `NEOMIND_WASM_MEMORY_MB` / `NEOMIND_WASM_FUEL` / `NEOMIND_WASM_MAX_SIZE_MB` | WASM 扩展沙箱三层资源上限：线性内存（默认 256 MB）/ CPU fuel（默认 1,000,000）/ 模块大小（默认 50 MB） |
 | `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | 会话签名与静态加密密钥（默认自动生成于 data/） |
 | `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | 备份计划初始值（设置页保存后以设置为准） |
 
-> 完整清单以源码为准（`grep -r 'env::var' crates/`）；上表为部署运维常用子集。
+> 完整清单以源码为准（`grep -r 'env::var' crates/`），主仓库 [`docs/configuration.md`](https://github.com/camthink-ai/NeoMind/blob/main/docs/configuration.md) 是随代码维护的镜像参考；上表为部署运维常用子集。
 
 ## 生产部署检查清单
 

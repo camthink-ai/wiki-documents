@@ -170,7 +170,7 @@ const config = {
             // 外链统一带 wiki 来源标识（与 src/utils/utm.cjs 的参数保持一致）
             href: 'https://www.camthink.ai/?utm_source=wiki&utm_medium=referral&utm_content=navbar',
             position: 'right',
-            label: 'Home',
+            label: 'Website',
             className: 'home-button'
           },
           {
@@ -179,7 +179,7 @@ const config = {
             label: 'Store',
             className: 'store-button'
           },
-          { href: 'https://github.com/camthink-ai?utm_source=wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub' },
+          { href: 'https://github.com/camthink-ai?utm_source=wiki&utm_medium=referral&utm_content=navbar', position: 'right', label: 'GitHub', className: 'github-button' },
           { type: 'localeDropdown', position: 'right' },
         ],
       },

@@ -208,7 +208,7 @@ For detailed agent configuration, see [AI Agent](./6-ai-agent.md). For automatio
 
   For example, once you mention "machine #3 is the air compressor on the east side of the shop floor", the AI will remember that alias in every future session. The memory files can also be inspected and cleaned up in system settings.
 - **IM bridges (0.9.14+)**: Beyond the web UI, you can chat with the same agents directly in **Telegram / Feishu** (once an IM Bridge is configured in the system); this is a separate feature from the Telegram/Feishu [notification channels](./8-notifications.md) — notifications are one-way alert pushes, while IM bridges are two-way conversation.
-- **History persistence**: sessions are stored in `sessions.redb`; restarting the server won't lose them.
+- **History persistence**: sessions are stored in `sessions.redb`; restarting the server won't lose them. Long sessions open with only the most recent page and load older messages on demand as you scroll up.
 - **Auto title**: the first message of a new session automatically becomes the session title for easy identification in the list.
 
 ## Mobile

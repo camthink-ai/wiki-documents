@@ -72,7 +72,7 @@ module.exports = {
    */
   solutionCases: [
     { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition/solution-description' },
-    { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym' },
+    { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym/solution-description' },
   ],
 
   /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */

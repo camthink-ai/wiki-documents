@@ -27,26 +27,26 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Build Path ================= */}
   <h2 className="docs-section-title">From Unboxing to First Deployment</h2>
   <div className="build-path-grid">
-    <Link to="#solutions" className="build-step">
+    <a href="#solutions" className="build-step">
       <h3>Solutions</h3>
       <p>Find a complete reference for your scenario — architecture, BOM and build steps included.</p>
       <span className="step-link">Browse solutions →</span>
-    </Link>
-    <Link to="#products" className="build-step">
+    </a>
+    <a href="#products" className="build-step">
       <h3>Hardware</h3>
       <p>Five AI cameras and an edge host — selection, specs and quick starts.</p>
       <span className="step-link">See products →</span>
-    </Link>
-    <Link to="#oss" className="build-step">
+    </a>
+    <a href="#oss" className="build-step">
       <h3>Firmware &amp; SDKs</h3>
       <p>Open-source firmware, SDKs, schematics and datasheets — downloadable per product.</p>
       <span className="step-link">Get the resources →</span>
-    </Link>
-    <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
+    </a>
+    <a href="/docs/neomind/quick-start/five-minute-guide" className="build-step">
       <h3>NeoMind</h3>
       <p>Install the platform, onboard devices, run local inference and integrate your business.</p>
       <span className="step-link">NeoMind in 5 minutes →</span>
-    </Link>
+    </a>
   </div>
 
   {/* ================= Edge AI Solutions ================= */}

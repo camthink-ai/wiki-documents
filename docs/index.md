@@ -27,26 +27,26 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Build Path ================= */}
   <h2 className="docs-section-title">从开箱到首次部署</h2>
   <div className="build-path-grid">
-    <Link to="#solutions" className="build-step">
+    <a href="#solutions" className="build-step">
       <h3>解决方案</h3>
       <p>按场景找完整参考：架构、清单与搭建步骤，照着做即可落地。</p>
       <span className="step-link">浏览解决方案 →</span>
-    </Link>
-    <Link to="#products" className="build-step">
+    </a>
+    <a href="#products" className="build-step">
       <h3>硬件</h3>
       <p>五款 AI 相机与边缘计算主机的选型、规格与快速入门。</p>
       <span className="step-link">查看产品入口 →</span>
-    </Link>
-    <Link to="#oss" className="build-step">
+    </a>
+    <a href="#oss" className="build-step">
       <h3>固件与 SDK</h3>
       <p>开源固件、SDK、原理图与数据表，按产品直接下载。</p>
       <span className="step-link">获取开源资源 →</span>
-    </Link>
-    <Link to="/docs/neomind/quick-start/five-minute-guide" className="build-step">
+    </a>
+    <a href="/docs/neomind/quick-start/five-minute-guide" className="build-step">
       <h3>NeoMind</h3>
       <p>安装平台、接入设备、本地识别，并把数据对接到业务系统。</p>
       <span className="step-link">NeoMind 五分钟入门 →</span>
-    </Link>
+    </a>
   </div>
 
   {/* ================= Edge AI Solutions ================= */}

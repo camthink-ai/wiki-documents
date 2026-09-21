@@ -283,9 +283,11 @@ Commonly used runtime variables (grouped by purpose, all verified against source
 | Variable | Description |
 |------|------|
 | `NEOMIND_DATA_DIR` | Data directory (redb, extensions, backups; default `./data` or the platform data dir) |
+| `NEOMIND_STRICT_DATA_DIR` | Any non-empty value: disables the legacy cwd `data/` fallback probe — data location is decided solely by `NEOMIND_DATA_DIR` (recommended for containers, multi-instance, and test setups; see [Troubleshooting — DATA-DIR SPLIT](./10-troubleshooting.md#startup-log-shows-a-data-dir-split-banner)) |
 | `NEOMIND_PORT` / `--port` | HTTP API port (default 9375) |
 | `NEOMIND_HOST` | Bind address (default 0.0.0.0) |
 | `NEOMIND_WEB_DIR` | Frontend static directory (default `/var/www/neomind`) |
+| `NEOMIND_TELEMETRY_CACHE_MB` | Telemetry redb page-cache cap (default 256 MB; lower it on small-memory devices) |
 | `NEOMIND_LOG_JSON` / `RUST_LOG` | Log format and level |
 
 **Built-in HTTPS proxy (0.9.21+)**
@@ -318,10 +320,11 @@ The built-in proxy suits single-box HTTPS enablement; all clients share one rate
 | `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | Marketplace source override |
 | `NEOMIND_STRICT_PACKAGE_SHA256` | Set to 1 to reject packages without a checksum |
 | `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | Extension process workers and FFI timeout |
+| `NEOMIND_WASM_MEMORY_MB` / `NEOMIND_WASM_FUEL` / `NEOMIND_WASM_MAX_SIZE_MB` | Three-layer WASM sandbox limits: linear memory (default 256 MB) / CPU fuel (default 1,000,000) / module size (default 50 MB) |
 | `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | Session signing and at-rest encryption keys (auto-generated under data/ by default) |
 | `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | Backup schedule seeds (settings win once saved) |
 
-> The full list is authoritative in the source (`grep -r 'env::var' crates/`); the table above is the operations-relevant subset.
+> The full list is authoritative in the source (`grep -r 'env::var' crates/`); the main repo's [`docs/configuration.md`](https://github.com/camthink-ai/NeoMind/blob/main/docs/configuration.md) is the code-maintained mirror reference. The table above is the operations-relevant subset.
 
 ## Production Checklist
 

@@ -89,6 +89,16 @@ sudo chown -R $USER:$USER /var/lib/neomind
 sudo chmod -R u+rwX /var/lib/neomind
 ```
 
+### Startup log shows a DATA-DIR SPLIT banner
+
+**Cause**: both the `NEOMIND_DATA_DIR` location and a legacy cwd `data/` exist, and some store files ended up in the legacy spot — data is split across two directory trees. The banner lists the affected stores.
+
+**Fix**:
+
+1. Stop the server and move the `.redb` files the banner lists from the old `data/` into `NEOMIND_DATA_DIR` (a plain file move, no conversion);
+2. Restart and confirm the banner is gone;
+3. For containers, multi-instance, and test setups, set `NEOMIND_STRICT_DATA_DIR` permanently — it disables the legacy fallback probe entirely.
+
 ## LLM / Ollama
 
 ### AI Chat doesn't respond / spinner forever

@@ -92,6 +92,16 @@ sudo chown -R $USER:$USER /var/lib/neomind
 sudo chmod -R u+rwX /var/lib/neomind
 ```
 
+### 启动日志出现 DATA-DIR SPLIT 横幅
+
+**原因**：`NEOMIND_DATA_DIR` 指向的目录与工作目录下的旧版 `data/` 同时存在，部分存储文件落在了旧位置——数据"分裂"在两棵目录树里，横幅会列出受影响的存储文件。
+
+**修复**：
+
+1. 停止服务，把横幅列出的旧 `data/` 中的 `.redb` 文件移入 `NEOMIND_DATA_DIR`（纯文件搬移，无需转换）；
+2. 重启并确认横幅消失；
+3. 容器、多实例与测试环境建议常设 `NEOMIND_STRICT_DATA_DIR`，彻底禁用旧目录回退探测，数据位置完全确定。
+
 ## LLM / Ollama
 
 > 相关页面：[配置 LLM 后端](./2-configure-llm.md)（后端类型、内置模型、思考力度）。
