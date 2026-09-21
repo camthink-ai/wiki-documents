@@ -425,3 +425,8 @@ ul.menu__list > li.theme-doc-sidebar-item-link-level-1 > a.menu__link {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* —— 顶部导航:隐藏外链小图标(视觉降噪) —— */
+.navbar .iconExternalLink_nPIU {
+  display: none;
+}
