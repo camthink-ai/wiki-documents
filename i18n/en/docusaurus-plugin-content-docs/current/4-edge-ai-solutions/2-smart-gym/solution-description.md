@@ -19,13 +19,13 @@ Gyms don't lack cameras — they lack the intelligence that lets cameras "unders
 
 The idea: **one camera + one platform, turning workouts into structured data.**
 
-Deploy a single CamThink **NeoEyes NE503** edge AI camera (Hailo-15H, 20 TOPS NPU) overhead to cover a mid-size training area of 10–20 people. The camera runs four models concurrently on-device — person detection, 17-keypoint pose, face detection and face features — handling member identification and trajectory tracking; the **gym-tracker extension** on the **NeoMind platform** takes care of member library matching, equipment zone detection, rep counting and training report generation.
+Deploy a single CamThink **NeoEyes NE503** edge AI camera (Hailo-15H, 20 TOPS NPU) overhead to cover a mid-size training area of 10–20 people. The camera runs four models concurrently on-device — person detection, 17-keypoint pose estimation and body re-identification (ReID) — handling member identification and trajectory tracking; the **gym-tracker extension** on the **NeoMind platform** takes care of member library matching, equipment zone detection, rep counting and training report generation.
 
-The entire analysis runs on-premises: data stays on the NeoMind host and never passes through third-party clouds. Members participate only as face feature vectors — no raw footage is stored — balancing intelligence with privacy compliance.
+The entire analysis runs on-premises: data stays on the NeoMind host and never passes through third-party clouds. Members participate only as anonymous feature vectors — no raw footage is stored — balancing intelligence with privacy compliance.
 
 ## Workflow
 
-1. **Member identification** — face features are matched against the member library to recognize returning members automatically; new faces are auto-enrolled, with details filled in later
+1. **Member identification** — passive body-feature based recognition, returning members are recognized automatically; new visitors are auto-enrolled, with details filled in later
 2. **Trajectory tracking** — ByteTrack multi-object tracking outputs stable IDs and foot-point coordinates, covering the whole floor with a single camera
 3. **Zone & equipment analytics** — foot points hit pre-defined equipment zones (with 3-second dwell debouncing that filters passers-by) to determine when equipment use starts and ends
 4. **Movement recognition & counting** — pose keypoints combined with a joint-angle state machine recognize and count exercises such as squats, bench presses, biceps curls and rows, judging whether the range of motion is sufficient
@@ -35,7 +35,7 @@ The entire analysis runs on-premises: data stays on the NeoMind host and never p
 
 - **Single-camera coverage**: 10–20 people in a mid-size gym with one NE503 — no multi-camera handoff
 - **Four models on-device**: 20 TOPS NPU local inference with zero cloud dependency and low-latency output
-- **Privacy first**: only face feature vectors are stored, never raw footage; training data stays on the gym's local host
+- **Privacy first**: only anonymous feature vectors are stored, never raw footage; training data stays on the gym's local host
 - **Cable-free retrofit**: PoE single-cable power and data, IP67 rated for humid environments — install and go
 - **Visual ROI editing**: rectangle, polygon and lasso tools to define equipment zones; changes take effect immediately
 - **Auto enrollment**: unknown visitors are automatically enrolled as profiles for admins to complete later
