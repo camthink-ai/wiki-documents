@@ -72,15 +72,10 @@ Work in this order: platform first, then the extension bound to the camera, then
 
 #### 4.1.1 Bring the Camera Online (after physical install)
 
-**Port & cabling** — plug the Ethernet cable into the PoE port on the camera body (interface annotations below, side 1 / side 2); the other end goes into the customer-side PoE switch or injector:
+**Port & cabling** — plug the Ethernet cable into the PoE port on the camera body; the other end goes into the customer-side PoE switch or injector:
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-  <div style={{ flex: '1', minWidth: '220px' }}>
-    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-1.png" alt="NE503 interface board annotation (side 1)" style={{ width: '100%', height: 'auto' }} />
-  </div>
-  <div style={{ flex: '1', minWidth: '220px' }}>
-    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-2.png" alt="NE503 interface board annotation (side 2)" style={{ width: '100%', height: 'auto' }} />
-  </div>
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/official-site/ne503/ne503.png" alt="NeoEyes NE503 whole device" style={{ maxWidth: '62%', height: 'auto' }} />
 </div>
 
 **Bring-online steps:**

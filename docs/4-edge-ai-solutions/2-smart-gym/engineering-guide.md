@@ -74,15 +74,10 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 #### 4.1.1 相机上线(物理安装后)
 
-**接口与连线**——网线从机身的 PoE 网口接入(下图接口标注,侧一 / 侧二),另一端接入客户侧 PoE 交换机或注入器:
+**接口与连线**——网线从机身的 PoE 网口接入,另一端接入客户侧 PoE 交换机或注入器:
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-  <div style={{ flex: '1', minWidth: '220px' }}>
-    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-1.png" alt="NE503 接口板接口标注(侧一)" style={{ width: '100%', height: 'auto' }} />
-  </div>
-  <div style={{ flex: '1', minWidth: '220px' }}>
-    <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/hardware-guide/aipc-board-connection/interface-board-annotation-2.png" alt="NE503 接口板接口标注(侧二)" style={{ width: '100%', height: 'auto' }} />
-  </div>
+<div style={{ display: 'flex', justifyContent: 'center' }}>
+  <img src="https://resources.camthink.ai/official-site/ne503/ne503.png" alt="NeoEyes NE503 整机" style={{ maxWidth: '62%', height: 'auto' }} />
 </div>
 
 **上线步骤:**
