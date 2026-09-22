@@ -493,7 +493,8 @@
   },
   "homepage.community.github": {
     "message": "Open-source firmware, sample code and issue tracking"
-  },    "homepage.community.contact": {
+  },
+  "homepage.community.contact": {
     "message": "Product consultation and business cooperation"
   },
   "carousel.ne302.title": {
@@ -622,17 +623,8 @@
   "homepage.latest.title": {
     "message": "What's New"
   },
-  "latest.ne302.title": {
-    "message": "NeoEyes NE302 Documentation"
-  },
-  "latest.hef.title": {
-    "message": "NE503 model training & HEF conversion"
-  },
   "homepage.hero.cta.docs": {
     "message": "Documentation Hub"
-  },
-  "latest.resources.title": {
-    "message": "NE503 Resources"
   },
   "latest.faq.title": {
     "message": "NE503 Troubleshooting FAQ"
@@ -674,5 +666,17 @@
   },
   "footer.item.neomind": {
     "message": "NeoMind Platform"
+  },
+  "latest.gym.title": {
+    "message": "Smart Gym Solution"
+  },
+  "latest.water.title": {
+    "message": "Water Meter Reading Solution"
+  },
+  "latest.aitoolstack.title": {
+    "message": "AI Tool Stack"
+  },
+  "latest.releasenotes.title": {
+    "message": "NeoMind Release Notes"
   }
 }

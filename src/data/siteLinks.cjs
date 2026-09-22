@@ -77,11 +77,11 @@ module.exports = {
 
   /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */
   latest: {
-    // 该页 slug 即 /docs/neoeyes-ne503-series/application-guide/，充当应用指南落地页
-    ne503Resources: '/docs/neoeyes-ne503-series/application-guide/',
+    gymSolution: '/docs/edge-ai-solutions/smart-gym/solution-description',
+    waterSolution: '/docs/edge-ai-solutions/water-meter-recognition/solution-description',
+    aitoolstack: '/docs/software/ai-tool-stack/overview',
     ne503Faq: '/docs/neoeyes-ne503-series/troubleshooting',
-    ne302Docs: '/docs/neoeyes-ne302-series/ne302-overview',
-    ne503Hef: '/docs/neoeyes-ne503-series/application-guide/model-training-and-hef',
+    releaseNotes: '/docs/neomind/product-overview/release-notes',
   },
 
   community: {
