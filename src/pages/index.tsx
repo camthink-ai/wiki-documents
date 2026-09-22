@@ -56,25 +56,26 @@ const USE_CASES = [
 const LATEST_DOCS = [
     {
         badge: 'NEW',
-        title: <Translate id="latest.resources.title">NE503 Resources</Translate>,
-        date: '2026-08-26',
-        url: LINKS.latest.ne503Resources,
+        title: <Translate id="latest.gym.title">智慧健身房方案</Translate>,
+        url: LINKS.latest.gymSolution,
+    },
+    {
+        badge: 'NEW',
+        title: <Translate id="latest.water.title">水表自动抄读方案</Translate>,
+        url: LINKS.latest.waterSolution,
+    },
+    {
+        title: <Translate id="latest.aitoolstack.title">AI Tool Stack 工具链</Translate>,
+        url: LINKS.latest.aitoolstack,
     },
     {
         badge: 'NEW',
         title: <Translate id="latest.faq.title">NE503 故障排查 FAQ</Translate>,
-        date: '2026-08-19',
         url: LINKS.latest.ne503Faq,
     },
     {
-        title: <Translate id="latest.ne302.title">NeoEyes NE302 文档</Translate>,
-        date: '2026-08-14',
-        url: LINKS.latest.ne302Docs,
-    },
-    {
-        title: <Translate id="latest.hef.title">NE503 模型训练与 HEF 转换</Translate>,
-        date: '2026-07-21',
-        url: LINKS.latest.ne503Hef,
+        title: <Translate id="latest.releasenotes.title">NeoMind Release Notes</Translate>,
+        url: LINKS.latest.releaseNotes,
     },
 ];
 
