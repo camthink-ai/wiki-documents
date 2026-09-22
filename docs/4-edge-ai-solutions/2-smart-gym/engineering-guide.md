@@ -121,10 +121,9 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 |---|---|---|
 | 1 | 登录相机 API | 1 秒内 |
 | 2 | 检查固件版本 | 1 秒内 |
-| 3 | 上传模型(姿态 S/M 双档 HEF) | ~10s |
-| 4 | 上传并安装应用容器镜像 | ~15s |
-| 5 | 启动应用 | ~2s |
-| 6 | 健康检查(等待视频流 + 帧率统计) | ~40s |
+| 3 | 上传并安装应用镜像(自带姿态 S/M 双档模型,无需单独上传) | ~30s |
+| 4 | 启动应用 | ~2s |
+| 5 | 健康检查(等待视频流 + 帧率统计) | ~40s |
 
 成功标志:
 
@@ -142,8 +141,7 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 |---|---|---|
 | 登录 | `POST /api/login` | 获取 Bearer Token |
 | 检查固件 | `GET /api/v1/system/ota/status` | 确认 ≥ v1.0.2 |
-| 上传模型 | `POST /api/v1/files/upload` | HEF 文件 → `/data/aipc-data/gym-hefs/` |
-| 上传镜像 | `POST /api/v1/apps/upload-image` | 容器 tar → `/data/aipc/images/` |
+| 上传镜像 | `POST /api/v1/apps/upload-image` | 自包含容器 tar(二进制 + 姿态模型)→ 导入 containerd |
 | 上传清单 | `POST /api/v1/apps/upload-manifest` | app.yaml → `/data/aipc/apps/manifests/` |
 | 安装应用 | `POST /api/v1/apps/install-package` | 镜像导入 containerd + 清单注册 |
 | 启动应用 | `POST /api/v1/apps/gym-native/start` | 创建容器并运行 |
