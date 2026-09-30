@@ -213,7 +213,7 @@ docker compose logs -f neomind    # 看到 "listening on 0.0.0.0:9375" 即就绪
 **方式二:一键安装脚本**
 
 ```bash
-curl -fsSL https://get.neomind.camthink.ai | sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
 **首次配置:**
