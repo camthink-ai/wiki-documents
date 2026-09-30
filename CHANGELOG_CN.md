@@ -6,6 +6,15 @@
 
 > 本更新日志自 **2025-12-23** 起开始记录，此前的历史变更未作追溯。
 
+## [2026-09-30]
+
+### 变更
+- **NeoEyes NE503 文档同步 NeoRuntime v1.1.0（应用与模型）**: 应用安装向导按 v1.1.0 分区导航结构（Registry Image / Basic Info / Resources / Models / Permissions / Advanced，Form/YAML 切换）重写，新增模型依赖区说明（别名注入 `AIPC_MODEL_<别名>`、QPS/并发上限、动态模型注册）；模型导入改为 Upload → Parse → Configure 三步向导，支持 AMPK `.bin` 包元数据预填，并注明后处理配置错误不再静默忽略、注册失败自动回滚；CPU 配额支持 `0.5` / `50%` 两种输入格式（中英文完整支持）。
+- **NeoEyes NE503 文档同步 NeoRuntime v1.1.0（视频与图像）**: 修正「不提供 ONVIF 自动发现」的过时表述——设备内置 ONVIF Profile S 服务，全新设备默认关闭、按需 `systemctl enable --now onvif-device` 启用，升级设备保留原启用状态；新增昼夜模式（Auto/Day/Night 阈值）章节和镜头预置位（Presets）说明，注明 IR-Cut 随昼夜模式自动切换（中英文完整支持）。
+- **NeoEyes NE503 软件部署页**: 发布包名由 `aipc-hailo15-` 修正为 `neoruntime-hailo15-`（v1.0.2 起实际命名），补充发布包 OS 兼容范围核对（v1.1.0 要求 OS 1.12.0）及 /data 空间占用说明（硬链接降低峰值但不自动清理历史文件）（中英文完整支持）。
+- **NeoEyes NE503 安全加固页**: 端口表新增按需暴露的 ONVIF 端口（TCP 8081 / UDP 3702）；应用权限表按 v1.1.0 向导结构重写（模型权限移至 Models 区、设备控制配置暂隐藏）（中英文完整支持）。
+- **NeoEyes NE503 用户手册配图**: 应用管理、Media、Overlay、改密对话框等 4 张历史截图与向导、模型列表、昼夜模式、镜头控制、权限区等 7 张新功能截图全部在 v1.1.0 实机（Build 20260929）重新采集并上传 CDN（中英文完整支持）。
+
 ## [2026-09-09]
 
 ### 变更

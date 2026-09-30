@@ -40,6 +40,7 @@ Rotate the static API key in production and update integrations. Treat tokens li
 |:--|:--|:--|
 | `:443` | Web / REST API | Operations subnet only |
 | `:8554` | RTSP | Video consumers only; no authentication |
+| `:8081` TCP / `:3702` UDP | ONVIF (disabled by default; exposed when onvif-device is enabled) | When using ONVIF, allow the NVR / VMS subnet only |
 | `:22` | SSH | Restrict source IPs; block when unused |
 
 Keep the device on an intranet or VLAN; never port-forward it directly to the internet. For remote access, use a VPN or an authenticated internal proxy.
@@ -49,19 +50,17 @@ Keep the device on an intranet or VLAN; never port-forward it directly to the in
 
 Grant only permissions required by the app:
 
-Path: **Applications → Import → Permissions**.
+Path: the **Applications → Import** wizard. Model access is configured in the wizard's **Models** section; stream, event, and network permissions are configured in the **Permissions** section.
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '8px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/qs-apps-permissions-top.png" alt="Upper part of the Application Setup Wizard Permissions page" style={{ flex: '1 1 300px', maxWidth: '48%', borderRadius: '6px' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/qs-apps-permissions-bottom.png" alt="Lower part of the Application Setup Wizard Permissions page" style={{ flex: '1 1 300px', maxWidth: '48%', borderRadius: '6px' }} />
-</div>
+![App wizard permissions](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/app-wizard-permissions.png)
 
-| Permission | Principle |
-|:--|:--|
-| AI Models Access | Select required models; set QPS / concurrency limits |
-| Video Stream Permissions | Select required streams only |
-| Event Permissions | Select required publish / subscribe topics only |
-| Network Mode | Keep **Isolated Mode** unless **Host** is required |
-| Device controls | Grant light, IR Cut, PTZ, and lens control individually |
+| Section | Permission | Principle |
+|:--|:--|:--|
+| Models | Model Dependencies | Declare only the model aliases the app actually calls; set Max Inference QPS / Max Concurrent Inference limits; keep Allow Dynamic Model Registration off unless required |
+| Permissions | Video Stream Permissions | Select required streams only |
+| Permissions | Event Permissions | Select required publish / subscribe topics only |
+| Permissions | Network Mode | Keep **Isolated Mode** unless **Host** is required |
+
+> Device-control permission settings are temporarily hidden in the v1.1.0 import wizard.
 
 Install only self-built images or packages released by the official [neoruntime-apps](https://github.com/camthink-ai/neoruntime-apps) repository, and verify the source and version.

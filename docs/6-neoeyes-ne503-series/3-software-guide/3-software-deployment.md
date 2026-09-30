@@ -10,13 +10,14 @@ tags: [应用指南, NE503, 软件部署, 运维]
 
 ## 1. 准备发布包
 
-从 [neoruntime Releases](https://github.com/camthink-ai/neoruntime/releases) 下载 `aipc-hailo15-<version>.tar.gz`。
+从 [neoruntime Releases](https://github.com/camthink-ai/neoruntime/releases) 下载 `neoruntime-hailo15-<version>.tar.gz`。
 
 开始前确认：
 
 - 目标设备为 NE503，Web 控制台或 SSH 可用。
 - 网页升级使用管理员账号；SSH 部署需要 `root` 权限。
-- `/data` 可写且空间足够：`df -h /data`。
+- 发布包内置 OS 兼容范围（如 v1.1.0 要求 OS 1.12.0），在 `Settings → Device Info` 核对 `System OS Version` 是否匹配。
+- `/data` 可写且空间足够：`df -h /data`。发布包解压、部署暂存和回滚备份都会占用空间；v1.1.0 起部署对不可变发布文件改用硬链接，降低升级期间的峰值占用，但不会自动清理历史升级文件。
 - 记录当前 `Firmware Version`，升级期间保持供电和网络稳定。
 
 ## 2. 通过网页升级
@@ -29,7 +30,7 @@ tags: [应用指南, NE503, 软件部署, 运维]
 
    ![平台软件升级窗口](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/software-guide/software-deployment/software-upgrade.jpg)
 
-4. 上传一个 `aipc-hailo15-<version>.tar.gz` 文件。
+4. 上传一个 `neoruntime-hailo15-<version>.tar.gz` 文件。
 5. 确认供电稳定，勾选 `I understand and wish to continue with the upgrade`，点击 `Confirm Update`。
 6. 等待上传、写入和重启完成。期间不要刷新页面、重复点击或断电。
 7. 设备重新上线后重新登录，在 `Firmware Version` 中确认目标版本。
@@ -41,11 +42,11 @@ tags: [应用指南, NE503, 软件部署, 运维]
 网页不可用或需要命令行部署时，执行 `deploy.sh`：
 
 ```bash
-scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/data/
+scp build/release/neoruntime-hailo15-<version>.tar.gz root@<device-ip>:/data/
 ssh root@<device-ip>
 cd /data
-tar xzf aipc-hailo15-<version>.tar.gz
-cd aipc-hailo15-<version>
+tar xzf neoruntime-hailo15-<version>.tar.gz
+cd neoruntime-hailo15-<version>
 ./deploy.sh
 ```
 

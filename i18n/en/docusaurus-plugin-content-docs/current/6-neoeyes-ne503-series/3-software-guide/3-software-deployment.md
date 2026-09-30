@@ -10,13 +10,14 @@ This page covers installation and upgrade of the NE503 platform software release
 
 ## 1. Prepare the Release Package
 
-Download `aipc-hailo15-<version>.tar.gz` from [neoruntime Releases](https://github.com/camthink-ai/neoruntime/releases).
+Download `neoruntime-hailo15-<version>.tar.gz` from [neoruntime Releases](https://github.com/camthink-ai/neoruntime/releases).
 
 Before starting, confirm that:
 
 - The target is an NE503 device and the Web console or SSH is available.
 - Web upgrade uses an administrator account; SSH deployment requires `root` privileges.
-- `/data` is writable and has enough space: `df -h /data`.
+- The release package embeds an OS compatibility range (for example, v1.1.0 requires OS 1.12.0). Verify `System OS Version` under `Settings → Device Info`.
+- `/data` is writable and has enough space: `df -h /data`. Package extraction, deployment staging, and rollback backups all consume space. Since v1.1.0, deployment uses hard links for immutable release files to reduce peak usage, but historical upgrade files are not cleaned automatically.
 - Record the current `Firmware Version`. Keep power and network connectivity stable during the upgrade.
 
 ## 2. Upgrade Through the Web Console
@@ -29,7 +30,7 @@ Use this method when the device is running and reachable through the Web console
 
    ![Firmware Update dialog](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/software-guide/software-deployment/software-upgrade.jpg)
 
-4. Upload one `aipc-hailo15-<version>.tar.gz` file.
+4. Upload one `neoruntime-hailo15-<version>.tar.gz` file.
 5. Confirm that power is stable, select `I understand and wish to continue with the upgrade`, and click `Confirm Update`.
 6. Wait for upload, writing, and reboot to finish. Do not refresh the page, click again, or cut power.
 7. After the device comes back online, sign in again and verify `Firmware Version`.
@@ -41,11 +42,11 @@ Use this method when the device is running and reachable through the Web console
 Use `deploy.sh` when the Web entry is unavailable or command-line deployment is required:
 
 ```bash
-scp build/release/aipc-hailo15-<version>.tar.gz root@<device-ip>:/data/
+scp build/release/neoruntime-hailo15-<version>.tar.gz root@<device-ip>:/data/
 ssh root@<device-ip>
 cd /data
-tar xzf aipc-hailo15-<version>.tar.gz
-cd aipc-hailo15-<version>
+tar xzf neoruntime-hailo15-<version>.tar.gz
+cd neoruntime-hailo15-<version>
 ./deploy.sh
 ```
 
