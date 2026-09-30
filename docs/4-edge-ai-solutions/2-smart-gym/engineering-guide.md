@@ -28,7 +28,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 - **朝向**:推荐**斜对角顶装**,画面斜穿全场,同时覆盖**主要器械区 + 入口**——入口保证会员进场即识别,器械区保证占用统计
 - **镜头定制**:标准镜头覆盖不全时(大进深 / 需要更宽视野),NE503 支持**定制更大视场角镜头**,可联系 CamThink 评估现场适配
 - **避让**:不要正对强逆光窗户;避免立柱、吊灯遮挡主要器械区
-- **夜间**:确认现场灯光常亮;NE503 支持红外模式,但人脸识别建议保持可见光照明
+- **夜间**:确认现场灯光常亮;NE503 支持红外模式,识别建议保持可见光照明
 
 ![安装位置示意:单台 NE503 顶装,视野覆盖入口与主要器械区](/img/solutions/smart-gym/mounting-position.svg)
 
@@ -38,8 +38,8 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 
 | # | 采购项 | 型号 / 规格 | 数量 | 用途 |
 |---|---|---|---|---|
-| 1 | [**NE503 AI 相机**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p 双码流 | 每区域 1 台 | 姿态/人脸/重识别端侧推理 |
-| 2 | **NeoMind 平台**(部署在客户电脑或 NE503) | Docker 镜像,含 gym-tracker 扩展 | 1 套 | 设备接入、姿态/人脸识别、仪表板与训练报告 |
+| 1 | [**NE503 AI 相机**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p 双码流 | 每区域 1 台 | 姿态/重识别端侧推理 |
+| 2 | **NeoMind 平台**(部署在客户电脑或 NE503) | Docker 镜像,含 gym-tracker 扩展 | 1 套 | 设备接入、姿态识别、仪表板与训练报告 |
 | 3 | 健身房安装包 | `gym-suite-<版本>.tar.gz`(向 CamThink 获取) | 1 套 | 一键安装(含应用镜像、模型、手册) |
 | 4 | 网线 | Cat5e 以上 | 按需 | 相机 PoE 供电与数据回传 |
 
@@ -111,7 +111,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 **操作步骤:**解压安装包 → 进入目录 → 运行脚本(按提示输入相机 IP 与 4.1.2 设置的新密码):
 
 ```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+tar xzf gym-suite-1.1.0.tar.gz && cd gym-suite-1.1.0
 ./camera-install.sh <相机IP> <4.1.2 设置的新密码>
 ```
 
@@ -121,10 +121,9 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 |---|---|---|
 | 1 | 登录相机 API | 1 秒内 |
 | 2 | 检查固件版本 | 1 秒内 |
-| 3 | 上传模型(姿态 S/M 双档 HEF) | ~10s |
-| 4 | 上传并安装应用容器镜像 | ~15s |
-| 5 | 启动应用 | ~2s |
-| 6 | 健康检查(等待视频流 + 帧率统计) | ~40s |
+| 3 | 上传并安装应用镜像(自带姿态 S/M 双档模型,无需单独上传) | ~30s |
+| 4 | 启动应用 | ~2s |
+| 5 | 健康检查(等待视频流 + 帧率统计) | ~40s |
 
 成功标志:
 
@@ -134,6 +133,34 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 
 脚本幂等——重复执行为覆盖升级,不影响会员数据。
 
+**在线安装(相机可上外网时可选):** 免拷贝安装包,相机通过安装向导直接从 Docker Hub 拉取官方镜像(`camthink/gym-native`):
+
+```bash
+cd gym-suite-1.1.0/publish
+./install-remote.sh <相机IP> <密码> detect    # 与离线安装等效,免上传 tar
+```
+
+**纯在线安装(连安装包都没有时):** 镜像在 Docker Hub 公开可拉,两条 curl 即可完成安装。以单机形态为例(推荐,一条命令装完整个系统):
+
+```bash
+# 1. 登录取 token
+TOK=$(curl -sk -X POST https://<相机IP>/api/login -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"<密码>"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["token"])')
+
+# 2. 提交安装向导(相机直接从 Docker Hub 拉镜像,1~3 分钟)
+curl -sk -X POST https://<相机IP>/api/v1/apps/wizard -H "Authorization: $TOK" \
+  -H "Content-Type: application/json" -d '{
+  "metadata":{"id":"gym-neomind","name":"Gym NeoMind All-in-One","version":"1.0.4"},
+  "image":"camthink/gym-neomind:1.0.4",
+  "resources":{"cpu":"150%","memory":"1500Mi"},
+  "volumes":[{"host":"/data/aipc-data/gym-neomind","container":"/app/data"}],
+  "permissions":{"network":{"mode":"host"}},
+  "env":[{"name":"GYM_LEAN_TRACK","value":"1"}],
+  "restart_policy":"on-failure","restart_max_retries":10,"autostart":true}'
+```
+
+装完浏览器访问 `http://<相机IP>:9375`(登录凭据在容器日志 `gym-bootstrap` 段)。分离形态的检测应用同理,把 `image` 换成 `camthink/gym-native:0.2.31` 并带上完整 env/卷声明——参数较多,建议直接用上面套件里的 `install-remote.sh detect`。
+
 #### 4.1.4a 底层原理:一键脚本做了什么(可选阅读)
 
 `camera-install.sh` 的每一步都是调用相机原生的 REST API——无需 SSH,无需手动 Docker 命令。理解原理有助于排障或自定义:
@@ -142,8 +169,7 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 |---|---|---|
 | 登录 | `POST /api/login` | 获取 Bearer Token |
 | 检查固件 | `GET /api/v1/system/ota/status` | 确认 ≥ v1.0.2 |
-| 上传模型 | `POST /api/v1/files/upload` | HEF 文件 → `/data/aipc-data/gym-hefs/` |
-| 上传镜像 | `POST /api/v1/apps/upload-image` | 容器 tar → `/data/aipc/images/` |
+| 上传镜像 | `POST /api/v1/apps/upload-image` | 自包含容器 tar(二进制 + 姿态模型)→ 导入 containerd |
 | 上传清单 | `POST /api/v1/apps/upload-manifest` | app.yaml → `/data/aipc/apps/manifests/` |
 | 安装应用 | `POST /api/v1/apps/install-package` | 镜像导入 containerd + 清单注册 |
 | 启动应用 | `POST /api/v1/apps/gym-native/start` | 创建容器并运行 |
@@ -167,6 +193,26 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 - **停止/启动**:一键操作,无需 SSH
 - **卸载**:移除应用(模型文件保留)
 
+### 4.1B 单机形态(可选):一台相机 = 一套系统
+
+交付包内的 `singlebox/install-singlebox.sh` 可把 **NeoMind 平台 + 健身房扩展直接装进相机**(一个自举容器,首次启动自动完成管理员创建、扩展安装、相机绑定与看板创建),无需任何额外硬件:
+
+```bash
+cd gym-suite-1.1.0
+./camera-install.sh <相机IP> <密码>          # 第 1 步照旧:检测应用
+./singlebox/install-singlebox.sh <相机IP> <密码>  # 第 2 步:整套装进相机
+```
+
+完成后浏览器访问 `http://<相机IP>:9375`(登录凭据见脚本输出)。**逻辑与分离形态完全一致**(同一检测应用、同一平台、同一扩展、同一数据流,仅 WSS 由局域网变为回环),区别只是平台运行在相机内:
+
+| | 分离形态(4.2/4.3) | 单机形态 |
+|---|---|---|
+| 额外硬件 | 边缘盒(Linux/Mac) | 无 |
+| 适用 | 多相机、7×24 生产 | 单相机、演示、小型场馆 |
+| 相机资源占用 | 仅检测 | 检测 + 平台(实测余量 ~6GB 内存) |
+
+单机形态同样支持**在线安装**:相机联网时 `./publish/install-remote.sh <相机IP> <密码> singlebox` 直接拉取一体镜像(`camthink/gym-neomind:1.0.4`),凭据输出与访问入口与离线安装一致。
+
 ### 4.2 安装 NeoMind 平台(客户电脑或 NE503)
 
 NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker 环境,4GB+ 内存),也可直接**部署在 NE503 上**。
@@ -178,7 +224,7 @@ NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker �
 docker --version
 
 # 2. 使用安装包内的编排文件(或从 NeoMind 仓库获取)
-cd gym-suite-1.0.0/edge/
+cd gym-suite-1.1.0/edge/
 docker compose up -d
 
 # 3. 等待首次拉取镜像与启动(约 1~2 分钟)
@@ -188,7 +234,7 @@ docker compose logs -f neomind    # 看到 "listening on 0.0.0.0:9375" 即就绪
 **方式二:一键安装脚本**
 
 ```bash
-curl -fsSL https://get.neomind.camthink.ai | sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
 **首次配置:**
@@ -236,7 +282,7 @@ device:
 
 ![扩展配置:界面语言与隐私选项](/img/solutions/smart-gym/extension-config.webp)
 
-*扩展配置页:界面语言(默认英文)、人脸打码默认开关,Save Reload 生效*
+*扩展配置页:界面语言(默认英文)、画面打码默认开关,Save Reload 生效*
 
 **界面语言:** 扩展看板默认英文;在扩展配置 `ui.language: zh` 可切中文。
 
@@ -256,7 +302,7 @@ device:
 ### 4.5 数据存储与展示
 
 - **会员库 / 区域配置 / 训练记录**:存于 NeoMind 主机数据卷,每日自动备份;相机侧无持久业务数据,换相机重跑安装脚本即可
-- **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频
+- **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频。Chrome / Edge / Safari 16.4+ 通过 WebCodecs 硬解 H.264,30fps 原始流;无 WebCodecs 的旧内核浏览器自动回退为相机端彩色 JPEG 预览(约 12fps)——画面帧率差异通常来自浏览器而非系统
 - **仪表板**:建议三块——在场人数与占用总览、器械区域利用率热力、会员训练报告入口;搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
 
 ![健身房看板:实时监控与器械占用](/img/solutions/smart-gym/dashboard-top.webp)
@@ -348,10 +394,10 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 **怎么操作**:
 
-- **会员录入(人脸)**:会员在镜头前自然走动 1\~3 秒(1\~3m,正脸最佳)→ 看板"未识别人员"卡片出现 → 填写姓名 / 手机号 → 保存;此后每次入镜自动识别(注册过正脸,侧脸 / 低头角度亦可)。批量照片导入请联系 CamThink 开通
-- **查看报告**:选择会员 → 单次训练明细(器械、动作、组·次)、健身历史(按天 / 近 N 天)、动作分析、器械分布、到店记录;识别通道状态显示"人脸 + 人体 ReID 双通道"或"人体 ReID 识别中(人脸样本待采集)"
+- **会员录入(无感识别)**:会员在镜头前自然走动 1\~3 秒(1\~3m 效果最佳)→ 看板"未识别人员"卡片出现 → 填写姓名 / 手机号 → 保存;此后每次入镜自动识别。批量导入请联系 CamThink 开通
+- **查看报告**:选择会员 → 单次训练明细(器械、动作、组·次)、健身历史(按天 / 近 N 天)、动作分析、器械分布、到店记录;识别通道状态以看板显示为准
 - **会员管理**:改名;同一人换装 / 重复录入用"并入"合并到店与特征;删除会员将一并移除其特征与到店历史(有二次确认)
-- 隐私说明:系统仅保存人脸**特征向量**(不可逆),不存原始画面;匿名访客不计入统计
+- 隐私说明:系统仅保存匿名**特征向量**(不可逆),不存原始画面;匿名访客不计入统计
 
 <div style={{ display: 'flex', justifyContent: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/57-members.webp" alt="会员到访列表:最近 7 天各会员到店次数与时长" style={{ maxWidth: '85%', height: 'auto' }} />
@@ -369,9 +415,15 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 ### 5.8 轨迹与热力图(Trails / Heat)
 
-**解决什么**:会员动线与区域热度——器械布局与动线优化的依据。
+**解决什么**:会员动线与区域热度——回答"会员都在哪些区域活动、什么时段最密集",是器械布局调整、动线优化与新器材采购的数据依据。
 
-**怎么操作**:轨迹卡以蓝线绘制最近轨迹,支持回看与按天切换,拖到时间轴最右即实时;热力卡按样本密度呈现区域热度并标注今日峰值。足迹日志自启用起累积。
+**怎么操作**:
+
+- **轨迹卡**:以蓝线在场馆画面上绘制会员最近动线("蓝线 = 最近轨迹");`实时 / 回看` 切换,回看模式支持"前一天 / 后一天"翻看历史动线;把时间轴拖到最右即回到实时
+- **热力卡**:按样本密度呈现区域热度,色标从"低"到"高",并标注今日峰值时段;切换日期可对比不同时段的热度分布
+- **数据来源**:足迹日志自扩展启用起持续累积;某时段没有足迹会明确提示"该时段没有足迹记录"
+
+**业务用法**:高峰时段热力集中在少数器械 → 考虑增购或调整布局;自由训练区长期低热 → 优化空间利用;动线交叉密集处注意安全隐患。
 
 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="轨迹卡片:最近动线蓝线与回看" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
@@ -404,6 +456,8 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 | 视频卡顿 | 检查带宽与网络;确认子码流 |
 | 相机完全失联 | 检查 PoE 供电;物理重启相机 |
 | 需要看日志 | 相机 Web → 日志 → gym-native |
+| 服务重启后检测长时间无输出 | 重启相机(Web → 系统,或 `POST /api/v1/system/restart`)——NPU 服务偶发未随启动 | 
+| 相机上有旧 gym-bridge 应用 | 停止并在其 manifest 中将 `autostart` 改为 `false`(看门狗恢复脚本可能重新拉起它) |
 
 相机所有运维操作走 HTTPS API(无需 SSH),日志关键字速查:
 
@@ -415,16 +469,16 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 ### 6.3 升级
 
-- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢)
+- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢);相机联网时也可用 `publish/install-remote.sh` 在线拉取新版镜像,与离线升级等效
 - **固件升级**:相机 Web → 系统升级 → 上传固件包(约 10 分钟,已装应用自动保留)
 
 ## 7. 性能与规格
 
 | 指标 | 数值 |
 |---|---|
-| 检测帧率 | 约 20fps(720p 子码流,2×2 切图轮转) |
+| 检测帧率 | 约 25fps(720p 子码流,2×2 切图轮转) |
 | 全场刷新周期 | 约 200ms |
-| 人脸识别响应 | 1 秒内 |
+| 身份识别响应 | 1 秒内 |
 | 单相机覆盖 | 10~20 人中型场馆 |
 | 自愈恢复 | 断流约 2 分钟;断电约 30 秒 |
 | 每相机带宽 | 视频 2~4Mbps + 事件流低于 100KB/s |

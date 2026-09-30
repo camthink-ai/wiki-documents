@@ -59,6 +59,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NE101 + NeoMind 本地 OCR：旧表不改，读数自动入库，全量留痕可回溯。</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/smart-gym/solution-description" className="solution-card">
+      <img src="/img/solutions/smart-gym/dashboard-demo.webp" alt="智慧健身房方案" />
+      <div className="sol-body">
+        <div className="sol-title">智慧健身房 <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NE503 无感识别 + 本地分析：器械占用、训练报告，数据不出场馆。</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}

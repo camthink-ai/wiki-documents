@@ -1715,9 +1715,13 @@
 /* ================= LATEST DOCS ================= */
 .latest-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.25rem;
     margin-top: 2.5rem;
+}
+
+.latest-card {
+    height: 100%;
 }
 
 .latest-card {

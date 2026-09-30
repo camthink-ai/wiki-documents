@@ -59,6 +59,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NE101 + NeoMind local OCR: keep existing meters, auto-ingest readings, full photo audit trail.</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/smart-gym/solution-description" className="solution-card">
+      <img src="/img/solutions/smart-gym/dashboard-demo.webp" alt="Smart Gym solution" />
+      <div className="sol-body">
+        <div className="sol-title">Smart Gym <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NE503 passive recognition + local analytics: equipment occupancy and training reports, data stays on-premises.</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}

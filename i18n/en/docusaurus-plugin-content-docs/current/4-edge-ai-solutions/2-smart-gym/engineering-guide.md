@@ -28,7 +28,7 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 - **Aim**: recommended **diagonal corner mount** — the frame cuts across the room covering **the main equipment area and the entrance** — the entrance ensures members are identified on arrival, the equipment area drives occupancy stats
 - **Lens options**: if the standard lens doesn't cover the area (deep rooms / wider views needed), the NE503 supports **custom wider-FOV lenses** — contact CamThink for an on-site assessment
 - **Avoid**: strong backlight from windows; pillars or pendant lights occluding key equipment
-- **Night**: confirm lighting stays on; NE503 supports IR, but face recognition works best with visible light
+- **Night**: confirm lighting stays on; NE503 supports IR, but recognition works best with visible light
 
 ![Mounting position: one ceiling-mounted NE503 covering the entrance and main equipment zones](/img/solutions/smart-gym/mounting-position-en.svg)
 
@@ -38,8 +38,8 @@ Typical sites are **mid-size gyms, personal-training studios, and hotel/apartmen
 
 | # | Item | Model / Spec | Qty | Purpose |
 |---|---|---|---|---|
-| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/face/ReID inference |
-| 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose/face inference, dashboards & reports |
+| 1 | [**NE503 AI camera**](https://www.camthink.ai/product/neoeyes-503/) | Hailo-15H 20 TOPS・PoE・4K+720p dual streams | 1 per zone | on-device pose/ReID inference |
+| 2 | **NeoMind platform** (on the customer PC or the NE503) | Docker deployment, incl. gym-tracker extension | 1 set | device onboarding, pose inference, dashboards & reports |
 | 3 | Gym installer package | `gym-suite-<version>.tar.gz` (from CamThink) | 1 | one-command install (image, models, manual) |
 | 4 | Ethernet cables | Cat5e or better | as needed | camera PoE power + data uplink |
 
@@ -109,7 +109,7 @@ Work in this order: platform first, then the extension bound to the camera, then
 **How to run:** extract the package → enter the folder → run the script (enter the camera IP and the new password set in 4.1.2 when prompted):
 
 ```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+tar xzf gym-suite-1.1.0.tar.gz && cd gym-suite-1.1.0
 ./camera-install.sh <camera-ip> <the new password from 4.1.2>
 ```
 
@@ -131,6 +131,34 @@ Install OK! Producer running: stats: 19.8 fps
 ```
 
 The script is idempotent — re-running performs an overwrite upgrade without touching member data.
+
+**Online install (optional, when the camera has internet):** skip the tarball entirely — the camera's install wizard pulls the official image straight from Docker Hub (`camthink/gym-native`):
+
+```bash
+cd gym-suite-1.1.0/publish
+./install-remote.sh <camera-ip> <password> detect    # equivalent to the offline install, no tar upload
+```
+
+**Fully online install (no installer package at all):** the images are public on Docker Hub, so two curl calls are enough. Single-box form shown (recommended — one command installs the complete system):
+
+```bash
+# 1. Log in and grab a token
+TOK=$(curl -sk -X POST https://<camera-ip>/api/login -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"<password>"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["token"])')
+
+# 2. Submit the install wizard (the camera pulls from Docker Hub, 1-3 min)
+curl -sk -X POST https://<camera-ip>/api/v1/apps/wizard -H "Authorization: $TOK" \
+  -H "Content-Type: application/json" -d '{
+  "metadata":{"id":"gym-neomind","name":"Gym NeoMind All-in-One","version":"1.0.4"},
+  "image":"camthink/gym-neomind:1.0.4",
+  "resources":{"cpu":"150%","memory":"1500Mi"},
+  "volumes":[{"host":"/data/aipc-data/gym-neomind","container":"/app/data"}],
+  "permissions":{"network":{"mode":"host"}},
+  "env":[{"name":"GYM_LEAN_TRACK","value":"1"}],
+  "restart_policy":"on-failure","restart_max_retries":10,"autostart":true}'
+```
+
+When done, browse to `http://<camera-ip>:9375` (credentials are in the container log, `gym-bootstrap` section). The two-box detection app works the same way — swap `image` for `camthink/gym-native:0.2.31` plus the full env/volume spec; since that spec is long, prefer the suite's `install-remote.sh detect`.
 
 #### Under the Hood: What the One-Command Script Does (optional reading)
 
@@ -165,6 +193,26 @@ After installation, manage the app from camera web → **Apps**:
 - **Stop/Start**: one click, no SSH
 - **Uninstall**: removes the app (model files are kept)
 
+### 4.1B Single-Box Form (optional): one camera = one complete system
+
+The installer's `singlebox/install-singlebox.sh` installs the **NeoMind platform + gym extension directly on the camera** (one self-bootstrapping container — first start automatically creates the admin, installs the extension, binds the camera and builds the dashboard). No extra hardware:
+
+```bash
+cd gym-suite-1.1.0
+./camera-install.sh <camera-ip> <password>              # step 1 unchanged: detection app
+./singlebox/install-singlebox.sh <camera-ip> <password> # step 2: the whole stack, on-camera
+```
+
+Then browse to `http://<camera-ip>:9375` (credentials are printed by the script). **Functionally identical to the two-box form** (same detection app, platform, extension and data flow — only WSS moves from LAN to loopback); the difference is just where the platform runs:
+
+| | Two-box (4.2/4.3) | Single-box |
+|---|---|---|
+| Extra hardware | edge box (Linux/Mac) | none |
+| Best for | multi-camera, 7×24 production | single camera, demos, small gyms |
+| Camera load | detection only | detection + platform (~6GB RAM headroom measured) |
+
+The single-box form also supports **online install**: with the camera online, `./publish/install-remote.sh <camera-ip> <password> singlebox` pulls the all-in-one image (`camthink/gym-neomind:1.0.4`) directly; credentials output and entry point are the same as offline.
+
 
 ### 4.2 Install the NeoMind Platform (customer PC or NE503)
 
@@ -177,7 +225,7 @@ NeoMind can run on the **customer's own PC** — any Linux server or Mac mini (D
 docker --version
 
 # 2. Use the compose file from the installer package (or the NeoMind repo)
-cd gym-suite-1.0.0/edge/
+cd gym-suite-1.1.0/edge/
 docker compose up -d
 
 # 3. Wait for the first image pull and startup (~1-2 min)
@@ -187,7 +235,7 @@ docker compose logs -f neomind    # ready when you see "listening on 0.0.0.0:937
 **Option B: One-line install script**
 
 ```bash
-curl -fsSL https://get.neomind.camthink.ai | sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
 **First-time setup:**
@@ -235,7 +283,7 @@ device:
 
 ![Extension config: UI language and privacy options](/img/solutions/smart-gym/extension-config.webp)
 
-*Extension config: UI language (English default), face-mosaic default, Save Reload*
+*Extension config: UI language (English default), privacy-mosaic default, Save Reload*
 
 **UI language**: extension dashboards default to English; set `ui.language: zh` in the extension config for Chinese.
 
@@ -248,14 +296,14 @@ Verify in order; if a link fails, debug that link first:
 1. **Streaming**: camera web → Apps → gym-native shows `stats: xx fps` (≥15) — on-camera inference healthy
 2. **Events**: the platform extension is green with no reconnect alerts — the event stream reaches the platform
 3. **Detection**: walk into frame and wave; skeleton + bbox appear within 1s — the tracking chain works
-4. **Recognition**: face the camera 3s → an "unrecognized person" card appears → register a name → the name shows on the next appearance — the recognition chain works
+4. **Recognition**: walk past the camera naturally → an "unrecognized person" card appears → register a name → the name shows on the next appearance — the recognition chain works
 
 All four green = site acceptance passed.
 
 ### 4.5 Data Storage & Display
 
 - **Member library / zone config / training records**: stored in the NeoMind host data volume, auto-backed up daily; the camera holds no persistent business data — replacing a camera is just a re-install
-- **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video
+- **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video. Chrome / Edge / Safari 16.4+ decode H.264 in hardware via WebCodecs at the native 30fps; older browsers without WebCodecs automatically fall back to a camera-side color JPEG preview (~12fps) — frame-rate differences almost always come from the browser, not the system
 - **Dashboards**: recommended trio — live headcount & occupancy overview, equipment-zone utilization, member training report entry; see [Using Dashboards](/docs/neomind/user-guide/use-dashboard)
 
 ![Smart gym dashboard: live monitoring and equipment occupancy](/img/solutions/smart-gym/dashboard-top.webp)
@@ -347,10 +395,10 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 **How to operate**:
 
-- **Member enrollment (face)**: have the member walk naturally in front of the camera for 1–3s (1–3m, facing the lens) → the "unidentified person" card appears → fill in name / phone → save; they are auto-recognized afterwards (profile, side and lowered-head angles all work). Bulk photo enrollment is available via CamThink
-- **Read reports**: pick a member → per-session details (equipment, exercise, sets × reps), workout history (by day / last N days), exercise analysis, equipment split, visit log; the channel status shows "face + body ReID dual channel" or "body ReID only (face pending)"
+- **Member enrollment (passive)**: have the member walk naturally in front of the camera for 1–3s (1–3m works best) → the "unidentified person" card appears → fill in name / phone → save; they are auto-recognized afterwards. Bulk enrollment is available via CamThink
+- **Read reports**: pick a member → per-session details (equipment, exercise, sets × reps), workout history (by day / last N days), exercise analysis, equipment split, visit log; the recognition channel status is shown on the card
 - **Member management**: rename; use "merge" to fold a repeat enrollment / outfit change into one member; deleting a member removes their features and visit history (with confirmation)
-- Privacy: only irreversible face **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
+- Privacy: only anonymous **feature vectors** are stored, never raw footage; anonymous walk-ins are excluded from stats
 
 <div style={{ display: 'flex', justifyContent: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/57-members.webp" alt="Member visits: last 7 days per-member visits and duration" style={{ maxWidth: '85%', height: 'auto' }} />
@@ -368,9 +416,15 @@ Keep zones small — overlapping equipment zones double-count people standing be
 
 ### 5.8 Trails & Heatmap (Trails / Heat)
 
-**What it solves**: member flow lines and zone heat — the basis for layout and circulation optimization.
+**What it solves**: member flow lines and zone heat — answers "where do members move, when is it densest", the data basis for equipment layout, circulation optimization and new purchases.
 
-**How to operate**: the trails card draws recent trails in blue (blue line = recent trail) with replay and day paging — drag to the right end for live; the heat card renders zone density by sample count and marks today's peak. Footprint logs accumulate from activation.
+**How to operate**:
+
+- **Trails card**: draws members' recent flow lines on the gym view ("blue line = recent trail"); switch `Live / Replay`, page through history with "previous / next day" — drag the timeline to the right end for live
+- **Heat card**: renders zone density by sample count with a low→high color scale and marks today's peak window; switch dates to compare heat distribution across periods
+- **Data source**: footprint logs accumulate from extension activation; empty windows are explicitly flagged ("no footprints in this window")
+
+**Business use**: peak-hour heat concentrated on a few machines → consider adding units or re-layout; a chronically cold free-training area → optimize space utilization; dense crossing flow lines → watch for safety hazards.
 
 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
   <img src="/img/solutions/smart-gym/cards/61-trails.webp" alt="Trails card: recent flow line with replay" style={{ maxWidth: '48%', height: 'auto', objectFit: 'contain' }} />
@@ -403,6 +457,8 @@ Keep zones small — overlapping equipment zones double-count people standing be
 | Video stutter | check bandwidth and network; confirm sub-stream |
 | Camera unreachable | check PoE power; power-cycle the camera |
 | Need logs | camera web → Logs → gym-native |
+| No detection long after a service restart | restart the camera (web → System, or `POST /api/v1/system/restart`) — the NPU service occasionally fails to come up with boot |
+| Legacy `gym-bridge` app present on the camera | stop it and set `autostart: false` in its manifest (a watchdog recovery script may bring it back) |
 
 All camera-side operations go through the HTTPS API (no SSH). Log keyword quick reference:
 
@@ -414,7 +470,7 @@ All camera-side operations go through the HTTPS API (no SSH). Log keyword quick 
 
 ### 6.3 Upgrades
 
-- **App upgrade**: re-run `camera-install.sh` with the new package (overwrite, ~2 min, member data preserved)
+- **App upgrade**: re-run `camera-install.sh` with the new package (overwrite, ~2 min, member data preserved); with the camera online, `publish/install-remote.sh` pulls the new image — equivalent to the offline upgrade
 - **Firmware upgrade**: camera web → System upgrade → upload the package (~10 min; installed apps are preserved)
 
 ## 7. Performance & Specifications
@@ -423,7 +479,7 @@ All camera-side operations go through the HTTPS API (no SSH). Log keyword quick 
 |---|---|
 | Detection frame rate | ~20fps (720p sub-stream, rotating 2×2 tiling) |
 | Full-field refresh | ~200ms |
-| Face recognition latency | within 1s |
+| Identity recognition latency | within 1s |
 | Coverage per camera | 10–20 members, mid-size venue |
 | Self-healing | stream loss \~2 min; power loss \~30s |
 | Bandwidth per camera | video 2–4Mbps + event stream under 100KB/s |
