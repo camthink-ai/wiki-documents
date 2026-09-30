@@ -12,7 +12,7 @@ tags: [User Guide, NE503, Video, Image, RTSP]
 
 Go to the **Media** page: the main area shows the live feed, the toolbar sits above it, and the right-side **Configuration** panel configures streams and RTSP.
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-media.png" />
+![Media page: live view and stream configuration](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-media.png)
 
 ### Toolbar
 
@@ -74,7 +74,19 @@ No error and continuous frames confirm that the stream is available.
 
 ### Connect to an NVR / VMS
 
-NE503 uses RTSP and does not provide ONVIF discovery. Add the device manually:
+NE503 supports two integration methods: ONVIF auto-discovery and manual RTSP.
+
+**Option 1: ONVIF auto-discovery (enable on demand)**
+
+The device ships an ONVIF Profile S service that handles device discovery and stream-URI distribution. ONVIF-capable NVR / VMS platforms such as Milestone and Blue Iris can discover the device automatically; video always flows through RTSP (8554) — the ONVIF service is signalling only.
+
+- Freshly flashed devices have ONVIF **disabled** by default; devices upgraded from older releases keep their previous enabled state.
+- Enable over SSH: `systemctl enable --now onvif-device`; disable: `systemctl disable --now onvif-device`.
+- When enabled, the device exposes UDP 3702 (WS-Discovery) and TCP 8081 (ONVIF SOAP). Restrict them at the firewall before public-network deployment; see [Security Hardening](./7-security-hardening.md).
+
+**Option 2: manual RTSP**
+
+Add the device manually in NVRs that do not use ONVIF:
 
 1. Choose "Add device manually" or "Custom RTSP"
 2. Fill in the RTSP address: `rtsp://<device-ip>:8554/main`
@@ -87,7 +99,19 @@ The **Image** page has **Image / Overlay / Control** sub-tabs. Available lens co
 
 ### Quality and Transform (Image Tab)
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-quality.png" />
+**Day / Night Mode**
+
+Day / Night Mode at the top of the Image tab controls how the camera switches between day and night:
+
+| Mode | Behavior |
+|------|----------|
+| **Auto** | Switches automatically by light thresholds; the enter-night (Enter night ≤) and enter-day (Enter day ≥) thresholds are adjustable by sliders in Auto mode only |
+| **Day** | Fixed daylight profile; IR illumination is off (IR switches disabled) |
+| **Night** | Fixed night profile, used together with IR illumination |
+
+The mode and threshold settings persist across reboots.
+
+![Day/Night Mode settings](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/day-night-mode.png)
 
 Enable **Enable AI ISP** to enhance low-light and high-dynamic-range scenes.
 
@@ -103,7 +127,7 @@ Use Rotation / Flip to match the installation direction, Distortion for wide-ang
 
 In **Overlay**, select the target **Stream**, then configure overlays or masks. Overlays can be dragged on the live feed.
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-overlay.png" />
+![Overlays and privacy masking](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-overlay.png)
 
 **Information Overlays**
 
@@ -115,14 +139,18 @@ Privacy Mask covers a fixed area; AI Auto Mask follows detected targets. They op
 
 ### Lens and IR (Control Tab)
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-control.png" />
+![Lens control and presets](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/lens-control-presets.png)
 
 **Lens Control**
 
-Use Zoom, Focus, and One-shot AF to adjust the lens. Reset to 1.0x returns to minimum zoom; IR-Cut Filter toggles the infrared cut filter.
+Use Zoom, Focus, and One-shot AF to adjust the lens. Reset to 1.0x returns to minimum zoom. Available controls depend on the installed lens: fixed-focus lenses hide motor controls such as Zoom and Focus.
+
+**Presets**
+
+**Save current** stores the current zoom and focus position as a preset; saved presets can be recalled with one click, which suits fixed-point scenarios that repeatedly return to the same field of view. Lens positions and presets persist across reboots.
 
 **IR Light Control**
 
-Near IR and Far IR control short- and long-range fill light and brightness. Adjust them by scene and distance.
+Near IR and Far IR control short- and long-range fill light and brightness. Adjust them by scene and distance; the switches are disabled while Day / Night Mode is **Day**. The IR-cut filter switches automatically with the day/night mode.
 
 Remote app control of lens or IR requires the **Device Control** permission.

@@ -6,6 +6,15 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-09-30]
+
+### Changed
+- **NeoEyes NE503 docs synced with NeoRuntime v1.1.0 (Apps & Models)**: Rewrote the app install wizard for the v1.1.0 section-based layout (Registry Image / Basic Info / Resources / Models / Permissions / Advanced with Form/YAML toggle) and documented the new model dependency section (aliases injected as `AIPC_MODEL_<alias>` environment variables, QPS/concurrency limits, dynamic model registration). Model import is now the Upload → Parse → Configure wizard supporting AMPK `.bin` metadata pre-fill, with a note that postprocess configuration errors are no longer silently ignored and failed registrations roll back automatically. CPU quota accepts both `0.5` and `50%` input formats (full CN/EN support).
+- **NeoEyes NE503 docs synced with NeoRuntime v1.1.0 (Video & Imaging)**: Corrected the outdated "no ONVIF discovery" statement — the device ships an ONVIF Profile S service that is disabled by default on fresh devices (`systemctl enable --now onvif-device` to enable) and keeps its previous enabled state after upgrades. Added Day/Night Mode (Auto/Day/Night thresholds) and lens Presets sections, noting that the IR-cut filter now switches automatically with the day/night mode (full CN/EN support).
+- **NeoEyes NE503 software deployment page**: Corrected the release package name from `aipc-hailo15-` to `neoruntime-hailo15-` (actual naming since v1.0.2), and added the package OS compatibility range check (v1.1.0 requires OS 1.12.0) plus /data space notes (hard links reduce peak usage but historical upgrade files are not cleaned automatically) (full CN/EN support).
+- **NeoEyes NE503 security hardening page**: Added the on-demand ONVIF ports (TCP 8081 / UDP 3702) to the port table; rewrote the app permission table for the v1.1.0 wizard layout (model permissions moved to the Models section, device-control settings temporarily hidden) (full CN/EN support).
+- **NeoEyes NE503 user guide screenshots**: Re-captured all screenshots on a v1.1.0 device (Build 20260929) and uploaded to the CDN — 4 refreshed legacy shots (app management, Media, Overlay, change-password dialog) and 7 new-feature shots (wizards, model list, Day/Night Mode, lens control, permissions) (full CN/EN support).
+
 ## [2026-09-09]
 
 ### Changed

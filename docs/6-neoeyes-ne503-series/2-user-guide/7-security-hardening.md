@@ -40,6 +40,7 @@ passwd
 |:--|:--|:--|
 | `:443` | Web / REST API | 仅允许运维网段 |
 | `:8554` | RTSP | 仅允许视频消费端；无认证 |
+| `:8081` TCP / `:3702` UDP | ONVIF（默认关闭，启用 onvif-device 后暴露） | 使用 ONVIF 对接时仅允许 NVR / VMS 网段 |
 | `:22` | SSH | 限制来源 IP，不使用时封禁 |
 
 设备放在内网或 VLAN，禁止直接映射公网。需要远程访问时使用 VPN 或经过认证的内网代理。
@@ -49,19 +50,17 @@ passwd
 
 安装应用时只授予实际需要的权限：
 
-路径：**Applications → Import → Permissions**。
+路径：**Applications → Import** 向导。模型访问权限在向导的 **Models** 区配置，码流、事件和网络权限在 **Permissions** 区配置。
 
-<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '8px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/qs-apps-permissions-top.png" alt="Application Setup Wizard 的 Permissions 页面上部" style={{ flex: '1 1 300px', maxWidth: '48%', borderRadius: '6px' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/qs-apps-permissions-bottom.png" alt="Application Setup Wizard 的 Permissions 页面下部" style={{ flex: '1 1 300px', maxWidth: '48%', borderRadius: '6px' }} />
-</div>
+![应用向导权限配置](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/security-hardening/app-wizard-permissions.png)
 
-| 权限 | 原则 |
-|:--|:--|
-| AI Models Access | 只选实际调用的模型，并设置 QPS / 并发上限 |
-| Video Stream Permissions | 只选实际读取的码流 |
-| Event Permissions | 只选需要发布或订阅的主题 |
-| Network Mode | 默认 **Isolated Mode**；确需访问外部服务时再评估 **Host** |
-| Device controls | 按需授予灯光、IR Cut、PTZ、镜头控制 |
+| 配置区 | 权限 | 原则 |
+|:--|:--|:--|
+| Models | Model Dependencies | 只声明应用实际调用的模型别名；设置 Max Inference QPS / Max Concurrent Inference 上限；非必要时关闭 Allow Dynamic Model Registration |
+| Permissions | Video Stream Permissions | 只选实际读取的码流 |
+| Permissions | Event Permissions | 只选需要发布或订阅的主题 |
+| Permissions | Network Mode | 默认 **Isolated Mode**；确需访问外部服务时再评估 **Host** |
+
+> 设备控制权限配置在 v1.1.0 的导入向导中暂时隐藏。
 
 只安装自建镜像或官方 [neoruntime-apps](https://github.com/camthink-ai/neoruntime-apps) 发布的包，并核对来源和版本。

@@ -12,7 +12,7 @@ tags: [用户指南, NE503, 视频, 图像, RTSP]
 
 进入 **Media** 页面：主区域是实时画面，上方是工具栏，右侧 **Configuration** 面板配置码流与 RTSP。
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-media.png" />
+![Media 页面：实时画面与码流配置](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-media.png)
 
 ### 工具栏
 
@@ -74,7 +74,19 @@ ffmpeg -rtsp_transport tcp -i "rtsp://<设备IP>:8554/main" -t 10 -f null -
 
 ### 接入 NVR / VMS
 
-NE503 使用 RTSP 对接，不提供 ONVIF 自动发现。在 NVR 中手动添加：
+NE503 支持两种对接方式：ONVIF 自动发现和手动添加 RTSP。
+
+**方式一：ONVIF 自动发现（按需启用）**
+
+设备内置 ONVIF Profile S 服务，负责设备发现和取流地址分发，Milestone、Blue Iris 等支持 ONVIF 的 NVR / VMS 可自动发现设备；视频流始终走 RTSP（8554），ONVIF 服务只处理信令。
+
+- 全新刷机设备默认**不启用** ONVIF；从旧版本升级、此前已启用过的设备会保留启用状态。
+- 通过 SSH 启用：`systemctl enable --now onvif-device`；关闭：`systemctl disable --now onvif-device`。
+- 启用后设备暴露 UDP 3702（WS-Discovery）和 TCP 8081（ONVIF SOAP），公网部署前先在防火墙限制，见[安全加固](./7-security-hardening.md)。
+
+**方式二：手动添加 RTSP**
+
+在不使用 ONVIF 的 NVR 中手动添加：
 
 1. 选择「手动添加设备」或「自定义 RTSP」
 2. 填写 RTSP 地址：`rtsp://<设备IP>:8554/main`
@@ -87,7 +99,19 @@ NE503 使用 RTSP 对接，不提供 ONVIF 自动发现。在 NVR 中手动添�
 
 ### 画质与变换（Image 标签）
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-quality.png" />
+**昼夜模式（Day / Night Mode）**
+
+Image 标签顶部的 Day / Night Mode 决定昼夜切换方式：
+
+| 模式 | 行为 |
+|------|------|
+| **Auto** | 按光敏阈值自动切换；进入夜间阈值（Enter night ≤）和回到日间阈值（Enter day ≥）在滑块中调整，仅在 Auto 下可调 |
+| **Day** | 固定日间 profile，不使用红外补光（IR 补光开关禁用） |
+| **Night** | 固定夜间 profile，配合红外补光使用 |
+
+模式与阈值配置持久化保存，设备重启后保留。
+
+![昼夜模式设置](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/day-night-mode.png)
 
 开启 **Enable AI ISP** 可增强弱光和高动态场景。
 
@@ -103,7 +127,7 @@ Rotation / Flip 按安装方向调整；Distortion 用于广角畸变校正；Gr
 
 在 **Overlay** 中选择 **Stream**，再配置叠加或遮罩。叠加可在预览画面中拖动。
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-overlay.png" />
+![叠加层与隐私遮罩](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-overlay.png)
 
 **信息叠加**
 
@@ -115,14 +139,18 @@ Privacy Mask 遮挡固定区域；AI Auto Mask 跟随目标遮挡。两者相互
 
 ### 镜头与红外（Control 标签）
 
-<img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/qs-image-control.png" />
+![镜头控制与预置位](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/lens-control-presets.png)
 
 **镜头控制**
 
-Zoom、Focus 和 One-shot AF 用于调整镜头；Reset to 1.0x 恢复最小倍率；IR-Cut Filter 切换红外滤光片。
+Zoom、Focus 和 One-shot AF 用于调整镜头；Reset to 1.0x 恢复最小倍率。控件随镜头配置变化，定焦镜头自动隐藏 Zoom、Focus 等电机控制项。
+
+**预置位（Presets）**
+
+**Save current** 将当前镜头的变焦和对焦位置保存为预置位，已保存的预置位可一键恢复，适合固定点位等需要反复回到同一视场角的场景。镜头位置与预置位持久化保存，设备重启后保留。
 
 **红外补光（IR Light Control）**
 
-Near IR 和 Far IR 分别控制近、远距离红外补光及亮度，按场景和距离调整。
+Near IR 和 Far IR 分别控制近、远距离红外补光及亮度，按场景和距离调整；昼夜模式处于 **Day** 时补光开关禁用。红外滤光片（IR-Cut）随昼夜模式自动切换。
 
 应用远程控制镜头或红外时，需要授予 **Device Control** 权限。
