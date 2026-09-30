@@ -140,6 +140,27 @@ cd gym-suite-1.1.0/publish
 ./install-remote.sh <相机IP> <密码> detect    # 与离线安装等效,免上传 tar
 ```
 
+**纯在线安装(连安装包都没有时):** 镜像在 Docker Hub 公开可拉,两条 curl 即可完成安装。以单机形态为例(推荐,一条命令装完整个系统):
+
+```bash
+# 1. 登录取 token
+TOK=$(curl -sk -X POST https://<相机IP>/api/login -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"<密码>"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["token"])')
+
+# 2. 提交安装向导(相机直接从 Docker Hub 拉镜像,1~3 分钟)
+curl -sk -X POST https://<相机IP>/api/v1/apps/wizard -H "Authorization: $TOK" \
+  -H "Content-Type: application/json" -d '{
+  "metadata":{"id":"gym-neomind","name":"Gym NeoMind All-in-One","version":"1.0.4"},
+  "image":"camthink/gym-neomind:1.0.4",
+  "resources":{"cpu":"150%","memory":"1500Mi"},
+  "volumes":[{"host":"/data/aipc-data/gym-neomind","container":"/app/data"}],
+  "permissions":{"network":{"mode":"host"}},
+  "env":[{"name":"GYM_LEAN_TRACK","value":"1"}],
+  "restart_policy":"on-failure","restart_max_retries":10,"autostart":true}'
+```
+
+装完浏览器访问 `http://<相机IP>:9375`(登录凭据在容器日志 `gym-bootstrap` 段)。分离形态的检测应用同理,把 `image` 换成 `camthink/gym-native:0.2.31` 并带上完整 env/卷声明——参数较多,建议直接用上面套件里的 `install-remote.sh detect`。
+
 #### 4.1.4a 底层原理:一键脚本做了什么(可选阅读)
 
 `camera-install.sh` 的每一步都是调用相机原生的 REST API——无需 SSH,无需手动 Docker 命令。理解原理有助于排障或自定义:

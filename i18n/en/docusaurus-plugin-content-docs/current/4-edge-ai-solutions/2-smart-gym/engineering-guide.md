@@ -139,6 +139,27 @@ cd gym-suite-1.1.0/publish
 ./install-remote.sh <camera-ip> <password> detect    # equivalent to the offline install, no tar upload
 ```
 
+**Fully online install (no installer package at all):** the images are public on Docker Hub, so two curl calls are enough. Single-box form shown (recommended — one command installs the complete system):
+
+```bash
+# 1. Log in and grab a token
+TOK=$(curl -sk -X POST https://<camera-ip>/api/login -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"<password>"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"]["token"])')
+
+# 2. Submit the install wizard (the camera pulls from Docker Hub, 1-3 min)
+curl -sk -X POST https://<camera-ip>/api/v1/apps/wizard -H "Authorization: $TOK" \
+  -H "Content-Type: application/json" -d '{
+  "metadata":{"id":"gym-neomind","name":"Gym NeoMind All-in-One","version":"1.0.4"},
+  "image":"camthink/gym-neomind:1.0.4",
+  "resources":{"cpu":"150%","memory":"1500Mi"},
+  "volumes":[{"host":"/data/aipc-data/gym-neomind","container":"/app/data"}],
+  "permissions":{"network":{"mode":"host"}},
+  "env":[{"name":"GYM_LEAN_TRACK","value":"1"}],
+  "restart_policy":"on-failure","restart_max_retries":10,"autostart":true}'
+```
+
+When done, browse to `http://<camera-ip>:9375` (credentials are in the container log, `gym-bootstrap` section). The two-box detection app works the same way — swap `image` for `camthink/gym-native:0.2.31` plus the full env/volume spec; since that spec is long, prefer the suite's `install-remote.sh detect`.
+
 #### Under the Hood: What the One-Command Script Does (optional reading)
 
 Every step in `camera-install.sh` calls the camera's native REST API — no SSH, no manual Docker commands. Understanding this helps with troubleshooting and customization:
