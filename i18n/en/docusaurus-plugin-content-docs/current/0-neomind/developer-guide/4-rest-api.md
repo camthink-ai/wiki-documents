@@ -279,8 +279,12 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/sessions/:id/history` | Session history messages, paginated (contract below) |
+| POST | `/sessions/:id/compact` | Compact the session's context immediately (bypasses the 60% auto threshold — force semantics). Returns `{summarizedMessages, newUpToIndex, fallbackUsed}`; if the summary model is unavailable a deterministic fallback digest is written rather than failing |
+| POST | `/sessions/:id/clear` | Clear the session's history and reset any stored summary (the session itself is kept). "Start over" without deleting the session |
 
 > **History pagination contract (0.9.24+)**: page backwards with `?limit=N&before=<cursor>`, where `before` is the raw index of the oldest record of the previous page; responses include `total` and `has_more`. Page boundaries are fragment-guarded — the start of each page walks back to the last `user` message, so one turn (1 user + 3 assistant records) is never split mid-turn. Omitting the params returns the full history; old clients need no changes.
+
+> **Compaction config (1.1.1+)**: `GET/PUT /api/settings/agent` gains a `summary_instance_id` field — the LLM instance ID used for conversation compaction; `null` (or omitted) means each session's own model. On PUT, sending `null` clears it explicitly; omitting the field leaves it unchanged.
 
 ### Messages
 

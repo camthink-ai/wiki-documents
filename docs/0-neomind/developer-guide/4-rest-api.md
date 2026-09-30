@@ -282,8 +282,12 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/sessions/:id/history` | 会话历史消息，支持分页（见下方契约） |
+| POST | `/sessions/:id/compact` | 立即压缩会话上下文（跳过 60% 自动阈值，force 语义）。返回 `{summarizedMessages, newUpToIndex, fallbackUsed}`；摘要模型不可用时写入确定性回退摘要而非失败 |
+| POST | `/sessions/:id/clear` | 清空会话历史并重置已存摘要（会话本身保留）。等效于「重新开始」而不删除会话 |
 
 > **历史分页契约（0.9.24+）**：`?limit=N&before=<游标>` 向前翻页，`before` 取上一页最旧一条的原始索引，响应含 `total` 与 `has_more`。分页边界带碎片保护——翻页起点回退到最近一条 `user` 消息，一轮对话（1 条 user + 3 条 assistant 记录）不会从中间切开。不传参数返回全部历史，老客户端无需改动。
+
+> **上下文压缩配置（1.1.1+）**：`GET/PUT /api/settings/agent` 新增 `summary_instance_id` 字段——指向用于会话压缩的 LLM 实例 ID；`null`（或缺省）表示使用各会话自己的模型。PUT 时发送 `null` 显式清除，省略该字段保持不变。
 
 ### Messages（消息通知）
 

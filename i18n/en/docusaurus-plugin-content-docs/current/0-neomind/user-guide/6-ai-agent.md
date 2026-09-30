@@ -37,6 +37,9 @@ Knowledge files that provide Agents with scenario-specific operational guidance 
 
 ## Creating an Agent
 
+When creating, start from a **template** — 11 presets cover the common shapes (image understanding, data monitoring, smart task, scheduled report, event judgement, root cause, weekly report, shift check, plus the 1.1.1 additions **scheduled patrol** — rounds on a clock that also remediates what it can — and **data Q&A** — answers only from the bound sources, on demand). A template is a starting point, not a lock: every field it fills stays visible and editable, and it never binds resources for you.
+
+
 Click the **Create AI Agent** button in the top right to open the full-screen editor:
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor.png" alt="AI Agent editor — left side has basic info and prompt, right side has execution mode and schedule config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
@@ -63,6 +66,15 @@ Example prompt:
 **Focused mode** requires bound resources (device metrics / extension metrics / devices / extension tools). The Agent only collects and analyzes data within the bound scope. Scope validation rejects commands outside bound resources.
 
 **Free mode** needs no resource binding. The LLM has access to all tools (device / rule / message / extension / shell, etc.) and can do multi-round tool calls (default max 30 rounds, 5-minute timeout).
+
+#### Tool gating (Focused / Free only)
+
+For these two modes the editor can **narrow the tool surface** (structured tasks do not show this setting — their contract is a single constrained inference with no tool loop at all):
+
+- **Allow tool use**: off = a text-only agent (analyzes, never executes a tool) — for tasks where you explicitly do not want it to act
+- **Restrict tools**: pick a whitelist from the tool catalog; the agent may call only the checked tools
+
+A narrower surface is more than a safety fence — **small models choose better among few**. A query-only agent restricted to `device` + `vision` mis-picks tools far less often. If "explore and act" is on while tools are off, the editor warns: the agent degenerates to a single text reply, and the multi-round promise cannot be kept.
 
 ### 3. Schedule Type (Right)
 

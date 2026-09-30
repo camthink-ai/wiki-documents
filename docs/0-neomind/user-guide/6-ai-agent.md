@@ -64,6 +64,15 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 **Free 模式**无需绑定资源，LLM 拥有全部工具（device / rule / message / extension / shell 等），可做多轮工具调用（默认上限 30 轮，5 分钟超时）。
 
+#### 工具门控（Focused / Free 可用）
+
+编辑器里可以对这两种模式**收窄工具面**（结构化任务不显示此设置——它的契约就是单次受约束推理，没有工具循环）：
+
+- **允许使用工具**：关闭 = 纯文本 Agent（只分析、不执行任何工具）——适合明确不希望它动手的任务
+- **限制可用工具**：开启后从工具目录勾选白名单，Agent 只能调用勾选的工具
+
+工具面收窄不只是安全边界——**小模型在少量工具里选择更准**。一个只做数据查询的 Agent 限定 `device` + `vision` 后，选错工具的概率显著下降。若「自主工作方式」开启而工具被关闭，编辑器会警告：这将退化为单轮文本回复，多轮行动的承诺无法兑现。
+
 ### 3. 调度方式（右侧）
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor-schedule.png" alt="Agent 编辑器 — 调度配置区域，含 cron、interval、event 选项" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />

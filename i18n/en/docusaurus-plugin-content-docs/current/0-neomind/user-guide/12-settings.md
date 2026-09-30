@@ -32,6 +32,7 @@ Global defaults for new agents and AI Chat (individual agents can override in th
 | Default Temperature / Top-P / Thinking | per model | Sampling defaults; Thinking = auto follows model capability |
 | Tool Concurrency | 6 | Concurrent tool calls |
 | Chat History Depth | — | Conversation turns carried as context |
+| Compaction Model | Session model | LLM instance used to summarize conversation history as context fills up. "Session model" = each conversation's own model; point it at a smaller, faster instance to keep compaction from competing with the main model (falls back to the session model if the instance is unavailable) |
 
 ### Device Defaults & Data Retention
 

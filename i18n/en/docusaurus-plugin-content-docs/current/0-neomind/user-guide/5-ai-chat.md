@@ -211,6 +211,21 @@ For detailed agent configuration, see [AI Agent](./6-ai-agent.md). For automatio
 - **History persistence**: sessions are stored in `sessions.redb`; restarting the server won't lose them. Long sessions open with only the most recent page and load older messages on demand as you scroll up.
 - **Auto title**: the first message of a new session automatically becomes the session title for easy identification in the list.
 
+## Context usage and manual compaction
+
+The **context usage ring** next to the input box shows how much of the model's context window the current session occupies. Hover for a breakdown (system prompt / tool definitions / conversation history); it turns amber past 70% and red past 90%.
+
+The ring's hover card carries two actions (available on both the chat page and the side panel):
+
+| Button | What it does | When to use it |
+|--------|--------------|----------------|
+| **Compact** | Summarizes the earlier conversation into one digest to free context; the most recent turns stay verbatim | When the AI starts "forgetting" — device names, numbers, or requirements mentioned a few turns back |
+| **Clear** | Empties the session's history and stored summary (the session itself is kept, title unchanged) | When you want a genuinely fresh start with no earlier context |
+
+:::info Automatic vs manual compaction
+The backend auto-compacts when context usage crosses 60% (your most recent messages are always kept verbatim — never paraphrased away). The buttons give **you** the control: don't wait for the threshold — the moment the AI starts confusing earlier context, compact. Compaction is model-generated: meaning is preserved but verbatim detail moves into the digest, so confirm critical details (thresholds, device IDs, text to draw onto an image) in recent turns.
+:::
+
 ## Mobile
 
 <img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat on mobile — full-screen conversation" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />

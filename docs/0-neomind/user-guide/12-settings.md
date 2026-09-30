@@ -32,6 +32,7 @@ sidebar_label: "Settings"
 | Default Temperature / Top-P / Thinking | 按模型 | 采样默认值；Thinking 设为 auto 表示跟随模型能力 |
 | Tool Concurrency | 6 | 工具调用的并发数 |
 | Chat History Depth | — | 对话历史携带轮数 |
+| 压缩模型（Compaction Model） | 会话模型 | 上下文接近上限时用于总结会话历史的 LLM 实例。默认「会话模型」= 各会话使用自己的模型；指向一个更小更快的实例可避免压缩与主模型争抢资源（实例失效时自动回退会话模型） |
 
 ### 设备默认值与数据保留
 
