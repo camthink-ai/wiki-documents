@@ -111,7 +111,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 **操作步骤:**解压安装包 → 进入目录 → 运行脚本(按提示输入相机 IP 与 4.1.2 设置的新密码):
 
 ```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+tar xzf gym-suite-1.1.0.tar.gz && cd gym-suite-1.1.0
 ./camera-install.sh <相机IP> <4.1.2 设置的新密码>
 ```
 
@@ -132,6 +132,13 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 ```
 
 脚本幂等——重复执行为覆盖升级,不影响会员数据。
+
+**在线安装(相机可上外网时可选):** 免拷贝安装包,相机通过安装向导直接从 Docker Hub 拉取官方镜像(`camthink/gym-native`):
+
+```bash
+cd gym-suite-1.1.0/publish
+./install-remote.sh <相机IP> <密码> detect    # 与离线安装等效,免上传 tar
+```
 
 #### 4.1.4a 底层原理:一键脚本做了什么(可选阅读)
 
@@ -165,6 +172,26 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 - **停止/启动**:一键操作,无需 SSH
 - **卸载**:移除应用(模型文件保留)
 
+### 4.1B 单机形态(可选):一台相机 = 一套系统
+
+交付包内的 `singlebox/install-singlebox.sh` 可把 **NeoMind 平台 + 健身房扩展直接装进相机**(一个自举容器,首次启动自动完成管理员创建、扩展安装、相机绑定与看板创建),无需任何额外硬件:
+
+```bash
+cd gym-suite-1.1.0
+./camera-install.sh <相机IP> <密码>          # 第 1 步照旧:检测应用
+./singlebox/install-singlebox.sh <相机IP> <密码>  # 第 2 步:整套装进相机
+```
+
+完成后浏览器访问 `http://<相机IP>:9375`(登录凭据见脚本输出)。**逻辑与分离形态完全一致**(同一检测应用、同一平台、同一扩展、同一数据流,仅 WSS 由局域网变为回环),区别只是平台运行在相机内:
+
+| | 分离形态(4.2/4.3) | 单机形态 |
+|---|---|---|
+| 额外硬件 | 边缘盒(Linux/Mac) | 无 |
+| 适用 | 多相机、7×24 生产 | 单相机、演示、小型场馆 |
+| 相机资源占用 | 仅检测 | 检测 + 平台(实测余量 ~6GB 内存) |
+
+单机形态同样支持**在线安装**:相机联网时 `./publish/install-remote.sh <相机IP> <密码> singlebox` 直接拉取一体镜像(`camthink/gym-neomind:1.0.4`),凭据输出与访问入口与离线安装一致。
+
 ### 4.2 安装 NeoMind 平台(客户电脑或 NE503)
 
 NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker 环境,4GB+ 内存),也可直接**部署在 NE503 上**。
@@ -176,7 +203,7 @@ NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker �
 docker --version
 
 # 2. 使用安装包内的编排文件(或从 NeoMind 仓库获取)
-cd gym-suite-1.0.0/edge/
+cd gym-suite-1.1.0/edge/
 docker compose up -d
 
 # 3. 等待首次拉取镜像与启动(约 1~2 分钟)
@@ -254,7 +281,7 @@ device:
 ### 4.5 数据存储与展示
 
 - **会员库 / 区域配置 / 训练记录**:存于 NeoMind 主机数据卷,每日自动备份;相机侧无持久业务数据,换相机重跑安装脚本即可
-- **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频
+- **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频。Chrome / Edge / Safari 16.4+ 通过 WebCodecs 硬解 H.264,30fps 原始流;无 WebCodecs 的旧内核浏览器自动回退为相机端彩色 JPEG 预览(约 12fps)——画面帧率差异通常来自浏览器而非系统
 - **仪表板**:建议三块——在场人数与占用总览、器械区域利用率热力、会员训练报告入口;搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
 
 ![健身房看板:实时监控与器械占用](/img/solutions/smart-gym/dashboard-top.webp)
@@ -408,6 +435,8 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 | 视频卡顿 | 检查带宽与网络;确认子码流 |
 | 相机完全失联 | 检查 PoE 供电;物理重启相机 |
 | 需要看日志 | 相机 Web → 日志 → gym-native |
+| 服务重启后检测长时间无输出 | 重启相机(Web → 系统,或 `POST /api/v1/system/restart`)——NPU 服务偶发未随启动 | 
+| 相机上有旧 gym-bridge 应用 | 停止并在其 manifest 中将 `autostart` 改为 `false`(看门狗恢复脚本可能重新拉起它) |
 
 相机所有运维操作走 HTTPS API(无需 SSH),日志关键字速查:
 
@@ -419,14 +448,14 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 ### 6.3 升级
 
-- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢)
+- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢);相机联网时也可用 `publish/install-remote.sh` 在线拉取新版镜像,与离线升级等效
 - **固件升级**:相机 Web → 系统升级 → 上传固件包(约 10 分钟,已装应用自动保留)
 
 ## 7. 性能与规格
 
 | 指标 | 数值 |
 |---|---|
-| 检测帧率 | 约 20fps(720p 子码流,2×2 切图轮转) |
+| 检测帧率 | 约 25fps(720p 子码流,2×2 切图轮转) |
 | 全场刷新周期 | 约 200ms |
 | 身份识别响应 | 1 秒内 |
 | 单相机覆盖 | 10~20 人中型场馆 |
