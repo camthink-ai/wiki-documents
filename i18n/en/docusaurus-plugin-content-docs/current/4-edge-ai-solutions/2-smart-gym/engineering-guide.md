@@ -109,7 +109,7 @@ Work in this order: platform first, then the extension bound to the camera, then
 **How to run:** extract the package → enter the folder → run the script (enter the camera IP and the new password set in 4.1.2 when prompted):
 
 ```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+tar xzf gym-suite-1.1.0.tar.gz && cd gym-suite-1.1.0
 ./camera-install.sh <camera-ip> <the new password from 4.1.2>
 ```
 
@@ -131,6 +131,13 @@ Install OK! Producer running: stats: 19.8 fps
 ```
 
 The script is idempotent — re-running performs an overwrite upgrade without touching member data.
+
+**Online install (optional, when the camera has internet):** skip the tarball entirely — the camera's install wizard pulls the official image straight from Docker Hub (`camthink/gym-native`):
+
+```bash
+cd gym-suite-1.1.0/publish
+./install-remote.sh <camera-ip> <password> detect    # equivalent to the offline install, no tar upload
+```
 
 #### Under the Hood: What the One-Command Script Does (optional reading)
 
@@ -165,6 +172,26 @@ After installation, manage the app from camera web → **Apps**:
 - **Stop/Start**: one click, no SSH
 - **Uninstall**: removes the app (model files are kept)
 
+### 4.1B Single-Box Form (optional): one camera = one complete system
+
+The installer's `singlebox/install-singlebox.sh` installs the **NeoMind platform + gym extension directly on the camera** (one self-bootstrapping container — first start automatically creates the admin, installs the extension, binds the camera and builds the dashboard). No extra hardware:
+
+```bash
+cd gym-suite-1.1.0
+./camera-install.sh <camera-ip> <password>              # step 1 unchanged: detection app
+./singlebox/install-singlebox.sh <camera-ip> <password> # step 2: the whole stack, on-camera
+```
+
+Then browse to `http://<camera-ip>:9375` (credentials are printed by the script). **Functionally identical to the two-box form** (same detection app, platform, extension and data flow — only WSS moves from LAN to loopback); the difference is just where the platform runs:
+
+| | Two-box (4.2/4.3) | Single-box |
+|---|---|---|
+| Extra hardware | edge box (Linux/Mac) | none |
+| Best for | multi-camera, 7×24 production | single camera, demos, small gyms |
+| Camera load | detection only | detection + platform (~6GB RAM headroom measured) |
+
+The single-box form also supports **online install**: with the camera online, `./publish/install-remote.sh <camera-ip> <password> singlebox` pulls the all-in-one image (`camthink/gym-neomind:1.0.4`) directly; credentials output and entry point are the same as offline.
+
 
 ### 4.2 Install the NeoMind Platform (customer PC or NE503)
 
@@ -177,7 +204,7 @@ NeoMind can run on the **customer's own PC** — any Linux server or Mac mini (D
 docker --version
 
 # 2. Use the compose file from the installer package (or the NeoMind repo)
-cd gym-suite-1.0.0/edge/
+cd gym-suite-1.1.0/edge/
 docker compose up -d
 
 # 3. Wait for the first image pull and startup (~1-2 min)
@@ -187,7 +214,7 @@ docker compose logs -f neomind    # ready when you see "listening on 0.0.0.0:937
 **Option B: One-line install script**
 
 ```bash
-curl -fsSL https://get.neomind.camthink.ai | sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
 **First-time setup:**
@@ -255,7 +282,7 @@ All four green = site acceptance passed.
 ### 4.5 Data Storage & Display
 
 - **Member library / zone config / training records**: stored in the NeoMind host data volume, auto-backed up daily; the camera holds no persistent business data — replacing a camera is just a re-install
-- **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video
+- **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video. Chrome / Edge / Safari 16.4+ decode H.264 in hardware via WebCodecs at the native 30fps; older browsers without WebCodecs automatically fall back to a camera-side color JPEG preview (~12fps) — frame-rate differences almost always come from the browser, not the system
 - **Dashboards**: recommended trio — live headcount & occupancy overview, equipment-zone utilization, member training report entry; see [Using Dashboards](/docs/neomind/user-guide/use-dashboard)
 
 ![Smart gym dashboard: live monitoring and equipment occupancy](/img/solutions/smart-gym/dashboard-top.webp)
@@ -409,6 +436,8 @@ Keep zones small — overlapping equipment zones double-count people standing be
 | Video stutter | check bandwidth and network; confirm sub-stream |
 | Camera unreachable | check PoE power; power-cycle the camera |
 | Need logs | camera web → Logs → gym-native |
+| No detection long after a service restart | restart the camera (web → System, or `POST /api/v1/system/restart`) — the NPU service occasionally fails to come up with boot |
+| Legacy `gym-bridge` app present on the camera | stop it and set `autostart: false` in its manifest (a watchdog recovery script may bring it back) |
 
 All camera-side operations go through the HTTPS API (no SSH). Log keyword quick reference:
 
@@ -420,7 +449,7 @@ All camera-side operations go through the HTTPS API (no SSH). Log keyword quick 
 
 ### 6.3 Upgrades
 
-- **App upgrade**: re-run `camera-install.sh` with the new package (overwrite, ~2 min, member data preserved)
+- **App upgrade**: re-run `camera-install.sh` with the new package (overwrite, ~2 min, member data preserved); with the camera online, `publish/install-remote.sh` pulls the new image — equivalent to the offline upgrade
 - **Firmware upgrade**: camera web → System upgrade → upload the package (~10 min; installed apps are preserved)
 
 ## 7. Performance & Specifications
