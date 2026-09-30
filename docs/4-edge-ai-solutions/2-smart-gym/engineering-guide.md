@@ -111,7 +111,7 @@ description: "智慧健身房方案工程实施:场景与安装、BOM、组网�
 **操作步骤:**解压安装包 → 进入目录 → 运行脚本(按提示输入相机 IP 与 4.1.2 设置的新密码):
 
 ```bash
-tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
+tar xzf gym-suite-1.1.0.tar.gz && cd gym-suite-1.1.0
 ./camera-install.sh <相机IP> <4.1.2 设置的新密码>
 ```
 
@@ -132,6 +132,13 @@ tar xzf gym-suite-1.0.0.tar.gz && cd gym-suite-1.0.0
 ```
 
 脚本幂等——重复执行为覆盖升级,不影响会员数据。
+
+**在线安装(相机可上外网时可选):** 免拷贝安装包,相机通过安装向导直接从 Docker Hub 拉取官方镜像(`camthink/gym-native`):
+
+```bash
+cd gym-suite-1.1.0/publish
+./install-remote.sh <相机IP> <密码> detect    # 与离线安装等效,免上传 tar
+```
 
 #### 4.1.4a 底层原理:一键脚本做了什么(可选阅读)
 
@@ -183,6 +190,8 @@ cd gym-suite-1.1.0
 | 适用 | 多相机、7×24 生产 | 单相机、演示、小型场馆 |
 | 相机资源占用 | 仅检测 | 检测 + 平台(实测余量 ~6GB 内存) |
 
+单机形态同样支持**在线安装**:相机联网时 `./publish/install-remote.sh <相机IP> <密码> singlebox` 直接拉取一体镜像(`camthink/gym-neomind:1.0.4`),凭据输出与访问入口与离线安装一致。
+
 ### 4.2 安装 NeoMind 平台(客户电脑或 NE503)
 
 NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker 环境,4GB+ 内存),也可直接**部署在 NE503 上**。
@@ -194,7 +203,7 @@ NeoMind 可部署在**客户自有电脑**(Linux 服务器或 Mac mini,Docker �
 docker --version
 
 # 2. 使用安装包内的编排文件(或从 NeoMind 仓库获取)
-cd gym-suite-1.0.0/edge/
+cd gym-suite-1.1.0/edge/
 docker compose up -d
 
 # 3. 等待首次拉取镜像与启动(约 1~2 分钟)
@@ -439,7 +448,7 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 ### 6.3 升级
 
-- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢)
+- **应用升级**:拿新安装包重跑 `camera-install.sh`(覆盖式,约 2 分钟,会员数据不丢);相机联网时也可用 `publish/install-remote.sh` 在线拉取新版镜像,与离线升级等效
 - **固件升级**:相机 Web → 系统升级 → 上传固件包(约 10 分钟,已装应用自动保留)
 
 ## 7. 性能与规格
