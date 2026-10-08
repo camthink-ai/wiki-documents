@@ -60,7 +60,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 
 ### 支持的操作系统
 
-- **Linux**：Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / 其他主流发行版（x86_64 / arm64）
+- **Linux**（x86_64 / arm64）：需 glibc ≥ 2.35 — Ubuntu 22.04+ / Debian 12+ / openEuler 24.03+ / Deepin 23+ / UOS V25+；更早或未列出的发行版（CentOS 7/8、麒麟 V10、UOS V20、Alpine 等）请使用 [Docker 部署](../user-guide/1-install-setup.md#docker-部署)
 - **边缘设备（arm64）**：NVIDIA Jetson（Orin 系列，CUDA 运行时自动引导安装）、RK3576 等 aarch64 SBC——服务端与扩展均有 arm64 构建
 - **macOS**：12 Monterey 及以上（开发或小规模部署）
 - **Windows**：Windows 10/Server 2019 及以上（通过 WSL2 或原生）

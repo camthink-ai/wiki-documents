@@ -59,7 +59,7 @@ Download the installer from [GitHub Releases](https://github.com/camthink-ai/Neo
 
 ### Supported Operating Systems
 
-- **Linux**: Ubuntu 20.04+ / Debian 11+ / CentOS 8+ / other mainstream distros (x86_64 / arm64)
+- **Linux** (x86_64 / arm64): requires glibc ≥ 2.35 — Ubuntu 22.04+, Debian 12+, openEuler 24.03+, Deepin 23+, UOS V25+; for older or unlisted distros (CentOS 7/8, Kylin V10, UOS V20, Alpine, etc.) use [Docker deployment](../user-guide/1-install-setup.md#docker)
 - **Edge devices (arm64)**: NVIDIA Jetson (Orin series, with the CUDA runtime auto-bootstrapped), RK3576, and other aarch64 SBCs — arm64 builds are available for both the server and extensions
 - **macOS**: 12 Monterey+ (development or small-scale deployment)
 - **Windows**: Windows 10 / Server 2019+ (via WSL2 or native)
