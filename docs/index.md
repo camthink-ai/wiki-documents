@@ -53,14 +53,14 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title" id="solutions">Edge AI 解决方案</h2>
   <div className="solution-grid">
     <Link to="/docs/edge-ai-solutions/water-meter-recognition/solution-description" className="solution-card">
-      <img src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp" alt="水表自动抄读方案" />
+      <img className="no-zoom" src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp" alt="水表自动抄读方案" />
       <div className="sol-body">
         <div className="sol-title">水表自动抄读 <span className="update-badge">NEW</span></div>
         <div className="sol-desc">NE101 + NeoMind 本地 OCR：旧表不改，读数自动入库，全量留痕可回溯。</div>
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/smart-gym/solution-description" className="solution-card">
-      <img src="/img/solutions/smart-gym/dashboard-demo.webp" alt="智慧健身房方案" />
+      <img className="no-zoom" src="/img/solutions/smart-gym/dashboard-demo.webp" alt="智慧健身房方案" />
       <div className="sol-body">
         <div className="sol-title">智慧健身房 <span className="update-badge">NEW</span></div>
         <div className="sol-desc">NE503 无感识别 + 本地分析：器械占用、训练报告，数据不出场馆。</div>

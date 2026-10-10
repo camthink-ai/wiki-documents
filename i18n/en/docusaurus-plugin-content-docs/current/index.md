@@ -53,14 +53,14 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   <h2 className="docs-section-title" id="solutions">Edge AI Solutions</h2>
   <div className="solution-grid">
     <Link to="/docs/edge-ai-solutions/water-meter-recognition/solution-description" className="solution-card">
-      <img src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp" alt="Automated water meter reading" />
+      <img className="no-zoom" src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp" alt="Automated water meter reading" />
       <div className="sol-body">
         <div className="sol-title">Water Meter Reading <span className="update-badge">NEW</span></div>
         <div className="sol-desc">NE101 + NeoMind local OCR: keep existing meters, auto-ingest readings, full photo audit trail.</div>
       </div>
     </Link>
     <Link to="/docs/edge-ai-solutions/smart-gym/solution-description" className="solution-card">
-      <img src="/img/solutions/smart-gym/dashboard-demo.webp" alt="Smart Gym solution" />
+      <img className="no-zoom" src="/img/solutions/smart-gym/dashboard-demo.webp" alt="Smart Gym solution" />
       <div className="sol-body">
         <div className="sol-title">Smart Gym <span className="update-badge">NEW</span></div>
         <div className="sol-desc">NE503 passive recognition + local analytics: equipment occupancy and training reports, data stays on-premises.</div>

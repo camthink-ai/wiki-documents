@@ -25,7 +25,7 @@ export default function VideoModal({ videoId, title, description, coverImage }: 
     return (
         <>
             <div className="video-card" onClick={() => setIsOpen(true)}>
-                <img src={coverImage} className="video-thumb" style={{ objectFit: 'contain', background: '#333' }} alt={title} />
+                <img src={coverImage} className="video-thumb no-zoom" style={{ objectFit: 'contain', background: '#333' }} alt={title} />
                 <div className="video-play-btn"></div>
                 <div className="video-info">
                     <div className="video-title">{title}</div>
