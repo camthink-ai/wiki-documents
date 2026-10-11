@@ -57,7 +57,6 @@ sidebar_label: "Extension Management"
 | `uink-rms-bridge` | 桥接 | Uink-RMS 墨水屏：设备注册、遥测采集、显示内容下发 |
 | `weather-forecast` | 数据源 | 实时天气预报（多城市，OpenWeatherMap） |
 | `gym-tracker` | 行业 | 健身房运营套件：运动轨迹/热力/成员分析（扩展 + 仪表板组件） |
-| `wasm-demo` | 演示 | WASM 沙箱演示扩展，展示扩展 SDK 各项能力 |
 
 > 市场索引随扩展仓库**发版**刷新。若你的市场里看到的扩展少于上表、或个别扩展仍显示旧名（如 `weather-forecast-v2` / `yolo-video-v2`），说明平台加载的是上一版发布的索引——这些扩展在下一个发布中将更名/上架，对应关系：`weather-forecast-v2`→`weather-forecast`、`image-analyzer-v2`→`image-analyzer`、`locate-anything-v2`→`locate-anything`、`yolo-video-v2`→`yolo-video`。
 

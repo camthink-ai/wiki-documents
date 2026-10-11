@@ -119,7 +119,7 @@ graph TB
 
 ### 平台条件编译与硬件探测
 
-扩展通过 `cfg(not(target_arch = "wasm32"))` 把所有 AI 相关代码隔离在 native target——WASM 下扩展退化为「只暴露状态、不执行推理」的占位实现。这是 NeoMind 扩展的通用模式：让同一个 crate 在 WASM 沙箱里能编译通过（用于元数据 / 命令发现），但把重计算推迟到 native。
+扩展全部以 native cdylib 构建（WASM 支持已于 1.2.0 移除）；AI 相关代码直接面向 native target 编译，无占位实现分支。
 
 查看 `auto_device()` 与 `with_device_fallback()` 实现：[`src/lib.rs`](https://github.com/camthink-ai/NeoMind-Extensions/blob/main/extensions/yolo-device-inference/src/lib.rs#L37-L68) L37-68
 
@@ -454,7 +454,7 @@ sequenceDiagram
 ```
 
 关键点：
-- `"type": "native"`——声明此扩展不能在 WASM 沙箱运行，NeoMind 会跳过 WASM 加载尝试。
+- `"type": "native"`——扩展工件类型（WASM 支持已移除，native 是唯一类型）。
 - `"version": "2.7.6"`——必须与 `Cargo.toml` 和 `lib.rs` 中 `ExtensionMetadata::new(..., "2.7.6")` 三处一致（版本三元组一致性）。注意：源码 L1267 硬编码的是 `"2.0.0"`，这是已知的不一致——发布时构建脚本会用 `metadata.json` 的版本覆盖。
 - `"builds"` 覆盖 5 个目标平台——这是 AI 推理扩展的标准矩阵（macOS aarch64/x86_64、Linux x86_64/aarch64、Windows x86_64）。每个 `.nep` 包内捆绑对应平台的 ONNX Runtime 二进制。
 

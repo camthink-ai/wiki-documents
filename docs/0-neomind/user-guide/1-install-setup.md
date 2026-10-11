@@ -320,7 +320,6 @@ NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可�
 | `NEOMIND_EXTENSION_MARKET_URL` / `NEOMIND_MARKET_URL` | 扩展市场源覆盖 |
 | `NEOMIND_STRICT_PACKAGE_SHA256` | 设为 1 时拒绝无校验和的扩展包 |
 | `NEOMIND_RUNNER_WORKERS` / `NEOMIND_FFI_TIMEOUT_SECS` | 扩展进程工作线程与 FFI 超时 |
-| `NEOMIND_WASM_MEMORY_MB` / `NEOMIND_WASM_FUEL` / `NEOMIND_WASM_MAX_SIZE_MB` | WASM 扩展沙箱三层资源上限：线性内存（默认 256 MB）/ CPU fuel（默认 1,000,000）/ 模块大小（默认 50 MB） |
 | `NEOMIND_JWT_SECRET` / `NEOMIND_ENCRYPTION_KEY` | 会话签名与静态加密密钥（默认自动生成于 data/） |
 | `NEOMIND_BACKUP_INTERVAL_SECS` / `NEOMIND_BACKUP_KEEP` | 备份计划初始值（设置页保存后以设置为准） |
 

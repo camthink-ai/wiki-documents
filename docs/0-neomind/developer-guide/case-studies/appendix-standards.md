@@ -37,7 +37,7 @@ NeoMind 生态有两类可发布工件——**扩展**（Rust cdylib + 可选 Re
 
 | 字段 | 类型 | 必填 | 说明 | 示例 |
 |------|------|------|------|------|
-| `type` | string | 扩展必填 | 工件类型。当前固定为 `"native"`（Rust cdylib）；未来 WASM 类型会扩展 | `"native"` |
+| `type` | string | 扩展必填 | 工件类型，固定为 `"native"`（Rust cdylib；WASM 已移除） | `"native"` |
 | `categories` | string[] | 扩展可选 | 市场分类标签数组 | `["weather"]` |
 | `category` | string | 组件可选 | 单一分类，组件用 | `"device"` |
 
@@ -383,7 +383,6 @@ NeoMind 对扩展和组件的安全有严格约束，违反任意一条都会被
 ┌─────────────────────────────────┐
 │   扩展运行器进程（每个扩展独立）   │
 │  - Native: .dylib / .so / .dll  │
-│  - WASM: wasmtime runtime       │
 │  - 崩溃不影响主进程               │
 └─────────────────────────────────┘
 ```
