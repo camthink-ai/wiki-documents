@@ -36,7 +36,6 @@ The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repo
 | `image-analyzer` | Vision AI | Image understanding and analysis (ML models lazy-loaded) |
 | `face-recognition` | Vision AI | Face detection and recognition |
 | `locate-anything` | Vision AI | LocateAnything visual grounding: object detection, phrase grounding, and visual grounding |
-| `vision-hub` | Vision AI | Unified vision pipeline: hardware-accelerated detection / OCR / face / grounding / VLM |
 | `video-vlm` | Vision AI | Real-time VLM semantic understanding of video streams (RTSP/file, on-device LFM2.5-VL) |
 | `ocr-device-inference` | OCR | Automatic OCR bound to device image streams (SVTR model, boxed results) |
 | `paddle-ocr-v6` | OCR | PP-OCRv6 native ONNX inference (tiny/small/medium model tiers) |

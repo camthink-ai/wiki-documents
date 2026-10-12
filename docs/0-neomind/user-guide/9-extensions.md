@@ -36,7 +36,6 @@ sidebar_label: "Extension Management"
 | `image-analyzer` | 视觉 AI | 图像理解与分析（ML 模型懒加载） |
 | `face-recognition` | 视觉 AI | 人脸检测与识别 |
 | `locate-anything` | 视觉 AI | LocateAnything 视觉定位：目标检测、短语定位、视觉 grounding |
-| `vision-hub` | 视觉 AI | 统一视觉管线：硬件加速的检测 / OCR / 人脸 / 定位 / VLM |
 | `video-vlm` | 视觉 AI | 实时视频流 VLM 语义理解（RTSP/文件，板载 LFM2.5-VL） |
 | `ocr-device-inference` | OCR | 绑定设备图像流的自动 OCR（SVTR 模型，输出带框结果） |
 | `paddle-ocr-v6` | OCR | PP-OCRv6 原生 ONNX 推理（tiny/small/medium 多档模型） |

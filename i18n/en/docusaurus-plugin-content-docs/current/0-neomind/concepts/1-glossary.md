@@ -288,7 +288,7 @@ An LLM's ability to process image input. Depends on the model — after pulling 
 
 ### VLM (Vision-Language Model)
 
-A multimodal model that understands both images/video and text, producing natural-language descriptions of a scene instead of only structured coordinates. Two places in NeoMind use one: the dashboard's **VLM Vision widget** (image + AI annotations), and the `video-vlm` (real-time video stream semantic understanding, on-board LFM2.5-VL) and `vision-hub` (unified vision pipeline: detection / OCR / face / localization / VLM) extensions.
+A multimodal model that understands both images/video and text, producing natural-language descriptions of a scene instead of only structured coordinates. Two places in NeoMind use one: the dashboard's **VLM Vision widget** (image + AI annotations), and the `video-vlm` extension (real-time video stream semantic understanding, on-board LFM2.5-VL).
 
 **Example**: Point the `video-vlm` extension at an RTSP camera and the VLM emits semantic events like "a worker is entering a hazardous area", which can directly trigger rules and notifications.
 
