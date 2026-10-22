@@ -67,6 +67,16 @@ flowchart LR
 - 现场画面与识别结果留在本地网络,满足工厂、农业、仓储等场景的数据合规要求
 - 识别质量受提示词质量、画面清晰度与模型能力影响,部署时以现场实测为准;结论存在概率性判断,关键业务建议保留人工复核通道
 
+以下是本方案在 NeoMind 演示环境中的真实运行效果(工地安全巡检场景):结构化 Agent 对每帧抓拍输出人数、合规数与违规类型,字段直接成为时序指标,与抓拍画面同屏呈现。
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-site.png" alt="Site Safety Patrol 仪表板:人数/合规状态卡片、人员趋势曲线、AI 结论与抓拍历史画面流" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+同一套流程换个提示词与输出字段,即得到门店货架核查与垃圾桶满溢监控两个仪表板:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-shelf.png" alt="Shelf Audit 仪表板:空位/排面卡片、缺货趋势曲线与货架抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-bin.png" alt="Bin Fill Check 仪表板:满溢评分卡片、满溢趋势曲线与垃圾桶抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 ## 了解更多
 
 - [工程指南:选型 / 组网 / 搭建 / 联调 / 运维](engineering-guide)

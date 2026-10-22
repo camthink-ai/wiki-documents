@@ -67,6 +67,16 @@ For hardware selection, BOM and deployment, see the [Engineering Guide](./engine
 - Imagery and results stay inside the local network, meeting compliance requirements in factories, agriculture and warehousing
 - Recognition quality depends on prompt quality, image clarity and model capability — validate on site before go-live; LLM judgments are probabilistic, so keep a human review channel for business-critical decisions
 
+The following are live results from the NeoMind demo environment (construction-site PPE inspection): a structured Agent outputs people count, compliance count and violation type for every captured frame — fields become time-series metrics directly, shown alongside the capture stream.
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-site.png" alt="Site Safety Patrol dashboard: people/helmet status cards, trend chart, AI conclusion and capture history" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+The same pipeline with a different prompt and output fields yields the retail shelf audit and waste-container monitoring dashboards:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-shelf.png" alt="Shelf Audit dashboard: empty-slot/facing cards, stockout trend and shelf captures" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-bin.png" alt="Bin Fill Check dashboard: fill-score card, overflow trend and bin captures" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 ## Learn More
 
 - [Engineering Guide: selection / networking / setup / integration / operations](engineering-guide)

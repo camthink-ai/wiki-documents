@@ -125,12 +125,24 @@ ollama pull minicpm-v   # 或 llava 等
 
 > 每个 Agent 可独立绑定 LLM 后端(与 Chat 模型解耦)——常见组合:巡检类 Agent 用本地小视觉模型控成本,异常复核 Agent 用云端大模型保质量。
 
+下图为演示环境的实际配置:Ollama 后端接入本地 `minicpm-v`,NeoMind 自动探测到多模态能力(卡片上的"眼睛"标识),无需 API Key、数据不出场。
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/llm-backend-ollama.png" alt="LLM 后端页:Local MiniCPM-V (Ollama) 实例,自动探测多模态,Endpoint 指向本地 Ollama" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 ### 5.3 接入相机设备
 
 1. 平台确认内置 **ne101_camera** 摄像头组件可用(接收相机上报图像)
 2. 使用设备类型模板 `ne101_camera` / `ne301_camera` 添加设备并绑定项目,记录 **MQTT Server Address** 与 **Data Reporting Topic**
 3. 相机侧配置上报:NE101 长——按拍照键开 AP,Web UI 填入上述 MQTT 信息;NE301 / NE302 在各自 Web 控制台的 MQTT 上报页配置,具体以 [NE101](../../neoeyes-ne101-series/quick-start) / [NE301](../../neoeyes-ne301-series/quick-start) / [NE302](/docs/neoeyes-ne302-series/ne302-quick-start) 快速入门为准
 4. 上报成功后设备进入待审核列表,审核通过即接入
+
+三台相机接入后的设备列表——一张 NE301 负责工地东门,两台 NE101 分别盯着门店货架与垃圾收集点:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/devices-list.png" alt="设备管理页:NE301-Site-East-Cam、NE101-Aisle-Cam、NE101-Bin-Cam 三台相机全部 Online" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+相机上报的每一帧都落盘为设备的 `image` 指标(URL 引用原图),在设备详情页可直接预览缩略图,并保留 Capture / Sleep 等远程命令:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/device-detail-ne301.png" alt="NE301 设备详情:image 指标缩略图与 Command Control(Capture / Sleep)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 5.4 创建图像理解 Agent
 
@@ -153,6 +165,14 @@ ollama pull minicpm-v   # 或 llava 等
 
 每次执行:图像以多模态消息注入 → 单次受约束推理 → 字段经 Schema 校验 → 以 **`ai:{agent_id}:{字段}` 虚拟指标**写入时序库,仪表板可直接选用。
 
+演示环境按此方式创建了三个结构化 Agent——Site Safety Patrol(工地安全)、Shelf Audit(货架核查)、Bin Fill Check(垃圾桶满溢),全部 Event 触发、绑定同一本地视觉模型:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agents-list.png" alt="Agents 页:三个结构化 Agent 卡片,均显示 100% 执行成功率" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+Agent 详情页集中呈现结构化定义:User Prompt、Output fields(每个字段即一个 `ai:{agent}:{field}` 数据源)、Schedule(event)与绑定的视觉模型:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-detail-site.png" alt="Site Safety Patrol 详情:5 次执行全部成功,输出字段与调度、模型绑定一览" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 **备选:Focused / Free 事件模式——分析更自由**
 
 - 绑定相机设备 + Event 触发,图像自动注入;Agent 可多轮调用工具(查历史、发通知、执行命令),结论记录在执行历史中
@@ -169,6 +189,14 @@ ollama pull minicpm-v   # 或 llava 等
 4. **仪表板呈现**:仪表板添加该指标卡片,数值随抓拍刷新
 
 四环全过 = 链路验收通过。
+
+演示环境的联调记录:执行历史 5 次全部 Completed(单次 8~10 秒,本地 1B 视觉模型):
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-history-site.png" alt="执行历史:#1-#5 全部 Completed,耗时 8.3-10.4 秒" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+点开任意一次执行,可完整回看这次分析:输入包含抓拍原图,输出为经 Schema 校验的 JSON(含置信度),并提示字段已发布为虚拟指标——这正是"全量留痕、结论可回溯"的落点:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-execution-detail.png" alt="执行 #5 详情:输入抓拍原图,输出 person_count=1 / violation=none 的结构化 JSON,Confidence 95%,4 个字段发布为 ai: 虚拟指标" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 5.6 数据存储与展示
 

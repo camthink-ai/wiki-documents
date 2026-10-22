@@ -125,12 +125,24 @@ ollama pull minicpm-v   # or llava, etc.
 
 > Each Agent binds its own LLM backend (decoupled from Chat) — a common mix: inspection Agents on a local small vision model for cost, anomaly-review Agents on a cloud large model for quality.
 
+The demo environment in action: an Ollama backend running local `minicpm-v`, with multimodal capability auto-detected by NeoMind (the "eye" badge on the card) — no API key, data never leaves the box.
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/llm-backend-ollama.png" alt="LLM Backends page: Local MiniCPM-V (Ollama) instance with multimodal auto-detected, endpoint pointing at local Ollama" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 ### 5.3 Onboard Cameras
 
 1. Confirm the built-in **ne101_camera** component is available on the platform (receives reported images)
 2. Add devices with the `ne101_camera` / `ne301_camera` device-type templates, bind them to a project, and note the **MQTT Server Address** and **Data Reporting Topic**
 3. Configure reporting on each camera: NE101 — long-press the capture button to open the AP, then fill the MQTT details in its Web UI; NE301 / NE302 — configure on the MQTT reporting page of their web consoles. See the [NE101](../../neoeyes-ne101-series/quick-start) / [NE301](../../neoeyes-ne301-series/quick-start) / [NE302](/docs/neoeyes-ne302-series/ne302-quick-start) quick starts for specifics
 4. Reported devices appear in the pending list; approve to complete onboarding
+
+Three cameras onboarded in the demo — one NE301 watching the site's east work area, two NE101s covering a store aisle and a waste collection point:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/devices-list.png" alt="Device Management: NE301-Site-East-Cam, NE101-Aisle-Cam and NE101-Bin-Cam all Online" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+Every reported frame lands as the device's `image` metric (URL reference to the stored original); the device detail page previews the thumbnail and exposes remote commands such as Capture / Sleep:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/device-detail-ne301.png" alt="NE301 device detail: image metric thumbnail and Command Control (Capture / Sleep)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 5.4 Create the Image-Understanding Agent
 
@@ -153,6 +165,14 @@ Go to **Agents** and create an Agent (full field reference in [AI Agent](../../n
 
 Each run: images injected as multimodal messages → single constrained inference → fields schema-validated → written as **`ai:{agent_id}:{field}` virtual metrics** ready for dashboards.
 
+The demo environment created three structured Agents this way — Site Safety Patrol, Shelf Audit and Bin Fill Check — all Event-triggered, all bound to the same local vision model:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agents-list.png" alt="Agents page: three structured Agent cards, each showing a 100% success rate" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+The Agent detail page concentrates the structured definition: User Prompt, Output fields (each field is one `ai:{agent}:{field}` data source), Schedule (event) and the bound vision model:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-detail-site.png" alt="Site Safety Patrol detail: 5/5 successful runs, output fields, schedule and model binding" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
 **Alternative: Focused / Free event mode — more flexible analysis**
 
 - Bind the camera device + Event trigger; images are injected automatically; the Agent can chain tools (query history, send notifications, run commands) with conclusions recorded in execution history
@@ -169,6 +189,14 @@ Verify in order; if one fails, troubleshoot that stage first:
 4. **Dashboard rendering**: add a metric card on a dashboard; values refresh with each capture
 
 All four passing = the pipeline is accepted.
+
+Integration-test records from the demo: 5 consecutive Completed runs (8–10 s each on a local 1B vision model):
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-history-site.png" alt="Execution history: runs #1–#5 all Completed in 8.3–10.4 s" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+Opening any run replays the full analysis: the input includes the captured frame, the output is schema-validated JSON with a confidence score, and a note confirms the fields were published as virtual metrics — full auditability in action:
+
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-execution-detail.png" alt="Run #5 detail: input frame, structured JSON output person_count=1 / violation=none, confidence 95%, 4 fields published as ai: virtual metrics" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 5.6 Data Storage & Display
 
