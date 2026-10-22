@@ -244,7 +244,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 2. Register the admin account (email + password — keep it safe: platform encryption keys derive from it)
 3. Confirm the "Extensions" page in the left navigation opens correctly
 
-Full platform installation details (manual deploy / HTTPS reverse proxy / volume backup): see [Install & Upgrade](/docs/neomind/user-guide/install-setup).
+Full platform installation details (manual deploy / HTTPS reverse proxy / volume backup): see [Install & Upgrade](../../neomind/user-guide/install-setup).
 
 ### 4.3 Install the Gym Extension and Bind the Camera
 
@@ -304,7 +304,7 @@ All four green = site acceptance passed.
 
 - **Member library / zone config / training records**: stored in the NeoMind host data volume, auto-backed up daily; the camera holds no persistent business data — replacing a camera is just a re-install
 - **Video**: the dashboard live view uses the camera 720p sub-stream; the platform does not store raw video. Chrome / Edge / Safari 16.4+ decode H.264 in hardware via WebCodecs at the native 30fps; older browsers without WebCodecs automatically fall back to a camera-side color JPEG preview (~12fps) — frame-rate differences almost always come from the browser, not the system
-- **Dashboards**: recommended trio — live headcount & occupancy overview, equipment-zone utilization, member training report entry; see [Using Dashboards](/docs/neomind/user-guide/use-dashboard)
+- **Dashboards**: recommended trio — live headcount & occupancy overview, equipment-zone utilization, member training report entry; see [Using Dashboards](../../neomind/user-guide/use-dashboard)
 
 ![Smart gym dashboard: live monitoring and equipment occupancy](/img/solutions/smart-gym/dashboard-top.webp)
 
@@ -323,7 +323,7 @@ To integrate a member-management system / video wall / mini-program, choose by r
 | **Data Push** | pushes selected data (check-in events, training summaries) to business HTTP endpoints in real time, with retries | live walls, door integration |
 | **OpenAPI pull** | business systems pull data on a schedule via REST API | daily/weekly reporting |
 
-- Configuration: [Data Push](/docs/neomind/user-guide/7c-data-push) / [Platform API](/docs/neomind/developer-guide/rest-api)
+- Configuration: [Data Push](../../neomind/user-guide/7c-data-push) / [Platform API](../../neomind/developer-guide/rest-api)
 - **Field mapping example**: member ↔ member ID + name; arrival/departure ↔ event timestamps; training detail ↔ exercise × reps; equipment usage ↔ zone name + duration
 
 ## 5. Business Usage (Extension Cards in Detail)
@@ -494,7 +494,7 @@ Recognition and statistics accuracy depend on lighting, crowd density and occlus
 
 ## Learn More
 
-- [Solution Description](/docs/edge-ai-solutions/smart-gym/solution-description)
-- [NeoEyes NE503 Overview](/docs/neoeyes-ne503-series/overview)
-- [NeoMind Platform Docs](/docs/neomind/product-overview/what-is-neomind)
+- [Solution Description](solution-description)
+- [NeoEyes NE503 Overview](../../neoeyes-ne503-series/overview)
+- [NeoMind Platform Docs](../../neomind/product-overview/what-is-neomind)
 - gym-tracker extension open-source repo: [github.com/camthink-ai/NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions)

@@ -1,5 +1,5 @@
 ---
-description: 在 NeoMind 中配置 LLM 后端：内置本地模型（首选 MiniCPM5-2B）、Ollama 与云端模型（OpenAI/Anthropic/Qwen/DeepSeek/GLM 等）的接入步骤、CLI 命令、模型选择与多模态能力说明。
+description: 在 NeoMind 中配置 LLM 后端：内置模型（Built-in Model，一键下载、完全离线、含视觉款）、Ollama 与云端模型（OpenAI/Anthropic/Qwen/DeepSeek/GLM 等）的接入步骤、CLI 命令、模型选择与多模态能力说明。
 keywords: [NeoMind, LLM, Ollama, qwen3.5, 模型配置, 多模态, CLI]
 tags: [NeoMind, 用户指南]
 sidebar_label: "Configure LLM Backend"
@@ -16,7 +16,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 | 类别 | 后端 | 默认模型 | 备注 |
 |------|------|---------|------|
-| **本地（零配置）** | 内置 llama.cpp | 平台精选（Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5 等） | Docker 镜像自带运行时，向导内一键下载，见[下节](#内置本地模型零配置) |
+| **本地（零配置）** | 内置模型（Built-in Model） | 平台精选目录（LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B 等 7 款） | 无需 API Key、完全离线，卡片内一键下载，见[下节](#内置模型built-in-model零配置) |
 | **本地** | Ollama | `qwen3.5:4b` | 完全离线 |
 | 本地 | llama.cpp（自托管） | 启动时加载 | 自行运行 llama-server |
 | **云端** | OpenAI | `gpt-4.1-mini` | 需 API Key |
@@ -29,17 +29,46 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | 云端 | MiniMax | `MiniMax-M2` | 需 API Key |
 | 云端 | 自定义网关 | 任意 | OpenAI 兼容端点（类型选 OpenAI，填自定义 endpoint） |
 
-> **推荐**：本地首选内置模型 **MiniCPM5-2B**（Q4_K_M，1.5GB，最低 3GB 内存，按默认 8K 窗口服务——2026-09 修正版评测工具命中率 81%，与云端 deepseek-v4-flash 同档；Apache-2.0 可分发）。内存充裕（4GB+）且需要最强 agent 时选 **Qwen3.5-4B**（须配 16K 窗口，8K 下会大幅退化）。Ollama 路线用 `qwen3.5:4b`。
+> **推荐**：本地首选内置模型 **MiniCPM5-2B**（Q4_K_M，1.5GB，最低 3GB 内存，默认 128K 窗口并按可用内存自动封顶，长会话建议保持 ≥32K——2026-09 修正版评测工具命中率 81%，与云端 deepseek-v4-flash 同档；Apache-2.0 可分发）。内存充裕（4GB+）且需要最强 agent 时选 **Qwen3.5-4B**（默认 128K 并按内存封顶；8K 下会大幅退化）。Ollama 路线用 `qwen3.5:4b`。
 
 
-## 内置本地模型（零配置）
+## 内置模型（Built-in Model，零配置）
 
-从 0.9.16 起，Docker 镜像内置 llama.cpp 运行时并预置官方精选模型；首次启动向导的 **LLM 后端** 步骤（或 **设置 → LLM 后端** 的内置模型卡片）可以直接下载使用：
+**设置 → LLM 后端** 顶部的 **Built-in Model** 卡片就是内置模型：平台自带 llama.cpp 运行时，模型从官方目录按需下载——**无需 API Key、无外部依赖、完全离线**，下载完成即可作为系统默认后端使用。
 
-- **一键下载** — 模型列表来自远程模型目录（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台）；离线时自动回退到内置精选列表
-- **按硬件自动推荐** — 下载页会标注每个模型的内存需求（如 MiniCPM5-2B 1.5GB、最低 3GB RAM；Ling-3.0-tiny 4.8GB、最低 6GB——注意 Ling 仅适合 8K 短会话）
-- **导入自己的 GGUF** — 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径；平台自动解析名称/上下文/量化信息并以 SHA-256 校验落盘，导入模型与精选模型同等参与切换（上下文上限 128K）
-- **开箱即用** — 首次下载完成后自动注册为本地后端并按模型自带的最优采样参数（temperature / top-p / top-k）运行
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-downloading.png" alt="内置模型卡片 — 一键下载推荐模型并显示实时进度" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+### 模型目录
+
+目录来自远程模型清单（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台；离线时自动回退内置列表，可用 `NEOMIND_CATALOG_URL` 覆盖）。当前目录（2026-10）：
+
+| 模型 | 量化 | 体积 | 最低内存 | 上下文 | 说明 |
+|------|------|------|---------|--------|------|
+| **MiniCPM5-2B** | q4_k_m | 1.6GB | 3GB | 128K | **文档推荐**——Apache-2.0 开放许可，商用友好；评测工具命中率 81%，与云端 deepseek-v4-flash 同档 |
+| **LFM2.5-2.6B** | qad_q4_0 | 1.5GB | 3GB | 128K | 平台默认下载（LFM 自定义许可，商用需评估条款） |
+| Qwen3.5-4B | q4_k_m | 2.7GB | 4.8GB | 128K | 内存充裕（4GB+）时 agent 能力最强 |
+| Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT 量化 |
+| Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
+| Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | 过 8K 上下文质量陡降，建议短会话 |
+| **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **视觉模型**——附带 mmproj 投影文件，支持图像理解 |
+
+所有模型默认 128K 窗口并按可用内存自动封顶（MiniCPM-V 为 32K）；长会话建议保持 ≥32K。
+
+### 下载与激活（Web UI）
+
+1. **Download（一键下载）** — 内置卡片未安装时只显示 **Download** 按钮，点击即下载当前推荐模型，进度实时显示（WS 推送）；下载支持断点续传，取消会保留半截文件
+2. **切换模型（Switch Model）** — 已安装后卡片出现此按钮，打开向导并直接定位到**模型选择器**：可换目录中任意模型，或用「导入本地模型」卡片导入自己的 GGUF（拖入文件流式上传、或填服务器上的绝对路径；平台解析名称 / 量化 / 上下文并做 SHA-256 校验，导入模型与目录模型同等参与切换）
+3. **Activate（设为默认）** — 内置服务运行中（卡片状态 **Running**）时可点击，激活即设为系统默认后端——AI Chat、计划型 Agent、规则引擎的 LLM 分析全部切换到内置模型，再次点击可确认当前激活状态
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-ready.png" alt="内置模型就绪状态 — Main engine Running,可切换模型或设为默认" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+> 下载完成后卡片会显示引擎状态（如 `Main engine · LFM2.5-2.6B · ctx 8K · Running`）。上下文按可用内存自动封顶——空闲内存不足目录标注值时，顶部会出现黄色预警条提示推理可能变慢，可换轻量模型、清理内存或改用云端后端。
+
+内置模型以 LlamaCpp 后端形态注册，与 Ollama / 云端后端平等参与默认切换；不需要时可停用，模型文件保留在数据目录可随时重新启用。
+
+### 视觉理解（VLM）
+
+目录中的 **MiniCPM-V-4.7-1B** 是视觉模型：选择它时平台会额外下载 mmproj 投影文件并拉起一个 vision companion 实例——此后 [AI Chat](./5-ai-chat.md) 可直接上传图片提问，AI Agent 也能分析相机画面（参见 [LLM 图像理解方案](../../edge-ai-solutions/llm-image-understanding/solution-description)）。0.7GB 的体积让它成为边缘设备上成本最低的视觉方案。
 
 ## 方式一：Web UI 配置（推荐）
 
@@ -55,7 +84,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen3.5:4b
 
 # 如需视觉能力（可读图），额外拉取视觉模型
-ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
+ollama pull minicpm-v   # 或 llava 等
 ```
 
 > **注意**：请使用 `qwen3.5:4b`。文档历史版本提到的 `ministral-3:3b` / `deepseek-r1:7b` 已不再推荐——前者工具调用不稳定，后者体积过大且在边缘硬件上速度欠佳。
@@ -66,7 +95,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 打开 **Settings（设置） → LLM Backends（LLM 后端）**：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-llm-list.png" alt="LLM 后端列表 — 点击 Add Backend 添加" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 后端以卡片形式呈现（内置模型 / Ollama / llama.cpp / Cloud AI），点击对应卡片中的 **添加实例（Add Instance）** 进入配置表单。
 
@@ -100,7 +129,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 - `api_key`：网关 Key
 - `model`：网关暴露的模型名
 
-<img src="https://resources.camthink.ai/NeoMind/llm-backend-edit.png" alt="LLM 后端配置表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/llm-backend-edit.png" alt="LLM 后端配置表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 保存后 NeoMind 会探测后端能力（工具调用、多模态、上下文窗口），自动写入能力标签。
 
@@ -110,7 +139,7 @@ ollama pull qwen3.5:4b-vl   # 或 llava / minicpm-v 等
 
 然后进入 **AI Chat** 发送一句问候验证：
 
-<img src="https://resources.camthink.ai/NeoMind/chat-typing.png" alt="AI Chat 验证 LLM 连接" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/chat-typing.png" alt="AI Chat 验证 LLM 连接" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > 如果 AI Chat 无响应，检查：
 > - Ollama 是否在运行：`ollama list` 应能看到已拉取的模型
@@ -224,7 +253,8 @@ NeoMind 调用 Ollama 的**原生 `/api/chat` 端点**（不是 `/v1/chat/comple
 
 NeoMind 支持图像输入与视觉分析。视觉能力的启用取决于模型：
 
-- **Ollama**：拉取视觉模型（如 `qwen3.5:4b-vl` / `llava` / `minicpm-v`）后，在 [AI Chat](./5-ai-chat.md) 中可直接上传图片提问。
+- **内置模型**：选择视觉款 **MiniCPM-V-4.7-1B**（0.7GB）即可，平台自动附带视觉投影并拉起 companion 实例，见[内置模型](#内置模型built-in-model零配置)
+- **Ollama**：拉取视觉模型（如 `llava` / `minicpm-v`）后，在 [AI Chat](./5-ai-chat.md) 中可直接上传图片提问。
 - **云端**：`gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen-vl` / `glm-4v` 等天然支持视觉。
 
 NeoMind 会自动探测模型的多模态能力（通过 LiteLLM 注册表 + `/api/show` 运行时探测 + 名称启发式匹配）。如果自动探测不准，可在后端详情页手动覆盖 **Multimodal** 开关。
@@ -260,4 +290,4 @@ neomind llm activate local
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

@@ -49,7 +49,7 @@ flowchart LR
 
 ## 3. 安装扩展
 
-三个桥接扩展均发布在官方扩展市场，当前版本为 2.7.x（本文以 2.7.7 为例）。按需安装其中一个或多个，互不依赖。
+三个桥接扩展均发布在官方扩展市场，当前版本为 2.12+（本文以 2.12.0 为例）。按需安装其中一个或多个，互不依赖。
 
 ### 3.1 通过扩展市场安装（推荐）
 
@@ -64,7 +64,7 @@ flowchart LR
 ```bash
 neomind extension market-list                        # 查看市场可用扩展
 neomind extension market-install modbus-bridge       # 从市场安装（默认最新版）
-neomind extension market-install opcua-bridge --version 2.7.7
+neomind extension market-install opcua-bridge --version 2.12.0
 neomind extension market-install bacnet-bridge
 ```
 
@@ -389,7 +389,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 **写节点值**：`write(node_id, value, data_type)`——`value` 为字符串，`data_type` 可选（如 `Float`、`Int32`）显式指定类型。
 
 :::warning write 为保护性实现
-**当前开源版本（2.7.x）中 `write` 为保护性实现**：命令直接返回错误、不向服务器写入——避免桥接层对工业服务器误写。需要对 OPC-UA 点位做写控制时，请通过设备自带的上位机 / SCADA 操作。读与订阅不受影响。
+**当前开源版本（2.12+）中 `write` 为保护性实现**：命令直接返回错误、不向服务器写入——避免桥接层对工业服务器误写。需要对 OPC-UA 点位做写控制时，请通过设备自带的上位机 / SCADA 操作。读与订阅不受影响。
 :::
 
 - 退订 / 断开：`unsubscribe(node_ids)`（`node_ids` 格式同 `subscribe`）、`disconnect`（清空节点缓存与订阅）。
@@ -618,7 +618,7 @@ curl -X POST -H "X-API-Key: $NEOMIND_API_KEY" \
 | `read_registers` 读到的 float32 / uint32 值异常 | 双寄存器类型 `count` 不足（需 2），或 `word_order` 与设备不一致 | `uint32` / `int32` / `float32` 的 `count` 填 2；PLC 字序为低字在前时把 `word_order` 改为 `little`（默认 `big`）|
 | `read_registers` 返回的 `data` 是 `[17673, 38912]` 一类数组而非 220.15 这样的工程值 | `read_registers` 按协议返回**原始 16 位寄存器字**，解码与缩放只发生在轮询周期 | 工程值看 `get_device_data` 的 `value` 或设备指标；`data` / `raw` 留作与寄存器手册对照排错 |
 | OPC-UA `connect` 失败或频繁断开（安全模式拒绝、会话失效）| `security_mode` 与服务器安全策略不匹配；`sign` / `sign_and_encrypt` 缺少证书或账密；`sessionTimeout` 过短 | `security_mode`（`none` / `sign` / `sign_and_encrypt`）与服务器端策略一致；提供正确账密或证书；调大 `sessionTimeout`（默认 30000 ms）；保持 `autoReconnect = true` |
-| OPC-UA `write` 返回错误、值未写入 | 当前 2.7.x 开源构建中 `write` 为保护性拒绝（防误写工业服务器）| 属预期行为；改用设备自带上位机 / SCADA 执行写操作，读与订阅不受影响 |
+| OPC-UA `write` 返回错误、值未写入 | 当前 2.12+ 开源构建中 `write` 为保护性拒绝（防误写工业服务器）| 属预期行为；改用设备自带上位机 / SCADA 执行写操作，读与订阅不受影响 |
 | OPC-UA 订阅后收不到数据 | `interval_ms` 超出 50–60000；节点值本身无变化；订阅未建立成功 | 检查 `subscriptions_count` 指标与 `list_subscriptions`；把 `interval_ms` 调回范围内；先用 `read` 确认节点可读 |
 | BACnet `discover` 返回空 | 防火墙拦截 UDP 47808；跨网段广播不可达；`bindAddress` 绑定错误 | 放行 UDP 47808 收发（含广播）；NeoMind 与设备放同一二层网络（广播不跨路由）；`bindAddress` 保持 `0.0.0.0`；必要时抓包确认 Who-Is 发出、I-Am 收到 |
 | BACnet `read_property` / `write_property` 报 `Device not found: …` | 目标设备实例号不在内部设备表中（从未 discover 或 add_device）| 先 `discover`（或对已知 IP `add_device`），再执行读写 |

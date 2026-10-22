@@ -35,7 +35,7 @@ name = "neomind_extension_counter"        # 前缀必须是 neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.6"
+neomind-extension-sdk = "0.8.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -395,20 +395,20 @@ impl Extension for SensorPushExtension {
 
 ### 模式 4：事件订阅
 
-扩展可以订阅平台事件（如设备上线、规则触发），在 `handle_event()` 中响应。
+扩展可以订阅平台事件（如设备上线、规则触发），在 `handle_event()` 中响应。**事件名用 `NeoMindEvent` 变体的 PascalCase 原名**（`DeviceOnline` / `RuleTriggered` / `DeviceMetric`…）——平台投递与匹配不做大小写归一，写成 `device.online` 这类 snake_case 是收不到事件的。
 
 ```rust
 fn event_subscriptions(&self) -> &[&str] {
-    &["device.online", "rule.triggered"]
+    &["DeviceOnline", "RuleTriggered"]
 }
 
 fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
     match event_type {
-        "device.online" => {
+        "DeviceOnline" => {
             let device_id = payload["device_id"].as_str().unwrap();
             // 设备上线时做初始化...
         }
-        "rule.triggered" => {
+        "RuleTriggered" => {
             // 规则触发时的联动逻辑...
         }
         _ => {}
@@ -416,6 +416,8 @@ fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
     Ok(())
 }
 ```
+
+> 事件名匹配规则：**精确匹配 / `::` 前缀 / 字符串前缀**（如订阅 `"Device"` 能收到全部 `Device*` 事件，`"all"` 订阅全部）。官方扩展 face-recognition、ocr-device-inference 订阅 `"DeviceMetric"` 用的就是变体原名。
 
 ### 模式 5：配置参数热更新
 
@@ -450,11 +452,11 @@ my-extension-1.0.0.nep (ZIP)
 ├── binaries/
 │   ├── darwin_aarch64/
 │   │   └── extension.dylib
-│   ├── linux_x86_64/
+│   ├── linux_amd64/
 │   │   └── extension.so
-│   ├── linux_aarch64/
+│   ├── linux_arm64/
 │   │   └── extension.so
-│   └── windows_x86_64/
+│   └── windows_amd64/
 │       └── extension.dll
 ├── frontend/                   ← （可选）仪表板组件 bundle（随包分发时另有 frontend.json）
 └── models/                     ← （可选）ML 模型文件
@@ -475,8 +477,8 @@ my-extension-1.0.0.nep (ZIP)
   "type": "native",
   "binaries": {
     "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
-    "linux_x86_64": "binaries/linux_x86_64/extension.so",
-    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
+    "linux_amd64": "binaries/linux_amd64/extension.so",
+    "windows_amd64": "binaries/windows_amd64/extension.dll"
   }
 }
 ```

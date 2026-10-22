@@ -20,7 +20,7 @@ Grab the installer for your platform from [GitHub Releases](https://github.com/c
 |----------|-------------|--------|
 | macOS | Apple Silicon (arm64) | `.dmg` |
 | Windows | x86_64 | `.msi` / `.exe` |
-| Linux | x86_64 / arm64 | `.AppImage` / `.deb` |
+| Linux | x86_64 / arm64 | `.AppImage` / `.deb` / `.rpm` |
 
 > Official pre-built packages cover only the architectures above. For other platforms (e.g. macOS Intel / Windows ARM), [build from source](#build-from-source-development).
 
@@ -75,7 +75,7 @@ After install, open `http://your-server:9375` in a browser and complete the firs
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VERSION` | latest | Specific version, e.g. `0.9.23` |
+| `VERSION` | latest | Specific version, e.g. `1.2.3` |
 | `INSTALL_DIR` | `/usr/local/bin` | Binary install directory |
 | `DATA_DIR` | `/var/lib/neomind` | Data directory (redb files, logs) |
 | `WEB_DIR` | `/var/www/neomind` | Frontend static files |
@@ -88,7 +88,7 @@ Examples:
 
 ```bash
 # Pin a version
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=1.2.3 sh
 
 # Custom directories
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -102,7 +102,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 ### Upgrade
 
 - **In-browser upgrade (recommended)**: `Settings → About` automatically checks for new versions (every 24 hours; an update icon appears in the top-right corner when an update is available). Click to upgrade online — the system automatically downloads, verifies, backs up, and restarts, with no SSH needed at any point (this relies on helper systemd units deployed by install.sh; older installs can get them by rerunning the install script once).
-- **Rerun the install script**: `VERSION=0.9.23 sh install.sh` reinstalls a pinned version.
+- **Rerun the install script**: `VERSION=1.2.3 sh install.sh` reinstalls a pinned version.
 - **Docker**: `docker compose pull && docker compose up -d`.
 
 For automatic data-directory backups, see [Troubleshooting](./10-troubleshooting.md).
@@ -126,12 +126,12 @@ curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-co
 docker compose up -d
 ```
 
-Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume. The image ships with the llama.cpp runtime and curated models — download a local LLM with one click in the setup wizard.
+Single-container deployment — backend API, MQTT broker, and Web UI all run in one image. Data persists via the `neomind-data` volume. The image ships the llama.cpp runtime and the default model **LFM2.5-2.6B** in place on first volume run (doc-recommended: MiniCPM5-2B, Apache-2.0 — switch in the setup wizard). Use a named volume for the data directory — bind-mounting a host directory onto `/app/data` skips the pre-bundled model.
 
 | Image | Purpose |
 |------|------|
 | `camthink/neomind:latest` | Follows the latest release |
-| `camthink/neomind:<version>` | Pin a version, e.g. `camthink/neomind:0.9.22` |
+| `camthink/neomind:<version>` | Pin a version, e.g. `camthink/neomind:1.2.3` |
 
 | Port | Purpose |
 |------|---------|
@@ -153,7 +153,7 @@ Visit `http://host:9375` after deploy.
 For environments where the one-line script can't run (air-gapped servers, custom directory layouts):
 
 ```bash
-VERSION=0.9.23  # Replace with your target version
+VERSION=1.2.3  # Replace with your target version
 
 # Pick your platform (amd64 or arm64)
 ARCH=amd64  # Linux x86_64; use arm64 for ARM devices
@@ -176,7 +176,7 @@ sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 ```
 
 :::note Debug symbols package (optional, Linux only)
-The main tarball ships binaries only — no DWARF debug info, to keep the download small — but function symbols are retained, so everyday operations and log triage need nothing extra. For **source-line-level** crash analysis (core dumps) or performance profiling (perf flame graphs), download the matching `neomind-server-linux-${ARCH}-debug-symbols.tar.gz` and extract it next to the binaries; tools pick it up automatically. See [Troubleshooting · Crash & Performance Analysis](/docs/neomind/user-guide/troubleshooting).
+The main tarball ships binaries only — no DWARF debug info, to keep the download small — but function symbols are retained, so everyday operations and log triage need nothing extra. For **source-line-level** crash analysis (core dumps) or performance profiling (perf flame graphs), download the matching `neomind-server-linux-${ARCH}-debug-symbols.tar.gz` and extract it next to the binaries; tools pick it up automatically. See [Troubleshooting · Crash & Performance Analysis](troubleshooting).
 :::
 
 ### With nginx Reverse Proxy
@@ -206,7 +206,7 @@ server {
 
 For contributors or custom builds.
 
-**Prerequisites**: Rust 1.85+ (toolchain pinned to 1.92.0), Node.js 20+, Ollama (or a cloud LLM API key).
+**Prerequisites**: Rust 1.85+ (toolchain pinned to 1.92.0), Node.js 20+; for local LLM use the built-in model (no Ollama needed — or a cloud LLM API key).
 
 ```bash
 # Clone
@@ -331,7 +331,7 @@ The built-in proxy suits single-box HTTPS enablement; all clients share one rate
 Before moving from trial to production, walk through:
 
 - **[Backups](./10-troubleshooting.md#data--storage)** — enable the automatic schedule (Settings → Preferences) and confirm retention count
-- **[Data retention](./12-settings.md#device-defaults--data-retention)** — set telemetry retention to match your needs (default is forever; disk grows continuously)
+- **[Data retention](./12-settings.md#device-defaults--data-retention)** — auto-cleanup is on by default (metrics 30 days / images 3 days / sessions forever); tune the durations to your business needs
 - **[Users & roles](#users--roles)** — keep self-registration closed; create user / viewer accounts for operators and business users
 - **HTTPS** — front with an nginx reverse proxy and expose only 80/443 (keep 9375 / 1883 internal)
 - **[Marketplace source](./9-extensions.md)** — switch to a mirror if your network needs it
@@ -350,4 +350,4 @@ NeoMind is running? Here's the recommended order:
 
 ---
 
-*Last updated: 2026-09-11*
+*Last updated: 2026-10-21*

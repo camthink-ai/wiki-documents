@@ -15,13 +15,13 @@ Data Push automatically sends NeoMind device telemetry **to external systems** �
 - Push AI inference results to a business system to trigger downstream workflows
 - Bridge NeoMind to another IoT platform
 
-> Data Push lives under the **Push** tab on the **Data Explorer** page, complementing [Rules](./7-automation-rules.md) (condition-triggered actions) and [Data Transforms](./7b-data-transforms.md) (real-time data processing).
+> Data Push lives under the **Data Push** tab on the **Data Explorer** page, complementing [Rules](./7-automation-rules.md) (condition-triggered actions) and [Data Transforms](./7b-data-transforms.md) (real-time data processing).
 
 ## Interface Overview
 
-Open **Data Explorer** (database icon) in the left nav and switch to the **Push** tab:
+Open **Data Explorer** (database icon) in the left nav and switch to the **Data Push** tab:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-list.png" alt="Data push list — target name, type, status, schedule, data sources" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page lists all push targets in a table, each row containing:
 
@@ -39,7 +39,7 @@ The page lists all push targets in a table, each row containing:
 
 Click **Create** to open the full-screen configuration dialog:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create.png" alt="Push target create dialog — name, type, target URL, schedule" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. Basic Info
 
@@ -55,16 +55,25 @@ Click **Create** to open the full-screen configuration dialog:
 | Field | Description |
 |-------|-------------|
 | **URL** | HTTP endpoint that receives data (e.g. `https://api.example.com/ingest`) |
-| **Method** | HTTP method (default `POST`) |
-| **Headers** | Custom request headers (e.g. `Authorization: Bearer <token>`, `Content-Type: application/json`) |
+| **Authentication** | Auth dropdown: `None` / `Bearer Token` / `Basic Auth` (selecting one reveals a Token or Username / Password input) |
+
+> The UI has no Method / Headers inputs. The request method is fixed to `POST`; to add custom headers (e.g. `Authorization: Bearer <token>`, `Content-Type: application/json`), set them via the API's `config.headers` field.
 
 **MQTT type**:
 
+Pick the broker source from the dropdown at the top first:
+
+| Mode | Description |
+|------|-------------|
+| **Select broker** | Choose from MQTT Brokers registered under Device Connections — host / port / credentials are filled in automatically |
+| **Manual input** | Type the broker host and port manually |
+
 | Field | Description |
 |-------|-------------|
-| **Broker** | MQTT Broker host (e.g. `broker.example.com`; port is a separate field, default `1883`) |
-| **Topic** | Publish topic (e.g. `factory/line1/sensors`) |
+| **Broker / Port** | MQTT Broker host (e.g. `broker.example.com`) and port (default `1883`) |
 | **Username / Password** | Authentication credentials (optional) |
+| **Topic** | Publish topic (e.g. `factory/line1/sensors`) |
+| **QoS** | Quality of service: `QoS 0` / `QoS 1` / `QoS 2` (default `QoS 1`) |
 
 ### 3. Schedule
 
@@ -73,22 +82,22 @@ Click **Create** to open the full-screen configuration dialog:
 | **Event Driven** | Push as soon as new data arrives | Real-time sync, low-latency scenarios |
 | **Interval** | Batch push every N seconds | Reduce request frequency, batch scenarios |
 
-### 4. Data Source Filter
+### 4. Data Source Selection
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create-sources.png" alt="Push target — data source selection panel, multi-select grouped by type" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-Choose which data sources to push:
+Choose which data sources to push. The panel is a **tree with checkboxes**: sources are grouped by type (Device / Extension / Transform / System), searchable, and each group row supports select-all / deselect-all.
+
+For more flexible matching, expand the **Advanced** section to type source patterns manually (comma-separated):
 
 | Setting | Description |
 |---------|-------------|
-| **Source Patterns** | Wildcard matching. `device:sensor-01:*` = all metrics of sensor-01; `device:sensor-01:temperature` = sensor-01's temperature metric. Note: patterns match by **prefix** — a `*` in the middle has no effect (`device:*:temperature` actually matches all device data) |
+| **Source Patterns** | Matched by **prefix** against the data source ID, with three forms: a lone `*` = match everything; a trailing `*` = prefix match (`device:sensor-01:*` = all metrics of sensor-01); anything else is matched with prefix `starts_with` (`device:sensor-01:` = all of sensor-01's data, `device:sensor-01:temperature` = sensor-01's temperature metric). Note: a `*` in the **middle** has no effect — `device:*:temperature` matches nothing; to filter by metric, list `device:<id>:temperature` per device |
 | **Only Changes** | When enabled, pushes only when the data value actually changes, skipping duplicates to reduce traffic. Configured via the API's `data_filter.only_changes` field (the create dialog doesn't expose this toggle yet; off by default) |
-
-The source panel is grouped by type (Device / Extension / Transform / System) with search and multi-select.
 
 ### 5. Retry & Batch
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create-retry.png" alt="Push target — retry strategy and batch config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **Retry Config** — configured via the API's `retry_config` field; when omitted, the following defaults apply:
 
@@ -100,7 +109,7 @@ The source panel is grouped by type (Device / Extension / Transform / System) wi
 
 > Retry uses exponential backoff: 1st retry waits 5s, 2nd 10s, 3rd 20s … up to the Max Backoff cap. Note that `Max Retries: 3` counts **retries** — including the initial send, one data point gets at most 4 attempts. If the target replies with **429/503** (rate limiting), NeoMind switches to a longer fixed backoff and honors the `Retry-After` response header when present (defaulting to 60 seconds without it), so an already-throttled endpoint isn't hammered further.
 
-**Batch Config**:
+**Batch Aggregation** — in the UI you first pick `Immediate` (send per event) or `Batched` (aggregate), plus a `Flat` / `Nested` format; this maps to the API's `batch_config` field:
 
 | Field | Description |
 |------|-------------|
@@ -305,7 +314,7 @@ curl -X POST http://localhost:9375/api/data-push \
     "target_type": "webhook",
     "config": {"url": "https://api.example.com/ingest", "method": "POST"},
     "schedule": {"type": "event_driven", "event_types": ["device_metric"]},
-    "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false},
+    "data_filter": {"source_patterns": ["device:sensor-01:temperature"], "only_changes": false},
     "enabled": true
   }'
 
@@ -331,7 +340,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **Type**: Webhook
 - **Schedule**: Event Driven (push on new data)
-- **Source**: `device:*:temperature` (prefix-matched — effectively all device data; list `device:<id>:temperature` per device to target the metric precisely)
+- **Source**: `device:<id>:temperature` (list per device, e.g. `device:sensor-01:temperature`; prefix matching has no mid-pattern wildcard support — `device:*:temperature` matches nothing)
 - **Only Changes**: enabled (avoid duplicate values)
 - **Retry**: 3 attempts, exponential backoff
 
@@ -339,7 +348,7 @@ curl http://localhost:9375/api/data-push/stats
 
 - **Type**: MQTT
 - **Schedule**: Interval, every 60 seconds
-- **Source**: `device:*:online`
+- **Source**: `device:<id>:online` (list per device; a mid-pattern `*` has no effect — `device:*:online` matches nothing)
 - **Batch**: 100 items per batch, 5-second interval
 - **Only Changes**: enabled (push only state changes)
 
@@ -375,4 +384,4 @@ curl http://localhost:9375/api/data-push/stats
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-10-21*

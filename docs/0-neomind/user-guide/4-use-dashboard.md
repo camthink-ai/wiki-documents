@@ -21,16 +21,17 @@ sidebar_label: "Use Dashboards"
 ## 创建仪表板
 
 1. 点击左侧导航栏的 **可视化仪表板（Visual Dashboard）** 图标进入仪表板列表
-2. 点击列表中的 **+（New Dashboard）** 按钮
+2. 在左侧栏的 **New Dashboard** 区域，于内联名称输入框中输入名称（仅名称，无单独的描述字段），按 Enter 或点击创建按钮确认
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入名称与描述" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-create-dialog.png" alt="创建仪表板对话框 — 输入仪表板名称" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-3. 输入**名称**（必填）与**描述**（可选），点击创建
-4. 新仪表板自动进入编辑模式，此时画布为空
+3. 新仪表板自动进入编辑模式，此时画布为空
 
+> 没有任何仪表板时的空画布页面还提供两个快捷入口：**Create Dashboard**（一键创建默认看板）与 **Ask AI**（用自然语言让 AI 代为搭建）。
+>
 > 仪表板列表页会展示所有已创建的仪表板，点击名称即可进入查看：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-list.png" alt="仪表板列表 — 所有已创建的仪表板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 查看模式 vs 编辑模式
 
@@ -41,11 +42,11 @@ sidebar_label: "Use Dashboards"
 | **查看模式**（默认） | 锁定布局，仅展示实时数据。普通用户和分享链接访客看到的就是这个模式 | 齿轮图标（Settings2） |
 | **编辑模式** | 可拖拽组件位置与大小、添加/删除组件、修改配置。网格支持磁吸对齐 | ✓ 图标（Check） |
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-view-empty.png" alt="仪表板查看模式 — 空状态提示进入编辑" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > 空仪表板在查看模式下会提示「进入编辑模式，添加你的第一个组件」。点击齿轮图标进入编辑模式后，会出现 **Add Component（添加组件）** 按钮。
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-edit-mode.png" alt="仪表板编辑模式 — 空状态与 Add Component 按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 添加组件
 
@@ -62,9 +63,9 @@ sidebar_label: "Use Dashboards"
 
 内置组件按类别分组：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-widget-library.png" alt="组件库 — 按类别分组的内置组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-#### 指标与指示器（Indicators & Metrics）
+#### 指标与指示器（Indicators）
 
 | 组件 | 用途 | 典型场景 |
 |------|------|---------|
@@ -182,7 +183,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 1. 在仪表板工具栏点击 **Share（分享）** 图标
 
-<img src="https://resources.camthink.ai/NeoMind/dashboard-share-dialog.png" alt="分享对话框 — 生成公开链接" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-share-dialog.png" alt="分享对话框 — 生成公开链接" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 2. 点击 **New Link（新建链接）** 生成新链接
 3. 设置过期时间（1 小时 / 24 小时 / 3 天 / 7 天 / 30 天 / 永不过期）
@@ -199,7 +200,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 ## 移动端适配
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-mobile.png" alt="仪表板移动端 — 单列堆叠布局" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 - **响应式断点**：< 768px 自动切单列堆叠布局
 - **编辑模式**：移动端默认禁用拖拽编辑（屏幕过小），建议在桌面端编辑
@@ -218,7 +219,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 在组件库面板切换到 **Marketplace** 标签页，可以浏览社区组件市场：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-marketplace.png" alt="社区组件市场 — 浏览并一键安装社区组件" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每个组件卡片显示：
 
@@ -230,7 +231,7 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 | **描述** | 组件功能简介 |
 | **Install / Uninstall** | 一键安装或卸载 |
 
-点击 **Install** 即可安装，安装后组件出现在 **Marketplace（市场）** 分类下，可以像内置组件一样添加使用。已安装的组件显示 **Uninstall** 按钮，随时可移除。
+点击 **Install** 即可安装，安装后组件出现在 **Marketplace（市场）** 分类下，可以像内置组件一样添加使用。已安装组件的主按钮为 **Add Component**，卸载通过卡片上的删除图标完成。
 
 > 市场组件来源于 [NeoMind-Dashboard-Components](https://github.com/camthink-ai/NeoMind-Dashboard-Components) 社区仓库，持续更新中。
 
@@ -240,11 +241,11 @@ NeoMind 通过 **WebSocket / SSE** 把设备数据推送到前端：
 
 1. 切换到 **Custom** 标签页，点击 **Import Component** 按钮
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-widget-import.png" alt="导入组件对话框 — 上传 ZIP 组件包" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-2. 点击上传区域选择 `.zip` 文件（或拖拽文件到上传区）；桌面/服务器部署也可以改用**服务器路径导入**（展开高级选项，直接填写组件包在服务器上的路径）
+2. 点击上传区域选择 `.zip` 文件（或拖拽文件到上传区）；桌面/服务器部署也可以改用**服务器路径导入**（切换到 Server path 模式，直接填写组件包在服务器上的路径）
 3. ZIP 包内必须包含 `manifest.json`（组件元数据）和 `bundle.js`（组件代码）
-4. 点击 **Install Confirm** 完成安装。导入的自定义组件统一在 **Custom** 标签页管理（市场安装的组件仍归 Marketplace 管理）
+4. 点击 **Confirm Install** 完成安装。导入的自定义组件统一在 **Custom** 标签页管理（市场安装的组件仍归 Marketplace 管理）
 
 > ZIP 包结构详见 [开发指南 — Dashboard 组件开发](../developer-guide/8-dashboard-component-dev.md)。
 

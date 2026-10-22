@@ -68,7 +68,7 @@ AI Chat 会话记录的保留时长（`session_retention_hours`）：默认**永
 
 ### 记忆配置
 
-USER.md / KNOWLEDGE.md 两个记忆文件的字符上限（默认 2000 / 3000）。超出后自动淘汰最旧条目；文件本身在 [AI Agent → Memory](./6-ai-agent.md) 页签中查看和编辑。
+USER.md / KNOWLEDGE.md / PROCEDURES.md 三个记忆文件的字符上限（默认 2000 / 3000 / 3000）。超出后自动淘汰最旧条目；文件本身在 [AI Agent → Memory](./6-ai-agent.md) 页签中查看和编辑。
 
 ### 自动接入（Auto-Onboard）
 
@@ -77,7 +77,7 @@ USER.md / KNOWLEDGE.md 两个记忆文件的字符上限（默认 2000 / 3000）
 ### 扩展市场源
 
 
-默认从 GitHub 拉取扩展市场索引。国内网络可在此切换镜像地址（或用环境变量 `NEOMIND_EXTENSION_MARKET_URL`），保存后下一次市场请求即生效，无需重启。切换后扩展完整性按镜像的文件校验。
+默认从 GitHub 拉取扩展市场索引。国内网络可在此切换镜像地址（或用环境变量 `NEOMIND_EXTENSION_MARKET_URL`），保存后下一次市场请求即生效，无需重启。优先级为 保存的设置 > 环境变量 `NEOMIND_EXTENSION_MARKET_URL` > 内置默认——已设环境变量时，在 UI 保存会静默覆盖它。切换后扩展完整性按镜像的文件校验。
 
 ## About（关于）
 
@@ -92,4 +92,4 @@ USER.md / KNOWLEDGE.md 两个记忆文件的字符上限（默认 2000 / 3000）
 
 ---
 
-*最后更新: 2026-09-20*
+*最后更新: 2026-10-21*

@@ -31,103 +31,127 @@ By the end of this guide you will have:
 
 ---
 
-## Step 1: Install (1 min)
+## Step 1: Install NeoMind (~2 min)
 
-### Option A: Desktop App (recommended)
+Pick any one of the three install methods — all ship the Web UI and MQTT broker and **require no** databases, message brokers, or other external components.
 
-Download the installer for your platform from [GitHub Releases](https://github.com/camthink-ai/NeoMind/releases/latest), double-click to install, then launch.
+### Option A: Installer Package (Desktop App, recommended)
 
-### Option B: Server Deploy
+**Best for**: trying NeoMind on a personal computer without touching a terminal.
+
+1. Open [GitHub Releases](https://github.com/camthink-ai/NeoMind/releases/latest) and download the package for your system from the latest release:
+   - macOS (Apple Silicon) → `.dmg`
+   - Windows (x86_64) → `.msi` / `.exe`
+   - Linux (x86_64 / arm64) → `.AppImage` / `.deb` / `.rpm`
+2. Install and launch:
+   - **macOS**: drag NeoMind into Applications. If first launch says "cannot verify developer", run `xattr -cr /Applications/NeoMind.app` in a terminal and open again (or click "Open Anyway" in System Settings → Privacy & Security)
+   - **Windows**: on the SmartScreen prompt click "More info → Run anyway"
+   - **Linux**: `.deb` installs with a double-click or `sudo apt install ./neomind-*.deb`; `chmod +x` the `.AppImage` and run it
+
+**Access**: the desktop app opens its own native window — no browser needed.
+
+### Option B: Command Line (local machine or server)
+
+**Best for**: running long-term on a Linux host.
+
+1. Run the install script (needs root or sudo; downloads the static binary and registers a systemd service):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
-After startup, open `http://localhost:9375` in your browser.
+2. When the script finishes the service is already running — the binary lands in `/usr/local/bin`, service name `neomind`:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step1-login-v2.png" alt="NeoMind login page" style={{width: '100%'}} />
+```bash
+systemctl status neomind    # should show active (running)
+```
 
-> ✓ **Checkpoint**: you see the login / register page = the server is running. Register an account and log in.
+3. Useful environment variables (export before running): `PORT=9375` (service port), `INSTALL_DIR` (install directory), `NO_SERVICE=true` (binary only, skip the service)
 
-:::note Can't see the page?
+**Access**: on the same machine use `http://localhost:9375`; on a remote server use `http://<server-IP>:9375` (or forward with `ssh -L 9375:localhost:9375 user@server` when there's no browser).
 
-- **Port in use?** Default port is `9375`; you can change it in the config file
-- **macOS security block?** First launch shows "cannot verify developer" — go to `System Settings → Privacy & Security → Open Anyway`
-- **Server without a browser?** Use SSH port forwarding: `ssh -L 9375:localhost:9375 user@server`
+### Option C: Docker (local machine or container host)
+
+**Best for**: environments that already run Docker, for the cleanest deployment and upgrade experience.
+
+Prerequisite: Docker installed (on Linux you need sudo or membership in the docker group).
+
+1. One command to start (data persisted):
+
+```bash
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+The image (multi-arch amd64 + arm64) ships the llama.cpp runtime and the default model LFM2.5-2.6B, in place on first run. `docker compose up -d` works too (compose file in [Install & Configure](../user-guide/1-install-setup.md#docker)).
+
+2. Confirm startup: `docker logs -f neomind` (wait for the ready output, Ctrl+C to stop)
+
+**Access**: local Docker uses `http://localhost:9375`; on a remote host use `http://<host-IP>:9375` (port mapping done by `-p`).
+
+> Use a named volume for the data directory (as above). Bind-mounting a host directory onto `/app/data` skips the pre-bundled model — use the download API instead.
+
+---
+
+## Step 2: Create the Admin Account & Log In (30 sec)
+
+Opening the access URL for the first time shows the **create admin account** page:
+
+1. Fill in a username and password (**keep them safe** — the platform's data-encryption key is bound to this account); email is optional
+2. Click **Get Started** to finish, then log in
+
+<div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step2-create-admin.png" alt="First visit: create the admin account" style={{width: '49%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step1-login-v2.png" alt="Returning visits: login page" style={{width: '49%'}} />
+</div>
+
+> ✓ **Checkpoint**: after logging in you see the AI Chat welcome page = account ready.
+
+:::note Login trouble?
+
+- **Forgot the password?** Run `neomind user reset-password admin` on the server to reset it
+- **Blank page?** Make sure you're using the access URL matching your install method from Step 1 (localhost or the remote IP)
   :::
 
 ---
 
-## Step 2: Configure LLM Backend (1 min)
+## Step 3: Download the Built-in Model — Give NeoMind a Brain (1–2 min)
 
-On first login you'll enter the setup wizard. NeoMind needs an LLM backend as its "brain" — pick one of the options below:
+There are two entry points with identical content — pick either:
 
-| Option | Best for | Latency | Privacy | Requires |
-|--------|----------|---------|---------|----------|
-| **Built-in model (one-click download in wizard)** | Fastest start | Low | Fully local | No API key needed |
-| **Ollama (local)** | If you already run Ollama, offline use | Low | Never leaves LAN | 8 GB+ RAM |
-| **Cloud API** | Most powerful models | Medium | Data goes to cloud | API Key |
-| **Skip for now** | Just look around | — | — | — |
+- **In the post-login onboarding (recommended)**: on the wizard's "Configure AI Model" step, the Built-in Model card has a **Download** button
+- **Settings → LLM Backends**: the **Built-in Model** card at the top → **Download** (reinstalling or switching models also happens on this card)
 
-> The platform ships with several ready-to-run local models (e.g. Qwen 3.5, Gemma 4 — automatically recommended based on your hardware). Just click download in the wizard's **LLM Backend** step — no need to install Docker or Ollama. Importing your own GGUF models is also supported. See [Configure LLM Backend](../user-guide/2-configure-llm.md) for details.
+**The default guide page when no backend exists** — right after registration, before any LLM backend is configured, AI Chat shows this guide directly:
 
-### Option A: Built-in model (one-click download, recommended)
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-chat-model-guide.png" alt="Default guide page with no backend: built-in model (recommended) or bring your own" style={{width: '90%', display: 'block', margin: '0 auto', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-In the wizard's **LLM backend** step, open the built-in model card and click **Download** (auto-recommended for your hardware — no Ollama or Docker needed). When done, the wizard shows **"LLM backend connected"**.
+Clicking starts the platform-recommended model download (~1.5GB, live progress, resumable); when it finishes the model is ready automatically:
 
-### Option B: Ollama local (if you already have it)
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-ready.png" alt="Built-in model ready state" style={{width: '100%'}} />
 
-```bash
-# 1. Install Ollama (if you haven't): https://ollama.com
-# 2. Pull the model
-ollama pull qwen3.5:4b
-```
+> ✓ **Checkpoint**: the card shows **Running** with **Switch Model / Activate** buttons = the brain is in place.
 
-In the wizard:
+:::tip Skip this step and chat still works
+On a brand-new instance, AI Chat works even without the manual download — the model selector automatically lands on the **built-in model (llama.cpp auto)**, and the platform fetches the default model on first use:
 
-1. Backend type → **Ollama**
-2. URL → `http://localhost:11434` (default)
-3. Model → `qwen3.5:4b`
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-chat-auto.png" alt="Model selector automatically lands on the built-in model (llama.cpp auto)" style={{width: '100%'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step2-llm-config.png" alt="LLM configuration wizard" style={{width: '100%'}} />
-
-### Option C: Cloud API
-
-Pick OpenAI / Anthropic / GLM etc., enter your API Key and model name (e.g. `gpt-4o`, `claude-sonnet-4-6`).
-
-> ✓ **Checkpoint**: the wizard shows **"LLM backend connected"** = the brain is ready.
-
-:::note Connection failed?
-
-- **Ollama not running?** Start it with `ollama serve` in a terminal
-- **Model not pulled?** Run `ollama list` to confirm `qwen3.5:4b` exists
-- **Cloud 401?** Check that your API Key is valid and has credit
-  :::
-
-> See [Configure LLM Backend](../user-guide/2-configure-llm.md).
-
-:::tip Prefer the CLI?
-Skip the UI — one command does it:
-
-```bash
-# Ollama local
-neomind llm create --name local --type ollama --endpoint http://localhost:11434 --model qwen3.5:4b
-
-# Cloud API (GLM example)
-neomind llm create --name glm --type openai \
-  --endpoint https://open.bigmodel.cn/api/paas/v4 \
-  --model glm-4-flash --api-key YOUR_API_KEY
-
-# Test connection → set as default
-neomind llm test local && neomind llm activate local
-```
-
-Full command reference: `neomind llm --help`
+The value of clicking Download manually is **finishing the download up front and pinning the model**, avoiding the first-conversation wait.
 :::
 
----
+No API key, no Ollama or Docker install, fully offline. Want one of the other catalog models (incl. the 0.7GB vision variant MiniCPM-V) or to import your own GGUF? Click **Switch Model** — see [Configure LLM Backend](../user-guide/2-configure-llm.md).
 
-## Step 3: Connect Your First Device (1 min)
+:::note Download or activation failed?
+
+- **Low-memory warning?** The built-in model needs 3 GB RAM minimum — switch to a lighter model or use a cloud backend on tight machines
+- **Download interrupted?** Downloads resume — click Download again to continue
+- **Activate button greyed out?** Wait for the card state to turn Running before activating
+  :::
+
+## Step 4: Connect Your First Device (1 min)
 
 The fastest ingress method is **HTTP Webhook** — no MQTT client needed, a single `curl` simulates a device.
 
@@ -138,8 +162,8 @@ In the Web UI **Devices** page → click **Add Device** → select **Webhook** �
 After creation you'll get a dedicated Webhook URL (like `/api/devices/<DEVICE_ID>/webhook`).
 
 <div style={{display: 'flex', gap: '8px'}}>
-  <img src="https://resources.camthink.ai/NeoMind/v0923/step3-add-device.png" alt="Add device" style={{width: '50%'}} />
-  <img src="https://resources.camthink.ai/NeoMind/step3-webhook-url.png" alt="Get webhook URL" style={{width: '50%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step3-add-device.png" alt="Add device" style={{width: '50%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step3-webhook-url.png" alt="Get webhook URL" style={{width: '50%'}} />
 </div>
 
 ### 3.2 Push data
@@ -154,7 +178,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 A `{"success": true}` response means it worked. Open the device detail page to see the latest telemetry values.
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step3-device-detail.png" alt="Device detail page showing telemetry" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-device-detail.png" alt="Device detail page showing telemetry" style={{width: '100%'}} />
 
 > ✓ **Checkpoint**: the device detail page shows `temperature: 25.6` and `humidity: 60` = data is in the database.
 
@@ -171,7 +195,8 @@ NeoMind has a built-in MQTT broker (`localhost:1883`) that supports real devices
 
 ---
 
-## Step 4: See Data on the Dashboard (30 sec)
+
+## Step 5: See Data on the Dashboard (30 sec)
 
 Go to the **Dashboard** page and create a dashboard (pick the **Overview** template or a blank canvas), then add a **Value Card** widget:
 
@@ -179,7 +204,7 @@ Go to the **Dashboard** page and create a dashboard (pick the **Overview** templ
 2. Data source → `device:demo-sensor:temperature`
 3. Save
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step4-dashboard.png" alt="Dashboard value card" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step4-dashboard.png" alt="Dashboard value card" style={{width: '100%'}} />
 
 :::info DataSourceId Format
 
@@ -187,6 +212,7 @@ The unified data source reference format is `{type}:{id}:{field}`:
 
 - `device:demo-sensor:temperature` — device telemetry
 - `extension:weather-forecast:temperature` — extension metric
+- `ai:temp-inspector:verdict` — AI Agent structured output (an AI-generated virtual metric)
 - `transform:temp-converter:temp_f` — data transform output
 
 Dashboards, rules, and data pushes all use this format. See the [Glossary](../concepts/1-glossary.md).
@@ -206,7 +232,8 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 ---
 
-## Step 5: Ask AI Chat (30 sec)
+
+## Step 6: Ask AI Chat (30 sec)
 
 Open **AI Chat** and type:
 
@@ -214,7 +241,7 @@ Open **AI Chat** and type:
 
 The AI Agent will query the device list and latest telemetry, then answer in natural language.
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step5-ai-chat.png" alt="AI Chat conversation" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step5-ai-chat.png" alt="AI Chat conversation" style={{width: '100%'}} />
 
 Now try something more ambitious — let the AI create an automation for you:
 
@@ -226,7 +253,7 @@ The AI will understand your intent, create a rule, and configure a notification 
 
 :::note AI not responding?
 
-- **LLM backend not connected?** Go back to **Settings → LLM Config** and check status
+- **LLM backend not connected?** Go back to **Settings → LLM Backends** and check status
 - **First reply is slow?** Local models need to warm up on first inference — 10–20 seconds is normal
   :::
 
@@ -271,4 +298,4 @@ Congratulations! You've completed the NeoMind core loop. From here:
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

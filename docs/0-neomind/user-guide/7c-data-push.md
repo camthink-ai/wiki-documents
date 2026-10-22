@@ -15,13 +15,13 @@ sidebar_position: 7.75
 - 将 AI 推理结果推送到业务系统触发后续流程
 - 桥接 NeoMind 到另一个 IoT 平台
 
-> 数据推送位于 **Data Explorer** 页面的 **Push** 标签下，与 [规则](./7-automation-rules.md)（条件触发动作）和 [数据转换](./7b-data-transforms.md)（实时数据加工）互补。
+> 数据推送位于 **Data Explorer** 页面的 **Data Push** 标签下，与 [规则](./7-automation-rules.md)（条件触发动作）和 [数据转换](./7b-data-transforms.md)（实时数据加工）互补。
 
 ## 界面概览
 
-进入左侧导航的 **Data Explorer**（数据库图标），切换到 **Push** 页签：
+进入左侧导航的 **Data Explorer**（数据库图标），切换到 **Data Push** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-list.png" alt="数据推送列表 — 推送目标、类型、状态、调度方式、数据源" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有推送目标，每行包含：
 
@@ -39,7 +39,7 @@ sidebar_position: 7.75
 
 点击 **Create** 按钮，打开全屏配置对话框：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create.png" alt="推送目标创建对话框 — 名称、类型、目标地址、调度方式" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 1. 基本信息
 
@@ -55,16 +55,25 @@ sidebar_position: 7.75
 | 字段 | 说明 |
 |------|------|
 | **URL** | 接收数据的 HTTP 端点（如 `https://api.example.com/ingest`） |
-| **Method** | HTTP 方法（默认 `POST`） |
-| **Headers** | 自定义请求头（如 `Authorization: Bearer <token>`、`Content-Type: application/json`） |
+| **Authentication** | 鉴权方式下拉：`None` / `Bearer Token` / `Basic Auth`（选择后出现 Token 或 Username / Password 输入框） |
+
+> UI 不提供 Method / Headers 输入。请求方法固定为 `POST`；如需自定义请求头（如 `Authorization: Bearer <token>`、`Content-Type: application/json`），通过 API 的 `config.headers` 字段配置。
 
 **MQTT 类型**：
 
+先在顶部下拉选择 Broker 来源：
+
+| 模式 | 说明 |
+|------|------|
+| **Select broker（选择 Broker）** | 从 Device Connections 中注册的 MQTT Broker 里选择，主机 / 端口 / 凭据自动带出 |
+| **Manual input（手动输入）** | 手动填写 Broker 地址与端口 |
+
 | 字段 | 说明 |
 |------|------|
-| **Broker** | MQTT Broker 主机地址（如 `broker.example.com`；端口单独填写，默认 `1883`） |
-| **Topic** | 发布主题（如 `factory/line1/sensors`） |
+| **Broker / Port** | MQTT Broker 主机地址（如 `broker.example.com`）与端口（默认 `1883`） |
 | **Username / Password** | 认证凭据（可选） |
+| **Topic** | 发布主题（如 `factory/line1/sensors`） |
+| **QoS** | 服务质量等级：`QoS 0` / `QoS 1` / `QoS 2`（默认 `QoS 1`） |
 
 ### 3. 调度方式
 
@@ -73,22 +82,22 @@ sidebar_position: 7.75
 | **Event Driven（事件驱动）** | 有新数据到达时立即推送 | 实时同步、低延迟场景 |
 | **Interval（定时间隔）** | 每隔 N 秒批量推送一次 | 减少请求频率、批量场景 |
 
-### 4. 数据源过滤
+### 4. 数据源选择
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create-sources.png" alt="推送目标 — 数据源选择面板，按类型分组的多选" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-选择哪些数据源的数据需要推送：
+选择哪些数据源的数据需要推送。面板为**树形勾选**：数据源按类型分组（Device / Extension / Transform / System），支持搜索，分组行可一键全选 / 取消该组。
+
+需要更灵活的匹配时，展开 **Advanced** 区域手工输入数据源模式（逗号分隔）：
 
 | 配置 | 说明 |
 |------|------|
-| **Source Patterns（数据源模式）** | 使用通配符匹配。`device:sensor-01:*` = sensor-01 的所有指标；`device:sensor-01:temperature` = sensor-01 的温度指标。注意：通配符按**前缀**匹配，放在中间的 `*` 不生效（`device:*:temperature` 实际会匹配所有设备数据） |
+| **Source Patterns（数据源模式）** | 按数据源 ID 的**前缀**匹配，共三种写法：单独 `*` = 匹配全部；尾部 `*` = 前缀匹配（`device:sensor-01:*` = sensor-01 的所有指标）；其余写法按前缀 `starts_with` 匹配（`device:sensor-01:` = sensor-01 的全部数据，`device:sensor-01:temperature` = sensor-01 的温度指标）。注意：**放在中间的 `*` 不生效**——`device:*:temperature` 匹配不到任何数据；要按指标筛选请逐台设备列出 `device:<id>:temperature` |
 | **Only Changes（仅变化推送）** | 开启后只在数据值发生变化时推送，跳过重复值，减少流量。通过 API 的 `data_filter.only_changes` 字段配置（UI 创建面板暂未提供该开关，默认关闭） |
-
-数据源面板按类型分组（Device / Extension / Transform / System），支持搜索和多选。
 
 ### 5. 重试与批量
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/data-push-create-retry.png" alt="推送目标 — 重试策略与批量配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 **重试策略（Retry Config）**——通过 API 的 `retry_config` 字段配置，未配置时按以下默认值启用：
 
@@ -100,7 +109,7 @@ sidebar_position: 7.75
 
 > 重试使用指数退避策略：第 1 次重试等 5s，第 2 次等 10s，第 3 次等 20s……直到达到 Max Backoff 上限。注意 `Max Retries: 3` 指的是**重试**次数——加上首次发送，一条数据最多尝试 4 次。如果目标端返回 **429/503**（限流），NeoMind 会改用更长的固定退避并优先遵循响应头里的 `Retry-After`（未携带时默认等 60 秒），避免把已经过载的对端打垮。
 
-**批量配置（Batch Config）**：
+**批量配置（Batch Aggregation）**——UI 中先选择 `Immediate`（逐条立即发）或 `Batched`（聚合批量），并可指定格式 `Flat` / `Nested`；对应 API 的 `batch_config` 字段：
 
 | 字段 | 说明 |
 |------|------|
@@ -288,7 +297,7 @@ curl -X POST http://localhost:9375/api/data-push \
     "target_type": "webhook",
     "config": {"url": "https://api.example.com/ingest", "method": "POST"},
     "schedule": {"type": "event_driven", "event_types": ["device_metric"]},
-    "data_filter": {"source_patterns": ["device:*:temperature"], "only_changes": false},
+    "data_filter": {"source_patterns": ["device:sensor-01:temperature"], "only_changes": false},
     "enabled": true
   }'
 
@@ -331,7 +340,7 @@ NeoMind 自带嵌入式 MQTT Broker（默认端口 1883），设备数据本来�
 
 - **类型**：Webhook
 - **调度**：Event Driven（有新数据即推送）
-- **数据源**：`device:*:temperature`（按前缀匹配，实际匹配所有设备数据；如需精确到指标可逐台设备列出 `device:<id>:temperature`）
+- **数据源**：`device:<id>:temperature`（逐台设备列出，如 `device:sensor-01:temperature`；前缀匹配不支持中缀通配，`device:*:temperature` 匹配不到任何数据）
 - **Only Changes**：开启（避免重复值）
 - **重试**：3 次，指数退避
 
@@ -339,7 +348,7 @@ NeoMind 自带嵌入式 MQTT Broker（默认端口 1883），设备数据本来�
 
 - **类型**：MQTT
 - **调度**：Interval，每 60 秒
-- **数据源**：`device:*:online`
+- **数据源**：`device:<id>:online`（逐台设备列出；中缀 `*` 不生效，`device:*:online` 匹配不到任何数据）
 - **批量**：每批 100 条，间隔 5 秒
 - **Only Changes**：开启（只推送状态变化）
 
@@ -375,4 +384,4 @@ NeoMind 自带嵌入式 MQTT Broker（默认端口 1883），设备数据本来�
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

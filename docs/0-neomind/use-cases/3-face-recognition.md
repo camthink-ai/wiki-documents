@@ -54,7 +54,7 @@ flowchart LR
 |------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
 | **NeoMind 平台** | v0.9.0+（[下载](https://github.com/camthink-ai/NeoMind/releases/latest)） | 边缘 AI 管理 | ✅ |
-| **Face Recognition 扩展** | face-recognition 2.7.x | 人脸检测与身份识别 | ✅ |
+| **Face Recognition 扩展** | face-recognition 2.12+ | 人脸检测与身份识别 | ✅ |
 | **本地 LLM** | Ollama | AI Chat 后端 | 可选 |
 
 ---
@@ -86,7 +86,7 @@ flowchart LR
 
 ## 4. 安装 Face Recognition 扩展
 
-扩展发布在官方扩展市场，当前版本为 **2.7.x**（本文以 2.7.8 为例）。
+扩展发布在官方扩展市场，当前版本为 **2.12+**（本文以 2.12.0 为例）。
 
 ### 4.1 通过扩展市场安装（推荐）
 
@@ -103,7 +103,7 @@ flowchart LR
 ```bash
 neomind extension market-list                     # 查看市场可用扩展
 neomind extension market-install face-recognition # 从市场安装（默认最新版）
-neomind extension market-install face-recognition --version 2.7.8
+neomind extension market-install face-recognition --version 2.12.0
 ```
 
 ### 4.3 验证安装状态
@@ -112,7 +112,7 @@ neomind extension market-install face-recognition --version 2.7.8
 - 点击扩展卡片进入 **扩展详情页**，确认存在 总览 / 配置 / 命令（Commands）/ 指标（Metrics）/ 日志（Logs）标签。
 - 切到 **指标（Metrics）** 标签，应能看到扩展级指标 `bound_devices`、`total_inferences`、`total_recognized`、`total_unknown` 开始上报（初始为 0）。
 
-> SCRFD（`det_10g.onnx`）与 ArcFace 模型随扩展分发，并在**首次推理时懒加载**——安装后第一帧识别会稍慢，属正常现象。
+> SCRFD（`det_10g.onnx`）与 ArcFace（`w600k_r50.onnx`）模型随扩展分发（以 `.nep` 包实际打包为准），并在**首次推理时懒加载**——安装后第一帧识别会稍慢，属正常现象。
 
 ---
 

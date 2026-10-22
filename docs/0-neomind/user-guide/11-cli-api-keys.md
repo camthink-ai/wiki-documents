@@ -17,7 +17,7 @@ cd /path/to/neomind    # 切到项目根目录
 neomind device list     # 直接可用
 ```
 
-> auto-auth 的数据目录解析顺序：`NEOMIND_DATA_DIR` 环境变量 → 平台用户数据目录（存在 `api_keys.redb` 时）→ 相对路径 `data/`（项目根兜底）。此外 `neomind login` 保存的凭据文件优先级最高，任意目录均可用。
+> auto-auth 的数据目录解析顺序：`NEOMIND_DATA_DIR` 环境变量 → 平台用户数据目录（存在 `api_keys.redb` 或 `users.redb` 时）→ server 部署目录（一键部署的 systemd 单元 WorkingDirectory、`/var/lib/neomind`、`/opt` 等默认位置）→ 相对路径 `data/`（项目根兜底）。此外 `neomind login` 保存的凭据文件优先级最高，任意目录均可用。
 :::
 
 ## 何时需要手动配置 Key
@@ -27,13 +27,13 @@ neomind device list     # 直接可用
 | 本地开发，从项目根运行 CLI | ❌ 不需要（auto-auth） |
 | 设置了 `NEOMIND_DATA_DIR` 或已 `neomind login` | ❌ 不需要（auto-auth 可定位） |
 | 从 `web/`、`/tmp` 等其他目录运行 CLI（无上述条件） | ✅ 需要 |
-| 远程连接另一台机器上的 Server | ✅ 需要 |
+| 远程连接另一台机器上的 Server | ✅ 需要（Key + 服务器地址，见下） |
 | 桌面应用内嵌 CLI | ❌ 不需要（自动配置） |
 
 ## 获取真实 API Key
 
 :::warning 文档中的 Key 是占位符
-本文所有 `nmk_xxx` 均为**示例占位符**，不可直接使用。你的真实 Key **仅在 Server 启动时输出到 stdout（终端标准输出）**，不会写入日志文件。`neomind api-key list` 只显示遮蔽值（`nmk_****`），无法获取完整 Key。
+本文所有 `nmk_xxx` 均为**示例占位符**，不可直接使用。你的真实 Key **仅在 Server 启动时输出到 stdout（终端标准输出）**，不会写入日志文件。`neomind api-key list` 不回显任何 Key 值（仅 ID / 名称 / 激活状态 / 创建时间），无法获取完整 Key。
 :::
 
 Server 启动时在终端打印包含 Key 的 banner：
@@ -88,8 +88,29 @@ neomind device list
 neomind dashboard list
 ```
 
+## 远程 Server：告诉 CLI 服务器地址
+
+远程场景除了 Key，还需要让 CLI 知道 Server 在哪。两种方式：
+
+**方式一：`neomind login`（推荐，凭据持久化）**
+
+```bash
+neomind login http://<服务器IP>:9375
+# 按提示输入 API Key（或用户名密码），凭据落盘后任意目录可用
+```
+
+**方式二：环境变量（临时）**
+
+```bash
+export NEOMIND_API_BASE=http://<服务器IP>:9375/api
+export NEOMIND_API_KEY=nmk_你的Key
+neomind device list
+```
+
+> 两者都设置时，`neomind login` 的凭据优先。Key 正确但地址不对同样会报 401/连接失败——先确认 `curl http://<服务器IP>:9375/api/health` 通。
+
 如果报 401，见 [故障排查 → CLI 报 401](./10-troubleshooting.md#cli-命令报-401-unauthorized)。
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

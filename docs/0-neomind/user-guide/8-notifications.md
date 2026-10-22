@@ -10,7 +10,7 @@ sidebar_position: 8
 
 NeoMind 通过**消息系统**把设备告警、规则触发、AI Agent 分析结果、系统事件统一推送到你配置的渠道。所有消息都会先进入**应用内消息中心**，再转发到启用的外部渠道。支持 **7 个外部消息渠道**（Webhook、邮件、Telegram、企业微信、钉钉、Slack、飞书），可同时多渠道分发，并对每个渠道单独配置消息过滤规则。
 
-> 消息系统位于左侧导航的 **Messages**（铃铛图标）。两个页签：**Messages**（消息中心，浏览历史告警）和 **Channels**（渠道配置）。
+> 消息系统位于左侧导航的 **Messages**（铃铛图标）。三个页签：**Messages**（消息中心，浏览历史告警）、**Channels**（渠道配置）和 **IM Sessions**（IM 桥接会话，见 [AI Chat — IM 桥接](./5-ai-chat.md#从-telegram--飞书对话im-桥接)）。
 
 ## 支持的渠道
 
@@ -34,7 +34,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 进入 **Messages** 页面，默认显示消息中心：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-list.png" alt="消息中心列表 — 严重度、状态、分类、来源、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每条消息包含：
 
@@ -45,7 +45,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 | **正文** | 消息内容（点击行展开查看完整内容） |
 | **分类（Category）** | `alert`（告警）/ `system`（系统）/ `business`（业务）/ `notification`（通知）+ 后端可扩展任意分类 |
 | **来源（Source）** | 触发来源：`device` / `rule` / `telemetry` / `schedule` / `llm` / `system` |
-| **状态（Status）** | `active` / `acknowledged` / `resolved` / `archived` |
+| **状态（Status）** | `active` / `acknowledged` / `resolved` / `archived` / `false_positive`（标记误报） |
 | **时间** | 创建时间与最后更新时间 |
 | **操作** | Acknowledge / Resolve / Archive / Delete |
 
@@ -55,7 +55,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 切换到 **Channels** 页签查看所有渠道：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channels.png" alt="渠道列表 — 渠道名、类型、状态、统计、操作" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面顶部显示统计卡片（总渠道数 / 启用数 / 渠道类型数），下方是渠道列表。每个渠道卡片显示：
 
@@ -68,7 +68,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 点击 **Create** 按钮打开全屏渠道编辑器：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create.png" alt="渠道编辑器 — 左侧类型选择，右侧配置表单（默认选中 Webhook）" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 编辑器采用**左右分栏**布局：
 - **左侧边栏**：列出 7 种渠道类型，点击切换
@@ -89,7 +89,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 最灵活的渠道，可对接任意 HTTP 端点。
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-webhook.png" alt="Webhook 渠道配置 — URL、方法、鉴权类型、超时" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-webhook.png" alt="Webhook 渠道配置 — URL、方法、鉴权类型、超时" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
@@ -110,7 +110,7 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 ### Email 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-email.png" alt="邮件渠道配置 — SMTP 主机、端口、发件人、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 示例 |
 |------|------|------|
@@ -122,11 +122,13 @@ NeoMind **不支持短信（SMS）**。需要短信告警请用 Webhook 渠道�
 
 :::tip 收件人（Recipients）单独管理
 Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收件人列表。这样无需重新打开渠道编辑器即可增删收件人。
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-recipients.png" alt="收件人管理对话框 — 添加收件人邮箱并管理列表" style={{width: '70%', display: 'block', margin: '0 auto', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 :::
 
 ### Telegram 渠道
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-telegram.png" alt="Telegram 渠道配置 — Bot Token、Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 字段 | 说明 | 获取方式 |
 |------|------|---------|
@@ -186,7 +188,7 @@ Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收
 
 每个渠道可单独配置**消息过滤规则**，决定哪些消息会发到该渠道。在渠道操作菜单点 **Configure Filter** 打开过滤配置对话框：
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-filter.png" alt="渠道过滤器配置 — 来源类型、分类、最低严重度" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-filter.png" alt="渠道过滤器配置 — 来源类型、分类、最低严重度" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 过滤器分三组：
 
@@ -270,7 +272,7 @@ Email 渠道保存后，在渠道操作菜单点 **Manage Recipients** 添加收
 
 ## 消息生命周期
 
-消息有 4 个状态，构成完整的处置工作流：
+消息有 5 个状态，其中 4 个构成完整的处置工作流：
 
 ```
 active → acknowledged → resolved → archived
@@ -282,6 +284,7 @@ active → acknowledged → resolved → archived
 | **Acknowledged（已确认）** | 运维人员已知悉，正在处理 | 点 **Acknowledge** |
 | **Resolved（已解决）** | 问题已修复 | 点 **Resolve** |
 | **Archived（已归档）** | 归档保留，不再活跃 | 点 **Archive** |
+| **False Positive（误报）** | 对告警质量的判定（误报），**不在** active → archived 主流程内 | 点 **标记误报**（或 `POST /api/messages/{id}/false-positive`） |
 
 **操作**：
 - 单条：在消息行直接点对应按钮
@@ -428,8 +431,8 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
 
 消息创建后即固定保存在消息中心；随后对**每个启用的渠道**发送一次（先过该渠道的过滤器）：
 
-- **无自动重试**：某条渠道发送失败（超时、鉴权失败、目标返回错误）只记录日志，**不会自动重试**。可在渠道上点 **Test** 验证连通性。需要重试语义的数据转发请用[数据推送](./7c-data-push.md)（带指数退避重试与投递历史）。
-- **去重窗口**：同一 (标题, 来源, 严重度) 的消息在 **60 秒**内只向渠道发送一次，防止规则高频触发引发通知风暴；消息本身仍会进消息中心。
+- **仅有限重试**：某条渠道发送失败（超时、鉴权失败、目标返回错误）会自动重试——最多 **3 次尝试**、秒级短退避（1s / 2s），但没有投递记录可查。可在渠道上点 **Test** 验证连通性。需要完整重试语义（指数退避 + 投递历史）的数据转发请用[数据推送](./7c-data-push.md)。
+- **去重窗口**：同一 (标题, 来源, 严重度) 的消息在 **60 秒**内只向渠道发送一次，防止规则高频触发引发通知风暴；消息本身仍会进消息中心。规则触发的消息以「规则身份 + 严重度」为去重键（避免不同规则互相吞并），(标题, 来源, 严重度) 仅为无规则身份时的兜底键。
 - **语义错误检测**：渠道测试会检查目标返回体（如飞书 / 钉钉的 `code != 0`、Telegram 的 `ok: false`），HTTP 200 但语义失败同样判为失败。
 
 ## 典型场景
@@ -479,4 +482,4 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

@@ -9,7 +9,7 @@
  * - 生成物:docs/0-neomind/product-overview/5-release-notes.md
  *           i18n/en/.../0-neomind/product-overview/5-release-notes.md
  * - 策略:最新 1 个版本展开要点(小节标题 + 首条 bullet 摘要),
- *         其后 2 个版本列小节标题,更早版本生成速览表。
+ *         其余全部版本压成单行清单(版本 + 日期 + 主题)。
  * - 网络失败时回退使用仓库内已生成的基线文件(不阻断构建)。
  * - 文件头带 AUTO-GENERATED 标记:请勿手工编辑,改动会被覆盖。
  *
@@ -87,8 +87,6 @@ const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') 
 
 function renderZh(v) {
   const latest = v[0];
-  const mid = v.slice(1, 3);
-  const old = v.slice(3);
   let out = `---
 sidebar_label: "Release Notes"
 sidebar_position: 5
@@ -107,15 +105,11 @@ ${latest.title ? `**${latest.title}**\n\n` : ''}${latest.sections.map((s) =>
     `- **${clip(s.h, 80)}**${s.first ? ' — ' + clip(s.first, 170) : ''}`
   ).join('\n')}
 
-## 近期版本
-
-${mid.map((x) => `### ${x.ver}(${x.date})${x.title ? '\n\n' + x.title : ''}\n\n${x.sections.map((s) => `- ${clip(s.h, 90)}`).join('\n')}`).join('\n\n')}
-
-## 版本速览
+## 历史版本
 
 | 版本 | 发布日期 | 主题 |
 |------|----------|------|
-${old.map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title || '—', 60)} |`).join('\n')}
+${v.slice(1).map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title || '—', 60)} |`).join('\n')}
 
 > 完整历史与细节见 [NeoMind CHANGELOG](${CHANGELOG_PAGE})。
 `;
@@ -124,8 +118,6 @@ ${old.map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title |
 
 function renderEn(v) {
   const latest = v[0];
-  const mid = v.slice(1, 3);
-  const old = v.slice(3);
   let out = `---
 sidebar_label: "Release Notes"
 sidebar_position: 5
@@ -144,15 +136,11 @@ ${latest.title ? `**${latest.title}**\n\n` : ''}${latest.sections.map((s) =>
     `- **${clip(s.h, 80)}**${s.first ? ' — ' + clip(s.first, 170) : ''}`
   ).join('\n')}
 
-## Recent Versions
-
-${mid.map((x) => `### ${x.ver} (${x.date})${x.title ? '\n\n' + x.title : ''}\n\n${x.sections.map((s) => `- ${clip(s.h, 90)}`).join('\n')}`).join('\n\n')}
-
-## Version Index
+## Version History
 
 | Version | Date | Theme |
 |---------|------|-------|
-${old.map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title || '—', 60)} |`).join('\n')}
+${v.slice(1).map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title || '—', 60)} |`).join('\n')}
 
 > Full history and details: [NeoMind CHANGELOG](${CHANGELOG_PAGE}).
 `;
@@ -178,12 +166,18 @@ ${old.map((x) => `| [${x.ver}](${CHANGELOG_PAGE}) | ${x.date} | ${clip(x.title |
   }
   fs.mkdirSync(path.dirname(ZH_OUT), { recursive: true });
   fs.mkdirSync(path.dirname(EN_OUT), { recursive: true });
-  // MDX 安全转义:正文里所有花括号/尖括号统一转成 HTML 实体(跳过 frontmatter)
+  // MDX 安全转义:正文里所有花括号/尖括号统一转成 HTML 实体(跳过 frontmatter)。
+  // AUTO-GENERATED HTML 注释行保持原样输出,不做实体转义——
+  // 实体化的 &lt;!-- 会在页面上显示为字面字符。
   const mdxSafe = (md) => {
     const i = md.indexOf('---', 3) >= 0 ? md.indexOf('\n---', 3) + 5 : 0;
-    return md.slice(0, i) + md.slice(i)
+    const comment = md.match(/^<!-- AUTO-GENERATED.*-->$/m);
+    let body = comment ? md.slice(i).replace(comment[0], '\x00AUTOGEN\x00') : md.slice(i);
+    body = body
       .replace(/\{/g, '&#123;').replace(/\}/g, '&#125;')
       .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (comment) body = body.replace('\x00AUTOGEN\x00', comment[0]);
+    return md.slice(0, i) + body;
   };
   fs.writeFileSync(ZH_OUT, mdxSafe(renderZh(versions)));
   fs.writeFileSync(EN_OUT, mdxSafe(renderEn(versions)));

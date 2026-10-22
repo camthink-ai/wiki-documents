@@ -30,7 +30,7 @@ Derived metrics from transforms can be used just like regular device metrics in 
 
 Switch to the **Transforms** tab in the Automation page:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/automation-transforms.png" alt="Data transforms page — transform list, scope, code summary, enabled status" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all transforms in a table, each row containing:
 
@@ -51,13 +51,13 @@ The **Import / Export** button in the top right lets you bulk import/export tran
 
 In the Transforms tab, click the **Create** button to open the full-screen builder:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/transform-builder.png" alt="Transform builder — left config rail (name, scope, output prefix), right code workspace" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The builder uses a **split-pane** layout:
 
 | Area | Description |
 |------|-------------|
-| **Left · Config Rail** | Name, description, scope, output prefix, complexity |
+| **Left · Config Rail** | Name, description, scope, output prefix |
 | **Right · Code Workspace** | JavaScript code editor + variables panel + test strip |
 
 ### Step 2: Fill in Basic Info
@@ -67,7 +67,10 @@ The builder uses a **split-pane** layout:
 | **Name** | Transform display name |
 | **Description** | Optional, explains the transform's purpose |
 | **Output Prefix** | Naming prefix for derived metrics. If set to `converted`, output metrics are named `converted.temp_f` |
-| **Complexity** | Number 1–5, used for execution ordering (lower complexity executes first) |
+
+:::note Complexity needs no manual input
+Complexity (1–5, used for execution ordering) is no longer a form field — it is derived automatically from the code length on save: over 10 lines scores 3, otherwise 2. Lower complexity executes first.
+:::
 
 ### Step 3: Select Scope
 
@@ -81,7 +84,7 @@ Scope determines which devices' data the transform processes:
 
 ### Step 4: Write the Transform Code
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/transform-builder-code.png" alt="Transform builder — JavaScript code editor with variables panel" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Write the transform function in JavaScript in the code editor. The **`input`** variable holds the input value — single-key metric objects (e.g. `{"temperature": 25}`) are auto-unwrapped to the scalar so it can be used directly; access the full input object via `input_raw`. `return` an object as output:
 
@@ -112,7 +115,7 @@ return {
 The same `input * 9/5 + 32` works with `{"temperature": 25}` (single key, auto-unwrapped) but yields `NaN` with `{"temperature": 25, "humidity": 60}` (multi-key). If a transform must be reused across device types with uncertain input shapes, write defensively: `return { temp_f: (input_raw.temperature ?? input) * 9/5 + 32 }`. Always verify both shapes with the [test strip](#step-5-test-the-transform) before saving.
 :::
 
-**Variables panel**: The left panel lets you insert device metrics and extension data sources. After selecting a device type, all its metrics are listed — click to insert into code. You can also select extension commands from the extension panel to generate invocation code.
+**Variables panel**: The panel to the right of the code editor lets you insert device metrics and extension data sources. After selecting a device type, all its metrics are listed — click to insert into code. You can also select extension commands from the extension panel to generate invocation code.
 
 ### Step 5: Test the Transform
 
@@ -354,6 +357,10 @@ curl -X PUT http://localhost:9375/api/automations/<id> \
   -d '{"name": "Updated Name", "definition": {"scope": "global", "js_code": "...", "output_prefix": "converted", "complexity": 2}}'
 ```
 
+:::note
+`definition.complexity` can be omitted — the server defaults it to 2; the ">10 lines → 3" derivation only runs when the web builder saves, not for pure API creation. An explicitly passed value is kept for compatibility.
+:::
+
 ## Import / Export
 
 The **Import / Export** button in the Transforms tab supports bulk management. You can also select **Export** from an individual transform's actions menu to export a single transform.
@@ -374,13 +381,13 @@ Export file format: `neomind-transforms-YYYY-MM-DD.json`.
 
 - **Use Output Prefixes wisely**: Set different prefixes for different transforms (e.g. `converted`, `status`, `aggregated`) to avoid metric name collisions
 - **Test before saving**: The builder's Test feature quickly validates code logic without waiting for real data
-- **Complexity ordering**: Transforms that depend on other transforms' output should have higher complexity to ensure correct execution order
+- **Execution ordering**: Complexity is derived automatically from code length (>10 lines → 3, otherwise 2) — transforms that depend on other transforms' output are usually longer and naturally run later; if ordering is critical, keep the upstream transforms short
 - **Minimize scope**: Use Device Type instead of Global when possible to reduce unnecessary transform overhead
 - **Keep code lightweight**: Transforms execute on every data point — keep code simple (avoid complex loops/recursion)
 
 ## Mobile
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/automation-transforms-mobile.png" alt="Data transforms on mobile — single-column table layout" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column layout supporting list viewing and status toggling. Edit transforms on desktop (the code editor needs screen space).
 
@@ -392,4 +399,4 @@ On mobile, the interface switches to a single-column layout supporting list view
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-10-21*

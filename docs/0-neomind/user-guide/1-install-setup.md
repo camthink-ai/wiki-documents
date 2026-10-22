@@ -21,7 +21,7 @@ NeoMind 提供三种部署形态：**桌面应用**（推荐入门）、**服务
 |------|------|------|
 | macOS | Apple Silicon（arm64） | `.dmg` |
 | Windows | x86_64 | `.msi` / `.exe` |
-| Linux | x86_64 / arm64 | `.AppImage` / `.deb` |
+| Linux | x86_64 / arm64 | `.AppImage` / `.deb` / `.rpm` |
 
 > 官方仅提供上述架构的预编译包。如需其他平台（如 macOS Intel / Windows ARM），可[从源码构建](#从源码构建开发)。
 
@@ -71,7 +71,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `VERSION` | 最新版 | 指定版本，如 `0.9.23` |
+| `VERSION` | 最新版 | 指定版本，如 `1.2.3` |
 | `INSTALL_DIR` | `/usr/local/bin` | 二进制安装目录 |
 | `DATA_DIR` | `/var/lib/neomind` | 数据目录（redb 文件、日志等） |
 | `WEB_DIR` | `/var/www/neomind` | 前端静态文件目录 |
@@ -84,7 +84,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 
 ```bash
 # 指定版本
-curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=0.9.23 sh
+curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | VERSION=1.2.3 sh
 
 # 自定义目录
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh \
@@ -98,7 +98,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 ### 升级
 
 - **在线升级（推荐）**：`设置 → 关于` 会自动检查新版本（每 24 小时一次，有更新时右上角出现提示图标），点击即可在线升级——系统自动下载、校验、备份并重启，全程无需 SSH（需要 install.sh 部署的辅助 systemd 单元，老安装重新运行一次安装脚本即可获得）。
-- **重新运行安装脚本**：`VERSION=0.9.23 sh install.sh` 指定版本重装。
+- **重新运行安装脚本**：`VERSION=1.2.3 sh install.sh` 指定版本重装。
 - **Docker**：`docker compose pull && docker compose up -d`。
 
 数据目录自动备份见 [故障排查](./10-troubleshooting.md)。
@@ -122,12 +122,12 @@ curl -fsSLO https://raw.githubusercontent.com/camthink-ai/NeoMind/main/docker-co
 docker compose up -d
 ```
 
-单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。镜像内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM。
+单容器部署——后端 API、MQTT Broker、Web UI 全部在同一个镜像中，数据通过 `neomind-data` volume 持久化。镜像内置 llama.cpp 运行时与默认模型 **LFM2.5-2.6B**（首次运行自动就位；文档推荐 MiniCPM5-2B，Apache-2.0，向导内切换一键完成）。注意：数据目录请用命名 volume——bind-mount 宿主机目录到 `/app/data` 会跳过预置模型。
 
 | 镜像 | 说明 |
 |------|------|
 | `camthink/neomind:latest` | 跟随最新发布 |
-| `camthink/neomind:<版本>` | 锁定版本，如 `camthink/neomind:0.9.22` |
+| `camthink/neomind:<版本>` | 锁定版本，如 `camthink/neomind:1.2.3` |
 
 | 端口 | 用途 |
 |------|------|
@@ -149,7 +149,7 @@ docker compose up -d
 适用于无法运行一键脚本的环境（如离线服务器、特殊目录结构）：
 
 ```bash
-VERSION=0.9.23  # 替换为目标版本号
+VERSION=1.2.3  # 替换为目标版本号
 
 # 按平台选择（amd64 或 arm64）
 ARCH=amd64  # Linux x86_64；arm64 设备改为 arm64
@@ -172,7 +172,7 @@ sudo tar xzf neomind-web.tar.gz -C /var/www/neomind
 ```
 
 :::note 调试符号包（可选，仅 Linux）
-主包为了控制下载体积只含二进制（不带 DWARF 调试信息），但保留了函数符号表，日常运维与日志排查不需要任何额外文件。需要**源码行号**级的崩溃分析（core dump）或性能剖析（perf 火焰图）时，另行下载同版本的 `neomind-server-linux-${ARCH}-debug-symbols.tar.gz`，解压到二进制所在目录即可被工具自动识别，详见[故障排查 · 崩溃与性能分析](/docs/neomind/user-guide/troubleshooting)。
+主包为了控制下载体积只含二进制（不带 DWARF 调试信息），但保留了函数符号表，日常运维与日志排查不需要任何额外文件。需要**源码行号**级的崩溃分析（core dump）或性能剖析（perf 火焰图）时，另行下载同版本的 `neomind-server-linux-${ARCH}-debug-symbols.tar.gz`，解压到二进制所在目录即可被工具自动识别，详见[故障排查 · 崩溃与性能分析](troubleshooting)。
 :::
 
 ### 配合 nginx 反向代理
@@ -202,7 +202,7 @@ server {
 
 适用于贡献者或需要自定义编译的场景。
 
-**前置依赖**：Rust 1.85+（工具链锁定 1.92.0）、Node.js 20+、Ollama（或云端 LLM Key）。
+**前置依赖**：Rust 1.85+（工具链锁定 1.92.0）、Node.js 20+；本地 LLM 用内置模型即可（无需 Ollama，也可接云端 LLM Key）。
 
 ```bash
 # 克隆
@@ -330,7 +330,7 @@ NeoMind 内置定时备份：**Settings → Preferences → 数据备份** 可�
 从试用走向生产时，按此清单逐项确认：
 
 - **[备份](./10-troubleshooting.md#如何备份)** — 开启自动备份计划（设置 → Preferences），确认保留份数
-- **[数据保留](./12-settings.md#设备默认值与数据保留)** — 按业务需要设置遥测保留时长（默认永久，磁盘会持续增长）
+- **[数据保留](./12-settings.md#设备默认值与数据保留)** — 默认开启自动清理（指标 30 天 / 图像 3 天 / 会话永久），按业务需要调整时长
 - **[用户与角色](#用户与角色)** — 自注册保持关闭，为运维/业务人员分别创建 user / viewer 账号
 - **HTTPS** — 前置 nginx 反向代理，只对外暴露 80/443（9375/1883 留在内网）
 - **[扩展市场源](./9-extensions.md)** — 国内网络切换镜像地址
@@ -349,4 +349,4 @@ NeoMind 已跑起来了？接下来按顺序：
 
 ---
 
-*最后更新: 2026-09-11*
+*最后更新: 2026-10-21*

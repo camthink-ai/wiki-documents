@@ -18,7 +18,7 @@ sidebar_label: "5-Minute Quick Start"
 按照本指南，你将在 5 分钟内：
 
 - ✅ 在本地跑起 NeoMind 服务
-- ✅ 接入一个大语言模型（本地或云端）
+- ✅ 下载内置模型——AI 完全本地运行,零 API Key
 - ✅ 连接第一个设备并用 webhook 推送数据
 - ✅ 在仪表板上看到实时数据
 - ✅ 用自然语言向 AI 提问并得到答案
@@ -27,112 +27,132 @@ sidebar_label: "5-Minute Quick Start"
 
 - 一台 **macOS / Windows / Linux** 电脑（4GB+ 内存）
 - **不需要**预先安装数据库、消息代理或其他基础设施——NeoMind 全部内置
-- 如果要用本地 LLM（推荐），需要额外 4-8GB 内存；否则可跳过用云端 API
+- 用内置本地模型(默认路线)预留额外 3-4GB 内存;只想用云端 API 可跳过
   :::
 
 ---
 
-## Step 1：安装（1 分钟）
+## Step 1：安装 NeoMind（约 2 分钟）
 
-### 方式一：桌面应用（推荐入门）
+三种安装方式任选其一——都自带 Web UI 与 MQTT Broker，**不需要**数据库、消息代理等任何外部组件。
 
-从 [GitHub Releases](https://github.com/camthink-ai/NeoMind/releases/latest) 下载对应平台的安装包，双击安装后启动。
+### 方式一：安装包（桌面应用，推荐入门）
 
-### 方式二：服务器部署
+**适合**：在个人电脑上体验，不想碰终端。
+
+1. 打开 [GitHub Releases](https://github.com/camthink-ai/NeoMind/releases/latest)，在最新版本中按系统下载安装包：
+   - macOS（Apple Silicon）→ `.dmg`
+   - Windows（x86_64）→ `.msi` / `.exe`
+   - Linux（x86_64 / arm64）→ `.AppImage` / `.deb` / `.rpm`
+2. 双击安装并启动：
+   - **macOS**：将 NeoMind 拖入「应用程序」。首次打开若提示"无法验证开发者"，在终端执行 `xattr -cr /Applications/NeoMind.app` 后再打开（或在"系统设置 → 隐私与安全性"点"仍要打开"）
+   - **Windows**：SmartScreen 提示时点"更多信息 → 仍要运行"
+   - **Linux**：`.deb` 双击安装或 `sudo apt install ./neomind-*.deb`；`.AppImage` 先 `chmod +x` 再双击运行
+
+**访问方式**：桌面版启动后直接打开应用原生窗口，无需浏览器。
+
+### 方式二：命令行（本机或服务器）
+
+**适合**：Linux 主机上长期运行。
+
+1. 执行安装脚本（需要 root 或 sudo；自动下载静态二进制、注册 systemd 服务）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/install.sh | sh
 ```
 
-启动后浏览器访问 `http://localhost:9375`。
+2. 脚本完成即已启动——二进制装到 `/usr/local/bin`，服务名 `neomind`：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step1-login-v2.png" alt="NeoMind 登录页" style={{width: '100%'}} />
+```bash
+systemctl status neomind    # 应显示 active (running)
+```
 
-> ✓ **检查点**：看到登录 / 注册页面 = 服务已运行。注册一个账号并登录。
+3. 常用环境变量（执行前 export）：`PORT=9375`（服务端口）、`INSTALL_DIR`（安装目录）、`NO_SERVICE=true`（只装二进制不注册服务）
 
-:::note 看不到页面？
+**访问方式**：本机安装用 `http://localhost:9375`；装在远程服务器则用 `http://<服务器IP>:9375`（无浏览器时可用 `ssh -L 9375:localhost:9375 user@server` 端口转发）。
 
-- **端口被占用？** 默认端口 `9375`，可在配置文件中修改
-- **macOS 安全拦截？** 首次打开会提示"无法验证开发者"，前往 `系统设置 → 隐私与安全性 → 仍要打开`
-- **服务器部署无浏览器？** 用 SSH 端口转发：`ssh -L 9375:localhost:9375 user@server`
-  :::
+### 方式三：Docker（本机或容器主机）
 
-<!-- 截图说明：登录/注册页面的完整截图 -->
+**适合**：已有 Docker 的环境，想要最干净的部署与升级体验。
+
+前置：已安装 Docker（Linux 上需要 sudo 或将用户加入 docker 组）。
+
+1. 一条命令启动（含数据持久化）：
+
+```bash
+docker run -d --name neomind \
+  -p 9375:9375 -p 1883:1883 \
+  -v neomind-data:/app/data \
+  camthink/neomind:latest
+```
+
+镜像（多架构 amd64 + arm64）已内置 llama.cpp 运行时与默认模型 LFM2.5-2.6B，首次运行自动就位。也可用 `docker compose up -d`（编排文件见 [安装与配置](../user-guide/1-install-setup.md#docker-部署)）。
+
+2. 确认启动：`docker logs -f neomind`（等待就绪输出，Ctrl+C 退出）
+
+**访问方式**：Docker 在本机用 `http://localhost:9375`；在远程主机则用 `http://<主机IP>:9375`（端口映射已由 `-p` 完成）。
+
+> 数据目录请使用命名 volume（如上）。若 bind-mount 宿主机目录到 `/app/data`，镜像预置的模型会被跳过，需改走下载 API。
 
 ---
 
-## Step 2：配置 LLM 后端（1 分钟）
+## Step 2：注册管理员并登录（30 秒）
 
-首次登录进入配置向导。NeoMind 需要一个 LLM 后端作为"大脑"，几种方案任选其一：
+浏览器打开访问地址后，首次使用会进入**创建管理员账号**页面：
 
-| 方案 | 适合 | 延迟 | 隐私 | 需要 |
-|------|------|------|------|------|
-| **内置模型（向导内一键下载）** | 最快上手 | 低 | 全程本机 | 无需 API Key |
-| **Ollama（本地）** | 已有 Ollama、离线场景 | 低 | 全程不出局域网 | 8GB+ 内存 |
-| **云端 API** | 想用最强模型 | 中 | 数据上云 | API Key |
-| **稍后配置** | 先看界面 | — | — | — |
+1. 填写用户名与密码（**务必记牢**——平台数据加密密钥与该账号绑定），邮箱可选
+2. 点击 **Get Started** 完成创建，随后登录
 
-内置模型与 Ollama 都属于本地推理，全程数据不出本机；也支持导入自己的 GGUF 模型。详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
+<div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step2-create-admin.png" alt="首次使用:创建管理员账号" style={{width: '49%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step1-login-v2.png" alt="再次访问:登录页" style={{width: '49%'}} />
+</div>
 
-### 方案 A：内置模型一键下载（推荐）
+> ✓ **检查点**：登录后进入 AI Chat 与使用引导 = 账号就绪，引导里就能直接进行 Step 3。
 
-在向导的 **LLM 后端** 步骤选择内置模型卡片，点击 **Download** 下载即可（按硬件自动推荐，无需安装 Ollama 或 Docker）。下载完成后向导显示 **"LLM 后端已连接"**。
+:::note 登录遇到问题？
 
-### 方案 B：Ollama 本地部署（已有 Ollama 时）
-
-```bash
-# 1. 安装 Ollama（如果还没装）：https://ollama.com
-# 2. 拉取模型
-ollama pull qwen3.5:4b
-```
-
-在向导中：
-
-1. 选择后端类型 → **Ollama**
-2. 地址填 `http://localhost:11434`（默认）
-3. 模型选 `qwen3.5:4b`
-
-<img src="https://resources.camthink.ai/NeoMind/v0923/step2-llm-config.png" alt="LLM 配置向导" style={{width: '100%'}} />
-
-### 方案 C：云端 API
-
-选 OpenAI / Anthropic / GLM 等，填入 API Key 和模型名（如 `gpt-4o`、`claude-sonnet-4-6`）。
-
-> ✓ **检查点**：向导显示 **"LLM 后端已连接"** = 大脑已就位。
-
-:::note 连接失败？
-
-- **Ollama 未运行？** 终端执行 `ollama serve` 启动
-- **模型没拉？** 执行 `ollama list` 确认 `qwen3.5:4b` 存在
-- **云端 401？** 检查 API Key 是否正确、是否有余额
+- **忘记密码？** 服务器上执行 `neomind user reset-password admin` 重置
+- **页面空白？** 确认访问的是 Step 1 中对应安装方式的地址（本机 localhost / 远程 IP）
   :::
 
-> 详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
+---
 
-:::tip 也可以用 CLI 配置
-不想点界面？一行命令即可：
+## Step 3：下载内置模型——给 NeoMind 装上“大脑”（1-2 分钟）
 
-```bash
-# Ollama 本地
-neomind llm create --name local --type ollama --endpoint http://localhost:11434 --model qwen3.5:4b
+下载入口有两处，内容完全相同，任选其一：
 
-# 云端 API（以 GLM 为例）
-neomind llm create --name glm --type openai \
-  --endpoint https://open.bigmodel.cn/api/paas/v4 \
-  --model glm-4-flash --api-key YOUR_API_KEY
+- **登录后的使用引导内（推荐）**：引导流程的『配置 AI 模型』步骤中，内置模型卡片直接点 **Download**
+- **设置 → LLM Backends**：顶部 **Built-in Model** 卡片 → **Download**（之后补装、换模型也在这一张卡片上）
 
-# 测试连接 → 设为默认
-neomind llm test local && neomind llm activate local
-```
+**无后端时的缺省引导页**——刚注册、还没有任何 LLM 后端时，AI Chat 会直接显示这个引导：
 
-完整命令参考：`neomind llm --help`
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-chat-model-guide.png" alt="无后端时的缺省引导页:内置模型(推荐)或自带后端" style={{width: '90%', display: 'block', margin: '0 auto', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+点击后开始下载平台推荐模型（约 1.5GB，实时进度、支持断点续传），完成后自动就绪：
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-ready.png" alt="内置模型就绪状态" style={{width: '100%'}} />
+
+> ✓ **检查点**：卡片显示 **Running** 并出现 **Switch Model / Activate** 按钮 = 大脑已就位。
+
+:::tip 跳过这步也能聊
+全新实例即使不手动下载，AI Chat 也可直接使用——模型选择器会自动落在**内置模型（llama.cpp auto）**，首次对话时平台自动拉取默认模型：
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-chat-auto.png" alt="模型选择器自动落在内置模型 llama.cpp auto" style={{width: '100%'}} />
+
+手动 Download 的价值在于**提前完成下载并固定模型**，避免首次对话时等待。
 :::
 
-<!-- 截图说明：LLM 配置成功的界面 -->
+无需 API Key、无需安装 Ollama 或 Docker、全程离线。想换目录里其他模型（含 0.7GB 视觉款 MiniCPM-V）或导入自己的 GGUF？点 **Switch Model**，详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 
----
+:::note 下载或激活失败？
 
-## Step 3：连接第一个设备（1 分钟）
+- **内存不足预警？** 内置模型最低 3GB 内存，紧张时可换更轻量模型或改用云端
+- **下载中断？** 支持断点续传，再次点击 Download 会继续
+- **激活按钮灰色？** 等卡片状态变为 Running 再点 Activate
+  :::
+
+## Step 4：连接第一个设备（1 分钟）
 
 最快的接入方式是 **HTTP Webhook**——无需 MQTT 客户端，一行 `curl` 就能模拟设备。
 
@@ -143,8 +163,8 @@ neomind llm test local && neomind llm activate local
 创建后会得到一个专属的 Webhook URL（形如 `/api/devices/<DEVICE_ID>/webhook`）。
 
 <div style={{display: 'flex', gap: '8px'}}>
-  <img src="https://resources.camthink.ai/NeoMind/v0923/step3-add-device.png" alt="添加设备" style={{width: '50%'}} />
-  <img src="https://resources.camthink.ai/NeoMind/step3-webhook-url.png" alt="获取 Webhook URL" style={{width: '50%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step3-add-device.png" alt="添加设备" style={{width: '50%'}} />
+  <img src="https://resources.camthink.ai/NeoMind/v1021b/step3-webhook-url.png" alt="获取 Webhook URL" style={{width: '50%'}} />
 </div>
 
 ### 3.2 推送数据
@@ -159,7 +179,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 返回 `{"success": true}` 即成功。打开设备详情页，可以看到最新遥测值。
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step3-device-detail.png" alt="设备详情页显示遥测数据" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step3-device-detail.png" alt="设备详情页显示遥测数据" style={{width: '100%'}} />
 
 > ✓ **检查点**：设备详情页显示 `temperature: 25.6` 和 `humidity: 60` = 数据已入库。
 
@@ -178,7 +198,8 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 
 ---
 
-## Step 4：在仪表板看数据（30 秒）
+
+## Step 5：在仪表板看数据（30 秒）
 
 进入 **仪表板** 页面，创建一个仪表板（选择 **Overview** 模板或空白画布），然后添加一个 **数值卡** 组件：
 
@@ -186,7 +207,7 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 2. 数据源填 `device:demo-sensor:temperature`
 3. 保存
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step4-dashboard.png" alt="仪表板数值卡" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step4-dashboard.png" alt="仪表板数值卡" style={{width: '100%'}} />
 
 :::info DataSourceId 格式
 
@@ -195,8 +216,9 @@ NeoMind 内置 MQTT Broker（`localhost:1883`），支持 ESP32、树莓派、�
 - `device:demo-sensor:temperature` — 设备遥测
 - `extension:weather-forecast:temperature` — 扩展指标
 - `transform:temp-converter:temp_f` — 数据转换输出
+- `ai:温度巡检:verdict` — AI Agent 结构化输出（AI 生成的虚拟指标）
 
-仪表板、规则、数据推送都用这个格式。详见 [术语表](../concepts/1-glossary.md)。
+仪表板、规则、数据推送都用这个格式。AI Agent 的结构化输出会自动生成 `ai:` 前缀的虚拟指标（见 Step 3 与 [AI Agent](../user-guide/6-ai-agent.md)）。详见 [术语表](../concepts/1-glossary.md)。
 :::
 
 温度值实时显示在卡片上。再推一条 webhook 数据，数值会立即刷新：
@@ -215,7 +237,8 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 ---
 
-## Step 5：用 AI Chat 提问（30 秒）
+
+## Step 6：用 AI Chat 提问（30 秒）
 
 打开 **AI Chat**，输入：
 
@@ -223,7 +246,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
 
 AI Agent 会自动查询设备列表和最新遥测值，用自然语言回答。
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/step5-ai-chat.png" alt="AI Chat 对话" style={{width: '100%'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/step5-ai-chat.png" alt="AI Chat 对话" style={{width: '100%'}} />
 
 再试一个更有挑战性的——让 AI 帮你创建自动化：
 
@@ -235,7 +258,7 @@ AI 会理解你的意图，创建一条规则并配置通知渠道。
 
 :::note AI 没反应？
 
-- **LLM 后端未连接？** 回到 **设置 → LLM 配置** 检查状态
+- **LLM 后端未连接？** 回到 **设置 → LLM 后端** 检查状态
 - **第一次回答较慢？** 本地模型首次推理需要预热，等待 10-20 秒正常
   :::
 
@@ -282,4 +305,4 @@ flowchart LR
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

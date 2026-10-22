@@ -106,17 +106,17 @@ Build in this order: install NeoMind (NG4500 / PC) first, then add the NE101 dev
 
 The **NG4500 AI Box** is the recommended host; for evaluation, NeoMind can also run on a PC or any Linux machine.
 
-- **Platform install**: one-line script / manual deployment / HTTPS setup — see [Install & Upgrade](/docs/neomind/user-guide/install-setup)
+- **Platform install**: one-line script / manual deployment / HTTPS setup — see [Install & Upgrade](../../neomind/user-guide/install-setup)
 - **Install the OCR extension**: one-click install **paddle-ocr-v6** from the extension marketplace — the local OCR engine that turns NE101 dial captures into readings
 - **Verify the camera component**: confirm the built-in **ne101_camera** component is available — it receives NE101 uploads and feeds captures into the recognition extension
 
-For detailed steps see [Install Extensions & Components](/docs/neomind/use-cases/camera-ocr).
+For detailed steps see [Install Extensions & Components](../../neomind/use-cases/camera-ocr).
 
-![Extension marketplace](https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png)
+![Extension marketplace](https://resources.camthink.ai/NeoMind/v1021b/extensions-marketplace.png)
 
 ### 5.2 Add the NE101 Device in NeoMind
 
-On the platform side, add the NE101 in the **ne101_camera** camera component and bind it to a project; note the MQTT details at the top of the component — **Server Address** and **Data Reporting Topic** — you will need them for the device-side configuration. Full steps: [OCR Use Case — Capture Images from NE101](/docs/neomind/use-cases/camera-ocr).
+On the platform side, add the NE101 in the **ne101_camera** camera component and bind it to a project; note the MQTT details at the top of the component — **Server Address** and **Data Reporting Topic** — you will need them for the device-side configuration. Full steps: [OCR Use Case — Capture Images from NE101](../../neomind/use-cases/camera-ocr).
 
 ### 5.3 Report Data from the NE101
 
@@ -125,9 +125,9 @@ On the platform side, add the NE101 in the **ne101_camera** camera component and
 3. In **Application Management**, fill in the Data Reporting Topic and Server Address (the MQTT details noted in 5.2), then click **connect**
 4. From now on, every press of the shutter button uploads the image to the bound project
 
-![Uploads appear in the pending-review list](https://resources.camthink.ai/NeoMind/v0923/devices-pending.png)
+![Uploads appear in the pending-review list](https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png)
 
-For device activation and Web UI configuration, see the [NE101 Quick Start](/docs/neoeyes-ne101-series/quick-start).
+For device activation and Web UI configuration, see the [NE101 Quick Start](../../neoeyes-ne101-series/quick-start).
 
 ### 5.4 Commissioning
 
@@ -135,14 +135,14 @@ Verify link by link; if one fails, troubleshoot that link first:
 
 1. **Capture**: press the NE101 shutter manually and confirm the image reaches NeoMind (visible in the component's image list)
 2. **Recognition**: confirm the OCR pipeline produces the reading field (visible in the dashboard component)
-3. **Rules**: confirm the reading is parsed into a number by Transform and stored as the `meter_reading` metric (see [Data Transforms](/docs/neomind/user-guide/7b-data-transforms))
+3. **Rules**: confirm the reading is parsed into a number by Transform and stored as the `meter_reading` metric (see [Data Transforms](../../neomind/user-guide/7b-data-transforms))
 4. **Egress**: verify Data Push / Webhook delivers readings to the business endpoint
 
 ### 5.5 Data Storage & Display
 
 - **Capture photos**: stored on the NeoMind host; retention is controlled in the data retention settings and auto-purged on expiry
 - **Reading metrics**: ingested as virtual metrics (e.g. `meter_reading`) with history queries
-- **Dashboard**: three recommended cards — reading card (latest reading + time), consumption trend (day/week/month), device health (battery / signal / online); see [Using Dashboards](/docs/neomind/user-guide/use-dashboard)
+- **Dashboard**: three recommended cards — reading card (latest reading + time), consumption trend (day/week/month), device health (battery / signal / online); see [Using Dashboards](../../neomind/user-guide/use-dashboard)
 
 ![Dashboard example: live NE101 captures and OCR readings](https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp)
 
@@ -155,10 +155,10 @@ Two outbound options for readings and alerts — choose by latency needs:
 | **Data Push** | The platform pushes new data points of selected metrics to a business HTTP endpoint in real time (with retries) | Real-time linkage, big screens |
 | **OpenAPI pull** | The business system pulls readings via REST API per settlement cycle | Daily / monthly settlement systems |
 
-- Configuration: [Data Forwarding](/docs/neomind/user-guide/7c-data-push) / [Platform API](/docs/neomind/developer-guide/rest-api)
-- Alerts such as abnormal readings, low battery and offline devices go through the [Notifications](/docs/neomind/user-guide/notifications) Webhook / IM / email channels
+- Configuration: [Data Forwarding](../../neomind/user-guide/7c-data-push) / [Platform API](../../neomind/developer-guide/rest-api)
+- Alerts such as abnormal readings, low battery and offline devices go through the [Notifications](../../neomind/user-guide/notifications) Webhook / IM / email channels
 
-![Data Push configuration list](https://resources.camthink.ai/NeoMind/v0923/data-push-list.png)
+![Data Push configuration list](https://resources.camthink.ai/NeoMind/v1021b/data-push-list.png)
 
 **Field mapping example**: meter no. ↔ device ID; reading ↔ `meter_reading`; reading time ↔ data point timestamp; evidence ↔ capture photo URL.
 

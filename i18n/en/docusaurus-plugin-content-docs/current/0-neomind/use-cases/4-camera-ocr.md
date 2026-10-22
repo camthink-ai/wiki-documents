@@ -20,8 +20,10 @@ The pipeline is **pluggable** — swap in a different extension and the same com
 | AI capability | Extension | Typical scenarios |
 |------|------|------|
 | **OCR / text recognition** | paddle-ocr-v6 / paddle-ocr-vl | Meter readings (water/electricity/gas), product and price labels, digital instruments, nameplates and serial numbers, documents and forms |
-| **Object detection** | yolo-device-inference / image-analyzer | People counting, vehicle detection, zone intrusion alerts |
-| **Open-vocabulary grounding** | locate-anything | Find or count arbitrary objects by natural language, defect localization, zero-shot counting |
+| **Object detection** | yolo-device-inference / image-analyzer-v2 | People counting, vehicle detection, zone intrusion alerts |
+| **Open-vocabulary grounding** | locate-anything-v2 | Find or count arbitrary objects by natural language, defect localization, zero-shot counting |
+
+> Naming note: the component's AI-inference extension dropdown matches and displays **`locate-anything-v2`** / **`image-analyzer-v2`** (the marketplace install IDs remain `locate-anything` / `image-analyzer`). The IDs below are written as they appear in the dropdown.
 
 > Beyond the structured pipeline, you can also use an **AI Agent + vision LLM** for open-ended scene understanding (description, reasoning, alerts) — see Section 7.
 
@@ -156,8 +158,8 @@ This section lists typical scenarios by AI capability. Device onboarding, compon
 | AI capability | Extension | Template | Key parameter |
 |---|---|---|---|
 | OCR / text recognition | paddle-ocr-v6 / paddle-ocr-vl | `text_detection` | — |
-| Object detection | yolo-device-inference / image-analyzer / locate-anything | `object_detection` | `processingCategories` (e.g. `person,car`) |
-| Open-vocabulary grounding | locate-anything | `grounding` | `processingPhrase` (natural-language description) |
+| Object detection | yolo-device-inference / image-analyzer-v2 / locate-anything-v2 | `object_detection` | `processingCategories` (e.g. `person,car`) |
+| Open-vocabulary grounding | locate-anything-v2 | `grounding` | `processingPhrase` (natural-language description) |
 
 ### 6.1 OCR / text recognition
 
@@ -171,7 +173,7 @@ This section lists typical scenarios by AI capability. Device onboarding, compon
 
 ### 6.2 Object detection
 
-Select `yolo-device-inference` (or `image-analyzer`); the template auto-switches to `object_detection`, and you fill `processingCategories` with the classes of interest (e.g. `person,car`). After capture, detection boxes with class labels are overlaid, and results are written to virtual metrics for counting, statistics, and alerts.
+Select `yolo-device-inference` (or `image-analyzer-v2`); the template auto-switches to `object_detection`, and you fill `processingCategories` with the classes of interest (e.g. `person,car`). After capture, detection boxes with class labels are overlaid, and results are written to virtual metrics for counting, statistics, and alerts.
 
 - **People counting / vehicle detection**: `processingCategories = person` or `car`, combined with ROI `count` to tally targets in a region.
 - **Zone intrusion alerts**: define a forbidden ROI, set `processingRoiAction = filter`, and trigger when a target appears inside it — pair with [Automation Rules](../user-guide/7-automation-rules.md) to push alerts.
@@ -179,12 +181,12 @@ Select `yolo-device-inference` (or `image-analyzer`); the template auto-switches
 
 ### 6.3 Open-vocabulary grounding
 
-Select `locate-anything`; the template switches to `grounding`, and you describe the object to find in `processingPhrase`. The model locates it zero-shot, overlays grounding boxes, and counts matches — ideal for classes a fixed detector doesn't know or ad-hoc needs.
+Select `locate-anything-v2`; the template switches to `grounding`, and you describe the object to find in `processingPhrase`. The model locates it zero-shot, overlays grounding boxes, and counts matches — ideal for classes a fixed detector doesn't know or ad-hoc needs.
 
 - **Natural-language counting**: `processingPhrase = people in red vests`, `red products on the shelf`, `trash on the floor` — returns all matching locations and a count.
 - **Defect / foreign-object localization**: describe the anomaly (e.g. `scratch`, `leftover tool`) to aid localization, then combine with ROI or manual review.
 
-> [`locate-anything`](./6-locate-anything-v2.md) also supports `text_detection` (text localization) and `point` (pointing) templates — switch as needed.
+> [`locate-anything-v2`](./6-locate-anything-v2.md) also supports `text_detection` (text localization) and `point` (pointing) templates — switch as needed.
 
 ---
 

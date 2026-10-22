@@ -218,7 +218,7 @@ NG4500 上需常驻四个服务：
 
 ### 4.1 一键启动（推荐）
 
-扩展提供 `start_all.sh`，按顺序拉起 mediamtx、测试源、MJPEG 服务与桥接守护，再由桥接守护拉起容器：
+扩展不附带现成的一键脚本：按扩展 README 给出的脚本内容，在 Jetson 上自行创建 `start_all.sh`（如放在 `~/ds-deps/` 下），按顺序拉起 mediamtx、测试源、MJPEG 服务与桥接守护，再由桥接守护拉起容器：
 
 ```bash
 ./start_all.sh
@@ -356,7 +356,7 @@ NeoMind 端安装 **deepstream** 扩展后，在 **Configuration** 切到远程�
 | sidecar 配置不生效 | `models_dir` 以 `/` 结尾，破坏 `os.path.dirname()` 解析 | 去掉尾斜杠 |
 | RTSP 拉流 UDP 花屏/无流 | 网络不允许 UDP | 强制 RTSP over TCP（`rtsp_transport: tcp`） |
 | sidecar 起不来 | iptable_raw 模块缺失 | 加载模块或按发行版说明启用 |
-| 扩展连不上 sidecar | WS 地址/端口不对 | 用 `hello` 握手报文确认 `rtsp_port`/`snapshot_port` |
+| 扩展连不上 sidecar | TCP 桥接地址/端口（9556）不对 | 用 `hello` 握手报文（JSONL over TCP）确认 `rtsp_port`/`snapshot_port` |
 
 
 ## 10. 附录

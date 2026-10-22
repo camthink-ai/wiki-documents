@@ -15,7 +15,7 @@ sidebar_label: "Device Type Development"
 
 ### DeviceConfig（设备实例）
 
-每个接入 NeoMind 的设备都是一个 `DeviceConfig` 实例，存储在 `data/device_registry.redb` 中：
+每个接入 NeoMind 的设备都是一个 `DeviceConfig` 实例，存储在 `data/devices.redb` 中：
 
 ```rust
 pub struct DeviceConfig {
@@ -26,6 +26,7 @@ pub struct DeviceConfig {
     pub connection_config: ConnectionConfig, // 协议相关配置
     pub adapter_id: Option<String>,  // 管理此设备的适配器 ID
     pub last_seen: i64,              // 最后活跃时间戳（0 = 从未连接）
+    // … 其余字段见源码（crates/neomind-storage/src/device_registry.rs）
 }
 ```
 
@@ -46,6 +47,7 @@ pub struct ConnectionConfig {
     // 其他协议特定参数（扁平化扩展）
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
+    // … 其余字段见源码（Modbus 的 host/port/slave_id/register_map 等）
 }
 ```
 
@@ -63,6 +65,8 @@ pub struct DeviceTypeTemplate {
     pub metrics: Vec<MetricDefinition>, // 提供的指标
     pub uplink_samples: Vec<Value>,     // Simple 模式的样本数据
     pub commands: Vec<CommandDefinition>, // 支持的命令
+    pub default_offline_timeout_secs: Option<u64>, // 建议离线判定阈值（秒）；None = 用全局默认
+    // … 其余字段见源码（store_raw / builtin_version）
 }
 ```
 
@@ -76,6 +80,7 @@ pub struct MetricDefinition {
     pub unit: String,           // 单位（如 "°C"、"%"、"hPa"）
     pub min: Option<f64>,       // 数值范围（可选）
     pub max: Option<f64>,
+    // … 其余字段见源码（required）
 }
 ```
 
@@ -229,7 +234,7 @@ neomind device types get <TYPE_ID>
 
 模板中引用 **`${request_id}`** 时，平台会在发送前**自动注入唯一请求 ID**（`req-<UUID>`，无需在 `parameters` 中声明），设备回应答中带回同值即可关联请求-响应，无需设备端自己维护序号。
 
-> 完整字段说明见 [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes)。该仓库目前维护着 **128 个设备类型模板**（`types/` 目录共 129 个文件，含 `index.json`），其中 **126 个为 Milesight LoRaWAN 传感器**；NE301/NE101 相机类型为 `mode: full`（NE301 的命令带 `payload_template`），可直接导入参考。
+> 完整字段说明见 [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes)。该仓库目前维护着 **129 个设备类型模板**（`types/` 目录共 130 个文件，含 `index.json`），其中 **126 个为 Milesight LoRaWAN 传感器**；NE301/NE101 相机类型为 `mode: full`（NE301 的命令带 `payload_template`），可直接导入参考。
 
 ## REST API 快速参考
 

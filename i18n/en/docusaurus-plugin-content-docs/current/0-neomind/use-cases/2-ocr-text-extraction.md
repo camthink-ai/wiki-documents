@@ -53,7 +53,7 @@ Before starting, confirm you have: a smart camera that can capture images, a Neo
 |------|------|------|------|
 | **Smart Camera** | NE101 or NE301 | Image capture | ✅ |
 | **NeoMind Platform** | v0.9.0+ ([Download](https://github.com/camthink-ai/NeoMind/releases/latest)) | Edge AI management | ✅ |
-| **OCR Extension** | ocr-device-inference 2.7.x | Text recognition inference | ✅ |
+| **OCR Extension** | ocr-device-inference 2.12+ | Text recognition inference | ✅ |
 
 > Inference hardware is auto-detected: CoreML on macOS, CUDA on Linux with an NVIDIA GPU, CPU fallback otherwise — no manual configuration needed.
 
@@ -88,7 +88,7 @@ Register your NE101 or NE301 to the NeoMind platform:
 
 ## 4. Install the OCR Extension
 
-The OCR extension is published in the official extension marketplace; the current version is **2.7.x** (this guide uses 2.7.8).
+The OCR extension is published in the official extension marketplace; the current version is **2.12+** (this guide uses 2.12.0).
 
 ### 4.1 Install from the Extension Marketplace (Recommended)
 
@@ -111,7 +111,7 @@ The OCR extension is published in the official extension marketplace; the curren
 ```bash
 neomind extension market-list                          # List extensions available in the marketplace
 neomind extension market-install ocr-device-inference  # Install from the marketplace (latest by default)
-neomind extension market-install ocr-device-inference --version 2.7.8
+neomind extension market-install ocr-device-inference --version 2.12.0
 ```
 
 ### 4.3 Verify the Installation

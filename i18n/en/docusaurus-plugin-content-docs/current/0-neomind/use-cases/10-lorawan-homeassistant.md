@@ -1,9 +1,20 @@
+---
+sidebar_label: "LoRaWAN + Home Assistant"
+description: Connect LoRaWAN network servers (ChirpStack v3/v4, TTN) and Home Assistant entities to NeoMind with the lorawan-bridge and homeassistant-bridge extensions — auto-registered as devices and metrics, with payload decoding, downlink control, entity filtering, cross-bridge automation rules, and AI Chat queries.
+keywords: [NeoMind, LoRaWAN, Home Assistant, ChirpStack, TTN, bridge extension, MQTT, automation rules, smart home]
+tags: [NeoMind, LoRaWAN, Home Assistant, extension]
+---
+
+# LoRaWAN + Home Assistant Integration
+
+> Connect external systems with two bridge extensions — **lorawan-bridge** (LoRaWAN network servers) and **homeassistant-bridge** (Home Assistant). Both register external entities / devices as NeoMind devices and metrics automatically.
+
 ## 1. Solution Overview
 
 | Bridge | Source | Mode | Typical devices |
 |---|---|---|---|
-| **lorawan-bridge** | LoRaWAN Network Server (ChirpStack v3/v4, TTN) | MQTT uplink + API downlink | Temp/humidity, soil, water-level, GPS wireless sensors |
-| **homeassistant-bridge** | Home Assistant | REST polling or WebSocket realtime | Lights, switches, sensors, climate — 3000+ HA entities |
+| **lorawan-bridge** | LoRaWAN Network Server (ChirpStack v3/v4, TTN) | MQTT uplink subscription + API downlink | Temp/humidity, soil, water-level, GPS wireless sensors |
+| **homeassistant-bridge** | Home Assistant | REST periodic sync + WebSocket realtime events | Lights, switches, sensors, climate — 3000+ HA entities |
 
 **Data Flow**:
 
@@ -16,8 +27,6 @@ flowchart LR
     DEV --> AUTO["Automation rules"]
     BRIDGE -.->|"downlink / call_service"| SRC
 ```
-
-sidebar_label: "LoRaWAN + Home Assistant"
 
 ## 2. Bill of Materials (BOM)
 
@@ -35,9 +44,9 @@ sidebar_label: "LoRaWAN + Home Assistant"
 
 Both bridges are standard NeoMind extensions: after installation, everything is configured with commands on the extension detail page — no platform code required. They behave identically from the outside — external entities / devices get registered as NeoMind devices and metrics — so once either one is installed, dashboards, automation rules, and AI Chat work exactly like any other integration.
 
-Both bridges are installed from the extension Marketplace (market version 2.7.x):
+Both bridges are installed from the extension Marketplace (market version 2.12+):
 
-1. Open the **Extensions** page in NeoMind → **Marketplace** tab, search for `lorawan-bridge`, and click **Install**;
+1. Open the **Extensions** page in NeoMind, click the **Marketplace** button in the toolbar (globe icon) to open the Marketplace dialog, search for `lorawan-bridge`, and click **Install**;
 2. Search for and install `homeassistant-bridge` the same way;
 3. After installation, open the extension detail page and confirm the status is **Running**.
 
@@ -68,7 +77,7 @@ Before connecting the extension, make sure the network server side is ready:
 | MQTT broker | ChirpStack MQTT integration enabled; broker reachable from the NeoMind host (plain 1883 / TLS 8883) | `nc -vz <broker-ip> 1883` from the NeoMind host |
 | Application | Created, with the **application ID** noted (numeric ID in ChirpStack, application name in TTN) | Applications page in the ChirpStack console |
 | LoRa node | Device joined (OTAA/ABP) under the application and reporting normally | Recent uplink events on the ChirpStack device page |
-| Downlink API | If you need downlinks, prepare the NS API URL and credentials (see 3.5) | — |
+| Downlink API | If you need downlinks, prepare the NS API URL and credentials (see 4.5) | — |
 
 > TTN users: the broker address looks like `mqtts://eu1.cloud.thethings.network:8883`, and the MQTT username follows the `{app_id}@{tenant_id}` pattern.
 
@@ -94,7 +103,7 @@ Run `connect` on the lorawan-bridge extension detail page:
 | `ns_type` | string | ✅ | Network server type: `chirpstack` (v3) / `chirpstack_v4` / `ttn` |
 | `broker_url` | string | ✅ | MQTT broker URL; `mqtt://` / `tcp://` plain (default 1883), `ssl://` / `mqtts://` for TLS (default 8883) |
 | `username` | string | — | MQTT username |
-| `password` | string | — | MQTT password; **doubles as the API credential for downlinks** (stores the API Key for ChirpStack v4 / TTN, see 3.5) |
+| `password` | string | — | MQTT password; **doubles as the API credential for downlinks** (stores the API Key for ChirpStack v4 / TTN, see 4.5) |
 | `application_id` | string | ✅ | ChirpStack application ID or TTN application ID |
 | `tenant_id` | string | — | TTN tenant ID, defaults to `ttn` |
 | `ns_api_url` | string | Required for downlink | Network server API URL (e.g. `https://chirpstack.example.com`), only needed to send downlinks |
@@ -197,7 +206,7 @@ Check these three points in order:
 
 Check your output against this item by item: the `fields` values match the sensor's real environment (compare with a second device or estimate by hand), `f_cnt` increases with every frame, and `last_seen` is a recent timestamp — if all three hold, both the uplink and the decoder are healthy.
 
-You can also use `get_status` to check the MQTT connection state and device count; the `messages_received` / `decode_errors` metrics indicate uplink and decoding health.
+You can also use `get_status` to check the MQTT connection state (`connected`) and the number of discovered devices (`device_count`); extension-level metrics are `total_commands` / `connected` / `device_count` plus the per-device `lorawan.{dev_eui}.*` series. The extension does not expose received-message or decode-error counters — for uplink and decoding health, rely on the service logs.
 
 > 📷 TODO screenshot | device and metrics · suggested path `…/neomind/lorawan-ha/03-lorawan-device.png`
 
@@ -215,7 +224,7 @@ You can also use `get_status` to check the MQTT connection state and device coun
 | Digital input / output (0x00 / 0x01) | `digital_input` / `digital_output` | — | raw |
 | GPS (0x06) | `latitude` / `longitude` / `altitude` | ° / ° / m | ×0.0001 / ×0.0001 / ×0.01 |
 
-Unknown type codes are skipped (jumping over the standard-length data bytes) without breaking the remaining fields.
+Unknown type codes are handled in two ways: a standard type code with a known length (not yet supported) is skipped by jumping over its standard-length data bytes without breaking the remaining fields; a **completely unknown type code terminates the whole frame**, and any fields after it are not decoded — if decoding looks incomplete, first check whether the payload contains a type code the extension does not recognize.
 
 **Worked example: decoding a Cayenne message** — payload hex `006700EB016878` (that is `AGcA6wFoeA==` from the real uplink in 4.2). In Cayenne LPP every data point is fixed at `channel (1 byte) + type code (1 byte) + data (fixed length)`, and multi-byte values are big-endian:
 
@@ -239,15 +248,15 @@ The decoded result becomes the device metrics directly:
 |------|------|------|------|
 | `dev_eui` | string | ✅ | Target device EUI |
 | `decoder_type` | string | ✅ | `cayenne` or `custom` |
-| `fields` | array | For custom | Array of field definitions, see below |
+| `custom_decoder` | array | For custom | Array of field definitions, see below |
 
-Structure of each `fields` element (example — a "temperature + soil moisture" sensor where the first two bytes are temperature and the next two are humidity):
+Structure of each `custom_decoder` element (example — a "temperature + soil moisture" sensor where the first two bytes are temperature and the next two are humidity):
 
 ```json
 {
   "dev_eui": "0102030405060708",
   "decoder_type": "custom",
-  "fields": [
+  "custom_decoder": [
     { "name": "temperature", "offset": 0, "length": 2, "type": "int16", "scale": 0.1, "unit": "°C" },
     { "name": "soil_moisture", "offset": 2, "length": 2, "type": "uint16", "scale": 0.1, "unit": "%" }
   ]
@@ -299,7 +308,7 @@ A downlink command passes through five steps from issue to actual reception:
 | Parameter | Type | Required | Description |
 |------|------|------|------|
 | `dev_eui` | string | ✅ | Target device EUI (TTN addresses by `device_id`) |
-| `f_port` | integer | ✅ | Port **1–223** (0 is reserved, 224+ are protocol-reserved ranges) |
+| `f_port` | integer | — | Port **1–223** (0 is reserved, 224+ are protocol-reserved ranges), defaults to `1` |
 | `payload_hex` | string | ✅ | Hex payload (converted to base64 automatically) |
 | `confirmed` | boolean | — | Request confirmed downlink, default `false` |
 
@@ -359,9 +368,7 @@ Sending without `ns_api_url` fails immediately with `NS API URL not configured`.
 
 ## 5. Home Assistant (homeassistant-bridge)
 
-Home Assistant is the smart-home hub, and the bridge consumes its API: REST polling is simple and reliable, WebSocket event streaming is real-time. The bridge maps every HA entity to its own NeoMind device, so lights, climate units, and motion sensors live in the same "device + metric" namespace as LoRa sensors — the rule engine and dashboards treat them uniformly.
-
-Connect to HA via REST (polling) or WebSocket (real-time events); auto-discovers entities and registers them as NeoMind devices, with entity-type filtering and service-call control.
+Home Assistant is the smart-home hub, and the bridge consumes its API: after connecting it discovers entities automatically and registers them as NeoMind devices — REST full syncs as the baseline, WebSocket event streaming for real-time updates, with domain filtering and service-call control. The bridge maps every HA entity to its own NeoMind device, so lights, climate units, and motion sensors live in the same "device + metric" namespace as LoRa sensors — the rule engine and dashboards treat them uniformly.
 
 ### 5.1 Prerequisite: create a long-lived access token
 
@@ -370,25 +377,18 @@ In HA, open **Profile → Security → Long-Lived Access Tokens**, create a toke
 ### 5.2 Connect
 
 ```json
-{ "url": "http://192.168.1.20:8123", "token": "eyJ...", "mode": "websocket" }
+{ "haUrl": "http://192.168.1.20:8123", "token": "eyJ...", "domains": "sensor,light,switch,climate" }
 ```
 
 | Parameter | Type | Required | Description |
 |------|------|------|------|
-| `url` | string | ✅ | HA URL including port (e.g. `http://192.168.1.20:8123`) |
+| `haUrl` | string | ✅ | HA URL including port (e.g. `http://192.168.1.20:8123`) |
 | `token` | string | ✅ | Long-lived access token |
-| `mode` | string | — | `rest` (default) or `websocket` |
-| `poll_interval_ms` | integer | — | REST polling interval, default 5000ms |
+| `domains` | string | — | Comma-separated entity domains to import; defaults to `sensor,light,switch,climate,lock` |
+| `syncInterval` | integer | — | Full-sync interval in seconds, default `30` |
+| `entityPatterns` | string | — | Comma-separated entity glob patterns (e.g. `light.*,sensor.*_temp*`); only matching entities are imported |
 
-Mode comparison:
-
-| Aspect | REST mode | WebSocket mode |
-|---|---|---|
-| Data delivery | Polls states every `poll_interval_ms` | Event-stream subscription, instant state-change push |
-| Real-time | Depends on polling interval | Real-time |
-| Area discovery | Not supported | Supported (`get_areas`) |
-| Disconnect behavior | Poll errors counted (`poll_errors`) | Auto-reconnect with exponential backoff (capped at 30s, resets after successful auth) |
-| Best for | Basic monitoring, low-frequency queries | Linkage control, status cards (**recommended**) |
+Once connected the extension does three things: it first pulls all states via `GET /api/states` and registers entities as devices; it then runs a full sync every `syncInterval` seconds to reconcile states; and it keeps a persistent HA WebSocket connection subscribed to the `state_changed` event stream, so entity changes are pushed in real time (internal behavior, nothing to configure). Disconnects reconnect with exponential backoff (capped at 60s, reset after successful auth), followed by an automatic full resync. The `get_areas` command attempts to return the HA area list — note that HA has no public REST endpoint for areas, so on a standard install the command returns `success: false` with a hint; maintain area info on the HA side.
 
 > 📷 TODO screenshot | HA connection · suggested path `…/neomind/lorawan-ha/02-ha-connect.png`
 
@@ -399,9 +399,9 @@ Mode comparison:
 1. A `ha_entity` **device template** defining the standard metric set: `state` (state string), `friendly_name`, `domain`, `area`, `last_changed`, `value` (numeric state), `unit`, and `battery` (0–100);
 2. **One NeoMind device per HA entity** (one entity, one device): device ID `ha_{entity_id}` (`.` / `-` replaced by `_`), device name taken from HA's `friendly_name`. Lights are lights, switches are switches — each its own device — so the rule engine can set conditions and actions on a single entity directly.
 
-On every sync the bridge writes these metrics to each device: `state` (e.g. `on` / `23.5`), `value` (when the state parses as a number, e.g. `23.5`), `unit` (e.g. `°C`), `battery`, `domain`, and `last_changed`; the extension itself also has `ha.connection` / `ha.entities_count` / `ha.total_commands` metrics. Control-relevant key attributes are kept on the entity (visible via `get_state` / `list_entities`): `brightness` (0–255), `color_temp` (mired), `hvac_mode` / `hvac_action`, `current_temperature`, `fan_mode`, `position`, `media_title`, and more.
+On every sync the bridge writes these metrics to each device: `state` (e.g. `on` / `23.5`), `friendly_name` (e.g. `Living Room Temperature`), `value` (when the state parses as a number, e.g. `23.5`), `unit` (e.g. `°C`), `battery`, `domain`, and `last_changed`; the extension itself also has `ha.connection` / `ha.entities_count` / `ha.total_commands` metrics. Control-relevant key attributes are kept on the entity (visible via `get_state` / `list_entities`): `brightness` (0–255), `color_temp` (mired), `hvac_mode` / `hvac_action`, `current_temperature`, `fan_mode`, `position`, `media_title`, and more.
 
-**What does the data the bridge sees look like?** REST polling fetches `GET /api/states`; each entity state looks like:
+**What does the data the bridge sees look like?** REST full syncs fetch `GET /api/states`; each entity state looks like:
 
 <details>
 <summary>REST /api/states single entity state (click to expand)</summary>
@@ -422,94 +422,64 @@ On every sync the bridge writes these metrics to each device: `state` (e.g. `on`
 
 </details>
 
-WebSocket mode additionally subscribes to the `state_changed` event stream; every entity change arrives as a real-time frame:
-
-<details>
-<summary>WebSocket state_changed event (click to expand)</summary>
-
-```json
-{
-  "id": 1,
-  "type": "event",
-  "event": {
-    "event_type": "state_changed",
-    "data": {
-      "entity_id": "light.living_room",
-      "old_state": { "state": "off" },
-      "new_state": {
-        "entity_id": "light.living_room",
-        "state": "on",
-        "attributes": {
-          "friendly_name": "Living Room Light",
-          "brightness": 200,
-          "color_temp": 350
-        },
-        "last_changed": "2026-09-08T10:21:33.512+00:00"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-The bridge only reads `new_state` from the event to update device metrics (`new_state` being `null` means the entity was removed and is ignored). After a WebSocket disconnect and reconnect, it automatically runs a full REST resync to catch up on state changes missed while offline.
+Beyond polling, the bridge also subscribes to HA's WebSocket `state_changed` event stream: every entity change arrives as a real-time frame, and the bridge only reads `new_state` to update device metrics (`new_state` being `null` means the entity was removed and is ignored). After a disconnect and reconnect it automatically runs a full REST resync to catch up on state changes missed while offline.
 
 Once connected, check these three points in order:
 
 1. **Entities registered as devices**: HA entities register with device ID `ha_{entity_id}` (`.` / `-` replaced by `_`, e.g. `light.living_room` → `ha_light_living_room`), carrying `state` / `value` / `unit` / `battery` metrics;
-2. **Counts line up**: `get_status` returns the connection state and entity count (`entity_count`), consistent with the number of entities visible in HA; `list_entities` can filter by type;
-3. **Area grouping** (WebSocket mode): `get_areas` returns the HA area list, so devices can be grouped by area in NeoMind.
+2. **Counts line up**: `get_status` returns the connection state (`connected`) and entity count (`totalEntities`, plus `domainCounts` / `totalCommands` / `config`), consistent with the number of entities visible in HA; `list_entities` can filter by type;
+3. **Area grouping**: `get_areas` attempts to return the HA area list — HA has no public REST endpoint for areas, so on a standard install it returns `success: false` with a hint; maintain area info on the HA side.
 
 > 📷 TODO screenshot | HA entity devices · suggested path `…/neomind/lorawan-ha/04-ha-entities.png`
 
 ### 5.4 Entity filtering (set_filters)
 
-With many entities, use `set_filters` to track only the types you care about:
+With many entities, use `set_filters` to track only the domains you care about (updating them triggers an immediate re-sync):
 
 | Parameter | Type | Required | Description |
 |------|------|------|------|
-| `entity_types` | array of strings | ✅ | Entity domains to track, e.g. `["light", "switch", "sensor", "binary_sensor", "climate"]` |
+| `domains` | string | ✅ | Comma-separated entity domains to track, e.g. `light,switch,climate` |
 
 ```json
-{ "entity_types": ["light", "switch", "climate"] }
+{ "domains": "light,switch,climate" }
 ```
 
-After filtering, only entities whose domain matches register as devices; use `refresh` afterwards to force-refresh all entity states. `configure` can also change `poll_interval_ms` and the filters.
+After filtering, only entities whose domain matches register as devices; use `refresh` afterwards to force-refresh all entity states.
 
 ### 5.5 Control (call_service)
 
-`call_service` invokes HA services directly:
+`call_service` invokes HA services directly — pass the domain and the bare service name separately, and the target entity via `entityId`:
 
 ```json
-{ "service": "light.turn_on", "entity_id": "light.living_room", "service_data": { "brightness": 200 } }
+{ "domain": "light", "service": "turn_on", "entityId": "light.living_room", "data": { "brightness": 200 } }
 ```
 
 | Parameter | Type | Required | Description |
 |------|------|------|------|
-| `service` | string | ✅ | HA service name (`domain.service`) |
-| `entity_id` | string | ✅ | Target entity |
-| `service_data` | object | — | Service parameters (brightness, color temp, temperature, etc.) |
+| `domain` | string | ✅ | HA domain (e.g. `light` / `switch` / `climate`) |
+| `service` | string | ✅ | Service name (the bare name after the domain, e.g. `turn_on` / `set_temperature`) |
+| `entityId` | string | ✅ | Target entity |
+| `data` | object | — | Service parameters (brightness, color temp, temperature, etc.), merged into the request body |
 
-Common services:
+Common services (split the full service name into the `domain` + `service` parameters when calling):
 
-| Service | Purpose | service_data examples |
+| Service (domain.service) | Purpose | data examples |
 |---|---|---|
 | `light.turn_on` / `light.turn_off` / `light.toggle` | Light on / off / toggle | `{ "brightness": 200 }`, `{ "color_temp": 350 }` |
 | `switch.turn_on` / `switch.turn_off` / `switch.toggle` | Switch control | — |
 | `climate.set_temperature` | Climate setpoint | `{ "temperature": 24 }` |
 
-**The full hop from command to device**: `call_service` lands on HA's REST endpoint `POST /api/services/{domain}/{service}`, with a body merging `entity_id` and `service_data`. One example each for light, climate, and switch:
+**The full hop from command to device**: `call_service` lands on HA's REST endpoint `POST /api/services/{domain}/{service}`, with a body merging `entity_id` and `data`. One example each for light, climate, and switch:
 
 | Command you send | What HA receives |
 |---|---|
-| `light.turn_on`, `entity_id: light.living_room`, `service_data: { "brightness": 200, "color_temp": 350 }` | `POST /api/services/light/turn_on`, body: `{ "entity_id": "light.living_room", "brightness": 200, "color_temp": 350 }` |
-| `climate.set_temperature`, `entity_id: climate.living_room_ac`, `service_data: { "temperature": 24 }` | `POST /api/services/climate/set_temperature`, body: `{ "entity_id": "climate.living_room_ac", "temperature": 24 }` |
-| `switch.turn_on`, `entity_id: switch.garden_valve` | `POST /api/services/switch/turn_on`, body: `{ "entity_id": "switch.garden_valve" }` |
+| `domain: light`, `service: turn_on`, `entityId: light.living_room`, `data: { "brightness": 200, "color_temp": 350 }` | `POST /api/services/light/turn_on`, body: `{ "entity_id": "light.living_room", "brightness": 200, "color_temp": 350 }` |
+| `domain: climate`, `service: set_temperature`, `entityId: climate.living_room_ac`, `data: { "temperature": 24 }` | `POST /api/services/climate/set_temperature`, body: `{ "entity_id": "climate.living_room_ac", "temperature": 24 }` |
+| `domain: switch`, `service: turn_on`, `entityId: switch.garden_valve` | `POST /api/services/switch/turn_on`, body: `{ "entity_id": "switch.garden_valve" }` |
 
 Parameter semantics follow HA conventions: `brightness` is 0–255 (200 ≈ 78% brightness); `color_temp` is in mired (micro-reciprocal kelvin) — lower values mean a cooler light; `temperature` follows the entity's `temperature_unit` attribute (°C / °F).
 
-How to confirm the command took effect: HA returns the updated states of the affected entities (passed through in the command result's `result` field); then use `get_state` to re-check the entity's `state` and `brightness` attributes. Note: if the `entity_id` does not exist in HA, the service call may succeed without error while the device does nothing — when in doubt about an entity name, run it manually once from the Commands tab first.
+How to confirm the command took effect: HA returns the updated states of the affected entities (passed through in the command result's `result` field); then use `get_state` to re-check the entity's `state` and `brightness` attributes. Note: if the `entityId` does not exist in HA, the service call may succeed without error while the device does nothing — when in doubt about an entity name, run it manually once from the Commands tab first.
 
 ---
 
@@ -534,7 +504,7 @@ When a LoRa soil sensor (custom-decoded `soil_moisture` from section 4.4) stays 
   "actions": [
     { "type": "notify", "message": "Soil moisture {value}% too low — valve opened", "severity": "warning" },
     { "type": "execute", "target": "homeassistant-bridge", "target_type": "extension", "command": "call_service",
-      "params": { "service": "switch.turn_on", "entity_id": "switch.garden_valve" } }
+      "params": { "domain": "switch", "service": "turn_on", "entityId": "switch.garden_valve" } }
   ],
   "for_duration": 60,
   "cooldown": 600
@@ -549,7 +519,7 @@ When a LoRa soil sensor (custom-decoded `soil_moisture` from section 4.4) stays 
    - Trigger: data change (`data_change`), data source = device `lorawan-0102030405060708`, metric `soil_moisture`;
    - Condition: comparison (`comparison`), `less_than`, threshold `30`; duration `for_duration: 60` — moisture must stay below 30% **for 60 seconds** to fire, filtering out single-frame jitter;
    - Action 1: notification, `severity: warning`; `{value}` in the message is replaced with the actual moisture;
-   - Action 2: execute extension command (`execute`, `target_type: extension`), target extension `homeassistant-bridge`, command `call_service`, params `service: switch.turn_on`, `entity_id: switch.garden_valve`;
+   - Action 2: execute extension command (`execute`, `target_type: extension`), target extension `homeassistant-bridge`, command `call_service`, params `domain: switch`, `service: turn_on`, `entityId: switch.garden_valve`;
    - Cooldown `cooldown: 600`: no re-triggering for 10 minutes, so the valve does not cycle on and off repeatedly;
 4. **Verify**: temporarily raise the threshold above the current moisture (or spritz the sensor) → the rule execution history shows one firing → `switch.garden_valve` turns `on` in HA → the notification arrives; during the cooldown the rule will not fire again even if the condition keeps holding.
 
@@ -609,8 +579,8 @@ Metrics and devices from both bridges are consumed like any other integration:
 | TTN uplinks not arriving | TTN MQTT supports QoS 0 only; wrong `tenant_id`; broker should be `mqtts://…:8883` | Verify the `{app_id}@{tenant_id}` username and `tenant_id` (defaults to `ttn`); use the correct cluster domain and TLS port |
 | Garbled or wildly wrong decoded values | Device is not Cayenne format; `set_decoder` `offset` / `length` / `type` / `scale` misconfigured | Inspect the raw payload via `get_device`, re-check offsets and byte order, then re-apply `set_decoder`; a `NS API URL not configured` downlink error means `ns_api_url` was missing in `connect` |
 | HA returns 401 / auth failure | Long-lived token expired or copied incompletely | Regenerate the token in the HA Profile and `connect` again |
-| WebSocket mode keeps reconnecting | Wrong `url` (missing port, or https instead of http) or invalid token failing auth | Correct `url` (e.g. `http://192.168.1.20:8123`) and `token`; the backoff interval resets automatically after successful auth |
-| HA entities missing from the device list | Filtered out by `set_filters` `entity_types` | Add the entity's domain to the filter list, then run `refresh` |
+| Entity states not updating for a long time | WebSocket reconnect failed or HA unreachable | Check `connected` and the `ha.connection` metric via `get_status`; verify `haUrl` / `token`; after reconnecting the extension resyncs everything automatically |
+| HA entities missing from the device list | Filtered out by `domains` (from `connect` or `set_filters`) | Add the entity's domain to the filter list (`set_filters`), then run `refresh` if needed |
 
 ---
 
@@ -626,4 +596,4 @@ Metrics and devices from both bridges are consumed like any other integration:
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-10-21*

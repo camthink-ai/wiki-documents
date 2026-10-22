@@ -49,7 +49,7 @@ The entire analysis runs on-premises: data stays on the NeoMind host and never p
 
 ## Learn More
 
-- [Engineering Guide: architecture / build / install / operate / use](/docs/edge-ai-solutions/smart-gym/engineering-guide)
-- [NeoEyes NE503 Overview](/docs/neoeyes-ne503-series/overview)
-- [NeoMind Platform Docs](/docs/neomind/product-overview/what-is-neomind)
+- [Engineering Guide: architecture / build / install / operate / use](engineering-guide)
+- [NeoEyes NE503 Overview](../../neoeyes-ne503-series/overview)
+- [NeoMind Platform Docs](../../neomind/product-overview/what-is-neomind)
 - gym-tracker extension repository: [github.com/camthink-ai/NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions)

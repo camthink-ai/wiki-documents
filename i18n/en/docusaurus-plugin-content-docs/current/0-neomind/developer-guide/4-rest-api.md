@@ -14,7 +14,7 @@ The NeoMind backend serves a REST API on Axum. This page is an **integrator's ov
 |------|-------|
 | Base URL | `http://<SERVER_IP>:9375/api` |
 | Interactive API console | `http://<SERVER_IP>:9375/api/docs` (Scalar — browse and debug) |
-| OpenAPI 3 spec | `GET /api/docs/openapi.json` (354 operations, 278 paths, 136 schemas) |
+| OpenAPI 3 spec | `GET /api/docs/openapi.json` (as of 1.2.2: 360 operations, 284 paths, 142 schemas) |
 | Machine-readable route list (with auth classes) | `GET /api/docs/routes.json` |
 | Endpoint definitions (source) | `crates/neomind-api/src/server/router.rs` |
 | Default port | 9375 (override with `--port` or the `NEOMIND_PORT` env var) |
@@ -23,7 +23,7 @@ The NeoMind backend serves a REST API on Axum. This page is an **integrator's ov
 
 ## OpenAPI Spec & Tooling
 
-As of **0.9.24** the OpenAPI 3.0 spec covers **every** REST operation — 334/338 handlers carry full annotations (the other 4 are wildcard routes; see "Honest limits" below), all 136 schemas are registered and every one of the 135 `$ref`s resolves. You can import the spec into any standards-compliant tool or generate a typed client directly.
+As of **0.9.24** (the 0.9.x line is the legacy platform version line — the current line is 1.2.x; same for the version notes below) the OpenAPI 3.0 spec covers **every** REST operation — all non-wildcard operations carry full annotations (the other 4 are wildcard routes; see "Honest limits" below), all schemas are registered and every `$ref` resolves (as of 1.2.2: 360 operations, 142 schemas). You can import the spec into any standards-compliant tool or generate a typed client directly.
 
 ### Download the spec
 
@@ -37,7 +37,7 @@ curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
 
 Open `/api/docs` in a browser — nothing to install:
 
-1. The left tree groups endpoints by domain tag (devices, rules, agents, dashboards … 37 groups); expand any endpoint to see its parameters, request-body schema and documented response codes;
+1. The left tree groups endpoints by domain tag (devices, rules, agents, dashboards … 39 groups); expand any endpoint to see its parameters, request-body schema and documented response codes;
 2. Click an endpoint → **Try it out** → fill in parameters/body → **Execute**; the real response (headers and timing included) appears on the right;
 3. **Auth**: the spec itself embeds no security definitions (auth classes are in the table below; the per-endpoint authority is `routes.json`). When debugging protected endpoints, add the header manually — in the console's parameter area add `X-API-Key: <your key>` (or `Authorization: Bearer <jwt>`) to the request;
 4. The console's top-right corner exports the spec file (OpenAPI JSON).
@@ -261,7 +261,23 @@ Condition types: `comparison` / `range` / `logical`. Action types: `notify` / `e
 | POST | `/agents/:id/status` | Control execution (body `{"status": "active"}` / `"paused"`) |
 | GET | `/agents/:id/executions` | Execution history |
 
-> **Required fields for create**: `user_prompt` (required), `schedule: {"schedule_type": "..."}` (required). When no resources are bound, also set `execution_mode: "free"`.
+> **Required fields for create**: `user_prompt` (required), `schedule: {"schedule_type": "..."}` (required). When no resources are bound, also set `execution_mode: "free"`. **Structured output** is supported: pass `output_schema` (a JSON Schema) at creation time and the agent's execution result is constrained to it; `operator_config` configures the execution policy for operator-style agents.
+
+### Builtin LLM
+
+Management endpoints for the platform's built-in (local-model) LLM runtime, all under the `/builtin-llm` prefix (9 endpoints, as of 1.2.2):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/builtin-llm/status` | Built-in LLM runtime status |
+| GET | `/builtin-llm/models` | List available built-in models |
+| DELETE | `/builtin-llm/model` | Delete the current model |
+| POST | `/builtin-llm/download` | Download a model (**long task**, see "Honest limits") |
+| POST | `/builtin-llm/download/cancel` | Cancel an in-flight download |
+| POST | `/builtin-llm/import-local` | Import a local model file (**long task**) |
+| POST | `/builtin-llm/upload-model` | Upload a model file (**long task**) |
+| POST | `/builtin-llm/activate` | Activate a specific model |
+| POST | `/builtin-llm/restart` | Restart the built-in LLM runtime |
 
 ### LLM Backends
 

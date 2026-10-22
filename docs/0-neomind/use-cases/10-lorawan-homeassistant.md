@@ -1,9 +1,20 @@
+---
+sidebar_label: "LoRaWAN + Home Assistant"
+description: 通过 lorawan-bridge 与 homeassistant-bridge 两个桥接扩展，把 LoRaWAN 网络服务器（ChirpStack v3/v4、TTN）与 Home Assistant 实体接入 NeoMind——自动注册为设备与指标，支持 payload 解码、下行控制、实体过滤、跨桥自动化规则联动与 AI Chat 查询。
+keywords: [NeoMind, LoRaWAN, Home Assistant, ChirpStack, TTN, 桥接扩展, MQTT, 自动化规则, 智能家居]
+tags: [NeoMind, LoRaWAN, Home Assistant, 扩展]
+---
+
+# LoRaWAN + Home Assistant Integration
+
+> 用两个桥接扩展接入外部系统——**lorawan-bridge**（LoRaWAN 网络服务器）与 **homeassistant-bridge**（Home Assistant），都把实体 / 设备自动注册成 NeoMind 设备与指标。
+
 ## 1. 方案概述
 
 | 桥接 | 数据源 | 模式 | 典型设备 |
 |---|---|---|---|
 | **lorawan-bridge** | LoRaWAN 网络服务器（ChirpStack v3/v4、TTN）| MQTT 订阅上行 + API 下行 | 温湿度、土壤、水位、GPS 定位等无线传感器 |
-| **homeassistant-bridge** | Home Assistant | REST 轮询 或 WebSocket 实时 | 灯、开关、传感器、空调等 3000+ HA 集成实体 |
+| **homeassistant-bridge** | Home Assistant | REST 周期同步 + WebSocket 实时事件 | 灯、开关、传感器、空调等 3000+ HA 集成实体 |
 
 **数据流向**：
 
@@ -16,8 +27,6 @@ flowchart LR
     DEV --> AUTO["自动化规则"]
     BRIDGE -.->|"下行 / call_service"| SRC
 ```
-
-sidebar_label: "LoRaWAN + Home Assistant"
 
 ## 2. 物料清单（BOM）
 
@@ -35,9 +44,9 @@ sidebar_label: "LoRaWAN + Home Assistant"
 
 两个桥接都是标准 NeoMind 扩展：安装后在扩展详情页用命令完成全部配置，不需要写任何平台代码。它们对外行为一致——把外部系统的实体 / 设备注册成 NeoMind 设备与指标——所以装好任意一个，仪表板、自动化规则、AI Chat 的用法就与其它接入方式完全相同。
 
-两个桥接都从扩展 Marketplace 安装（市场版本 2.7.x）：
+两个桥接都从扩展 Marketplace 安装（市场版本 2.12+）：
 
-1. 打开 NeoMind 的 **扩展** 页 → **Marketplace** 标签，搜索 `lorawan-bridge`，点 **Install**；
+1. 进入 NeoMind 的 **Extensions（扩展）** 页面，点击工具栏的 **扩展市场**（地球图标）打开 Marketplace 对话框，搜索 `lorawan-bridge`，点 **Install**；
 2. 同样搜索并安装 `homeassistant-bridge`；
 3. 安装完成后进入扩展详情页，确认状态为 **Running**。
 
@@ -197,7 +206,7 @@ TTN 的上行结构不同：`end_device_ids.device_id` 充当设备标识（所�
 
 对照这份输出逐项核对：`fields` 的数值与传感器实际环境一致（拿第二个设备对比或手动估测）、`f_cnt` 随每帧递增、`last_seen` 是最近的时间戳——三者都对，说明上行链路与解码都是健康的。
 
-也可以用 `get_status` 查看 MQTT 连接状态与设备数，`messages_received` / `decode_errors` 指标可判断上行链路与解码健康度。
+也可以用 `get_status` 查看 MQTT 连接状态（`connected`）与已发现设备数（`device_count`）；扩展级指标为 `total_commands` / `connected` / `device_count` 及每设备的 `lorawan.{dev_eui}.*` 序列。扩展未提供收包 / 解码错误计数，上行链路与解码健康度以服务日志为准。
 
 > 📷 待补截图｜设备与指标 · 建议路径 `…/neomind/lorawan-ha/03-lorawan-device.png`
 
@@ -215,7 +224,7 @@ TTN 的上行结构不同：`end_device_ids.device_id` 充当设备标识（所�
 | 数字输入 / 输出（0x00 / 0x01）| `digital_input` / `digital_output` | — | 原值 |
 | GPS（0x06）| `latitude` / `longitude` / `altitude` | ° / ° / m | ×0.0001 / ×0.0001 / ×0.01 |
 
-未知类型码会被跳过（按标准长度跳过对应字节），不影响其余字段解码。
+未知类型码的处理分两种：已知标准长度的类型码（暂不支持）会按标准长度跳过对应字节，不影响其余字段解码；**完全未知的类型码会终止整帧解析**，其后的字段不再解码——遇到解析结果不完整时，先核对 payload 中是否混入扩展不认识的类型码。
 
 **实解一条 Cayenne 报文**——payload 十六进制 `006700EB016878`（即 4.2 真实报文里的 `AGcA6wFoeA==`）。Cayenne LPP 中每个数据点固定为 `信道号(1 字节) + 类型码(1 字节) + 数据(定长)`，多字节数值是大端序：
 
@@ -239,15 +248,15 @@ TTN 的上行结构不同：`end_device_ids.device_id` 充当设备标识（所�
 |------|------|------|------|
 | `dev_eui` | string | ✅ | 目标设备 EUI |
 | `decoder_type` | string | ✅ | `cayenne` 或 `custom` |
-| `fields` | array | custom 时 | 字段定义数组，见下 |
+| `custom_decoder` | array | custom 时 | 字段定义数组，见下 |
 
-`fields` 数组元素结构（示例——一台「温度 + 土壤湿度」传感器，payload 前两字节温度、后两字节湿度）：
+`custom_decoder` 数组元素结构（示例——一台「温度 + 土壤湿度」传感器，payload 前两字节温度、后两字节湿度）：
 
 ```json
 {
   "dev_eui": "0102030405060708",
   "decoder_type": "custom",
-  "fields": [
+  "custom_decoder": [
     { "name": "temperature", "offset": 0, "length": 2, "type": "int16", "scale": 0.1, "unit": "°C" },
     { "name": "soil_moisture", "offset": 2, "length": 2, "type": "uint16", "scale": 0.1, "unit": "%" }
   ]
@@ -299,7 +308,7 @@ TTN 的上行结构不同：`end_device_ids.device_id` 充当设备标识（所�
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `dev_eui` | string | ✅ | 目标设备 EUI（TTN 用 `device_id` 寻址）|
-| `f_port` | integer | ✅ | 端口 **1–223**（0 被保留，224+ 为协议保留段）|
+| `f_port` | integer | — | 端口 **1–223**（0 被保留，224+ 为协议保留段），缺省 `1` |
 | `payload_hex` | string | ✅ | 十六进制 payload（自动转 base64 提交）|
 | `confirmed` | boolean | — | 是否要求确认下行，默认 `false` |
 
@@ -359,9 +368,7 @@ TTN 按 `device_id`（而非 dev_eui）寻址设备。
 
 ## 5. Home Assistant 接入（homeassistant-bridge）
 
-Home Assistant 是家庭中枢，桥接消费的是它的 API：REST 轮询简单可靠，WebSocket 事件流实时。桥接把每个 HA 实体映射成一个独立的 NeoMind 设备，于是灯、空调、人感与 LoRa 传感器处在同一个「设备 + 指标」命名空间里，规则引擎、仪表板可以统一处理它们。
-
-通过 REST（轮询）或 WebSocket（实时事件）连接 HA，自动发现实体并注册为 NeoMind 设备，支持按实体类型过滤与服务调用控制。
+Home Assistant 是家庭中枢，桥接消费的是它的 API：连接后自动发现实体并注册为 NeoMind 设备——REST 全量同步保底、WebSocket 事件流实时更新，支持按 domain 过滤与服务调用控制。桥接把每个 HA 实体映射成一个独立的 NeoMind 设备，于是灯、空调、人感与 LoRa 传感器处在同一个「设备 + 指标」命名空间里，规则引擎、仪表板可以统一处理它们。
 
 ### 5.1 前置：生成长效访问令牌
 
@@ -370,25 +377,18 @@ Home Assistant 是家庭中枢，桥接消费的是它的 API：REST 轮询简�
 ### 5.2 连接（connect）
 
 ```json
-{ "url": "http://192.168.1.20:8123", "token": "eyJ...", "mode": "websocket" }
+{ "haUrl": "http://192.168.1.20:8123", "token": "eyJ...", "domains": "sensor,light,switch,climate" }
 ```
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `url` | string | ✅ | HA 地址，含端口（如 `http://192.168.1.20:8123`）|
+| `haUrl` | string | ✅ | HA 地址，含端口（如 `http://192.168.1.20:8123`）|
 | `token` | string | ✅ | 长效访问令牌 |
-| `mode` | string | — | `rest`（默认）或 `websocket` |
-| `poll_interval_ms` | integer | — | REST 轮询间隔，默认 5000ms |
+| `domains` | string | — | 要导入的实体 domain，逗号分隔；默认 `sensor,light,switch,climate,lock` |
+| `syncInterval` | integer | — | 全量同步间隔（秒），默认 `30` |
+| `entityPatterns` | string | — | 实体 glob 过滤模式，逗号分隔（如 `light.*,sensor.*_temp*`），仅导入匹配的实体 |
 
-两种模式对比：
-
-| 对比项 | REST 模式 | WebSocket 模式 |
-|---|---|---|
-| 数据方式 | 按 `poll_interval_ms` 周期轮询状态 | 事件流订阅，状态变化即时推送 |
-| 实时性 | 取决于轮询间隔 | 实时 |
-| 区域（Area）发现 | 不支持 | 支持（`get_areas`）|
-| 断线行为 | 轮询报错计数（`poll_errors`）| 指数退避自动重连（上限 30s，认证成功后重置）|
-| 适用场景 | 基础监控、低频查询 | 联动控制、状态卡片（**推荐**）|
+连接成功后扩展做三件事：先全量拉取 `GET /api/states` 把实体注册为设备；之后每 `syncInterval` 秒做一次全量同步对齐状态；同时常驻一条 HA WebSocket 连接订阅 `state_changed` 事件流，实体一变化即实时推送（内部行为，无需配置），断线按指数退避自动重连（上限 60s，认证成功后重置），重连后自动补一次全量同步。`get_areas` 命令尝试返回 HA 区域列表——注意 HA 没有公开的 REST 区域端点，常规安装下该命令会返回 `success: false` 并附提示，区域信息请在 HA 侧维护。
 
 > 📷 待补截图｜HA 连接 · 建议路径 `…/neomind/lorawan-ha/02-ha-connect.png`
 
@@ -399,9 +399,9 @@ Home Assistant 是家庭中枢，桥接消费的是它的 API：REST 轮询简�
 1. 一个 `ha_entity` **设备模板**，定义了标准指标集：`state`（状态字符串）、`friendly_name`、`domain`、`area`、`last_changed`、`value`（数值型状态）、`unit`、`battery`（0–100）；
 2. **每个 HA 实体一个 NeoMind 设备**（一实体一设备）：设备 ID 为 `ha_{entity_id}`（`.` / `-` 替换为 `_`），设备名取 HA 的 `friendly_name`。灯是灯、开关是开关，各成一台设备——这样规则引擎里能对单个实体直接设条件、做动作。
 
-每次同步时，桥接向每台设备写入指标：`state`（如 `on` / `23.5`）、`value`（state 能解析成数字时，如 `23.5`）、`unit`（如 `°C`）、`battery`、`domain`、`last_changed`；扩展自身还有 `ha.connection` / `ha.entities_count` / `ha.total_commands` 指标。控制常用的关键属性也保留在实体上（`get_state` / `list_entities` 可见）：`brightness`（0–255）、`color_temp`（mired）、`hvac_mode` / `hvac_action`、`current_temperature`、`fan_mode`、`position`、`media_title` 等。
+每次同步时，桥接向每台设备写入指标：`state`（如 `on` / `23.5`）、`friendly_name`（如 `客厅温度`）、`value`（state 能解析成数字时，如 `23.5`）、`unit`（如 `°C`）、`battery`、`domain`、`last_changed`；扩展自身还有 `ha.connection` / `ha.entities_count` / `ha.total_commands` 指标。控制常用的关键属性也保留在实体上（`get_state` / `list_entities` 可见）：`brightness`（0–255）、`color_temp`（mired）、`hvac_mode` / `hvac_action`、`current_temperature`、`fan_mode`、`position`、`media_title` 等。
 
-**桥接看到的数据长什么样**——REST 轮询拉取 `GET /api/states`，每条实体状态形如：
+**桥接看到的数据长什么样**——REST 全量同步拉取 `GET /api/states`，每条实体状态形如：
 
 <details>
 <summary>REST /api/states 单条实体状态（点击展开）</summary>
@@ -422,94 +422,64 @@ Home Assistant 是家庭中枢，桥接消费的是它的 API：REST 轮询简�
 
 </details>
 
-WebSocket 模式在轮询之外还订阅 `state_changed` 事件流，实体每次变化实时收到一帧：
-
-<details>
-<summary>WebSocket state_changed 事件（点击展开）</summary>
-
-```json
-{
-  "id": 1,
-  "type": "event",
-  "event": {
-    "event_type": "state_changed",
-    "data": {
-      "entity_id": "light.living_room",
-      "old_state": { "state": "off" },
-      "new_state": {
-        "entity_id": "light.living_room",
-        "state": "on",
-        "attributes": {
-          "friendly_name": "客厅灯",
-          "brightness": 200,
-          "color_temp": 350
-        },
-        "last_changed": "2026-09-08T10:21:33.512+00:00"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-桥接只取事件里的 `new_state` 来更新设备指标（`new_state` 为 `null` 表示实体被删除，忽略）。WebSocket 断线重连后会自动做一次 REST 全量同步，补齐断线期间错过的状态变化。
+在轮询之外，桥接还订阅 HA 的 WebSocket `state_changed` 事件流：实体每次变化实时收到一帧，桥接只取 `new_state` 更新设备指标（`new_state` 为 `null` 表示实体被删除，忽略）；断线重连后会自动做一次 REST 全量同步，补齐断线期间错过的状态变化。
 
 接入完成后按顺序核对三个检查点：
 
 1. **实体注册为设备**：HA 实体以 `ha_{entity_id}` 为设备 ID 注册（`.` / `-` 替换为 `_`，如 `light.living_room` → `ha_light_living_room`），带 `state` / `value` / `unit` / `battery` 等指标；
-2. **数量核对**：`get_status` 返回连接状态与实体数（`entity_count`），与 HA 中可见实体数量级一致；`list_entities` 可按类型筛选查看；
-3. **区域分组**（WebSocket 模式）：`get_areas` 返回 HA 区域列表，可在 NeoMind 设备视图中按区域归类。
+2. **数量核对**：`get_status` 返回连接状态（`connected`）与实体数（`totalEntities`，另有 `domainCounts` / `totalCommands` / `config`），与 HA 中可见实体数量级一致；`list_entities` 可按类型筛选查看；
+3. **区域分组**：`get_areas` 尝试返回 HA 区域列表——HA 无公开 REST 区域端点，常规安装下返回 `success: false` 并附提示，需按提示在 HA 侧维护区域信息。
 
 > 📷 待补截图｜HA 实体设备 · 建议路径 `…/neomind/lorawan-ha/04-ha-entities.png`
 
 ### 5.4 实体过滤（set_filters）
 
-实体多时用 `set_filters` 只跟踪关注的类型：
+实体多时用 `set_filters` 只跟踪关注的 domain（更新后立即触发一次重新同步）：
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `entity_types` | string 数组 | ✅ | 要跟踪的实体 domain，如 `["light", "switch", "sensor", "binary_sensor", "climate"]` |
+| `domains` | string | ✅ | 要跟踪的实体 domain，逗号分隔，如 `light,switch,climate` |
 
 ```json
-{ "entity_types": ["light", "switch", "climate"] }
+{ "domains": "light,switch,climate" }
 ```
 
-过滤后仅匹配 domain 的实体注册为设备；之后用 `refresh` 可强制刷新全部实体状态。`configure` 也能改 `poll_interval_ms` 与过滤器。
+过滤后仅匹配 domain 的实体注册为设备；此后仍可用 `refresh` 强制刷新全部实体状态。
 
 ### 5.5 控制（call_service）
 
-`call_service` 直接调用 HA 服务：
+`call_service` 直接调用 HA 服务——domain 与裸服务名分开传，实体用 `entityId`：
 
 ```json
-{ "service": "light.turn_on", "entity_id": "light.living_room", "service_data": { "brightness": 200 } }
+{ "domain": "light", "service": "turn_on", "entityId": "light.living_room", "data": { "brightness": 200 } }
 ```
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `service` | string | ✅ | HA 服务名（`domain.service`）|
-| `entity_id` | string | ✅ | 目标实体 |
-| `service_data` | object | — | 服务参数（亮度、色温、温度等）|
+| `domain` | string | ✅ | HA domain（如 `light` / `switch` / `climate`）|
+| `service` | string | ✅ | 服务名（domain 后的裸名，如 `turn_on` / `set_temperature`）|
+| `entityId` | string | ✅ | 目标实体 |
+| `data` | object | — | 服务参数（亮度、色温、温度等），合并进请求体 |
 
-常用服务对照：
+常用服务对照（调用时把完整服务名拆成 `domain` + `service` 两个参数）：
 
-| 服务 | 用途 | service_data 示例 |
+| 服务（domain.service）| 用途 | data 示例 |
 |---|---|---|
 | `light.turn_on` / `light.turn_off` / `light.toggle` | 灯开关 / 切换 | `{ "brightness": 200 }`、`{ "color_temp": 350 }` |
 | `switch.turn_on` / `switch.turn_off` / `switch.toggle` | 开关量控制 | — |
 | `climate.set_temperature` | 空调调温 | `{ "temperature": 24 }` |
 
-**命令到设备的完整一跳**：`call_service` 最终落到 HA 的 REST 接口 `POST /api/services/{domain}/{service}`，请求体是 `entity_id` 与 `service_data` 的合并。灯、空调、开关各举一例：
+**命令到设备的完整一跳**：`call_service` 最终落到 HA 的 REST 接口 `POST /api/services/{domain}/{service}`，请求体是 `entity_id` 与 `data` 的合并。灯、空调、开关各举一例：
 
 | 你发的命令 | HA 实际收到 |
 |---|---|
-| `light.turn_on`，`entity_id: light.living_room`，`service_data: { "brightness": 200, "color_temp": 350 }` | `POST /api/services/light/turn_on`，body：`{ "entity_id": "light.living_room", "brightness": 200, "color_temp": 350 }` |
-| `climate.set_temperature`，`entity_id: climate.living_room_ac`，`service_data: { "temperature": 24 }` | `POST /api/services/climate/set_temperature`，body：`{ "entity_id": "climate.living_room_ac", "temperature": 24 }` |
-| `switch.turn_on`，`entity_id: switch.garden_valve` | `POST /api/services/switch/turn_on`，body：`{ "entity_id": "switch.garden_valve" }` |
+| `domain: light`，`service: turn_on`，`entityId: light.living_room`，`data: { "brightness": 200, "color_temp": 350 }` | `POST /api/services/light/turn_on`，body：`{ "entity_id": "light.living_room", "brightness": 200, "color_temp": 350 }` |
+| `domain: climate`，`service: set_temperature`，`entityId: climate.living_room_ac`，`data: { "temperature": 24 }` | `POST /api/services/climate/set_temperature`，body：`{ "entity_id": "climate.living_room_ac", "temperature": 24 }` |
+| `domain: switch`，`service: turn_on`，`entityId: switch.garden_valve` | `POST /api/services/switch/turn_on`，body：`{ "entity_id": "switch.garden_valve" }` |
 
 参数语义遵循 HA 约定：`brightness` 取 0–255（200 约为 78% 亮度）；`color_temp` 单位是 mired（微倒开尔文），值越小光色越冷；`temperature` 的单位跟随实体属性 `temperature_unit`（°C / °F）。
 
-怎么确认命令生效：HA 会返回受影响实体的最新状态数组（透传在命令结果的 `result` 字段里）；随后可用 `get_state` 复查该实体的 `state` 与 `brightness` 等属性是否变化。注意：若 `entity_id` 在 HA 中不存在，服务调用可能不报错但设备也无动作——拿不准实体名时，先在 Commands 标签手动执行一次验证。
+怎么确认命令生效：HA 会返回受影响实体的最新状态数组（透传在命令结果的 `result` 字段里）；随后可用 `get_state` 复查该实体的 `state` 与 `brightness` 等属性是否变化。注意：若 `entityId` 在 HA 中不存在，服务调用可能不报错但设备也无动作——拿不准实体名时，先在 Commands 标签手动执行一次验证。
 
 ---
 
@@ -534,7 +504,7 @@ LoRa 土壤传感器（4.4 节自定义解码出 `soil_moisture`）湿度低于 
   "actions": [
     { "type": "notify", "message": "土壤湿度 {value}% 过低，已开阀灌溉", "severity": "warning" },
     { "type": "execute", "target": "homeassistant-bridge", "target_type": "extension", "command": "call_service",
-      "params": { "service": "switch.turn_on", "entity_id": "switch.garden_valve" } }
+      "params": { "domain": "switch", "service": "turn_on", "entityId": "switch.garden_valve" } }
   ],
   "for_duration": 60,
   "cooldown": 600
@@ -549,7 +519,7 @@ LoRa 土壤传感器（4.4 节自定义解码出 `soil_moisture`）湿度低于 
    - 触发器：数据变化（`data_change`），数据源选设备 `lorawan-0102030405060708` 的指标 `soil_moisture`；
    - 条件：比较（`comparison`），`less_than`，阈值 `30`；持续时间 `for_duration: 60`——湿度**持续 60 秒**低于 30% 才触发，滤掉单帧抖动；
    - 动作 1：通知，`severity: warning`，文案中的 `{value}` 会被替换为实际湿度；
-   - 动作 2：执行扩展命令（`execute`，`target_type: extension`），目标扩展 `homeassistant-bridge`，命令 `call_service`，参数 `service: switch.turn_on`、`entity_id: switch.garden_valve`；
+   - 动作 2：执行扩展命令（`execute`，`target_type: extension`），目标扩展 `homeassistant-bridge`，命令 `call_service`，参数 `domain: switch`、`service: turn_on`、`entityId: switch.garden_valve`；
    - 冷却 `cooldown: 600`：10 分钟内不重复触发，避免阀门反复开关；
 4. **验证**：把阈值临时调到高于当前湿度（或给传感器喷水）→ 规则执行历史出现一次触发 → HA 中 `switch.garden_valve` 变为 `on` → 收到通知；冷却期内即使条件持续满足也不会再执行。
 
@@ -609,8 +579,8 @@ HA 人体传感器 `binary_sensor.garden_motion` 检测到人（`state` 变为 `
 | TTN 收不到上行 | TTN MQTT 仅支持 QoS 0；`tenant_id` 不对；broker 应为 `mqtts://…:8883` | 核对 `{app_id}@{tenant_id}` 用户名与 `tenant_id`（缺省 `ttn`）；换成 TTS 集群对应域名与 TLS 端口 |
 | 解码乱码 / 数值离谱 | 设备并非 Cayenne 格式；`set_decoder` 的 `offset` / `length` / `type` / `scale` 配错 | 用 `get_device` 看原始 payload，逐字段核对偏移与字节序后重设 `set_decoder`；下行报 `NS API URL not configured` 则是 `connect` 时漏填 `ns_api_url` |
 | HA 报 401 / 认证失败 | 长效令牌过期或复制不完整 | HA Profile 重新生成令牌，重新 `connect` |
-| WebSocket 模式反复重连 | `url` 写错（漏端口、误用 https）或令牌无效导致认证失败 | 修正 `url`（如 `http://192.168.1.20:8123`）与 `token`；认证成功后退避间隔自动重置 |
-| HA 实体没出现在设备列表 | 被 `set_filters` 的 `entity_types` 过滤掉 | 把该实体的 domain 加入过滤列表，再执行 `refresh` |
+| 实体状态长时间不更新 | WebSocket 断线未恢复或 HA 不可达 | `get_status` 看 `connected` 与 `ha.connection` 指标；检查 `haUrl` / `token`；重连后扩展会自动全量补同步 |
+| HA 实体没出现在设备列表 | 被 `domains` 过滤（`connect` 的 `domains` 或 `set_filters`）| 把该实体的 domain 加入过滤列表（`set_filters`），必要时再执行 `refresh` |
 
 ---
 
@@ -626,4 +596,4 @@ HA 人体传感器 `binary_sensor.garden_motion` 检测到人（`state` 变为 `
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

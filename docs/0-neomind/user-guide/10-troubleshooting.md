@@ -38,7 +38,8 @@ echo $NEOMIND_API_KEY
 
 # 2. CLI 能否定位到数据目录？
 #    auto-auth 依次尝试：NEOMIND_DATA_DIR 指定目录 → 平台用户数据目录
-#    （存在 api_keys.redb 时）→ 当前目录下的 data/（项目根兜底）
+#    （存在 api_keys.redb 或 users.redb 时）→ server 部署目录
+#    （systemd 单元 WorkingDirectory、/var/lib/neomind、/opt）→ 当前目录下的 data/（项目根兜底）
 ls data/api_keys.redb
 ```
 
@@ -148,7 +149,7 @@ curl http://localhost:11434/api/chat -d '{
 **原因**：当前 LLM 后端**不支持多模态**，或 NeoMind 误判了能力。
 
 **修复**：
-1. 确认模型本身支持视觉（如 `qwen3.5:4b-vl` / `llava`，不是纯文本的 `qwen3.5:4b`）
+1. 确认模型本身支持视觉（如 `llava` / `llava`，不是纯文本的 `qwen3.5:4b`）
 2. `ollama pull` 视觉模型
 3. Settings → LLM Backends → 该后端详情页，手动打开 **Multimodal** 开关（覆盖自动探测）
 4. 重新发起对话
@@ -211,7 +212,7 @@ neomind system info
 **原因**：MQTT 启用了 TLS（`mqtts://`），但设备用了明文连接。
 
 **修复**：
-- 设备改用 `mqtts://` + 信任 CA 证书（从 Settings → MQTT 下载）
+- 设备改用 `mqtts://` + 信任 CA 证书（从 Settings → Device Connections → 内置 Broker 配置对话框下载）
 - 或在 NeoMind 关闭 TLS（仅内网/测试环境推荐）
 
 ## 扩展
@@ -280,7 +281,7 @@ neomind extension info <ID>   # 看具体扩展的最近错误
 
 ### 如何备份？
 
-**内置备份（0.9.21+，推荐）**——计划与保留份数在 [系统设置 → Preferences](./12-settings.md#备份计划) 中配置；平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
+**内置备份（1.2.x 内置，推荐）**——计划与保留份数在 [系统设置 → Preferences](./12-settings.md#备份计划) 中配置；平台自动把全部 redb 数据库与密钥文件备份到 `data/backups/backup-<时间戳>/`，每个副本都经过可打开性校验：
 
 - **设置 → 偏好设置** 中配置备份计划（开关 / 间隔 6 小时 ~ 7 天 / 保留份数），也可点击「立即备份」
 - API：`POST /api/settings/backup`（立即备份）、`GET /api/settings/backups`（列出）
@@ -319,7 +320,7 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 Linux 服务器主包为了控制体积不携带 DWARF 调试信息，但保留了函数符号表，所以常规排查（看日志里的 panic 栈、`perf report` 看热点函数）**不需要任何额外文件**。需要**源码行号**信息时——perf 火焰图精确到行、gdb 解析 core dump、`addr2line`——下载同版本的可选符号包，解压到二进制旁边：
 
 ```bash
-VERSION=0.9.24   # 与正在运行的版本保持一致（neomind --version 查看）
+VERSION=1.2.2    # 与正在运行的版本保持一致（neomind --version 查看）
 ARCH=amd64       # 按平台调整，arm64 设备改为 arm64
 
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}-debug-symbols.tar.gz
@@ -347,4 +348,4 @@ perf report
 
 ---
 
-*最后更新: 2026-09-11*
+*最后更新: 2026-10-21*

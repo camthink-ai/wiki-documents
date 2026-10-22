@@ -27,7 +27,7 @@ A single extension can declare multiple capabilities. For example, `yolo-video` 
 
 ## Official Extensions
 
-The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repository provides official extensions, installable in one click from the built-in extension marketplace (marketplace currently at version **2.7.8**, September 2026, updated with each extension repo release; the list below evolves with the marketplace):
+The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repository provides official extensions, installable in one click from the built-in extension marketplace (marketplace currently at version **2.14.0**, 26 extensions, updated with each extension repo release; the list below evolves with the marketplace):
 
 | Extension ID | Category | Description |
 |--------------|----------|-------------|
@@ -56,17 +56,17 @@ The [NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) repo
 | `uink-rms-bridge` | Bridge | Uink-RMS e-ink displays: device registration, telemetry collection, display content delivery |
 | `weather-forecast` | Data Source | Real-time weather forecasts (multi-city, OpenWeatherMap) |
 | `gym-tracker` | Industry | Gym operations suite: exercise trajectories/heatmaps/member analytics (extension + dashboard components) |
-| `wasm-demo` | Demo | WASM sandbox demo extension showcasing the extension SDK capabilities |
+| `laya-decision` | Utility | LAYA decision layer — hosts the ONNX decision runtime behind the `/v1/systemone` sidecar protocol, plus artifact/audit monitoring and the dashboard status card |
 
 
-> The marketplace index refreshes with each extension repo **release**. If your marketplace shows fewer extensions than the table above, or some entries still carry old names (`weather-forecast-v2` / `yolo-video-v2`), your platform is loading the previously published index — these will be renamed/added in the next release. Mapping: `weather-forecast-v2`→`weather-forecast`, `image-analyzer-v2`→`image-analyzer`, `locate-anything-v2`→`locate-anything`, `yolo-video-v2`→`yolo-video`.
+> The marketplace index refreshes with each extension repo **release**. If your marketplace shows fewer extensions than the table above, your platform is loading the previously published index — it will catch up on the next release.
 For end-to-end examples, see [Use Cases](../use-cases/1-object-detection.md).
 
 ## Interface Overview
 
 Navigate to the **Extensions** tab in the left sidebar to see all installed extensions:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-list.png" alt="Extension management list page" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-list.png" alt="Extension management list page" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The toolbar at the top provides three actions:
 
@@ -86,7 +86,7 @@ NeoMind supports four installation methods, ordered by recommendation:
 
 Click the **Globe icon** in the toolbar to open the marketplace dialog. NeoMind fetches the list of available extensions from the official repository:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png" alt="Extension marketplace dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-marketplace.png" alt="Extension marketplace dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 In the marketplace dialog:
 
@@ -100,7 +100,7 @@ Marketplace installation automatically selects the extension package matching th
 
 If you already have a `.nep` package (self-developed or downloaded from [Releases](https://github.com/camthink-ai/NeoMind-Extensions/releases)), use upload installation:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-upload.png" alt="Upload installation dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-upload.png" alt="Upload installation dialog" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. Click the **Upload button** in the toolbar
 2. In the dialog, drag in or select a `.nep` file
@@ -108,7 +108,7 @@ If you already have a `.nep` package (self-developed or downloaded from [Release
 4. After validation, it unpacks, loads, and starts the extension
 
 :::tip
-Official `.nep` packages are distributed per-platform (e.g. `weather-forecast-2.7.7-linux_amd64.nep`). Marketplace installation automatically selects the package matching your platform and the main service's ABI version — no manual picking required. When downloading manually from Releases, choose the package under your platform's directory.
+Official `.nep` packages are distributed per-platform (e.g. `weather-forecast-2.14.0-linux_amd64.nep`). Marketplace installation automatically selects the package matching your platform and the main service's ABI version — no manual picking required. When downloading manually from Releases, choose the package under your platform's directory.
 :::
 
 ### Method 3: CLI
@@ -118,7 +118,7 @@ Official `.nep` packages are distributed per-platform (e.g. `weather-forecast-2.
 neomind extension install /path/to/weather-forecast.nep
 
 # Install from URL (suitable for automated deployment; pick the package for your platform)
-neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.8/weather-forecast-2.7.7-linux_amd64.nep
+neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.14.0/weather-forecast-2.14.0-linux_amd64.nep
 
 # List installed extensions
 neomind extension list
@@ -140,7 +140,7 @@ The LLM guides you to upload a `.nep` package or provide a download URL, and aut
 
 ### 1. Overview
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-overview.png" alt="Extension details - Overview section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-overview.png" alt="Extension details - Overview section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The Overview section displays basic information about the extension:
 
@@ -155,7 +155,7 @@ The Overview section displays basic information about the extension:
 
 Some extensions require configuration parameters to run (e.g., a weather extension needs an API key). Switch to the **Configuration** tab to configure:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-config.png" alt="Extension details - Configuration section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-config.png" alt="Extension details - Configuration section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Configuration parameters are automatically rendered as appropriate input controls based on their type:
 
@@ -177,7 +177,7 @@ On save, NeoMind attempts to push the new configuration to the running extension
 
 Commands are callable operations exposed by the extension. Switch to the **Commands** tab to see all commands:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-commands.png" alt="Extension details - Commands section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-commands.png" alt="Extension details - Commands section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each command card displays:
 
@@ -194,7 +194,7 @@ Commands can be executed manually for testing, and also invoked by AI Agents / R
 
 Metrics are the time-series data produced by the extension. Switch to the **Metrics** tab to view historical data:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-metrics.png" alt="Extension details - Metrics section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-metrics.png" alt="Extension details - Metrics section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The Metrics section provides:
 
@@ -209,7 +209,7 @@ Metric data source format: `extension:<extension_id>:<metric_name>`. This can be
 
 The Logs section shows the extension process's standard output and error output in real time:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-logs.png" alt="Extension details - Logs section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-logs.png" alt="Extension details - Logs section" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Features:
 
@@ -455,4 +455,4 @@ The complete extension development tutorial is in [Developer Guide - Extension D
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

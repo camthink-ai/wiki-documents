@@ -37,7 +37,8 @@ echo $NEOMIND_API_KEY
 
 # 2. Can the CLI locate the data directory?
 #    auto-auth tries, in order: NEOMIND_DATA_DIR → platform user data dir
-#    (when it contains api_keys.redb) → ./data under the current directory (project-root fallback)
+#    (when it contains api_keys.redb or users.redb) → server deployment dirs
+#    (systemd unit WorkingDirectory, /var/lib/neomind, /opt) → ./data under the current directory (project-root fallback)
 ls data/api_keys.redb
 ```
 
@@ -143,7 +144,7 @@ curl http://localhost:11434/api/chat -d '{
 **Cause**: the current LLM backend **doesn't support multimodal**, or NeoMind misdetects capability.
 
 **Fix**:
-1. Confirm the model itself supports vision (e.g. `qwen3.5:4b-vl` / `llava`, not the text-only `qwen3.5:4b`)
+1. Confirm the model itself supports vision (e.g. `llava` / `llava`, not the text-only `qwen3.5:4b`)
 2. `ollama pull` the vision model
 3. Settings → LLM Backends → that backend's detail page → manually toggle **Multimodal** on (override auto-detect)
 4. Retry the conversation
@@ -204,7 +205,7 @@ Pass the credentials into device code: `client.connect(client_id, username, pass
 **Cause**: MQTT TLS is on (`mqtts://`) but the device connected in plaintext.
 
 **Fix**:
-- Switch device to `mqtts://` + trust the CA cert (download from Settings → MQTT)
+- Switch device to `mqtts://` + trust the CA cert (download from Settings → Device Connections → embedded broker configuration dialog)
 - Or turn TLS off in NeoMind (recommended only for isolated/test networks)
 
 ## Extensions
@@ -269,7 +270,7 @@ Yes. Stop the service, copy the entire data dir to the new host at the same path
 
 ### Backup
 
-**Built-in backup (0.9.21+, recommended) — schedule and retention are configured in [Settings → Preferences](./12-settings.md#backup-schedule);** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
+**Built-in backup (included in 1.2.x, recommended) — schedule and retention are configured in [Settings → Preferences](./12-settings.md#backup-schedule);** — the platform automatically backs up all redb databases and secret files into `data/backups/backup-<timestamp>/`, and every copy is verified to be openable:
 
 - Configure the backup schedule under **Settings → Preferences** (on/off, 6h–7d interval, retention count); you can also click "Back up now"
 - API: `POST /api/settings/backup` (back up now), `GET /api/settings/backups` (list)
@@ -308,7 +309,7 @@ journalctl -u neomind.service | grep -i "vision\|multimodal\|image"
 The Linux server tarball omits DWARF debug info to keep the download small, but retains the function symbol table — so routine triage (panic backtraces in logs, hot functions in `perf report`) needs **no extra files**. When you need **source-line** information — line-accurate perf flame graphs, gdb on a core dump, `addr2line` — download the matching optional symbols package and extract it next to the binaries:
 
 ```bash
-VERSION=0.9.24   # keep this identical to the running version (check with neomind --version)
+VERSION=1.2.2     # keep this identical to the running version (check with neomind --version)
 ARCH=amd64       # adjust for your platform; use arm64 on ARM devices
 
 wget https://github.com/camthink-ai/NeoMind/releases/download/v${VERSION}/neomind-server-linux-${ARCH}-debug-symbols.tar.gz
@@ -337,4 +338,4 @@ perf report
 
 ---
 
-*Last updated: 2026-09-11*
+*Last updated: 2026-10-21*

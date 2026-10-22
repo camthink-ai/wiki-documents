@@ -54,7 +54,7 @@ Beyond a camera and the platform, all face-recognition inference (detection + fe
 |------|------|------|------|
 | **Smart Camera** | NE101 or NE301 | Image capture | ✅ |
 | **NeoMind Platform** | v0.9.0+ ([Download](https://github.com/camthink-ai/NeoMind/releases/latest)) | Edge AI management | ✅ |
-| **Face Recognition Extension** | face-recognition 2.7.x | Face detection and identity recognition | ✅ |
+| **Face Recognition Extension** | face-recognition 2.12+ | Face detection and identity recognition | ✅ |
 | **Local LLM** | Ollama | AI Chat backend | Optional |
 
 ---
@@ -86,7 +86,7 @@ Register your NE101 or NE301 with the NeoMind platform:
 
 ## 4. Install the Face Recognition Extension
 
-The extension is published in the official extension marketplace; the current version is **2.7.x** (this guide uses 2.7.8).
+The extension is published in the official extension marketplace; the current version is **2.12+** (this guide uses 2.12.0).
 
 ### 4.1 Install from the Extension Marketplace (Recommended)
 
@@ -103,7 +103,7 @@ The extension is published in the official extension marketplace; the current ve
 ```bash
 neomind extension market-list                     # List extensions available in the marketplace
 neomind extension market-install face-recognition # Install from the marketplace (latest by default)
-neomind extension market-install face-recognition --version 2.7.8
+neomind extension market-install face-recognition --version 2.12.0
 ```
 
 ### 4.3 Verify the Installation
@@ -112,7 +112,7 @@ neomind extension market-install face-recognition --version 2.7.8
 - Open the **extension detail page** and confirm the Overview / Configuration / Commands / Metrics / Logs tabs exist.
 - Switch to the **Metrics** tab: the extension-level metrics `bound_devices`, `total_inferences`, `total_recognized`, and `total_unknown` should be reporting (initially 0).
 
-> The SCRFD (`det_10g.onnx`) and ArcFace models ship with the extension and are **lazy-loaded on first inference** — the first recognition after installation is slower, which is expected.
+> The SCRFD (`det_10g.onnx`) and ArcFace (`w600k_r50.onnx`) models ship with the extension (subject to what the `.nep` package actually bundles) and are **lazy-loaded on first inference** — the first recognition after installation is slower, which is expected.
 
 ---
 

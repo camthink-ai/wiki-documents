@@ -1,5 +1,5 @@
 ---
-description: "Configure LLM backends in NeoMind: built-in local models (MiniCPM5-2B recommended), Ollama, and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
+description: "Configure LLM backends in NeoMind: Built-in Model (one-click download, fully offline, vision variant included), Ollama, and cloud models (OpenAI/Anthropic/Qwen/DeepSeek/GLM etc.) — setup steps, CLI commands, model selection, and multimodal capability."
 keywords: [NeoMind, LLM, Ollama, qwen3.5, model config, multimodal, CLI]
 tags: [NeoMind, User Guide]
 sidebar_label: "Configure LLM Backend"
@@ -16,7 +16,7 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 
 | Category | Backend | Default Model | Notes |
 |----------|---------|---------------|-------|
-| **Local (zero config)** | Built-in llama.cpp | Curated platform models (Qwen 3.5 / Gemma 4 / Ling-3.0-tiny / LFM2.5, etc.) | Runtime bundled in the Docker image, one-click download in the wizard, see [section below](#built-in-local-models-zero-config) |
+| **Local (zero config)** | Built-in Model | Curated platform catalog (LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B, 7 models) | No API key, fully offline — one-click download on the card, see [section below](#built-in-model-zero-config) |
 | **Local** | Ollama | `qwen3.5:4b` | Fully offline |
 | Local | llama.cpp (self-hosted) | Loaded at startup | Run llama-server yourself |
 | **Cloud** | OpenAI | `gpt-4.1-mini` | API Key required |
@@ -29,17 +29,46 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 | Cloud | MiniMax | `MiniMax-M2` | API Key required |
 | Cloud | Custom gateway | Any | OpenAI-compatible endpoint (type OpenAI with a custom endpoint) |
 
-> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB, 3GB RAM floor, serve at its default 8K window — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). With 4GB+ RAM and a need for the strongest agent, pick **Qwen3.5-4B** (requires a 16K window — degrades badly at 8K). On the Ollama path use `qwen3.5:4b`.
+> **Recommended**: the built-in **MiniCPM5-2B** first (Q4_K_M, 1.5GB, 3GB RAM floor, 128K window default auto-capped to available RAM; keep ≥32K for long agent turns — 81% tool accuracy on the 2026-09 corrected eval, same tier as cloud deepseek-v4-flash; Apache-2.0 redistributable). With 4GB+ RAM and a need for the strongest agent, pick **Qwen3.5-4B** (128K default, RAM-capped — degrades badly at 8K). On the Ollama path use `qwen3.5:4b`.
 
 
-## Built-in Local Models (Zero Config)
+## Built-in Model (Zero Config)
 
-Since 0.9.16, the Docker image ships with the llama.cpp runtime plus officially curated models. In the **LLM Backend** step of the first-run wizard (or via the built-in model card under **Settings → LLM Backends**), you can download and use them directly:
+The **Built-in Model** card at the top of **Settings → LLM Backends** is the built-in backend: the platform ships with a llama.cpp runtime and downloads models from the official catalog on demand — **no API key, no external dependencies, fully offline**. Once a model is downloaded it can serve as the system default backend.
 
-- **One-click download** — The model list comes from a remote model catalog (`models/catalog.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes), so new models keep arriving without upgrading the platform); when offline, it automatically falls back to the built-in curated list
-- **Hardware-based recommendations** — The download page lists each model's RAM requirements (e.g. MiniCPM5-2B: 1.5GB, minimum 3GB RAM; Ling-3.0-tiny: 4.8GB, minimum 6GB — note Ling suits 8K short sessions only)
-- **Import your own GGUF** — The built-in model wizard offers an "Import Local Model" card: drop in a `.gguf` file (streamed upload, no extra memory usage) or enter a server path; the platform auto-parses the name/context/quantization info, verifies and stores it with SHA-256, and imported models participate in backend switching just like curated ones (context capped at 128K)
-- **Works out of the box** — Once the first download completes, the model is automatically registered as a local backend and runs with the model's own optimal sampling parameters (temperature / top-p / top-k)
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-downloading.png" alt="Built-in model card — one-click download of the recommended model with live progress" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+### Model Catalog
+
+The catalog comes from a remote manifest (`models/catalog.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes), so new models keep arriving without upgrading the platform; offline it falls back to the built-in list, overridable via `NEOMIND_CATALOG_URL`). Current catalog (2026-10):
+
+| Model | Quant | Size | Min RAM | Context | Notes |
+|-------|-------|------|---------|---------|-------|
+| **MiniCPM5-2B** | q4_k_m | 1.6GB | 3GB | 128K | **Recommended in docs** — Apache-2.0 open license, commercial-friendly; 81% tool accuracy on the corrected eval, same tier as cloud deepseek-v4-flash |
+| **LFM2.5-2.6B** | qad_q4_0 | 1.5GB | 3GB | 128K | Platform-default download (custom LFM license — review terms for commercial use) |
+| Qwen3.5-4B | q4_k_m | 2.7GB | 4.8GB | 128K | Strongest agent capabilities with 4GB+ RAM |
+| Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT quantization |
+| Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
+| Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | Quality cliffs past 8K context; keep sessions short |
+| **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **Vision model** — ships with an mmproj projection file for image understanding |
+
+All models default to a 128K window auto-capped to available RAM (MiniCPM-V: 32K); keep ≥32K for long sessions.
+
+### Download & Activate (Web UI)
+
+1. **Download (one click)** — An uninstalled card shows a single **Download** button that fetches the currently recommended model, with live progress pushed over WebSocket. Downloads resume after interruption; cancelling keeps the partial file.
+2. **Switch Model** — Once installed, the card shows this button, opening the wizard straight at the **model picker**: switch to any catalog model, or use the "Import Local Model" card to bring your own GGUF (drag-and-drop with streamed upload, or an absolute server path; the platform parses name / quantization / context, verifies SHA-256, and imported models participate in switching just like catalog ones).
+3. **Activate** — Available while the built-in server is **Running**. Activating sets it as the system default backend — AI Chat, scheduled Agents, and rule-engine LLM analysis all switch to the built-in model. Clicking again confirms the current activation state.
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/builtin-model-ready.png" alt="Built-in model ready state — Main engine Running, switch or set as default" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+> After the download completes, the card shows the engine status (e.g. `Main engine · LFM2.5-2.6B · ctx 8K · Running`). The context auto-caps to available RAM — when free memory falls below the catalog value, a yellow warning banner appears noting that inference may slow down; switch to a lighter model, free memory, or use a cloud backend.
+
+The built-in model registers as a LlamaCpp backend and participates in default switching equally with Ollama / cloud backends. Deactivate it when unneeded — the model file stays in the data directory for quick re-enablement.
+
+### Vision (VLM)
+
+**MiniCPM-V-4.7-1B** in the catalog is a vision model: selecting it additionally downloads the mmproj projection file and spawns a vision companion instance — [AI Chat](./5-ai-chat.md) can then take uploaded images, and AI Agents can analyze camera footage (see the [LLM Image Understanding solution](../../edge-ai-solutions/llm-image-understanding/solution-description)). At 0.7GB it is the cheapest vision option for edge devices.
 
 ## Option 1: Web UI Setup (Recommended)
 
@@ -55,7 +84,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen3.5:4b
 
 # For vision capability (image input), also pull a vision model
-ollama pull qwen3.5:4b-vl   # or llava / minicpm-v etc.
+ollama pull minicpm-v   # or llava etc.
 ```
 
 > **Note**: Use `qwen3.5:4b`. Earlier docs mentioned `ministral-3:3b` / `deepseek-r1:7b` — these are no longer recommended (unstable tool calling / too large for edge hardware).
@@ -66,7 +95,7 @@ ollama pull qwen3.5:4b-vl   # or llava / minicpm-v etc.
 
 Navigate to **Settings → LLM Backends**:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-llm-list.png" alt="LLM backend list — click Add Backend" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Backends are presented as cards (built-in model / Ollama / llama.cpp / Cloud AI). Click **Add Instance** on the corresponding card to open the configuration form.
 
@@ -100,7 +129,7 @@ If you use vLLM, Together AI, OpenRouter, or another self-hosted/third-party gat
 - `api_key`: Gateway key
 - `model`: Model name exposed by the gateway
 
-<img src="https://resources.camthink.ai/NeoMind/llm-backend-edit.png" alt="LLM backend configuration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/llm-backend-edit.png" alt="LLM backend configuration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 After saving, NeoMind probes the backend's capabilities (tool calling, multimodal, context window) and writes capability tags automatically.
 
@@ -110,7 +139,7 @@ Select the backend in the **model picker at the top of AI Chat** to make it the 
 
 Then open **AI Chat** and send a greeting to verify:
 
-<img src="https://resources.camthink.ai/NeoMind/chat-typing.png" alt="AI Chat verifying LLM connection" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/chat-typing.png" alt="AI Chat verifying LLM connection" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 > If AI Chat doesn't respond, check:
 > - Is Ollama running? `ollama list` should show pulled models
@@ -219,7 +248,8 @@ NeoMind calls Ollama's **native `/api/chat` endpoint** (not `/v1/chat/completion
 
 NeoMind supports image input and visual analysis. Vision capability depends on the model:
 
-- **Ollama**: After pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava` / `minicpm-v`), you can upload images in [AI Chat](./5-ai-chat.md).
+- **Built-in Model**: pick the vision variant **MiniCPM-V-4.7-1B** (0.7GB) — the platform attaches the vision projection and spawns a companion instance automatically, see [Built-in Model](#built-in-model-zero-config)
+- **Ollama**: After pulling a vision model (e.g. `llava` / `minicpm-v`), you can upload images in [AI Chat](./5-ai-chat.md).
 - **Cloud**: `gpt-4o` / `gpt-4o-mini` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen-vl` / `glm-4v` natively support vision.
 
 NeoMind auto-detects multimodal capability (via LiteLLM registry + `/api/show` runtime probe + name heuristic matching). If auto-detection is inaccurate, manually toggle **Multimodal** in the backend detail page.
@@ -255,4 +285,4 @@ neomind llm activate local
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

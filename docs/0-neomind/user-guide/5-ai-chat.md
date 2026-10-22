@@ -20,7 +20,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 
 点击左侧导航的 **AI Chat**（对话图标）进入会话界面：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-empty.png" alt="AI Chat 主界面 — 会话列表、欢迎页、推荐问题、输入框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 界面分为三个区域：
 
@@ -36,7 +36,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 
 当你发送消息后，AI 不是直接回答——它会**理解意图 → 选择工具 → 执行 → 整合结果**。整个过程在对话中可见：
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-conversation.png" alt="AI Chat 对话 — 工具调用过程可见" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-conversation.png" alt="AI Chat 对话 — 工具调用过程可见" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 上图中用户问了「现在有几个设备在线？」，AI 的处理过程：
 
@@ -45,7 +45,7 @@ AI Chat 是 NeoMind 的会话式接口——你用自然语言告诉它想做什
 3. **整合回答**：基于工具返回的数据生成自然语言回复
 
 :::note 思考过程展示
-AI 回复上方会显示「Thinking process」摘要（轮次、字符数），让你了解 AI 推理了多少步。复杂请求可能涉及多轮工具调用（NeoMind 默认上限 30 轮，5 分钟超时）。
+AI 回复上方会显示「Thinking process」摘要（轮次、字符数），让你了解 AI 推理了多少步。复杂请求可能涉及多轮工具调用（NeoMind 默认上限 30 轮，单轮超时默认 30 分钟，可在设置 → Preferences 中调整）。
 :::
 
 ## 完整示例：一次工具调用的全过程
@@ -118,7 +118,7 @@ AI Chat 可调用的工具分三类：**领域工具**（覆盖 NeoMind 各功�
 
 - **只查不做**：小模型有时「谨慎过头」——你让它建规则，它只列出了现有规则。直接追问「帮我创建」即可（见下文 [使用技巧](#使用技巧)）
 - **LLM 自行动作推断**：调用 `device` 时不写 `action`，NeoMind 会按参数推断（带 `command` → 控制；带 `device_id` → 查最新值；都不带 → 列表）。如果推断结果不是你要的，明确说「查询」还是「控制」
-- **30 轮上限**：单次请求最多 30 轮工具调用、5 分钟超时。超限后 AI 会基于已拿到的结果作答，可能显得「没做完」——把任务拆成两句话问更稳
+- **30 轮上限**：单次请求最多 30 轮工具调用，单轮超时默认 30 分钟（可在设置 → Preferences 中调整）。超限后 AI 会基于已拿到的结果作答，可能显得「没做完」——把任务拆成两句话问更稳
 - **同名设备**：LLM 按名称模糊匹配设备，同名设备多时会拿错，此时用设备 ID 提问
 
 ## 你可以问什么
@@ -166,9 +166,9 @@ LLM 会自己决定调用哪些工具、按什么顺序调用。如果 AI 只执
 
 ## 多模态（图像分析）
 
-如果 LLM 后端支持视觉（见 [配置 LLM 后端 — 多模态](./2-configure-llm.md#多模态视觉能力)），你可以在 Chat 中**上传图片**提问：
+如果 LLM 后端支持视觉（见 [配置 LLM 后端 — 视觉理解](./2-configure-llm.md#视觉理解vlm)），你可以在 Chat 中**上传图片**提问：
 
-点击输入框右侧的 **图片上传** 按钮上传。支持 PNG / JPG / JPEG / WebP。
+点击输入框底部工具栏**左侧**的 **图片上传** 按钮上传（工具栏左侧依次为图片上传、模型选择与上下文用量环，右侧为发送按钮）。支持 PNG / JPG / JPEG / WebP（后端另接受 GIF / BMP / TIFF 等常见格式）。
 
 典型用法：
 
@@ -179,7 +179,7 @@ LLM 会自己决定调用哪些工具、按什么顺序调用。如果 AI 只执
 | 监控帧 | 「识别画面中的人脸」 | 人脸识别扩展 |
 
 :::warning Ollama 用户需先拉取视觉模型
-需要拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`），否则上传图片会被静默忽略。NeoMind 会自动探测后端能力。纯文本模型（如 `qwen3.5:4b`、DeepSeek-V3）无法处理图片。
+需要拉取视觉模型（如 `llava` / `llava`），否则上传按钮会直接禁用并提示模型不支持视觉。NeoMind 会自动探测后端能力。纯文本模型（如 `qwen3.5:4b`、DeepSeek-V3）无法处理图片。
 :::
 
 ## Chat vs Agent：两种模式
@@ -202,9 +202,10 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 ## 会话管理
 
 - **多会话**：每个会话独立上下文，互不干扰。左侧会话列表可切换 / 重命名 / 删除
-- **跨会话记忆**：每轮实质性对话（回复达到一定长度，寒暄不算）结束后，NeoMind 会在后台用 LLM 抽取**最多 3 条**可复用的事实，分两类写入磁盘上的记忆文件，重启不丢失：
+- **跨会话记忆**：每轮实质性对话（回复达到一定长度，寒暄不算）结束后，NeoMind 会在后台用 LLM 抽取**最多 3 条**可复用的事实，分三类写入磁盘上的记忆文件，重启不丢失：
   - `[user]` 用户画像类（偏好、习惯、身份）→ `data/memory/USER.md`（默认上限 2000 字符）
   - `[knowledge]` 领域知识类（设备别名、位置、命名约定）→ `data/memory/KNOWLEDGE.md`（默认上限 3000 字符）
+  - `[procedures]` 操作手册类（SOP、操作步骤、踩坑经验）→ `data/memory/PROCEDURES.md`（默认上限 3000 字符）
 
   例如你说过「3 号机就是车间东边的空压机」，之后的任何新会话里 AI 都会记得这个别名。记忆文件也可以在系统设置中查看与清理
 - **IM 桥接（0.9.14+）**：除网页端外，还可以在 **Telegram / 飞书** 里直接和同一个 Agent 对话（在系统内配置 IM Bridge 后）；这与[通知渠道](./8-notifications.md)中的 Telegram/飞书是两个独立功能——通知是单向告警推送，IM 桥接是双向对话
@@ -228,7 +229,7 @@ Agent 的详细配置见 [AI Agent](./6-ai-agent.md)，自动化规则见 [规�
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-mobile.png" alt="AI Chat 移动端 — 全屏对话" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为全屏对话模式，会话列表通过左上角菜单展开。
 

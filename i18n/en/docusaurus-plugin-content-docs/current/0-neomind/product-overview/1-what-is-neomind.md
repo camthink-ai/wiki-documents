@@ -16,11 +16,11 @@ Three core surfaces of NeoMind — manage your devices, visualize your data, and
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-overview.png" alt="Device management — unified MQTT/BLE/Webhook devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-overview.png" alt="Real-time dashboard — drag-and-drop builder, WebSocket live updates" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/chat-overview.png" alt="AI Chat — query devices and create automations in natural language" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 
@@ -28,27 +28,35 @@ Three core surfaces of NeoMind — manage your devices, visualize your data, and
 
 ## Product Architecture
 
-NeoMind uses a **single-process, multi-layer** architecture — all core capabilities are packaged in one process, with no external database or message broker required. It's ready the moment you start.
+NeoMind uses a **single-process, multi-layer** architecture — all core capabilities are packaged in one process, with no external database or message broker required. The built-in model is downloaded on demand with its inference server spawned automatically by the platform, and extensions run in mutually isolated processes.
 
 ```mermaid
 flowchart TB
-    CLIENT["Web · Desktop · CLI"]
-    CHAT["Chat & Agents"]
-    LLM["LLM Backends<br/>Built-in Models · Ollama · OpenAI · Claude · GLM"]
+    CLIENT["Web · Desktop · CLI · Mobile-adaptive"]
+    IM["IM Bridges<br/>Telegram · Feishu"]
+    CHAT["AI Chat<br/>conversational · tool calls"]
+    AGENT["AI Agent<br/>scheduled · event · structured"]
+    LLM["LLM Backends<br/>Built-in (incl. vision) · Ollama · Cloud"]
     MEM["Memory & Skills"]
+    DASH["Dashboards · Data Visualization"]
 
     API["REST API :9375"]
     MQTT["MQTT Broker :1883"]
-    STORE[("Telemetry<br/>redb")]
-    AUTO["Rule Engine · Transforms · Notifications"]
+    STORE[("Telemetry & Device Storage<br/>redb")]
+    AUTO["Rule Engine · Transforms<br/>Data Push · Notifications"]
 
-    EXT["Extensions — Process Isolated<br/>Vision AI · OCR · Custom"]
+    EXT["Extensions — Process Isolated<br/>Vision AI · OCR · Voice · Industrial Protocols"]
     DEV["IoT Devices<br/>Cameras · Sensors · Controllers"]
 
     CLIENT --> CHAT
+    CLIENT --> AGENT
+    CLIENT --> DASH
+    IM <--> CHAT
     CHAT --> LLM
-    CHAT --> MEM
+    AGENT --> LLM
+    AGENT --> MEM
     CHAT -->|tool calls| API
+    AGENT -->|structured output| STORE
 
     DEV -->|MQTT| MQTT
     DEV -.->|Webhook / BLE| API
@@ -56,8 +64,10 @@ flowchart TB
     MQTT --> STORE
     API --> STORE
     API --> AUTO
+    API --> DASH
+    STORE --> DASH
 
-    API -.->|FFI| EXT
+    API -.->|isolated process · FFI| EXT
 
     classDef clientNode fill:#dae8fc,stroke:#6c8ebf,color:#1a3d6b
     classDef aiNode fill:#e1d5e7,stroke:#9673a6,color:#3d1a4b
@@ -67,20 +77,22 @@ flowchart TB
     classDef devNode fill:#f8cecc,stroke:#b85450,color:#6b1a1a
 
     class CLIENT clientNode
-    class CHAT,LLM,MEM aiNode
+    class IM,CHAT,AGENT,LLM,MEM aiNode
     class API,MQTT,STORE coreNode
-    class AUTO autoNode
+    class AUTO,DASH autoNode
     class EXT extNode
     class DEV devNode
 ```
 
-:::tip Three Design Philosophies
+:::tip Four Design Philosophies
 
-1. **Single-Process, Self-Contained** — API, MQTT broker, storage, and rule engine all live in one process. A single `cargo run` and everything is ready. No Docker compose, no external dependencies.
+1. **Single-Process, Self-Contained** — API, MQTT broker, storage, rule engine, and data push all live in one main process; the built-in model's inference server (llama-server) is spawned on demand as a child process, and vision models automatically get a vision companion. A single `cargo run` and everything is ready. No Docker compose, no external dependencies.
 
-2. **Edge-First, Cloud-Optional** — Defaults to local LLMs (Ollama) for 100% offline operation — data never leaves your LAN. When you need more power, switch to cloud models (OpenAI / Claude / GLM) with one click.
+2. **Edge-First, Cloud-Optional** — The default local LLM is the built-in model (one-click download, ready out of the box; Ollama / llama.cpp / cloud backends also supported) for 100% offline operation — data never leaves your LAN. When you need more power, switch to cloud models (OpenAI / Claude / GLM) with one click.
 
-3. **Crash-Isolated Extensions** — Extensions run in separate processes and communicate via FFI. A YOLO extension crashes? The main service and other extensions are completely unaffected.
+3. **Small Models, Reliable Execution** — The platform wraps local small models (4B-class) in a full set of execution guardrails: the three agent execution shapes share one runtime, outputs are schema-validated into verifiable structured data, narration guards prevent "said but not done", and failure circuit breakers with self-healing keep unattended agents from running degraded. Runnable at the edge — and reliable.
+
+4. **Crash-Isolated, Capability-Authorized Extensions** — Extensions are loaded by a dedicated extension-runner process (FFI), talk to the main service over an event stream, and are granted system interfaces by capability. A YOLO extension crashes? The main service and other extensions are completely unaffected.
    :::
 
 > Want to go deeper into each layer's design? Read [Core Concepts](../concepts/2-core-concepts.md) — full breakdown of the data lifecycle, extension model, and agent execution loop.
@@ -94,18 +106,18 @@ flowchart TB
 | **Fully self-contained** | Embedded MQTT broker, redb storage, no external database or broker to install |
 | **Type-safe end-to-end** | Rust backend with compile-time guarantees; agent CLI commands dispatch in-process with structured data, no fragile string parsing |
 | **Crash-proof extensions** | Extensions run in isolated processes with capability-based permissions; a misbehaving extension never takes down the server |
-| **Cloud-optional** | Works 100% offline with local LLMs (Ollama), or connect cloud models when you need more power |
+| **Cloud-optional** | The default local LLM is the built-in model (one-click download, ready out of the box; Ollama / llama.cpp also supported) for 100% offline operation, or connect cloud models when you need more power |
 
 ## Core Capabilities
 
 ### AI Intelligence
-- **Built-in local AI, zero setup** — one-click curated model download in the wizard (Qwen 3.5 / Gemma 4 etc.), no API key, no Ollama; GGUF import supported
+- **Built-in local AI, zero setup** — one-click catalog model download on the backend card (LFM2.5 / MiniCPM5 / Qwen3.5, 7 models incl. the 0.7GB vision variant MiniCPM-V), no API key, no Ollama; GGUF import supported
 - **Natural Language Chat** — Conversational interface to query and control all connected devices
-- **Autonomous Agents** — Scheduled or event-driven AI agents that monitor, analyze, and act on device data independently
-- **10+ LLM Backends** — Ollama, llama.cpp (with the platform's built-in local models, one-click download and ready to use), OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
-- **Memory System** — Cross-session memory (user profile / knowledge base + execution journals), auto-extracted and persisted after each conversation
+- **Autonomous Agents** — Three execution shapes (scheduled / event / structured): the first two monitor, analyze, and act on device data independently; the structured shape schema-validates its output into `ai:{agent_id}:{field}` virtual metrics
+- **10+ LLM Backends** — Built-in model (local, one-click download), Ollama, OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint
+- **Memory System** — Cross-session memory (user profile / knowledge base / procedures + execution journals), auto-extracted and persisted after each conversation
 - **Skill System** — YAML + Markdown skill files that guide agent behavior for specific scenarios
-- **Multimodal** — Image upload and visual analysis support
+- **Multimodal** — Image upload and visual analysis (built-in vision model MiniCPM-V, or Ollama / cloud vision models)
 
 ### Device Management
 - **MQTT Protocol** — Primary device integration with embedded broker, mTLS, and CA certificate support
@@ -116,14 +128,14 @@ flowchart TB
 - **Custom Device Types** — Define device metrics and commands via JSON type definitions
 
 ### Automation
-- **JSON Rule Engine** — Structured rule definitions: `{"condition": {"source": "device:sensor:temperature", "operator": "greater_than", "threshold": 30}}`
+- **JSON Rule Engine** — Structured rule definitions: `{"condition": {"condition_type": "comparison", "source": "device:sensor:temperature", "operator": "greater_than", "threshold": 30}}`
 - **Data Transforms** — JavaScript-based data transformation for creating virtual metrics
-- **Scheduled Agents** — Time-based or event-driven AI agent execution
+- **AI agent execution** — Three shapes: scheduled, event-driven, or structured; ties into the rule engine (rules can trigger agents)
 - **Event Bus** — Pub/sub architecture for decoupled component communication
 
 ### Dashboards & Visualization
 - **Drag-and-Drop Builder** — Visual dashboard editor with responsive grid layout
-- **Rich Widgets** — Value cards, charts, gauges, tables, VLM vision components
+- **Rich Widgets** — Value cards, line/bar/pie charts, Markdown display, image/video display and other built-in widget types; VLM vision and stream player are provided by extensions
 - **Real-time Updates** — WebSocket / SSE for live data streaming to dashboards
 - **Dashboard Sharing** — Public links with expiration
 - **Custom Components** — Build and publish your own dashboard widgets
@@ -189,6 +201,6 @@ NeoMind is a modular ecosystem with specialized repositories for each concern:
 
 ---
 
-*Applies to: v0.9.x (Sep 2026)*
+*Applies to: v1.2.x (Oct 2026)*
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

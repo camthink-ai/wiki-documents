@@ -53,7 +53,7 @@ ASR and TTS can be orchestrated by voice-assistant or called standalone (voice i
 
 ## 3. Install the Extensions
 
-Install the extension that matches your scenario from the extension marketplace on the **Extensions** page (market 2.7.x works for all):
+Install the extension that matches your scenario from the extension marketplace on the **Extensions** page (market 2.12+ works for all):
 
 | Scenario | Extensions to install | Extra preparation |
 |------|------------|----------|

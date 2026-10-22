@@ -36,15 +36,15 @@ Case code is aligned with the source repository's release; the audit locks to a 
 
 | Case | Source repo version | SDK version | Last audit |
 |------|---------------------|-------------|------------|
-| 1 weather-forecast | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 2 yolo-device-inference | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 3 yolo-video | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 4 onvif-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 5 uink-rms-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
+| 1 weather-forecast | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 2 yolo-device-inference | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 3 yolo-video | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 4 onvif-bridge | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 5 uink-rms-bridge | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |
-| 7 ne101_camera | v2.14.9 | — | 2026-06-22 |
+| 7 ne101_camera | v2.14.12 | — | 2026-06-22 |
 
-> Note: since the last audit the source repository has kept evolving — the current versions are weather-forecast 2.7.7, yolo-device-inference / yolo-video 2.7.8, and ne101_camera 2.14.12. Each case page's audit-time snapshot is pinned by the banner at the top of that page.
+> Note: the version column reflects the **current source repository release** (all 5 extensions at 2.12.0, with the build dependency pinned to **neomind-extension-sdk 0.7.1** — both the v2.12.0 tag and current HEAD of the extensions repo declare `neomind-extension-sdk = "0.7.1"` in `Cargo.toml`; the main platform repo's current SDK is 0.8.1, and extension release batches pin as needed); the walkthrough audits in each case page were locked to commits on 2026-06-22 (at v2.7.6) and per-case re-audits are in progress — each case page's audit-time snapshot is pinned by the banner at the top of that page.
 
 A case audit is triggered when the source repository cuts a release (manual, not automated).
 

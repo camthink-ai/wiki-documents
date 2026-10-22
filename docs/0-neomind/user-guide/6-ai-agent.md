@@ -18,15 +18,15 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 点击左侧导航的 **Agents**（机器人图标）进入 Agent 管理页面：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agents-list.png" alt="AI Agent 列表 — 卡片式展示所有 Agent，含状态、调度方式、上次执行时间" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agents-list.png" alt="AI Agent 列表 — 卡片式展示所有 Agent，含状态、调度方式、上次执行时间" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以**卡片网格**展示所有 Agent，每张卡片显示：
 
 | 信息 | 说明 |
 |------|------|
 | **Agent 名称** | 你设置的名称（如「温度巡检」「能耗日报」） |
-| **状态徽章** | Active（激活）/ Paused（暂停）/ Executing（执行中）/ Error（错误） |
-| **调度方式** | Cron 表达式 / Interval / Event |
+| **状态徽章** | Active（激活）/ Paused（暂停）/ Executing（执行中）/ Error（错误）/ Completed（手动任务就绪） |
+| **调度方式** | 定时（Timer）/ 数据驱动（Data-driven）/ 按需（On Demand） |
 | **上次执行** | 最近一次执行的时间与结果 |
 
 页面顶部有四个页签：**Agents**（智能体列表）、**Memory**（系统记忆）、**Skills**（技能管理）、**Tools**（工具管理）。
@@ -39,63 +39,104 @@ AI Agent 是 NeoMind 的**自主执行模式**——你设定目标和触发条�
 
 点击右上角的 **Create AI Agent** 按钮，打开全屏编辑器：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor.png" alt="AI Agent 编辑器 — 左侧基本信息与提示词，右侧执行模式与调度配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-editor.png" alt="AI Agent 编辑器 — 左侧基本信息与提示词，右侧执行模式与调度配置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-编辑器分为左右两栏，以下是各配置项说明：
+1.2.x 的编辑器按「先讲清任务，再配置执行」组织为三个分区：**AI 要做什么**（What should the AI do）、**记什么**（What it records）、**什么时候执行**（When it runs）。顶部可以从模板开始——模板只是起点，填进去的每一项都能改，也不会替你绑定资源。
 
-### 1. 名称与 Prompt（左侧）
+### 模板入口
 
-- **Name（名称）**：1–100 字符，便于识别（如「能耗巡检」「设备健康监测」）
-- **Description（描述）**：可选，简短说明 Agent 用途
-- **User Prompt（用户提示词）**：告诉 Agent 要做什么。1–10000 字符。
+编辑器内置 11 个预设模板，覆盖最常见的任务形态：
 
-示例 prompt：
+| 模板 | 适用场景 |
+|------|---------|
+| **图像理解** | 看一眼摄像头画面，给出画面要点描述与状态判定（正常 / 异常） |
+| **数据监控分析** | 多数据源定时读数，记成数据：整体状态判定 + 异常项计数 |
+| **智能任务** | 数据分析与执行联动：自主排查原因，必要时直接对绑定设备下发指令 |
+| **定期任务** | 定时把过去 24 小时的运行情况汇总成简报 |
+| **事件判定** | 数据源上报时判一次「正常 / 留意 / 有问题」 |
+| **根因分析** | 多源排查，给出最可能原因、置信度与下一步建议 |
+| **周报 / 短周期巡检** | 整周汇总对比 / 每半小时看一眼，只报变化 |
+| **定时巡检处置** | 定时巡检绑定的数据源，异常时自动处置（如重启设备、重发指令）并验证恢复 |
+| **数据问答员** | 随问随答，只依据绑定的数据源回答，数字注明时间与来源 |
+| **高级任务** | 不设模板自由填写——建议写清目标、输入、判断、行动四件事 |
 
-> 检查所有温湿度传感器的最新数据。如果任何传感器温度超过 35°C，通过飞书通知运维组，并在仪表板上记录告警。如果所有设备正常，简短汇报即可。
+### AI 要做什么（What should the AI do）
 
-### 2. 执行模式（右侧）
+- **名称（Name）**：1–100 字符，便于识别（如「能耗巡检」「设备健康监测」）
+- **需求描述**：告诉 Agent 要做什么（即 API 里的 `user_prompt`）。1–10000 字符
+- **描述（Description）**：可选，≤500 字符
+- **LLM 模型（可选）**：见下文 [LLM 后端](#llm-后端)
+- **数据与指令（Data & commands）**：点击 **Add Resources** 绑定设备指标 / 扩展指标 / 设备 / 控制指令 / 扩展工具。绑定多少取决于下面的工作方式：Focused 下这是 AI 的全部输入，执行时自动收集；Free 下是可选的预加载数据，不配置时 AI 会自己用工具找
+- **How it works（工作方式）**：选择 AI 的行动边界，即执行模式
 
-| 模式 | 说明 | 适用场景 |
-|------|------|---------|
-| **Focused（聚焦模式）** | 绑定指定资源，Agent 在定义范围内工作，单次分析，token 高效 | 监控、告警、数据分析 |
-| **Free（自由模式）** | 不绑定资源，LLM 自由探索，可调用全部工具，多轮推理 | 复杂自动化、设备控制、探索性任务 |
+| 选项 | 对应模式 | 行为 | 适用场景 |
+|------|---------|------|---------|
+| **Bound data only（只用绑定数据）** | Focused | 只依据绑定的设备与数据源回答，不做额外查询；单次分析，token 高效 | 监控、告警、数据分析 |
+| **Explore and act（探索并行动）** | Free | 可多轮调用工具后再回答 | 复杂自动化、设备控制、探索性任务 |
 
-**Focused 模式**需要绑定资源（设备指标 / 扩展指标 / 设备 / 扩展工具），Agent 只收集和分析绑定范围内的数据。Scope 校验会拒绝超出绑定范围的指令。
-
-**Free 模式**无需绑定资源，LLM 拥有全部工具（device / rule / message / extension / shell 等），可做多轮工具调用（默认上限 30 轮，5 分钟超时）。
+**Focused（聚焦模式）**允许零绑定——此时它就是「无指令、无输出契约」的最朴素 Agent；绑定了资源则只收集和分析绑定范围内的数据，Scope 校验会拒绝超出绑定范围的指令。**Free（自由模式）**可做多轮工具调用（默认上限 30 轮，5 分钟超时），可用工具包括 shell / skill / vision / web_fetch / 扩展工具等——设备、规则、消息等平台域操作经 `shell` 调用 `neomind` CLI 完成。
 
 #### 工具门控（Focused / Free 可用）
 
-编辑器里可以对这两种模式**收窄工具面**（结构化任务不显示此设置——它的契约就是单次受约束推理，没有工具循环）：
+编辑器里可以对这两种模式**收窄工具面**（结构化模式不显示此设置——它的契约就是单次受约束推理，没有工具循环）：
 
 - **允许使用工具**：关闭 = 纯文本 Agent（只分析、不执行任何工具）——适合明确不希望它动手的任务
 - **限制可用工具**：开启后从工具目录勾选白名单，Agent 只能调用勾选的工具
 
-工具面收窄不只是安全边界——**小模型在少量工具里选择更准**。一个只做数据查询的 Agent 限定 `device` + `vision` 后，选错工具的概率显著下降。若「自主工作方式」开启而工具被关闭，编辑器会警告：这将退化为单轮文本回复，多轮行动的承诺无法兑现。
+工具面收窄不只是安全边界——**小模型在少量工具里选择更准**。一个只做数据查询的 Agent 限定 `device` + `vision` 后，选错工具的概率显著下降。若「探索并行动」开启而工具被关闭，编辑器会警告：这将退化为单轮文本回复，多轮行动的承诺无法兑现。
 
-### 3. 调度方式（右侧）
+### 记什么（What it records）
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor-schedule.png" alt="Agent 编辑器 — 调度配置区域，含 cron、interval、event 选项" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+这一分区定义 Agent 的**结构化输出契约**（结构化模式 / L0 算子）：不定义输出字段时，Agent 的结论是文字；定义了字段，它就按 schema 产出数据。详见[结构化模式（L0 算子）](#结构化模式l0-算子)。结构化模式要求**至少绑定 1 个输入源**、**至少定义 1 个输出字段**，且不显示工具门控设置。
 
-Agent 按调度方式自动触发执行：
+### 记住多少（What it remembers）
 
-| 调度类型 | 说明 | 配置 |
-|---------|------|------|
-| **Cron（定时表达式）** | 按 cron 表达式触发 | `schedule_type: "cron"`, `cron_expression: "0 0 * * * *"` |
-| **Interval（固定间隔）** | 每隔 N 秒执行 | `schedule_type: "interval"`, `interval_seconds: 300` |
-| **Event（事件触发）** | 设备数据变化 / 告警时触发 | `schedule_type: "event"` |
+控制 Agent 跨执行周期携带多少历史（API 的 `memory_mode`）：
+
+| 选项 | 行为 |
+|------|------|
+| **按模式推导（默认）** | Structured → 每次现判（Tool）；Focused / Free → 记得上次（Assistant） |
+| **每次现判（Tool）** | 无状态：只看本次数据，更便宜、更快、可重复。journal 仍会记录（供人查看），你的标准与纠正始终生效 |
+| **记得上次（Assistant）** | 每次运行携带最近执行的结果叙事，能说「比上次更差」这类判断 |
+
+### Notify（通知）
+
+选择结果发送的渠道（多选，来自消息模块的渠道列表）与**何时发**（`notify.on`）：
+
+| 时机 | 行为 |
+|------|------|
+| **On failure（默认）** | 仅执行失败时通知——安静即健康 |
+| **Every run** | 每次运行后都通知，成功失败都报 |
+| **Let the task decide** | 不构造路由通知，也不回退到旧的关键词嗅探——Agent 认为值得一说时，用它自带的工具（`neomind message send`）自己说 |
+
+尚未配置任何外部渠道时，告警仍会落入消息中心，不会丢失。
+
+### 什么时候执行（When it runs）
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-editor-schedule.png" alt="Agent 编辑器 — 调度配置区域，含 cron、interval、event 选项" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+| 策略 | 说明 | 对应 API |
+|------|------|---------|
+| **Timer（定时执行）** | 间隔 / 每天 / 每周预设，编辑器自动生成 cron 或间隔配置 | `schedule_type: "cron"` / `"interval"` |
+| **Data-driven（数据驱动）** | 选择触发源（设备 / 扩展 / AI 指标 / 转换 / 系统五组）：任一源有新数据即触发（任一命中），或要求所有源在设定时间窗内都出现才触发（全部命中） | `schedule_type: "event"` |
+| **On Demand（按需调用）** | 不自动运行，仅被显式调用（Execute Now / Invoke API / 规则引擎触发） | `schedule_type: "manual"` |
 
 :::note
-Agent 的 Cron 使用 **6 字段格式**（含秒）：`秒 分 时 日 月 周`，语法与 [自动化规则](./7-automation-rules.md) 的触发器一致。
+API 层的 cron 为 **6 字段格式**（`秒 分 时 日 月 周`）；直接填 5 字段（`分 时 日 月 周`）也可以——系统会自动在秒位补 `0`，`0 9 * * *` 即每天 09:00。**数据驱动触发**默认有 60 秒去重窗口（可按 Agent 调整），防止事件风暴。
 :::
 
-**事件触发**：当设备推送新数据或系统产生告警时自动执行。适合实时响应场景（如异常检测后立即分析）。事件触发有 60 秒去重窗口，防止事件风暴。
-
-### 4. LLM 后端
+### LLM 后端
 
 每个 Agent 可绑定独立的 LLM 后端。与 Chat 模型解耦——切换 Chat 模型不会影响 Agent 配置。建议：
 - **简单监控**：本地小模型（`qwen3.5:4b`），降低延迟和成本
 - **复杂分析**：大模型（`qwen3.5:32b` / 云端模型），提高推理质量
+
+### 高级配置
+
+- **Agent Priority（优先级）**：0–255，默认 128，数字越大越先执行（并发排队时生效）
+- **历史对话轮数**：载入最近的对话轮数作为执行上下文
+- **自定义系统提示词**：≤4000 字符，覆盖默认身份设定
+- **允许使用工具 / 限制可用工具**：见上文工具门控
 
 填写完成后点击底部的 **Save** 保存 Agent。
 
@@ -105,15 +146,15 @@ Agent 的 Cron 使用 **6 字段格式**（含秒）：`秒 分 时 日 月 周`
 
 | 字段 | 填写值 | 说明 |
 |------|--------|------|
-| **Name** | `温度巡检` | 1–100 字符，必填 |
-| **Description** | `每小时巡检温度传感器，超温自动通知` | 可选，≤500 字符 |
-| **User Prompt** | 见下方 | 1–10000 字符，必填 |
-| **Execution Mode** | `Focused` | 只在绑定的传感器范围内工作，省 token、不会误控别的设备 |
-| **Resources** | 绑定 2 台温度传感器的 `temperature` 指标 | Focused 模式必须至少绑定 1 个资源，否则保存会被拒绝 |
-| **Schedule** | `Cron`，表达式 `0 0 * * * *` | 6 字段格式（含秒），即每小时整点 |
+| **Name（名称）** | `温度巡检` | 1–100 字符，必填 |
+| **Description（描述）** | `每小时巡检温度传感器，超温自动通知` | 可选，≤500 字符 |
+| **需求描述** | 见下方 | 1–10000 字符，必填 |
+| **How it works** | `Bound data only`（Focused） | 只在绑定的传感器范围内工作，省 token、不会误控别的设备 |
+| **Resources（数据与指令）** | 绑定 2 台温度传感器的 `temperature` 指标 | Focused 允许零绑定；绑定后执行时自动收集，无需现查 |
+| **When it runs** | `Timer` → 每小时（API 层 cron `0 0 * * * *`） | 6 字段格式（含秒），即每小时整点 |
 | **LLM Backend** | `qwen3.5:4b`（或更强模型） | 简单巡检用本地小模型即可 |
 
-User Prompt 示例（可直接复制修改）：
+需求描述示例（可直接复制修改）：
 
 ```text
 你是温度巡检员。读取绑定的所有温度传感器的最新读数：
@@ -163,11 +204,54 @@ curl -X POST http://localhost:9375/api/agents \
 | `name` | 必填，1–100 字符 |
 | `user_prompt` | 必填，1–10000 字符 |
 | `description` | 可选，≤500 字符 |
-| `system_prompt` | 可选，≤4000 字符，覆盖默认身份设定 |
-| `execution_mode` | `focused` / `free`；`focused` 必须带至少一个 `resources` |
-| `schedule.schedule_type` | `interval` / `cron` / `event`；`interval` 需 `interval_seconds` ≥ 10（`0` 表示纯手动）；`cron` 需合法的 6 字段 `cron_expression` |
+| `system_prompt` | 可选，1–4000 字符，覆盖默认身份设定 |
+| `execution_mode` | `focused`（默认）/ `free` / `structured`；`structured` 必须至少绑定 1 个输入源（`resources`）并定义至少 1 个输出字段（`output_schema`） |
+| `schedule.schedule_type` | `interval` / `cron` / `event` / `manual`；`interval` 需 `interval_seconds` ≥ 10（`0` 表示纯手动）；`cron` 支持 6 字段 `cron_expression`（5 字段自动补 0 秒） |
 | `resources[].resource_type` | `device` / `metric` / `command` / `extension_metric` / `extension_tool` / `data_stream` |
-| `max_chain_depth` | 1–30，默认 3（Focused+ 模式的工具调用轮数上限） |
+| `max_chain_depth` | 1–30，默认 10（Focused+ 模式的工具调用轮数上限；Free 模式不受此字段约束，轮数上限固定为平台默认 30 轮） |
+| `priority` | 0–255，默认 128，数字越大越先执行 |
+| `context_window_size` | 1–100，默认 10（载入的历史对话轮数） |
+| `memory_mode` | 可选，`tool`（无状态）/ `assistant`（携带历史叙事）；缺省按执行模式推导（structured → tool，其余 → assistant） |
+| `notify` | 可选，显式通知路由：`{ "channels": ["IM"], "on": "failure" }`，`on` 取值 `failure` / `always` / `judgment` |
+| `output_schema` | 仅 `structured`：输出字段数组，见[结构化模式（L0 算子）](#结构化模式l0-算子) |
+| `operator_config` | 仅 `structured`：护栏调参（防抖 / 日上限 / 超时 / 熔断），见下节 |
+
+## 结构化模式（L0 算子）
+
+结构化模式（Structured）是一种**单次受约束推理**的执行模式：没有意图分析前置、没有工具循环——绑定的数据源进，schema 校验的字段出。适合「定期或事件读数 → 记成数据」的场景（数据监控、状态判定、异常计数）。
+
+### 输出字段 schema（output_schema）
+
+在编辑器「记什么」分区定义输出字段，每个字段包含：
+
+| 属性 | 说明 |
+|------|------|
+| **字段名（name）** | 成为指标名，如 `missing_count` |
+| **类型（field_type）** | `Number` / `Text` / `Boolean` / `Enum`——`Enum` 限定模型只能取列出的值（如 `正常, 待检, 停线`） |
+| **单位（unit）** | 可选，仪表板展示用（如 `℃`、`件`） |
+| **含义（description）** | 可选，注入提示词，让模型知道该输出什么 |
+
+执行结果的每个字段经 schema 校验后发布为平台**虚拟指标**，标识为 `ai:{agent_id}:{field}`（如 `ai:8f3a…:status`）——仪表板、规则条件、数据推送可以直接引用，与[数据转换](./7b-data-transforms.md)的派生指标同机制。
+
+### 护栏（operator_config）
+
+| 护栏 | 默认 | 说明 |
+|------|------|------|
+| **防抖（debounce_secs）** | 30 秒 | 输入合并去抖，至多每 30 秒一次推理 |
+| **每日运行上限（max_calls_per_day）** | 不限 | 超限后暂停到次日（本地模型可不设） |
+| **单次推理超时（timeout_secs）** | 60 秒 | L0 是单次调用，不是 300 秒的 Agent 循环 |
+| **熔断阈值（consecutive_failure_threshold）** | 3 次 | 连续失败达阈值即熔断：Agent 降级为保留最后值并标记过期 |
+| **事件触发冷却（event_cooldown_secs）** | 60 秒 | 两次事件触发的最小间隔；`0` 表示空闲即触发 |
+
+### 试跑（Dry run）
+
+保存前可点击**试跑一次**：真实收集输入源、执行一次推理，结果明确标注「未保存任何内容」——用来验证字段定义能否得出预期结论。
+
+### 约束与记忆
+
+- 必须至少绑定 1 个输入源、至少定义 1 个输出字段，否则无法保存
+- 记忆固定为 Tool（无状态）：每次只看当前输入，不携带历史叙事
+- 通知默认 On failure；从普通 Agent「转」结构化时要注意：多轮推理的结论是文字，要变成字段会在每次执行收尾对模型多问一次（编辑器会提示这一成本）
 
 ## 手动执行一次并查看结果
 
@@ -217,12 +301,11 @@ curl http://localhost:9375/api/agents/<agent_id>/executions/<execution_id>
 
 ```json
 {
-  "timestamp": 1788930400,
+  "timestamp": "2026-10-21T04:04:23+00:00",
   "execution_id": "exec-9c1f…",
   "outcome": "巡检正常：2 个传感器温度 26.4°C / 27.1°C，均低于 35°C 阈值，无需告警",
   "action_taken": "读取 sensor-01 最新温度; 读取 sensor-02 最新温度; 汇报巡检结果",
-  "success": true,
-  "stop_reason": "completed"
+  "success": true
 }
 ```
 
@@ -234,7 +317,7 @@ curl http://localhost:9375/api/agents/<agent_id>/executions/<execution_id>
 
 点击任意 Agent 卡片，打开详情面板：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-detail.png" alt="Agent 详情面板 — 概览、执行历史、记忆系统、用户消息" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-detail.png" alt="Agent 详情面板 — 概览、执行历史、记忆系统、用户消息" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 详情面板包含多个区域：
 
@@ -290,9 +373,11 @@ Cron: 0 0 * * * *
 ## Memory Commands
 - Read this file: `memory(action='read', target='custom:task-understanding')`
 - Update this file: `memory(action='add', target='custom:task-understanding', ...)`
+- Create new knowledge file: `memory(action='create', target='custom:{name}', content='...')`
 
 ## Notes
 This file was auto-created when the agent was created.
+The AI should update it as it learns more about the environment and discovers patterns.
 ```
 
 四个核心部分与创建表单一一对应：**Identity & Role**（身份，来自 System Prompt，未填则用默认模板）、**Mission**（来自 User Prompt）、**Bound Resources**（绑定的资源）、**Schedule**（执行计划）。你可以手动编辑它来微调 Agent 行为（Agent 详情 → Memory 面板），Agent 也会在执行中把发现的阈值、设备特性等**追加**进去——比如运行几轮后你可能看到它自己补了「sensor-02 夏季午后普遍比 sensor-01 高 2°C」这样的经验。内容会按 Agent 绑定的 LLM 上下文长度限制注入每次执行的提示词。
@@ -329,6 +414,7 @@ Agent 卡片上的状态徽章实时反映当前状态：
 | **Active** | Agent 激活中，按计划自动执行 | 绿色 |
 | **Executing** | Agent 正在执行（实时 WebSocket 推送） | 蓝色 / 动画 |
 | **Paused** | Agent 已暂停，不会自动触发（可手动执行） | 灰色 |
+| **Stopped** | Agent 已停止，不参与调度 | 灰色 |
 | **Error** | 上次执行失败，检查日志排查原因 | 红色 |
 | **Completed** | 手动任务完成后的就绪状态，可再次手动执行 | 绿色 |
 
@@ -355,7 +441,7 @@ Agent 执行时，卡片会实时显示「正在思考...」的内容（通过 W
 
 - **模式**：Free
 - **资源**：无需绑定（自由探索）
-- **调度**：Event（设备数据变化触发）
+- **调度**：数据驱动（Data-driven，设备数据变化触发）
 - **Prompt**：分析刚到的数据是否异常。如果异常，查询相关设备历史数据，判断是否需要告警或自动修复。可调用 shell 工具检查系统状态。
 
 ### 场景 3：每日能耗报告（Focused + Cron）
@@ -402,21 +488,21 @@ neomind agent invoke <agent_id> "检查所有传感器最新读数"
 
 | 模块 | 说明 |
 |------|------|
-| [自动化规则](./7-automation-rules.md) | 规则的 `TRIGGER_AGENT` 动作可触发 Agent |
+| [自动化规则](./7-automation-rules.md) | 规则的 `trigger_agent` 动作可触发 Agent，`run_operator` 动作可运行结构化算子 |
 | [通知](./8-notifications.md) | Agent 分析后决定是否发通知 |
 | [设备](./3-onboard-device.md) | Focused 模式绑定设备指标 |
 | [AI Chat](./5-ai-chat.md) | 两种 AI 运行形态，互为补充 |
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agents-mobile.png" alt="Agent 管理移动端 — 卡片列表自适应单列" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agents-mobile.png" alt="Agent 管理移动端 — 卡片列表自适应单列" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为单列卡片列表，支持查看状态、手动执行、切换暂停/激活。
 
 ## 常见坑
 
-- **Focused 保存被拒**：`Focused` 模式必须至少绑定一个资源（设备 / 指标 / 扩展工具），空资源创建会返回 `Focused mode requires at least one resource binding`。只是想让它自由探索就用 `Free`
-- **Cron 表达式不生效**：Agent 用 **6 字段** cron（`秒 分 时 日 月 周`）。把平时习惯的 5 字段表达式 `0 9 * * *` 直接贴进来，语义会整体错位（变成「每周一的每分钟」这类）——补上秒位写成 `0 0 9 * * *`
+- **结构化保存被拒**：`Structured`（结构化）模式必须至少绑定 1 个输入源、至少定义 1 个输出字段，缺一不可。只想让它自由探索用 `Free`，要文字结论保持 `Focused`——两者都允许零绑定
+- **Cron 表达式字段数**：API 层 Agent cron 为 **6 字段**（`秒 分 时 日 月 周`）。直接贴 5 字段表达式（`0 9 * * *`）不会报错——系统会自动在秒位补 `0`，按「分 时 日 月 周」解释（即每天 09:00）。需要精确到秒的触发就写全 6 字段
 - **间隔太小被拒**：`interval_seconds` 最小 10 秒；填 `0` 表示「纯手动」（On-Demand），永不自动调度，只能 Execute Now 触发
 - **改了 User Prompt 但行为没变**：检查 task-understanding.md——它固化了创建时的任务描述，Agent 执行中又会往里追加经验。行为基准以该文件 + User Prompt 共同决定，必要时手动编辑 Memory 面板中的该文件
 - **「它怎么忘了上周的事」**：journal 是 FIFO 滚动的，只保留最近 N 条。需要 Agent 长期记住的规则请写进 User Prompt、task-understanding.md 或 User Messages，不要指望 journal
@@ -430,4 +516,4 @@ neomind agent invoke <agent_id> "检查所有传感器最新读数"
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

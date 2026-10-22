@@ -1,3 +1,4 @@
+---
 sidebar_label: "Extension SDK"
 description: "neomind-extension-sdk 参考：Extension trait、ExtensionMetadata、MetricDescriptor、neomind_export! FFI 宏、capability 声明、ML 模型生命周期（lazy-load + keep-loaded）、跨平台打包（cdylib + panic=unwind）。"
 keywords: [NeoMind, Extension SDK, neomind_export, FFI, capability, ML 模型, 打包]
@@ -6,7 +7,7 @@ tags: [NeoMind, 开发指南]
 
 # Extension SDK
 
-`neomind-extension-sdk`（最新 v0.6.6）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
+`neomind-extension-sdk`（最新 v0.8.1）是写 NeoMind 扩展的核心 crate。它定义了 `Extension` trait、metadata / metric / command 类型，并提供 `neomind_export!` 宏把你的实现自动导出为 FFI 入口，让主进程的 `neomind-extension-runner` 能加载。
 
 > 本文聚焦 SDK 本身。端到端的实战流程见 [扩展开发实战](./7-extension-development.md)。
 
@@ -42,7 +43,7 @@ name = "neomind_extension_my_extension"   # 前缀必须是 neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.6"   # 或 path 指向本地 SDK
+neomind-extension-sdk = "0.8.1"   # 或 path 指向本地 SDK
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -84,7 +85,7 @@ pub trait Extension: Send + Sync {
     fn status(&self) -> String { /* ... */ }
     fn descriptor(&self) -> Option<ExtensionDescriptor> { None }
     fn metrics(&self) -> Vec<MetricDescriptor> { vec![] }
-    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // CommandDescriptor 即 ExtensionCommand 别名
+    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // ExtensionCommand 是 CommandDescriptor 的别名（pub type ExtensionCommand = CommandDescriptor）
     fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
     fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
     async fn health_check(&self) -> Result<bool> { Ok(true) }
@@ -139,7 +140,7 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 | `set_output_sender()` | 推送模式启动 | 保存输出通道，后续主动推送数据 |
 | `start_push()` / `stop_push()` | 推送开始/停止 | 启动/停止后台推送任务 |
 
-> **推送帧格式（0.9.23+）**：Push 扩展的输出经 `/api/extensions/:id/stream` WS 端点送达前端。客户端在 `init` 配置传入 `{"binary": true}` 并得到 `session_created.binary` 确认后，`send_push_output` 的二进制负载（JPEG/PCM 等）改以 WS Binary 帧直传（`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`），省去 base64；未协商时自动回退旧版 Text + base64，扩展代码无需任何改动——协商完全由宿主与前端处理。
+> **推送帧格式（0.9.23+；0.9.x 为旧平台版本线，现版本 1.2.x，该特性在 1.2.x 中继续可用）**：Push 扩展的输出经 `/api/extensions/:id/stream` WS 端点送达前端。客户端在 `init` 配置传入 `{"binary": true}` 并得到 `session_created.binary` 确认后，`send_push_output` 的二进制负载（JPEG/PCM 等）改以 WS Binary 帧直传（`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`），省去 base64；未协商时自动回退旧版 Text + base64，扩展代码无需任何改动——协商完全由宿主与前端处理。
 
 ## 延伸阅读
 
@@ -279,7 +280,7 @@ neomind_extension_sdk::neomind_export!(MyExtension);
 ### 调用 Capability
 
 ```rust
-use neomind_extension_sdk::capability::CapabilityContext;
+use neomind_extension_sdk::capabilities::CapabilityContext;
 
 async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
     let ctx = CapabilityContext::default();
@@ -345,11 +346,12 @@ async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
 # 1. 本地编译
 cargo build --release
 
-# 2. 把产物复制到 NeoMind 扩展目录
-cp target/release/libneomind_extension_my_extension.* ~/.neomind/extensions/my-extension/
+# 2. 把产物复制到 NeoMind 扩展扫描目录（data/extensions/，即数据目录下的 extensions/；
+#    可用 $NEOMIND_DATA_DIR 改变数据目录。注意 ~/.neomind/ 不是扫描位置）
+cp target/release/libneomind_extension_my_extension.* data/extensions/my-extension/
 
-# 3. 触发扫描
-curl -X POST http://localhost:9375/api/extensions/discover
+# 3. 触发扫描（同步扫描并安装扩展目录中的包）
+curl -X POST http://localhost:9375/api/extensions/sync
 
 # 4. 看 runner 是否成功加载
 # Web UI: Extensions 页看状态（Loaded / Crashed / Disabled）

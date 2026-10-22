@@ -20,7 +20,7 @@ sidebar_label: "Automation Rules"
 
 点击左侧导航的 **Automation**（分支图标）进入自动化页面，默认显示 **Rules** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/automation-rules.png" alt="自动化规则页面 — 规则列表、启用状态、Import/Export" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有规则，每行包含：
 
@@ -86,7 +86,9 @@ sidebar_label: "Automation Rules"
 
 在 Rules 页签点击 **Create** 按钮，打开全屏规则构建器：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/rule-builder.png" alt="规则构建器 — 基本信息区域：名称、描述、触发器选择" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+构建器为**分栏布局**，右上角可在 **表单（可视化）/ JSON（代码）** 之间切换——表单侧配置的每一项都实时同步到 JSON 预览。表单按 **基础信息 → 触发条件 → 执行动作 → 预览确认** 四步组织；条件以卡片形式添加：**简单条件**（单指标阈值）、**范围条件**（介于 min / max）、**AND / OR / NOT 组合**（嵌套子条件）。
 
 构建器顶部填写：
 
@@ -104,13 +106,13 @@ sidebar_label: "Automation Rules"
 | **Schedule** | 按 cron 表达式定时触发 | 定时播报、周期性检查 |
 | **Manual** | 仅手动触发（API / CLI / UI 按钮） | 调试、按需执行 |
 
-> **Cron 表达式为 6 段**：`秒 分 时 日 月 周`。`"0 */5 * * * *"` = 每 5 分钟。
+> **Cron 表达式为 5 段**：`分 时 日 月 周`。`"*/5 * * * *"` = 每 5 分钟。（API 层也接受含秒的 6 段写法，会自动规整为 5 段语义；规则构建器 UI 按 5 段校验。）
 
 `data_change` 触发器会自动从 `condition` 中提取引用的数据源，无需手动指定 `sources`。
 
 #### 步骤 3：配置条件
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/rule-builder-condition.png" alt="规则构建器 — 条件配置区域：选择数据源、运算符、阈值" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件决定规则何时触发。支持三种类型：
 
@@ -152,7 +154,7 @@ sidebar_label: "Automation Rules"
 
 #### 步骤 4：配置动作
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/rule-builder-actions.png" alt="规则构建器 — 动作配置区域：通知、执行指令、触发 Agent" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 条件满足后执行的操作。一条规则可以有多个动作，按顺序执行。
 
@@ -161,6 +163,7 @@ sidebar_label: "Automation Rules"
 | **发送通知** | `notify` | 消息模板支持 `{value}`、`{source_id}` 插值 |
 | **执行指令** | `execute` | 下发控制指令到设备或扩展 |
 | **触发 Agent** | `trigger_agent` | 调用 AI Agent 做深度分析 |
+| **运行算子** | `run_operator` | 运行一个结构化模式（L0）Agent——它自行收集绑定数据源、按输出 schema 产出字段，无需 `input`（见 [AI Agent](./6-ai-agent.md#结构化模式l0-算子)） |
 
 **notify 动作**——severity 取值：`info`、`warning`、`critical`、`emergency`
 
@@ -178,6 +181,12 @@ sidebar_label: "Automation Rules"
 
 ```json
 { "type": "trigger_agent", "agent_id": "diagnostic", "input": "sensor-03 离线，请诊断原因" }
+```
+
+除 `input` 文本外，还可选传 `data` 字段（JSON 对象）把触发上下文数据一并带给 Agent：
+
+```json
+{ "type": "trigger_agent", "agent_id": "diagnostic", "input": "请诊断", "data": { "source": "device:sensor-03:online", "value": 0 } }
 ```
 
 #### 步骤 5：持续时间与冷却
@@ -286,7 +295,7 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 ```json
 {
   "name": "每日能耗播报",
-  "trigger": { "trigger_type": "schedule", "cron": "0 0 8 * * *" },
+  "trigger": { "trigger_type": "schedule", "cron": "0 8 * * *" },
   "actions": [
     { "type": "trigger_agent", "agent_id": "energy-reporter", "input": "汇总昨日能耗并发送日报" }
   ]
@@ -346,4 +355,4 @@ Rules 页签右上角的 **Import / Export** 按钮支持批量管理：
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

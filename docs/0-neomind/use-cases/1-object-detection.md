@@ -122,7 +122,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 ![扩展管理页面](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
 
-**步骤 2**：找到 **YOLO Device Inference** 扩展，点击安装
+**步骤 2**：找到 **Yolo Device Inference** 扩展，点击安装
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-2.png" style={{width: '50%'}} />
@@ -135,7 +135,7 @@ YOLO Inference 扩展使用 ONNX 模型在本地进行目标检测推理，响�
 
 ### 4.2 验证推理结果
 
-扩展启用并绑定设备后，当设备采集到图像时，YOLO 扩展会自动进行推理。在仪表板中添加 YOLO Device Inference 面板并绑定设备，即可在设备详情中查看推理的历史结果和历史图片：
+扩展启用并绑定设备后，当设备采集到图像时，YOLO 扩展会自动进行推理。在仪表板中添加 Yolo Device Inference 面板并绑定设备，即可在设备详情中查看推理的历史结果和历史图片：
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-2.png" style={{width: '50%'}} />
@@ -236,7 +236,7 @@ Agent 创建并启用后，当关联设备有新的图像数据时，Agent 会�
 
 ### 6.2 添加 YOLO Inference 面板
 
-在仪表板中点击 **添加面板**，选择 **YOLO Device Inference** 扩展类型，并绑定设备：
+在仪表板中点击 **添加面板**，选择 **Yolo Device Inference** 扩展类型，并绑定设备：
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-12.png" style={{width: '50%'}} />

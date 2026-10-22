@@ -27,7 +27,7 @@ sidebar_label: "Extension Management"
 
 ## 官方扩展
 
-[NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库提供官方扩展，通过内置扩展市场一键安装（市场当前版本 **2.7.8**，2026-09，随扩展仓库发版更新；以下列表随市场持续更新）：
+[NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions) 仓库提供官方扩展，通过内置扩展市场一键安装（市场当前版本 **2.14.0**，共 26 个扩展，随扩展仓库发版更新；以下列表随市场持续更新）：
 
 | 扩展 ID | 类别 | 说明 |
 |---------|------|------|
@@ -56,8 +56,9 @@ sidebar_label: "Extension Management"
 | `uink-rms-bridge` | 桥接 | Uink-RMS 墨水屏：设备注册、遥测采集、显示内容下发 |
 | `weather-forecast` | 数据源 | 实时天气预报（多城市，OpenWeatherMap） |
 | `gym-tracker` | 行业 | 健身房运营套件：运动轨迹/热力/成员分析（扩展 + 仪表板组件） |
+| `laya-decision` | 工具 | LAYA 决策层：托管 `/v1/systemone` sidecar 协议背后的 ONNX 决策运行时，附产物/审计监控与仪表板状态卡 |
 
-> 市场索引随扩展仓库**发版**刷新。若你的市场里看到的扩展少于上表、或个别扩展仍显示旧名（如 `weather-forecast-v2` / `yolo-video-v2`），说明平台加载的是上一版发布的索引——这些扩展在下一个发布中将更名/上架，对应关系：`weather-forecast-v2`→`weather-forecast`、`image-analyzer-v2`→`image-analyzer`、`locate-anything-v2`→`locate-anything`、`yolo-video-v2`→`yolo-video`。
+> 市场索引随扩展仓库**发版**刷新。若你在市场里看到的扩展少于上表，说明平台加载的是上一版发布的索引，等下一次发布即可。
 
 详细的端到端示例见 [应用案例](../use-cases/1-object-detection.md)。
 
@@ -65,7 +66,7 @@ sidebar_label: "Extension Management"
 
 进入左侧导航的 **Extensions** 页签，可以看到当前已安装的全部扩展：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-list.png" alt="扩展管理列表页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-list.png" alt="扩展管理列表页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面顶部工具栏提供三个操作：
 
@@ -85,7 +86,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 
 点击工具栏的 **地球图标** 打开扩展市场对话框，NeoMind 会从官方仓库拉取可用的扩展列表：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png" alt="扩展市场对话框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-marketplace.png" alt="扩展市场对话框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 在市场对话框中：
 
@@ -99,7 +100,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 
 如果你已有 `.nep` 包（自己开发或从 [Releases](https://github.com/camthink-ai/NeoMind-Extensions/releases) 下载），可以使用上传安装：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-upload.png" alt="上传安装对话框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-upload.png" alt="上传安装对话框" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. 点击工具栏的 **Upload 按钮**
 2. 在弹出的对话框中拖入或选择 `.nep` 文件
@@ -107,7 +108,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 4. 校验通过后解包、加载、启动
 
 :::tip
-官方 `.nep` 包按平台分发（如 `weather-forecast-2.7.7-linux_amd64.nep`）。市场安装会自动选择与当前平台和主服务 ABI 版本匹配的扩展包，无需手动挑选；从 Releases 手动下载时请选择对应平台目录下的包。市场源可在 [系统设置 → Preferences](./12-settings.md#偏好设置preferences) 中切换镜像。
+官方 `.nep` 包按平台分发（如 `weather-forecast-2.14.0-linux_amd64.nep`）。市场安装会自动选择与当前平台和主服务 ABI 版本匹配的扩展包，无需手动挑选；从 Releases 手动下载时请选择对应平台目录下的包。市场源可在 [系统设置 → Preferences](./12-settings.md#偏好设置preferences) 中切换镜像。
 :::
 
 ### 方式三：CLI
@@ -117,7 +118,7 @@ NeoMind 提供四种安装方式，按推荐度排序：
 neomind extension install /path/to/weather-forecast.nep
 
 # 从 URL 安装（适合自动化部署，注意选择对应平台的包）
-neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.7.8/weather-forecast-2.7.7-linux_amd64.nep
+neomind extension install https://github.com/camthink-ai/NeoMind-Extensions/releases/download/v2.14.0/weather-forecast-2.14.0-linux_amd64.nep
 
 # 列出已安装扩展
 neomind extension list
@@ -139,7 +140,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 ### 1. Overview（总览）
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-overview.png" alt="扩展详情 - 总览页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-overview.png" alt="扩展详情 - 总览页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 总览页展示扩展的基本信息：
 
@@ -154,7 +155,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 部分扩展需要配置参数才能运行（如天气扩展需要 API Key）。切换到 **Configuration** 标签页进行配置：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-config.png" alt="扩展详情 - 配置页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-config.png" alt="扩展详情 - 配置页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 配置参数按类型自动渲染为合适的输入控件：
 
@@ -176,7 +177,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 命令是扩展暴露的可调用操作。切换到 **Commands** 标签页查看所有命令：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-commands.png" alt="扩展详情 - 命令页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-commands.png" alt="扩展详情 - 命令页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 每个命令卡片展示：
 
@@ -193,7 +194,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 指标是扩展产出的时序数据。切换到 **Metrics** 标签页查看历史数据：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-metrics.png" alt="扩展详情 - 指标页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-metrics.png" alt="扩展详情 - 指标页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 指标页提供：
 
@@ -208,7 +209,7 @@ LLM 会引导你上传 `.nep` 包或提供下载链接，并自动调用 `extens
 
 日志页实时展示扩展进程的标准输出与错误输出：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/extensions-details-logs.png" alt="扩展详情 - 日志页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/extensions-details-logs.png" alt="扩展详情 - 日志页" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 特点：
 
@@ -454,4 +455,4 @@ journalctl -u neomind.service | grep -i extension
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

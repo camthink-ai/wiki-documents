@@ -182,7 +182,7 @@ curl http://127.0.0.1:9380/health
 
 ### 5.2 接入 NE101 摄像头组件
 
-在 [NE101 摄像头组件](./4-camera-ocr.md) 里把 `processingExtensionId` 选为 **`locate-anything`**：
+在 [NE101 摄像头组件](./4-camera-ocr.md) 里把 `processingExtensionId` 选为 **`locate-anything-v2`**（扩展市场安装 id 为 `locate-anything`，组件下拉按 `locate-anything-v2` 匹配显示）：
 
 - 模板 `object_detection` → `detect` 命令（按 `processingCategories` 检测）。
 - 模板 `grounding` → `ground` 命令（用 `processingPhrase` 自然语言定位）。

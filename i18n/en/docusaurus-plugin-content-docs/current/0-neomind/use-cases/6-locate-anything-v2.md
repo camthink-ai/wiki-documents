@@ -182,7 +182,7 @@ The extension ships a frontend component, **LocateCard** — add it to the Dashb
 
 ### 5.2 Integrate with the NE101 camera component
 
-In the [NE101 camera component](./4-camera-ocr.md), set `processingExtensionId` to **`locate-anything`**:
+In the [NE101 camera component](./4-camera-ocr.md), set `processingExtensionId` to **`locate-anything-v2`** (the marketplace install ID is `locate-anything`; the component dropdown matches and displays `locate-anything-v2`):
 
 - Template `object_detection` → `detect` command (by `processingCategories`).
 - Template `grounding` → `ground` command (locate via `processingPhrase`).

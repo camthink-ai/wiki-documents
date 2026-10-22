@@ -34,6 +34,7 @@ mindmap
       Command
     AI
       LLM Backend
+      Built-in Model
       GGUF
       AI Chat
       IM Bridge
@@ -132,7 +133,7 @@ NeoMind 对未知设备的自动识别机制：一台**未注册**的设备通�
 **例**：新买的传感器第一次上报 `temperature`，打开 **Devices → Pending Devices** 就能看到它的草稿卡片，审批后正式成为设备。
 
 :::tip 与 Draft 的关系
-自动发现是"过程"，[Draft](#draft设备草稿) 是"结果"——发现未知设备后先生成草稿，等管理员审批。测试环境可用 `neomind device drafts config --auto-approve true` 跳过人工审批。
+自动发现是"过程"，[Draft](#draft设备草稿) 是"结果"——发现未知设备后先生成草稿，等管理员审批。
 :::
 
 > 详见 [接入设备](../user-guide/3-onboard-device.md)。
@@ -176,7 +177,8 @@ NeoMind 中引用任意数据点的统一格式：`{type}:{id}:{field}`
 |------|------|------|
 | `device` | 设备遥测 | `device:sensor-01:temperature` |
 | `extension` | 扩展指标 | `extension:weather-forecast:temperature` |
-| `agent` | Agent 状态 | `agent:guard:status` |
+| `transform` | 数据转换输出 | `transform:temp-converter:temp_f` |
+| `ai` | Agent 发布的输出字段 | `ai:analyzer:verdict` |
 
 :::tip 这是你最常碰到的格式
 仪表板组件配置数据源、规则引擎定义触发条件、数据推送配置目标——全部用 DataSourceId。记住 `{type}:{id}:{field}` 这个三段式就行。
@@ -188,7 +190,7 @@ NeoMind 中引用任意数据点的统一格式：`{type}:{id}:{field}`
 
 ### LLM Backend（LLM 后端）
 
-NeoMind 连接的大语言模型实例。支持多种后端：**Ollama**（本地）、**OpenAI**、**Anthropic**、**GLM**、**llama.cpp** 等。可配置多个后端，按场景切换。
+NeoMind 连接的大语言模型实例。支持多种后端：**内置模型**（本地，一键下载）、**Ollama**、**OpenAI**、**Anthropic**、**GLM**、**llama.cpp** 等。可配置多个后端，按场景切换。
 
 <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', margin: '16px 0'}}>
   <span style={{background: '#e1d5e7', border: '1px solid #9673a6', borderRadius: '20px', padding: '6px 16px', fontSize: '0.9em', fontWeight: 600}}>Agent</span>
@@ -208,9 +210,23 @@ NeoMind 连接的大语言模型实例。支持多种后端：**Ollama**（本�
 
 > 详见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 
+### Built-in Model（内置模型）
+
+平台内置的本地 LLM 方案：自带 llama.cpp 运行时，官方目录 **7 款模型**一键下载（含 0.7GB 视觉款 MiniCPM-V），无需 API Key、无需 Ollama、完全离线。推理服务由平台按需自动拉起，视觉模型还会附带独立的视觉 companion 实例。
+
+| 代表模型 | 体积 | 最低内存 | 许可 |
+|---------|------|---------|------|
+| **MiniCPM5-2B**（文档推荐） | 1.6GB | 3GB | Apache-2.0 开放许可 |
+| LFM2.5-2.6B（平台默认下载） | 1.5GB | 3GB | LFM 自定义许可，商用需评估 |
+| MiniCPM-V-4.7-1B（视觉） | 0.7GB | 2.4GB | Apache-2.0 |
+
+**例**：全新安装后在 LLM Backends 页面点一次 **Download**，AI Chat 立即可用——零 API Key、数据不出本机。
+
+> 详见 [配置 LLM 后端 — 内置模型](../user-guide/2-configure-llm.md#内置模型built-in-model零配置)。
+
 ### GGUF
 
-llama.cpp 使用的单文件模型格式（`.gguf`），把权重、分词器、上下文与量化信息打包在一起，本地推理即拖即用。NeoMind 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径，平台自动解析名称 / 上下文 / 量化信息并以 SHA-256 校验落盘；导入模型与精选模型同等参与切换（上下文上限 128K）。
+llama.cpp 使用的单文件模型格式（`.gguf`），把权重、分词器、上下文与量化信息打包在一起，本地推理即拖即用。NeoMind 内置模型向导提供「导入本地模型」卡片：拖入 `.gguf` 文件（流式上传，不占内存）或填写服务器路径，平台自动解析名称 / 上下文 / 量化信息落盘（精选目录下载带 SHA-256 校验）；导入模型与精选模型同等参与切换（上下文上限 128K）。
 
 **例**：把从 Hugging Face 下载的 `model-q4_k_m.gguf` 拖进向导，稍等片刻它就出现在 LLM Backend 的模型列表里，全程数据不出本机。
 
@@ -252,7 +268,7 @@ Agent 的**交互模式**——用户在对话框输入消息，AI 实时调用�
 
 | 模式 | 记忆结构 | 存储 | 作用 |
 |------|---------|------|------|
-| **AI Chat** | 对话历史 + MemorySnapshot | `user.md` + `knowledge.md` | 跨会话记住用户偏好与关键事实 |
+| **AI Chat** | 对话历史 + MemorySnapshot | `user.md` / `knowledge.md` / `procedures.md` | 跨会话记住用户偏好、关键事实与操作手册 |
 | **AI Agent** | Journal + Knowledge Files | redb + Markdown 文件 | 跨执行积累经验：成功/失败、学到的规律、设备身份、任务使命 |
 
 **Journal** 是每次 Agent 执行的结果摘要（做了什么、成功/失败、学到了什么）。**Knowledge Files** 是长期知识（设备身份、任务使命、资源清单、巡检规律）。
@@ -285,7 +301,7 @@ Agent 的核心执行模式：LLM 分析当前状态（**思考**）→ 调用�
 
 ### Multimodal（多模态）
 
-LLM 处理图像输入的能力。取决于模型——Ollama 拉取视觉模型（如 `qwen3.5:4b-vl` / `llava`）或使用云端视觉模型（`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`）后，AI Chat 支持上传图片进行视觉分析。
+LLM 处理图像输入的能力。取决于模型——内置视觉款 **MiniCPM-V**（0.7GB）、Ollama 拉取视觉模型（如 `llava`）或使用云端视觉模型（`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`）后，AI Chat 支持上传图片进行视觉分析。
 
 ### VLM（Vision-Language Model，视觉语言模型）
 
@@ -565,13 +581,13 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 | 类型 | 展示内容 | 典型场景 |
 |------|---------|---------|
 | **数值卡** | 单个数值 | 当前温度、湿度 |
-| **折线图** | 时序趋势 | 24 小时温度变化 |
-| **仪表盘** | 指针式读数 | CPU 使用率 |
-| **数据表** | 多列表格 | 设备列表、历史记录 |
-| **VLM 视觉** | 图像 + AI 标注 | 目标检测结果 |
-| **流播放器** | 实时视频流 | 摄像头画面 |
+| **折线图 / 柱状图 / 饼图 / 面积图** | 时序趋势与对比 | 24 小时温度变化 |
+| **Markdown 展示** | 富文本内容 | 说明文字、备注 |
+| **图片展示 / 图片历史** | 图像与快照记录 | 摄像头抓拍回看 |
+| **视频展示** | 视频画面 | 监控画面嵌入 |
+| **LED 指示灯 / 进度条 / 迷你曲线** | 状态与趋势速览 | 在线状态、用量 |
 
-以上为常用内置类型，完整组件类型清单见[仪表板使用指南](../user-guide/4-use-dashboard.md)；也支持扩展提供的自定义组件与社区组件市场。
+以上为部分常用内置类型（共 18 种，完整清单见[仪表板使用指南](../user-guide/4-use-dashboard.md)）。**VLM 视觉、流播放器**等组件由扩展提供（安装对应扩展后出现在组件列表）；另支持社区组件市场。
 
 > 详见 [使用仪表板](../user-guide/4-use-dashboard.md)。
 
@@ -625,4 +641,4 @@ HTTP 长连接单向推送协议。NeoMind 用 SSE 向 Web UI 实时推送设备
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

@@ -53,7 +53,7 @@ flowchart LR
 |------|------|------|------|
 | **智能相机** | NE101 或 NE301 | 图像采集 | ✅ |
 | **NeoMind 平台** | v0.9.0+（[下载](https://github.com/camthink-ai/NeoMind/releases/latest)） | 边缘 AI 管理 | ✅ |
-| **OCR 扩展** | ocr-device-inference 2.7.x | 文字识别推理 | ✅ |
+| **OCR 扩展** | ocr-device-inference 2.12+ | 文字识别推理 | ✅ |
 
 > 推理硬件自动适配：macOS 走 CoreML，Linux 有 NVIDIA GPU 时走 CUDA，其余回退 CPU，无需手动配置。
 
@@ -88,7 +88,7 @@ flowchart LR
 
 ## 4. 安装 OCR 扩展
 
-OCR 扩展发布在官方扩展市场，当前版本为 **2.7.x**（本文以 2.7.8 为例）。
+OCR 扩展发布在官方扩展市场，当前版本为 **2.12+**（本文以 2.12.0 为例）。
 
 ### 4.1 通过扩展市场安装（推荐）
 
@@ -111,7 +111,7 @@ OCR 扩展发布在官方扩展市场，当前版本为 **2.7.x**（本文以 2.
 ```bash
 neomind extension market-list                     # 查看市场可用扩展
 neomind extension market-install ocr-device-inference   # 从市场安装（默认最新版）
-neomind extension market-install ocr-device-inference --version 2.7.8
+neomind extension market-install ocr-device-inference --version 2.12.0
 ```
 
 ### 4.3 验证安装状态

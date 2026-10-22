@@ -34,7 +34,7 @@ name = "neomind_extension_counter"        # prefix MUST be neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.6"
+neomind-extension-sdk = "0.8.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -396,20 +396,20 @@ impl Extension for SensorPushExtension {
 
 ### Pattern 4: Event Subscriptions
 
-Extensions can subscribe to platform events (e.g. device online, rule triggered) and respond in `handle_event()`.
+Extensions can subscribe to platform events (e.g. device online, rule triggered) and respond in `handle_event()`. **Use the PascalCase `NeoMindEvent` variant names verbatim** (`DeviceOnline`, `RuleTriggered`, `DeviceMetric`…) — the platform delivers and matches event names without any case normalization, so snake_case spellings like `device.online` will never receive events.
 
 ```rust
 fn event_subscriptions(&self) -> &[&str] {
-    &["device.online", "rule.triggered"]
+    &["DeviceOnline", "RuleTriggered"]
 }
 
 fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
     match event_type {
-        "device.online" => {
+        "DeviceOnline" => {
             let device_id = payload["device_id"].as_str().unwrap();
             // Initialize when a device comes online...
         }
-        "rule.triggered" => {
+        "RuleTriggered" => {
             // Rule-triggered integration logic...
         }
         _ => {}
@@ -417,6 +417,8 @@ fn handle_event(&self, event_type: &str, payload: &Value) -> Result<()> {
     Ok(())
 }
 ```
+
+> Name matching rules: **exact match / `::` prefix / string prefix** (subscribing to `"Device"` receives every `Device*` event; `"all"` subscribes to everything). The official face-recognition and ocr-device-inference extensions subscribe with the bare variant name `"DeviceMetric"`.
 
 ### Pattern 5: Configuration Hot-Reload
 
@@ -451,11 +453,11 @@ my-extension-1.0.0.nep (ZIP)
 ├── binaries/
 │   ├── darwin_aarch64/
 │   │   └── extension.dylib
-│   ├── linux_x86_64/
+│   ├── linux_amd64/
 │   │   └── extension.so
-│   ├── linux_aarch64/
+│   ├── linux_arm64/
 │   │   └── extension.so
-│   └── windows_x86_64/
+│   └── windows_amd64/
 │       └── extension.dll
 ├── frontend/                   ← (optional) dashboard component bundle (ships with a frontend.json when bundled)
 └── models/                     ← (optional) ML model files
@@ -476,8 +478,8 @@ my-extension-1.0.0.nep (ZIP)
   "type": "native",
   "binaries": {
     "darwin_aarch64": "binaries/darwin_aarch64/extension.dylib",
-    "linux_x86_64": "binaries/linux_x86_64/extension.so",
-    "windows_x86_64": "binaries/windows_x86_64/extension.dll"
+    "linux_amd64": "binaries/linux_amd64/extension.so",
+    "windows_amd64": "binaries/windows_amd64/extension.dll"
   }
 }
 ```

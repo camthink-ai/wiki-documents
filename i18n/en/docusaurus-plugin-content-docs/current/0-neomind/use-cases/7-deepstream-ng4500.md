@@ -219,7 +219,7 @@ Four services must be resident on the NG4500:
 
 ### 4.1 One-shot start (recommended)
 
-The extension ships `start_all.sh`, which brings up mediamtx, the test source, the MJPEG server, and the bridge daemon in order — the bridge then spawns the container:
+The extension does not ship a ready-made one-click script: create `start_all.sh` yourself on the Jetson (e.g. under `~/ds-deps/`) using the script content given in the extension README. It brings up mediamtx, the test source, the MJPEG server, and the bridge daemon in order — the bridge then spawns the container:
 
 ```bash
 ./start_all.sh

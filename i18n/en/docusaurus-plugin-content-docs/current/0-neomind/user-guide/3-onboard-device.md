@@ -63,7 +63,7 @@ mosquitto_pub -h 192.168.1.100 -p 1883 -t "test/my-sensor" -m '{"temperature": 2
 
 After sending, open the Web UI → **Devices → Pending Devices** tab:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices tab — newly discovered draft device" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png" alt="Pending Devices tab — newly discovered draft device" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 If you see a new draft device, MQTT is working.
 
@@ -94,7 +94,7 @@ Note these key fields:
 
 You can also check in the Web UI: **Settings → Device Connections**
 
-<img src="https://resources.camthink.ai/NeoMind/settings-mqtt-detail.png" alt="Settings → Device Connections: MQTT broker status, IP, and port" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-mqtt-detail.png" alt="Settings → Device Connections: MQTT broker status, IP, and port" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### Step 2: Send Data from Your Device
 
@@ -197,11 +197,11 @@ When a device sends data for the first time, it enters "Pending" status. This is
 
 **How to approve**: Web UI → **Devices → Pending Devices** tab
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices tab — draft device awaiting approval" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png" alt="Pending Devices tab — draft device awaiting approval" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. Click **Actions → Process** at the end of the draft row — the approval dialog opens:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-approve-dialog.png" alt="Approval dialog — device info, detected metrics, original data, registration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-approve-dialog.png" alt="Approval dialog — device info, detected metrics, original data, registration form" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The approval dialog puts the **registration form first**; the review material is collapsed below by default:
 
@@ -260,7 +260,7 @@ neomind device drafts approve <DRAFT_ID> --name "Living Room Sensor" --type temp
 
 After approval, the device appears in the Device List tab:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-list.png" alt="Device List tab — onboarded devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-list.png" alt="Device List tab — onboarded devices" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 :::tip Manual approval too tedious?
 Enable auto-approve — devices are accepted automatically after sending data (good for testing):
@@ -282,7 +282,7 @@ neomind device get <DEVICE_ID>
 
 You can also click a device in Web UI → **Devices → Device List** to see real-time data charts:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-detail-telemetry.png" alt="Device detail page — real-time telemetry charts" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-detail-telemetry.png" alt="Device detail page — real-time telemetry charts" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ---
 
@@ -306,7 +306,7 @@ Best for: You already know the device details and want to skip auto-discovery, o
 
 2. **Click Manual Add** — the registration form appears on the right:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-mqtt.png" alt="Manual Add dialog — MQTT mode: device type, ID, name, connection settings" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-manual-add-mqtt.png" alt="Manual Add dialog — MQTT mode: device type, ID, name, connection settings" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### Field Reference
 
@@ -336,7 +336,7 @@ Best for: You already know the device details and want to skip auto-discovery, o
 >
 > When NeoMind receives data from a device, it uses the type template to **parse and store** the data. Without a type, the system wouldn't know that `{ "t": 25.3 }` means temperature — and couldn't display it correctly on dashboards.
 >
-> Built-in types include CamThink hardware (NE301 Edge AI Camera, NE101 Sensing Camera). You can also create custom types under the **Devices → Device Types** tab.
+> Built-in types include CamThink hardware (NE301/NE302 Edge AI Cameras, NE101 Sensing Camera). You can also create custom types under the **Devices → Device Types** tab.
 
 3. **Click Add** to create the device. Its status will be **Disconnected** until it starts sending data, then it automatically becomes Online.
 
@@ -370,7 +370,7 @@ Webhook is one-way — devices can only send data to NeoMind, **not receive comm
 
 1. **Create a Webhook device**: In the Manual Add dialog, select **Webhook** in the Connection Settings:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-webhook.png" alt="Manual Add dialog — Webhook mode: Webhook URL and Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-manual-add-webhook.png" alt="Manual Add dialog — Webhook mode: Webhook URL and Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    The system auto-generates a dedicated **Webhook URL** for this device (format: `http://<SERVER_IP>:9375/api/devices/<DEVICE_ID>/webhook`).
 
@@ -439,11 +439,11 @@ If you already run an external MQTT broker (e.g. an EMQX cluster in your factory
 
    This page shows all MQTT broker instances, including the built-in broker's status and connection info:
 
-<img src="https://resources.camthink.ai/NeoMind/settings-mqtt-brokers.png" alt="MQTT Broker management page — built-in broker instances and add button" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-mqtt-brokers.png" alt="MQTT Broker management page — built-in broker instances and add button" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 2. **Add an External Broker**: Click the **Add Connection** button — the configuration dialog opens:
 
-<img src="https://resources.camthink.ai/NeoMind/settings-broker-add-dialog.png" alt="Add external broker dialog — name, address, port, authentication" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-broker-add-dialog.png" alt="Add external broker dialog — name, address, port, authentication" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    | Field | Required | Description |
    |-------|----------|-------------|
@@ -454,7 +454,7 @@ If you already run an external MQTT broker (e.g. an EMQX cluster in your factory
    | **Password** | Optional | The corresponding password |
    | **Client ID** | Optional | NeoMind's client identifier for this connection — auto-generated if left blank |
 
-3. **Test after saving**: The broker connects automatically once saved. Check the connection status on the broker card, or click **Test** to verify manually.
+3. **Test after saving**: The broker connects automatically once saved. Check the connection status on the broker card, or click **Test Connection** to verify manually.
 
 #### CLI
 
@@ -473,7 +473,7 @@ neomind connector get <ID>
 neomind connector subscriptions
 ```
 
-Once connected, messages matching the `device/+/+/uplink` pattern on the external broker are automatically received and processed by NeoMind. Unknown devices still go through the Pending approval flow.
+Once connected, NeoMind subscribes to **all topics (`#`)** on the external broker by default — data published to any topic is automatically received and triggers device discovery; LWT / online-status topics (containing `status` or ending with `online` / `offline`) are filtered out automatically and won't create phantom devices. Unknown devices still go through the Pending approval flow.
 
 ## Send Commands to a Device
 
@@ -493,7 +493,7 @@ Devices in NeoMind go through different lifecycle stages, each with its own stat
 ### Device Lifecycle
 
 ```
-New device sends data → [Waiting Processing] → Approved → [Online / Offline] → Ready for commands
+New device sends data → [Waiting Processing] → Approved → [Online / Connected·Standby / Offline] → Ready for commands
                                               ↓
                                          Rejected → Device discarded
 ```
@@ -510,17 +510,20 @@ When a device sends data for the first time, before it's been approved:
 
 ### Device Status (After Approval)
 
-Once approved, the device is registered. Depending on connectivity, it toggles between:
+Once approved, the device is registered. NeoMind derives the status from two independent signals — **whether fresh data has arrived** (within the last 5 minutes) and **whether the MQTT transport is connected** — combined into four states:
 
 | Status | Meaning | Trigger | Color |
 |--------|---------|---------|-------|
 | **Online** | Device connected and actively sending data | Data received within the last 5 minutes | Green |
-| **Offline** | Device was connected, but is now disconnected or timed out | Has reported data before, but no new data for over 5 minutes | Yellow |
+| **Connected·Standby** | MQTT connection alive, but no fresh data | Has reported data before and the connection is alive, but no new data for over 5 minutes | Blue |
+| **Offline** | Device was connected, but the connection has dropped and it timed out | Has reported data before, no new data for over 5 minutes, and the MQTT connection is disconnected | Yellow |
 | **Disconnected** | Device has never sent data | Manually registered or created via CLI, but the device has never come online | Gray |
 
-> NeoMind considers a device online if it has reported data **within the last 5 minutes**. Even if the MQTT connection is alive, the status changes to Offline if no data arrives for 5+ minutes.
+> NeoMind considers a device online if it has reported data **within the last 5 minutes**. If the MQTT connection is alive but no data arrives for 5+ minutes, the status changes to **Connected·Standby** rather than Offline; Offline only appears once the connection has dropped as well.
 >
 > **Disconnected** is common for manually registered devices — you clicked Manual Add in the Web UI or used `neomind device create` to create the device, but the device itself hasn't started sending data yet. Once the device reports data for the first time, the status automatically becomes Online.
+>
+> **Note**: For devices onboarded through an external MQTT broker, NeoMind cannot detect the MQTT transport state. In that case the UI falls back to three states (Online / Offline / Disconnected) and Connected·Standby never appears.
 
 ### Command Execution Status
 
@@ -538,11 +541,12 @@ When you send a command via `neomind device control`, each command tracks its ow
 
 NeoMind ships with built-in types for CamThink hardware. Go to Web UI → **Devices → Device Types** tab to view and manage all types:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="Device Types management page — built-in and custom types" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-types.png" alt="Device Types management page — built-in and custom types" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Model | Name | Features |
 |-------|------|----------|
 | **NE301** | Edge AI Camera | Video streaming + AI inference |
+| **NE302** | Edge AI Camera 2 | Video streaming + AI inference (WiFi HaLow connectivity, NE301-compatible data protocol) |
 | **NE101** | Sensing Camera | Image + environmental sensing |
 
 Full definitions at [NeoMind-DeviceTypes](https://github.com/camthink-ai/NeoMind-DeviceTypes).

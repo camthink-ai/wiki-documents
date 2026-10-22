@@ -17,11 +17,11 @@ NeoMind 三个核心界面——管理你的设备、可视化你的数据、用
 
 <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-overview.png" alt="设备管理 — MQTT/BLE/Webhook 设备统一管理" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/dashboard-overview.png" alt="实时仪表板 — 拖拽构建、WebSocket 实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/chat-overview.png" alt="AI Chat — 自然语言查询设备、创建自动化" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 </div>
 
@@ -29,27 +29,35 @@ NeoMind 三个核心界面——管理你的设备、可视化你的数据、用
 
 ## 产品架构
 
-NeoMind 采用**单进程多层级**架构——所有核心能力打包在一个进程中，无需外部数据库或消息代理，开机即用。
+NeoMind 采用**单进程多层级**架构——所有核心能力打包在一个进程中，无需外部数据库或消息代理，开机即用；内置模型按需下载并由平台自动拉起推理服务，扩展则运行在相互隔离的独立进程中。
 
 ```mermaid
 flowchart TB
-    CLIENT["Web · 桌面端 · CLI"]
-    CHAT["Chat & Agents"]
-    LLM["LLM 后端<br/>Ollama · OpenAI · Claude · GLM"]
+    CLIENT["Web · 桌面端 · CLI · 移动端自适应"]
+    IM["IM 桥接<br/>Telegram · 飞书"]
+    CHAT["AI Chat<br/>自然语言对话 · 工具调用"]
+    AGENT["AI Agent<br/>定时 · 事件 · 结构化"]
+    LLM["LLM 后端<br/>内置模型(含视觉) · Ollama · 云端"]
     MEM["记忆 & 技能"]
+    DASH["仪表板 · 数据可视化"]
 
     API["REST API :9375"]
     MQTT["MQTT Broker :1883"]
-    STORE[("遥测存储<br/>redb")]
-    AUTO["规则引擎 · 数据转换 · 通知推送"]
+    STORE[("遥测 & 设备存储<br/>redb")]
+    AUTO["规则引擎 · 数据转换<br/>数据推送 · 通知"]
 
-    EXT["扩展 — 进程隔离<br/>视觉 AI · OCR · 自定义"]
+    EXT["扩展 — 进程隔离<br/>视觉 AI · OCR · 语音 · 工业协议"]
     DEV["IoT 设备<br/>相机 · 传感器 · 控制器"]
 
     CLIENT --> CHAT
+    CLIENT --> AGENT
+    CLIENT --> DASH
+    IM <--> CHAT
     CHAT --> LLM
-    CHAT --> MEM
+    AGENT --> LLM
+    AGENT --> MEM
     CHAT -->|工具调用| API
+    AGENT -->|结构化输出| STORE
 
     DEV -->|MQTT| MQTT
     DEV -.->|Webhook / BLE| API
@@ -57,8 +65,10 @@ flowchart TB
     MQTT --> STORE
     API --> STORE
     API --> AUTO
+    API --> DASH
+    STORE --> DASH
 
-    API -.->|FFI| EXT
+    API -.->|独立进程 · FFI| EXT
 
     classDef clientNode fill:#dae8fc,stroke:#6c8ebf,color:#1a3d6b
     classDef aiNode fill:#e1d5e7,stroke:#9673a6,color:#3d1a4b
@@ -68,20 +78,22 @@ flowchart TB
     classDef devNode fill:#f8cecc,stroke:#b85450,color:#6b1a1a
 
     class CLIENT clientNode
-    class CHAT,LLM,MEM aiNode
+    class IM,CHAT,AGENT,LLM,MEM aiNode
     class API,MQTT,STORE coreNode
-    class AUTO autoNode
+    class AUTO,DASH autoNode
     class EXT extNode
     class DEV devNode
 ```
 
-:::tip 三大设计哲学
+:::tip 四大设计哲学
 
-1. **单进程自包含** — API、MQTT Broker、存储、规则引擎全在一个进程里。`cargo run` 一条命令，全部就绪。没有 Docker compose，没有外部依赖。
+1. **单进程自包含** — API、MQTT Broker、存储、规则引擎、数据推送全在一个主进程里；内置模型的推理服务（llama-server）由平台按需拉起为子进程，视觉模型还会自动附带一个视觉 companion。`cargo run` 一条命令，全部就绪。没有 Docker compose，没有外部依赖。
 
-2. **边缘优先，云端可选** — 默认用本地 LLM（Ollama）实现 100% 离线运行，数据不出局域网；需要更强能力时，一键切换云端模型（OpenAI / Claude / GLM）。
+2. **边缘优先，云端可选** — 默认本地 LLM 为内置模型（一键下载、开箱即用，也支持 Ollama / llama.cpp / 云端），实现 100% 离线运行，数据不出局域网；需要更强能力时，一键切换云端模型（OpenAI / Claude / GLM）。
 
-3. **扩展崩溃隔离** — 扩展运行在独立进程中，通过 FFI 通信。一个 YOLO 扩展崩溃？主服务和其他扩展完全不受影响。
+3. **小模型也能可靠执行** — 平台为本地小模型（4B 级）构建了一整套执行护栏：Agent 三种执行形态共用一个运行时，输出经 Schema 校验后落地为可查证的结构化数据；叙述护栏防止"说了没做"，失败熔断与自愈让无人值守的 Agent 不带病运行。本地跑得动，也要跑得可靠。
+
+4. **扩展崩溃隔离，按能力授权** — 扩展由独立的 extension-runner 进程加载（FFI），通过事件流与主服务通信，并按能力（capability）授权可用的系统接口。一个 YOLO 扩展崩溃？主服务和其他扩展完全不受影响。
    :::
 
 > 想深入了解每一层的设计原理？阅读 [核心概念](../concepts/2-core-concepts.md) — 数据生命周期、扩展模型、Agent 执行循环的完整剖析。
@@ -95,18 +107,18 @@ flowchart TB
 | **完全自包含** | 内置 MQTT Broker、redb 存储，无需安装外部数据库或消息代理 |
 | **端到端类型安全** | Rust 后端提供编译期保证；Agent CLI 命令在进程内分发结构化数据，避免脆弱的字符串解析 |
 | **崩溃隔离的扩展** | 扩展运行在独立进程中，按能力（capability）授权；行为异常的扩展永远不会拖垮服务端 |
-| **云可选** | 使用本地 LLM（Ollama）可 100% 离线运行，需要更强能力时也可接入云端模型 |
+| **云可选** | 默认本地 LLM 为内置模型（一键下载、开箱即用，也支持 Ollama / llama.cpp），可 100% 离线运行；需要更强能力时也可接入云端模型 |
 
 ## 核心能力
 
 ### AI 智能化
-- **内置本地 AI，开箱即用** — 向导内一键下载精选模型（Qwen 3.5 / Gemma 4 等），无需 API Key、无需装 Ollama，也支持导入自己的 GGUF
+- **内置本地 AI，开箱即用** — 后端卡片一键下载目录模型（LFM2.5 / MiniCPM5 / Qwen3.5 等 7 款，含 0.7GB 视觉款 MiniCPM-V），无需 API Key、无需装 Ollama，也支持导入自己的 GGUF
 - **自然语言对话** — 会话式接口，查询并控制所有已连接设备
-- **自主智能体** — 按计划或事件触发的 AI Agent，独立监控、分析并执行设备数据
-- **10+ LLM 后端** — 内置 llama.cpp（本地模型一键下载）、Ollama、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
-- **记忆系统** — 跨会话记忆（用户档案 / 知识库 + 执行日志），对话结束后自动抽取持久化
+- **自主智能体** — 三种执行形态（定时 / 事件 / 结构化）：前两者独立监控、分析并执行设备数据；结构化形态把输出经 Schema 校验后落地为 `ai:{agent_id}:{字段}` 虚拟指标
+- **10+ LLM 后端** — 内置模型（本地一键下载）、Ollama、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
+- **记忆系统** — 跨会话记忆（用户档案 / 知识库 / 操作手册 + 执行日志），对话结束后自动抽取持久化
 - **技能系统** — YAML + Markdown 技能文件，针对特定场景引导 Agent 行为
-- **多模态** — 支持图像上传与视觉分析
+- **多模态** — 支持图像上传与视觉分析（内置视觉模型 MiniCPM-V，或 Ollama / 云端视觉模型）
 
 ### 设备管理
 - **MQTT 协议** — 主流设备集成方式，内置 Broker，支持 mTLS 与 CA 证书
@@ -117,14 +129,14 @@ flowchart TB
 - **自定义设备类型** — 通过 JSON 类型定义声明设备指标与指令
 
 ### 自动化
-- **JSON 规则引擎** — 结构化的规则定义：`{"condition": {"source": "device:sensor:temperature", "operator": "greater_than", "threshold": 30}}`
+- **JSON 规则引擎** — 结构化的规则定义：`{"condition": {"condition_type": "comparison", "source": "device:sensor:temperature", "operator": "greater_than", "threshold": 30}}`
 - **数据转换** — 基于 JavaScript 的数据变换，创建虚拟指标
-- **计划型 Agent** — 基于时间或事件触发的 AI Agent 执行
+- **AI Agent 执行** — 定时 / 事件 / 结构化三种形态，可与规则引擎联动（规则动作直接触发 Agent）
 - **事件总线** — 发布/订阅架构，组件间解耦通信
 
 ### 仪表板与可视化
 - **拖拽构建器** — 可视化仪表板编辑器，响应式网格布局
-- **丰富组件** — 数值卡、图表、仪表盘、表格、VLM 视觉组件
+- **丰富组件** — 数值卡、折线/柱状/饼图、Markdown 展示、图片/视频展示等内置组件；VLM 视觉、流播放器等由扩展提供
 - **实时更新** — WebSocket / SSE 将数据流式推送到仪表板
 - **仪表板分享** — 带过期时间的公开链接
 - **自定义组件** — 构建并发布你自己的仪表板组件
@@ -190,6 +202,6 @@ NeoMind 是一个模块化生态系统，每个关注点由专门仓库承载：
 
 ---
 
-*适用版本: v0.9.x（2026-09）*
+*适用版本: v1.2.x（2026-10）*
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

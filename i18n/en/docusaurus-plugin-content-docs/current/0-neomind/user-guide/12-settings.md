@@ -68,7 +68,7 @@ What gets backed up, where it is stored, and how to restore: [Troubleshooting �
 
 ### Memory Limits
 
-Character limits for the USER.md / KNOWLEDGE.md memory files (defaults 2000 / 3000). Oldest entries are pruned automatically; the files themselves are viewable and editable in [AI Agent → Memory](./6-ai-agent.md).
+Character limits for the USER.md / KNOWLEDGE.md / PROCEDURES.md memory files (defaults 2000 / 3000 / 3000). Oldest entries are pruned automatically; the files themselves are viewable and editable in [AI Agent → Memory](./6-ai-agent.md).
 
 ### Auto-Onboarding
 
@@ -77,7 +77,7 @@ When enabled, data from unknown devices lands in the **pending list** with a sug
 ### Extension Marketplace Source
 
 
-The marketplace index is fetched from GitHub by default. For restricted networks, switch the mirror here (or via the `NEOMIND_EXTENSION_MARKET_URL` env var) — the next marketplace request uses it, no restart needed. Package integrity is verified against the mirror's artifacts.
+The marketplace index is fetched from GitHub by default. For restricted networks, switch the mirror here (or via the `NEOMIND_EXTENSION_MARKET_URL` env var) — the next marketplace request uses it, no restart needed. Precedence: saved setting > `NEOMIND_EXTENSION_MARKET_URL` env var > built-in default — if the env var is set, saving in the UI silently overrides it. Package integrity is verified against the mirror's artifacts.
 
 ## About
 
@@ -92,4 +92,4 @@ The marketplace index is fetched from GitHub by default. For restricted networks
 
 ---
 
-*Last updated: 2026-09-20*
+*Last updated: 2026-10-21*

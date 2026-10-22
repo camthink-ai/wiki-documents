@@ -42,7 +42,7 @@ flowchart TB
     end
 
     DEV["IoT Devices<br/>Sensors · Cameras · Controllers"]:::device
-    LLM["LLM Backend<br/>Ollama · OpenAI · GLM"]:::external
+    LLM["LLM Backend<br/>Built-in · Ollama · Cloud"]:::external
     EXT["Extension Process (isolated)<br/>YOLO · OCR · Device Bridge"]:::extension
     TARGET["Notification Targets<br/>Email · Feishu · DingTalk · Slack · TG"]:::external
 
@@ -76,7 +76,7 @@ flowchart TB
 | **Extension System** | — | Process isolation + FFI | Vision AI (YOLO/OCR), device bridges (Modbus/OPC-UA), independent process won't crash main service |
 
 :::info Why no external dependencies?
-All core components share a single redb storage file — data is written once and consumed by multiple readers. No PostgreSQL, Mosquitto, or Redis needed. The only optional external dependency is an LLM (Ollama locally or a cloud API). Extensions run as separate processes, communicating with the main service via FFI.
+All core components share a single redb storage file — data is written once and consumed by multiple readers. No PostgreSQL, Mosquitto, or Redis needed. The only optional external dependency is an LLM — the built-in model downloads locally with one click (fully offline); Ollama and cloud APIs are also supported. Extensions run as separate processes, communicating with the main service via FFI.
 :::
 
 ---
@@ -117,7 +117,7 @@ Downlink topic: device/{device_type}/{device_id}/downlink
 Discovery topic: {discovery_prefix}/announce
 ```
 
-JSON published to the uplink topic is automatically parsed into telemetry data and stored (this convention applies to manually added devices; devices with a recognized type or connected via Auto-Discovery may also publish to arbitrary topics — such data first lands in the **pending approval list**, and registration completes after confirmation). Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
+JSON published to the uplink topic is automatically parsed into telemetry data and stored (manually added devices report on this convention). An **unregistered** device lands in the **pending approval list** no matter which topic it publishes to — the device is only registered after approval. Supports [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) — a device publishes a single announce message to auto-register itself.
 
 **Webhook (stateless)** — for one-off pushes or devices that can't run an MQTT client:
 
@@ -127,7 +127,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
   -d '{"temperature": 25.6, "humidity": 60}'
 ```
 
-First webhook push auto-creates the device if it doesn't exist.
+A first webhook push from an unknown device does **not** create the device directly — the data is still ingested, and the device lands in the **Pending Devices list** for approval; it is only created after you approve it.
 
 ### Data Structure
 
@@ -168,9 +168,9 @@ curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=tempe
 
 ### Data Retention & Cleanup
 
-Telemetry is **retained indefinitely** by default, but auto-cleanup policies can be configured (Settings → System → Retention):
+Telemetry ships with **auto-cleanup enabled by default**: metrics are kept for 30 days, image-like data for 3 days, and sessions forever — adjust (or set to keep forever) under Settings → Preferences → Data Management:
 
-- **By duration**: Auto-delete data older than N days (e.g. retain 90 days); regular metrics and image-like data each have their own retention period, and the cleanup interval is configurable too
+- **By duration**: Auto-delete data older than N days (e.g. retain 90 days); regular metrics, image-like data, and sessions each have their own retention period, and the cleanup interval is configurable too
 
 Policies run periodically by a background task without affecting real-time write performance.
 
@@ -319,7 +319,7 @@ NeoMind's AI shares the same Think-Act-Observe loop, but runs in two modes:
 | **AI Chat** | User types a message | Conversation history + MemorySnapshot | Real-time streaming | "Check sensor status" / "Identify objects in this image" |
 | **AI Agent** | Timer / Event | Journal + Knowledge Files | Background, silent | "Patrol devices every 5 min" / "Analyze on temperature spike" |
 
-**AI Chat** is interactive — the user asks, the AI calls tools in real time and streams the response, with support for image uploads and multimodal analysis. **AI Agent** is autonomous — triggered on schedule or event, it runs independently in the background and logs experience to its Journal. Both share the same toolset (neomind CLI + extension commands).
+**AI Chat** is interactive — the user asks, the AI calls tools in real time and streams the response, with support for image uploads and multimodal analysis. **AI Agent** is autonomous — triggered on schedule or event, it runs independently in the background and logs experience to its Journal. Both share the same toolset (neomind CLI + extension commands). Agents also have a third execution shape — **Structured mode**: outputs are schema-constrained and automatically land as `ai:{agent_id}:{field}` virtual metrics for dashboards and rules (see [AI Agent — Structured Mode](../user-guide/6-ai-agent.md#structured-mode-l0-operator)).
 
 ### Scheduling Modes (AI Agent only)
 
@@ -350,7 +350,7 @@ Each mode has its own memory system:
 
 | Mode | Memory Structure | Purpose |
 |------|-----------------|---------|
-| **AI Chat** | Conversation history + MemorySnapshot (`user.md` + `knowledge.md`) | Remembers user preferences and key facts across sessions |
+| **AI Chat** | Conversation history + MemorySnapshot (`user.md` / `knowledge.md` / `procedures.md`) | Remembers user preferences, key facts, and operating procedures across sessions |
 | **AI Agent** | Journal (redb) + Knowledge Files (Markdown) | Accumulates experience across executions: success/failure, learned patterns, device identity, mission, patrol routines |
 
 <details>
@@ -444,7 +444,7 @@ NeoMind uses an embedded redb database. The data directory defaults to `data/`:
 | `extensions/` | Extension binaries and config |
 | `logs/` | Runtime logs |
 
-Data retention is configurable (default: retain indefinitely). Old data is auto-cleaned per policy.
+Data retention is configurable (auto-cleanup is enabled by default: metrics 30 days, images 3 days, sessions forever). Old data is auto-cleaned per policy.
 
 > See [System Requirements — Data Storage](../product-overview/4-system-requirements.md#data-storage) for details.
 
@@ -481,4 +481,4 @@ NeoMind also supports cloud LLMs (OpenAI / Anthropic / GLM / DeepSeek, etc.). Th
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

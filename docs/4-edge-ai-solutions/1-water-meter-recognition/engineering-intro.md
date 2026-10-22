@@ -106,17 +106,17 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 方案主机推荐 **NG4500 AI Box**;评估阶段也可将 NeoMind 装在个人电脑或任意 Linux 主机。
 
-- **平台安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](/docs/neomind/user-guide/install-setup)
+- **平台安装**:一键脚本 / 手动部署 / HTTPS 配置,见 [安装与升级](../../neomind/user-guide/install-setup)
 - **安装 OCR 扩展**:在扩展市场一键安装 **paddle-ocr-v6**——本地 OCR 识别引擎,负责把 NE101 抓拍的表盘图像识别成读数
 - **确认摄像头组件**:确认内置组件 **ne101_camera** 可用——负责接收 NE101 上报的抓拍图像,并把图像送入识别扩展
 
-详细安装步骤见 [安装扩展与组件](/docs/neomind/use-cases/camera-ocr)。
+详细安装步骤见 [安装扩展与组件](../../neomind/use-cases/camera-ocr)。
 
-![扩展市场](https://resources.camthink.ai/NeoMind/v0923/extensions-marketplace.png)
+![扩展市场](https://resources.camthink.ai/NeoMind/v1021b/extensions-marketplace.png)
 
 ### 5.2 NeoMind 添加 NE101 设备
 
-在平台侧 **ne101_camera** 摄像头组件中添加 NE101 并绑定项目,记录组件顶部的 MQTT 信息——**Server Address** 与 **Data Reporting Topic**,下一步设备侧配置要用。完整步骤见 [OCR 用例 — 让 NE101 采集图像](/docs/neomind/use-cases/camera-ocr)。
+在平台侧 **ne101_camera** 摄像头组件中添加 NE101 并绑定项目,记录组件顶部的 MQTT 信息——**Server Address** 与 **Data Reporting Topic**,下一步设备侧配置要用。完整步骤见 [OCR 用例 — 让 NE101 采集图像](../../neomind/use-cases/camera-ocr)。
 
 ### 5.3 NE101 设备上报数据
 
@@ -125,9 +125,9 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 3. 进入 **Application Management**,填写 Data Reporting Topic 与 Server Address(即 5.2 记录的 MQTT 信息),点击 **connect**
 4. 之后每次按动拍照键,图像自动上传至绑定的项目中
 
-![设备上报后进入待审核列表](https://resources.camthink.ai/NeoMind/v0923/devices-pending.png)
+![设备上报后进入待审核列表](https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png)
 
-设备激活与 Web UI 配置详见 [NE101 快速入门](/docs/neoeyes-ne101-series/quick-start)。
+设备激活与 Web UI 配置详见 [NE101 快速入门](../../neoeyes-ne101-series/quick-start)。
 
 ### 5.4 联调
 
@@ -135,14 +135,14 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 
 1. **抓拍**:手动按动 NE101 拍照键,确认图像到达 NeoMind(组件图片列表可见)
 2. **识别**:确认 OCR 流水线产出读数字段(仪表板组件可见识别结果)
-3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标(见 [数据转换](/docs/neomind/user-guide/7b-data-transforms))
+3. **规则**:确认读数经 Transform 解析为数字并入库为 `meter_reading` 指标(见 [数据转换](../../neomind/user-guide/7b-data-transforms))
 4. **转发**:验证 Data Push / Webhook 已将读数推送到业务端点
 
 ### 5.5 数据存储和展示
 
 - **抓拍原图**:存储于 NeoMind 主机,保留周期在数据保留设置中控制,到期自动清理
 - **读数指标**:入库为虚拟指标(如 `meter_reading`),支持历史查询
-- **仪表板**:建议三块——读数卡片(最新读数 + 时间)、用水趋势曲线(日/周/月)、设备健康(电池 / 信号 / 在线);搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
+- **仪表板**:建议三块——读数卡片(最新读数 + 时间)、用水趋势曲线(日/周/月)、设备健康(电池 / 信号 / 在线);搭建见 [使用仪表板](../../neomind/user-guide/use-dashboard)
 
 ![仪表板示例:NE101 抓拍与 OCR 读数实时展示](https://resources.camthink.ai/wiki/img/edge-ai-solutions/water-meter-recognition/index/water-meter-demo.webp)
 
@@ -155,10 +155,10 @@ NE101 支持三种通讯模组,按现场信号与供电条件选型(续航为官
 | **Data Push** | 平台将指定指标的新数据点实时推送到业务 HTTP 端点(含重试) | 实时联动、大屏 |
 | **OpenAPI 拉取** | 业务系统按结算周期调用 REST API 拉取读数 | 日结/月结系统 |
 
-- 配置方法:[数据转发](/docs/neomind/user-guide/7c-data-push) / [平台 API](/docs/neomind/developer-guide/rest-api)
-- 读数异常、低电量、设备离线等**告警事件**走 [消息通知](/docs/neomind/user-guide/notifications) 的 Webhook / IM / 邮件渠道
+- 配置方法:[数据转发](../../neomind/user-guide/7c-data-push) / [平台 API](../../neomind/developer-guide/rest-api)
+- 读数异常、低电量、设备离线等**告警事件**走 [消息通知](../../neomind/user-guide/notifications) 的 Webhook / IM / 邮件渠道
 
-![Data Push 配置列表](https://resources.camthink.ai/NeoMind/v0923/data-push-list.png)
+![Data Push 配置列表](https://resources.camthink.ai/NeoMind/v1021b/data-push-list.png)
 
 **字段映射示例**:表号 ↔ 设备 ID;读数 ↔ `meter_reading`;抄表时间 ↔ 数据点时间戳;凭证 ↔ 抓拍原图 URL。
 

@@ -49,7 +49,7 @@ flowchart LR
 
 ## 3. Install the Extensions
 
-All three bridges are published on the official extension marketplace; the current version is 2.7.x (this guide uses 2.7.7). Install one or more as needed — they are independent of each other.
+All three bridges are published on the official extension marketplace; the current version is 2.12+ (this guide uses 2.12.0). Install one or more as needed — they are independent of each other.
 
 ### 3.1 Install from the Marketplace (Recommended)
 
@@ -64,7 +64,7 @@ All three bridges are published on the official extension marketplace; the curre
 ```bash
 neomind extension market-list                        # Browse marketplace extensions
 neomind extension market-install modbus-bridge       # Install from marketplace (latest by default)
-neomind extension market-install opcua-bridge --version 2.7.7
+neomind extension market-install opcua-bridge --version 2.12.0
 neomind extension market-install bacnet-bridge
 ```
 
@@ -389,7 +389,7 @@ In other words, what you see on the Devices page / dashboards is a new data poin
 **Write a node value**: `write(node_id, value, data_type)` — `value` is a string; `data_type` is optional (e.g. `Float`, `Int32`) to specify the type explicitly.
 
 :::warning `write` is a protective stub
-**In the current open-source build (2.7.x), `write` is a protective stub**: the command returns an error and does not write to the server — preventing accidental writes to industrial servers from the bridge layer. For write control on OPC-UA points, use the device's own HMI / SCADA. Reads and subscriptions are unaffected.
+**In the current open-source build (2.12+), `write` is a protective stub**: the command returns an error and does not write to the server — preventing accidental writes to industrial servers from the bridge layer. For write control on OPC-UA points, use the device's own HMI / SCADA. Reads and subscriptions are unaffected.
 :::
 
 - Unsubscribe / disconnect: `unsubscribe(node_ids)` (`node_ids` format same as `subscribe`), `disconnect` (clears the node cache and subscriptions).
@@ -618,7 +618,7 @@ Start with three tools: the extension detail page's **Logs** tab for process out
 | float32 / uint32 values read via `read_registers` look wrong | Two-register type has `count` < 2, or `word_order` doesn't match the device | Set `count` to 2 for `uint32` / `int32` / `float32`; if the PLC is low-word-first set `word_order` to `little` (default `big`) |
 | `read_registers` returns arrays like `[17673, 38912]` instead of engineering values like 220.15 | `read_registers` returns **raw 16-bit register words** by protocol design; decoding and scaling only happen in the polling cycle | For engineering values use the `value` from `get_device_data` or the device metrics; keep `data` / `raw` for cross-checking against the register manual |
 | OPC-UA `connect` fails or drops repeatedly (security-mode rejection, expired session) | `security_mode` mismatched with the server's security policy; `sign` / `sign_and_encrypt` missing certificate or credentials; `sessionTimeout` too short | Match `security_mode` (`none` / `sign` / `sign_and_encrypt`) to the server policy; provide correct credentials or certificates; raise `sessionTimeout` (default 30000 ms); keep `autoReconnect = true` |
-| OPC-UA `write` returns an error and the value is not written | In the current 2.7.x open-source build `write` is a protective refusal (prevents accidental writes to industrial servers) | Expected behavior; perform writes from the device's own HMI / SCADA. Reads and subscriptions are unaffected |
+| OPC-UA `write` returns an error and the value is not written | In the current 2.12+ open-source build `write` is a protective refusal (prevents accidental writes to industrial servers) | Expected behavior; perform writes from the device's own HMI / SCADA. Reads and subscriptions are unaffected |
 | No data after OPC-UA subscribe | `interval_ms` outside 50–60000; the node value simply isn't changing; subscription never established | Check `subscriptions_count` and `list_subscriptions`; bring `interval_ms` back into range; use `read` first to confirm the node is readable |
 | BACnet `discover` returns nothing | Firewall blocks UDP 47808; broadcast unreachable across segments; wrong `bindAddress` | Allow UDP 47808 in both directions (including broadcast); keep NeoMind and the devices on the same Layer-2 network (broadcast doesn't route); leave `bindAddress` at `0.0.0.0`; capture packets to confirm Who-Is goes out and I-Am comes back |
 | BACnet `read_property` / `write_property` fails with `Device not found: …` | The target device instance is not in the internal device table (never discovered or added) | Run `discover` first (or `add_device` with a known IP), then read/write |

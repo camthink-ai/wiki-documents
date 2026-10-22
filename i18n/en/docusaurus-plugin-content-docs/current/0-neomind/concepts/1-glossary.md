@@ -33,6 +33,7 @@ mindmap
       Command
     AI
       LLM Backend
+      Built-in Model
       GGUF
       AI Chat
       IM Bridge
@@ -131,7 +132,7 @@ NeoMind's mechanism for identifying unknown devices: when an **unregistered** de
 **Example**: A brand-new sensor publishes `temperature` for the first time; open **Devices → Pending Devices** and its draft card is already there. Approve it and it becomes an official device.
 
 :::tip Relationship to Draft
-Auto-discovery is the "process", [Draft](#draft) is the "result" — a discovered unknown device first becomes a draft and waits for admin approval. In test environments you can skip manual approval with `neomind device drafts config --auto-approve true`.
+Auto-discovery is the "process", [Draft](#draft) is the "result" — a discovered unknown device first becomes a draft and waits for admin approval.
 :::
 
 > See [Onboard a Device](../user-guide/3-onboard-device.md).
@@ -175,7 +176,8 @@ The unified format NeoMind uses to reference any data point: `{type}:{id}:{field
 |------|---------|---------|
 | `device` | Device telemetry | `device:sensor-01:temperature` |
 | `extension` | Extension metric | `extension:weather-forecast:temperature` |
-| `agent` | Agent status | `agent:guard:status` |
+| `transform` | Data transform output | `transform:temp-converter:temp_f` |
+| `ai` | Fields published by an agent | `ai:analyzer:verdict` |
 
 :::tip This is the format you'll see most often
 Dashboard widget data sources, rule trigger conditions, data push targets — all reference data via DataSourceId. Just remember the three-part pattern: `{type}:{id}:{field}`.
@@ -207,9 +209,23 @@ The large language model instance NeoMind connects to. Multiple backends are sup
 
 > See [Configure LLM Backend](../user-guide/2-configure-llm.md).
 
+### Built-in Model
+
+The platform's built-in local LLM: a llama.cpp runtime ships with NeoMind, and a curated catalog of **7 models** downloads with one click (including the 0.7GB vision variant MiniCPM-V) — no API key, no Ollama, fully offline. The inference server spawns automatically on demand, and vision models additionally get a dedicated vision companion instance.
+
+| Representative model | Size | Min RAM | License |
+|---------------------|------|---------|---------|
+| **MiniCPM5-2B** (doc-recommended) | 1.6GB | 3GB | Apache-2.0 open license |
+| LFM2.5-2.6B (platform default download) | 1.5GB | 3GB | Custom LFM license — review for commercial use |
+| MiniCPM-V-4.7-1B (vision) | 0.7GB | 2.4GB | Apache-2.0 |
+
+**Example**: on a fresh install, click **Download** once on the LLM Backends page and AI Chat works immediately — zero API keys, data never leaves the machine.
+
+> See [Configure LLM Backend — Built-in Model](../user-guide/2-configure-llm.md#built-in-model-zero-config).
+
 ### GGUF
 
-The single-file model format used by llama.cpp (`.gguf`) — weights, tokenizer, context, and quantization info packed into one file, ready for local inference. NeoMind's built-in model wizard offers an "Import local model" card: drag in a `.gguf` file (streamed upload, no memory footprint) or enter a server path; the platform parses name / context / quantization automatically and stores the file with SHA-256 verification. Imported models participate in switching on equal terms with curated models (context limit 128K).
+The single-file model format used by llama.cpp (`.gguf`) — weights, tokenizer, context, and quantization info packed into one file, ready for local inference. NeoMind's built-in model wizard offers an "Import local model" card: drag in a `.gguf` file (streamed upload, no memory footprint) or enter a server path; the platform parses name / context / quantization automatically and stores the file (curated-catalog downloads carry SHA-256 verification). Imported models participate in switching on equal terms with curated models (context limit 128K).
 
 **Example**: Drag a `model-q4_k_m.gguf` downloaded from Hugging Face into the wizard, and moments later it shows up in the LLM Backend model list — data never leaves the machine.
 
@@ -251,7 +267,7 @@ Experience accumulated across executions/sessions, split into two systems by mod
 
 | Mode | Memory Structure | Storage | Purpose |
 |------|-----------------|---------|---------|
-| **AI Chat** | Conversation history + MemorySnapshot | `user.md` + `knowledge.md` | Remembers user preferences and key facts across sessions |
+| **AI Chat** | Conversation history + MemorySnapshot | `user.md` / `knowledge.md` / `procedures.md` | Remembers user preferences and key facts across sessions |
 | **AI Agent** | Journal + Knowledge Files | redb + Markdown files | Accumulates experience across executions: success/failure, learned patterns, device identity, mission |
 
 **Journal** is a summary of each agent execution (what was done, success/failure, lessons learned). **Knowledge Files** are long-term knowledge (device identity, mission, resources, patrol patterns).
@@ -284,7 +300,7 @@ Knowledge files that provide scenario-specific guidance to agents (YAML metadata
 
 ### Multimodal
 
-An LLM's ability to process image input. Depends on the model — after pulling a vision model (e.g. `qwen3.5:4b-vl` / `llava`) in Ollama or using a cloud vision model (`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`), AI Chat supports image uploads for visual analysis.
+An LLM's ability to process image input. Depends on the model — after pulling a vision model (e.g. `llava`) in Ollama or using a cloud vision model (`gpt-4o` / `claude-sonnet-4-6` / `gemini-2.0-flash`), AI Chat supports image uploads for visual analysis.
 
 ### VLM (Vision-Language Model)
 
@@ -564,13 +580,13 @@ A single visualization element on a dashboard. Built-in types:
 | Type | Shows | Typical use case |
 |------|-------|------------------|
 | **Value Card** | A single value | Current temperature, humidity |
-| **Line Chart** | Time-series trend | 24-hour temperature change |
-| **Gauge** | Dial-style reading | CPU usage |
-| **Data Table** | Multi-column table | Device list, history |
-| **VLM Vision** | Image + AI annotations | Object detection results |
-| **Stream Player** | Live video feed | Camera feed |
+| **Line / Bar / Pie / Area Chart** | Time-series trends and comparisons | 24-hour temperature change |
+| **Markdown Display** | Rich text content | Notes, descriptions |
+| **Image Display / Image History** | Images and snapshot records | Camera capture review |
+| **Video Display** | Video feed | Embedded monitoring view |
+| **LED Indicator / Progress Bar / Sparkline** | At-a-glance status and trends | Online status, usage |
 
-The above are the common built-in types. For the complete list of widget types, see the [Dashboard guide](../user-guide/4-use-dashboard.md). Custom components provided by extensions and the community component marketplace are also supported.
+The above are some of the common built-in types (18 in total — see the [Dashboard guide](../user-guide/4-use-dashboard.md) for the complete list). **VLM Vision** and **Stream Player** widgets are provided by extensions (they appear in the widget list once the corresponding extension is installed); the community component marketplace is supported as well.
 
 > See [Use Dashboard](../user-guide/4-use-dashboard.md).
 
@@ -624,4 +640,4 @@ How do these concepts work together? The diagram below shows the full data flow 
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-10-21*

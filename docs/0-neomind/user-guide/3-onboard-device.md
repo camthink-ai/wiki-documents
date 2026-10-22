@@ -63,7 +63,7 @@ mosquitto_pub -h 192.168.1.100 -p 1883 -t "test/my-sensor" -m '{"temperature": 2
 
 发送后，打开 Web UI → **Devices → Pending Devices** 标签页：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices 标签页 — 新发现的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png" alt="Pending Devices 标签页 — 新发现的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 如果看到了新草稿设备，说明 MQTT 已经通了。
 
@@ -94,7 +94,7 @@ neomind system info
 
 也可以在 Web UI 查看：**Settings → Device Connections**
 
-<img src="https://resources.camthink.ai/NeoMind/settings-mqtt-detail.png" alt="Settings → Device Connections：MQTT Broker 运行状态、IP 与端口" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-mqtt-detail.png" alt="Settings → Device Connections：MQTT Broker 运行状态、IP 与端口" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ### 第 2 步：让设备发送数据
 
@@ -198,11 +198,11 @@ void loop() {
 
 **操作路径**：Web UI → **Devices → Pending Devices** 标签页
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-pending.png" alt="Pending Devices 标签页 — 等待审批的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-pending.png" alt="Pending Devices 标签页 — 等待审批的草稿设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 1. 看到新设备后，点击行尾的 **Actions → Process**（操作 → 处理），弹出审批对话框：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-approve-dialog.png" alt="审批对话框 — 设备信息、检测指标、原始数据、注册表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-approve-dialog.png" alt="审批对话框 — 设备信息、检测指标、原始数据、注册表单" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 审批对话框中**注册表单置顶**，供审阅的参考信息默认折叠在后：
 
@@ -261,7 +261,7 @@ neomind device drafts approve <DRAFT_ID> --name "客厅温湿度传感器" --typ
 
 审批后，设备会出现在 Device List 标签页中：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/devices-list.png" alt="Device List 标签页 — 已接入的设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/devices-list.png" alt="Device List 标签页 — 已接入的设备" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 :::tip 觉得手动审批太麻烦？
 开启自动审批，设备发数据后自动通过（适合测试环境）：
@@ -283,7 +283,7 @@ neomind device get <DEVICE_ID>
 
 也可以在 Web UI → **Devices → Device List** 中点击设备查看实时数据曲线：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-detail-telemetry.png" alt="设备详情页 — 实时遥测数据曲线" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-detail-telemetry.png" alt="设备详情页 — 实时遥测数据曲线" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ---
 
@@ -307,7 +307,7 @@ neomind device get <DEVICE_ID>
 
 2. **点击 Manual Add**，右侧出现注册表单：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-mqtt.png" alt="Manual Add 对话框 — MQTT 模式：设备类型、ID、名称、连接设置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-manual-add-mqtt.png" alt="Manual Add 对话框 — MQTT 模式：设备类型、ID、名称、连接设置" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 #### 字段说明
 
@@ -337,7 +337,7 @@ neomind device get <DEVICE_ID>
 >
 > NeoMind 收到设备数据后，需要根据类型模板来**解析和存储**数据。没有类型，系统就不知道 `{ "t": 25.3 }` 里的 `t` 代表什么，也就无法在仪表板上正确展示。
 >
-> 内置类型包括 CamThink 硬件（NE301 边缘 AI 相机、NE101 感知相机）。你也可以在 **Devices → 设备类型（Device Types）** 标签页创建自定义类型。
+> 内置类型包括 CamThink 硬件（NE301/NE302 边缘 AI 相机、NE101 感知相机）。你也可以在 **Devices → 设备类型（Device Types）** 标签页创建自定义类型。
 
 3. **填写完毕后点击 Add**，设备创建完成。此时设备状态为 **Disconnected**（未连接），等设备开始发数据后会自动变为 Online。
 
@@ -371,7 +371,7 @@ Webhook 是单向的——设备只能向 NeoMind 发数据，**不能接收指�
 
 1. **创建 Webhook 设备**：在 Manual Add 对话框的连接设置中选择 **Webhook**：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-manual-add-webhook.png" alt="Manual Add 对话框 — Webhook 模式：Webhook URL 和 Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-manual-add-webhook.png" alt="Manual Add 对话框 — Webhook 模式：Webhook URL 和 Token" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    系统会自动生成该设备专属的 **Webhook URL**（格式：`http://<服务器IP>:9375/api/devices/<设备ID>/webhook`）。
 
@@ -440,11 +440,11 @@ neomind device webhook-url <DEVICE_ID>
 
    这里可以看到当前所有 MQTT Broker 实例，包括内置 Broker 的运行状态和连接信息：
 
-<img src="https://resources.camthink.ai/NeoMind/settings-mqtt-brokers.png" alt="MQTT Broker 管理页 — 内置 Broker 实例列表与添加按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-mqtt-brokers.png" alt="MQTT Broker 管理页 — 内置 Broker 实例列表与添加按钮" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 2. **添加外部 Broker**：点击 **Add Connection** 按钮，弹出配置对话框：
 
-<img src="https://resources.camthink.ai/NeoMind/settings-broker-add-dialog.png" alt="添加外部 Broker 对话框 — 名称、地址、端口、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/settings-broker-add-dialog.png" alt="添加外部 Broker 对话框 — 名称、地址、端口、认证" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
    | 字段 | 必填 | 说明 |
    |------|------|------|
@@ -455,7 +455,7 @@ neomind device webhook-url <DEVICE_ID>
    | **Password**（密码） | 选填 | 对应的密码 |
    | **Client ID**（客户端 ID） | 选填 | NeoMind 连接 Broker 的标识，留空自动生成 |
 
-3. **保存后测试**：添加后会自动尝试连接。在 Broker 卡片上可以看到连接状态，也可以点 **Test** 按钮手动测试。
+3. **保存后测试**：添加后会自动尝试连接。在 Broker 卡片上可以看到连接状态，也可以点 **Test Connection** 按钮手动测试。
 
 #### CLI 操作
 
@@ -474,7 +474,7 @@ neomind connector get <ID>
 neomind connector subscriptions
 ```
 
-连接成功后，外部 Broker 上符合 `device/+/+/uplink` 格式的消息会被 NeoMind 自动接收并处理。未知设备仍会进入 Pending 审批流程。
+连接成功后，NeoMind 默认订阅外部 Broker 上的**所有 topic（`#`）**——任意 topic 的数据都会被自动接收并触发设备发现；LWT / 在线状态类话题（如含 `status` 或以 `online` / `offline` 结尾）会被自动过滤，不会误建设备。未知设备仍会进入 Pending 审批流程。
 
 ## 向设备下发指令
 
@@ -494,7 +494,7 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 ### 设备生命周期
 
 ```
-新设备发送数据 → [Waiting Processing] → 审批通过 → [Online / Offline] → 可下发指令
+新设备发送数据 → [Waiting Processing] → 审批通过 → [Online / 连接中·待机 / Offline] → 可下发指令
                                          ↓
                                     审批拒绝 → 设备被丢弃
 ```
@@ -511,17 +511,20 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 
 ### 设备状态（审批后）
 
-审批通过后，设备正式注册。根据连接情况，设备会在以下状态间切换：
+审批通过后，设备正式注册。NeoMind 用两个独立信号判断设备状态：**是否有新数据**（5 分钟内有无上报）和 **MQTT 传输是否在线**，组合成四种状态：
 
 | 状态 | 含义 | 触发条件 | 颜色 |
 |------|------|---------|------|
 | **Online**（在线） | 设备已连接，正在正常发送数据 | 5 分钟内有数据上报 | 绿色 |
-| **Offline**（离线） | 设备曾经连过，但当前已断开或超时 | 曾经上报过数据，但超过 5 分钟未收到新数据 | 黄色 |
+| **Connected·Standby**（连接中·待机） | MQTT 连接还在，但没有新数据 | 曾上报过数据且连接在线，但超过 5 分钟未收到新数据 | 蓝色 |
+| **Offline**（离线） | 设备曾经连过，当前连接已断开且超时 | 曾经上报过数据，超过 5 分钟未收到新数据，且 MQTT 连接已断开 | 黄色 |
 | **Disconnected**（未连接） | 设备从未发送过数据 | 通过手动注册或 CLI 创建，但设备从未上线 | 灰色 |
 
-> NeoMind 判断设备在线的标准是 **5 分钟内是否有数据上报**。即使设备 MQTT 连接还在，如果超过 5 分钟没发数据，状态也会变为 Offline。
+> NeoMind 判断设备在线的标准是 **5 分钟内是否有数据上报**。MQTT 连接还在但超过 5 分钟没发数据时，状态会变为 **Connected·Standby（连接中·待机）** 而非 Offline；只有连接也断开时才显示 Offline。
 >
 > **Disconnected** 常见于手动注册的设备——在 Web UI 中点了 Manual Add 或用 CLI `neomind device create` 创建了设备，但设备本身还没开始发数据。等设备第一次上报数据后，状态会自动变为 Online。
+>
+> **注意**：通过外部 MQTT Broker 接入的设备，NeoMind 无法探测其 MQTT 传输状态，此时 UI 退回三态显示（Online / Offline / Disconnected），连接中·待机不会出现。
 
 ### 指令执行状态
 
@@ -539,11 +542,12 @@ NeoMind 中设备会经历不同的生命周期阶段，每个阶段对应不同
 
 NeoMind 内置 CamThink 硬件类型。在 Web UI → **Devices → 设备类型（Device Types）** 标签页可查看和管理所有类型：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/device-types.png" alt="设备类型管理页 — 内置与自定义类型" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/device-types.png" alt="设备类型管理页 — 内置与自定义类型" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | 型号 | 名称 | 特点 |
 |------|------|------|
 | **NE301** | 边缘 AI 相机 | 视频流 + AI 推理 |
+| **NE302** | 边缘 AI 相机 2 | 视频流 + AI 推理（WiFi HaLow 连接，数据协议与 NE301 兼容） |
 | **NE101** | 感知相机 | 图像 + 环境传感 |
 
 完整定义见 [NeoMind-DeviceTypes](https://github.com/camthink-ai/NeoMind-DeviceTypes)。

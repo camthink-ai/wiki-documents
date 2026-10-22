@@ -80,10 +80,10 @@ The project follows [Conventional Commits](https://www.conventionalcommits.org/)
 | `feat` | New feature | `feat(web): redesign About page with hero card` |
 | `fix` | Bug fix | `fix(devices): 4-state connection model with per-device offline timeout` |
 | `ci` | CI/CD changes | `ci: auto-cleanup old releases after publish` |
-| `chore` | Misc (deps, refactoring) | `chore: bump neomind-extension-sdk to 0.6.6` |
+| `chore` | Misc (deps, refactoring) | `chore: bump neomind-extension-sdk to 0.8.1` |
 | `docs` | Documentation | `docs: enrich extension management user guide` |
 | `refactor` | Refactoring (no behavior change) | `refactor(web): unify data source config factories` |
-| `release` | Release | `release: bump version to 0.9.23` |
+| `chore(release)` | Release | `chore(release): v1.2.2` |
 
 Common scopes: `web` (frontend), `devices`, `agent`, `extension`, `rules`, `api`, `cli`, `messages`, `storage`.
 
@@ -123,6 +123,7 @@ The project runs two GitHub Actions pipelines:
 | **Skill parser tests** | Skill parser/matcher tests |
 | **Rust lint** | `cargo fmt --check` + `cargo clippy --workspace --all-targets -- -D warnings` |
 | **Rust tests** | `cargo test --workspace --locked` (full test suite) |
+| **Desktop checks** | Compile check of `web/src-tauri` (Tauri desktop shell builds) |
 | **cargo audit** | Dependency security advisory scan |
 
 **2. Build (`.github/workflows/build.yml`)** — the release pipeline, triggered by a **tag push or manually**:

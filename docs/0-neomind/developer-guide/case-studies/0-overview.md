@@ -36,15 +36,15 @@ sidebar_label: Overview
 
 | 案例 | 源仓库版本 | SDK 版本 | 最后 audit |
 |------|-----------|----------|------------|
-| 1 weather-forecast | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 2 yolo-device-inference | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 3 yolo-video | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 4 onvif-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
-| 5 uink-rms-bridge | v2.7.6 | SDK 0.6 | 2026-06-22 |
+| 1 weather-forecast | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 2 yolo-device-inference | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 3 yolo-video | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 4 onvif-bridge | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
+| 5 uink-rms-bridge | v2.12.0 | SDK 0.7.1 | 2026-06-22 |
 | 6 metric_card | v1.7.0 | — | 2026-06-22 |
-| 7 ne101_camera | v2.14.9 | — | 2026-06-22 |
+| 7 ne101_camera | v2.14.12 | — | 2026-06-22 |
 
-> 注：自上次 audit 以来源仓库已继续演进——当前 weather-forecast 为 2.7.7，yolo-device-inference / yolo-video 为 2.7.8，ne101_camera 为 2.14.12。各案例页以页首 banner 标注的 audit 时点为准。
+> 注：表中版本列为**当前源仓库 release**（5 个扩展均为 2.12.0，构建依赖 pin 在 **neomind-extension-sdk 0.7.1**——扩展仓库 v2.12.0 tag 与当前 HEAD 的 `Cargo.toml` 均为 `neomind-extension-sdk = "0.7.1"`；平台主仓库当前 SDK 为 0.8.1，扩展批次按需 pin）；各案例正文的走读 audit 于 2026-06-22（v2.7.6 时点）锁定 commit，逐案复审进行中——各案例页以页首 banner 标注的 audit 时点为准。
 
 源仓库 release 时触发案例 audit（人工，非自动化）。
 

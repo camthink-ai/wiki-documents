@@ -15,7 +15,7 @@ This page covers NeoMind's device data model, data ingestion protocols (MQTT / W
 
 ### DeviceConfig (Device Instance)
 
-Every device connected to NeoMind is a `DeviceConfig` instance stored in `data/device_registry.redb`:
+Every device connected to NeoMind is a `DeviceConfig` instance stored in `data/devices.redb`:
 
 ```rust
 pub struct DeviceConfig {
@@ -26,6 +26,7 @@ pub struct DeviceConfig {
     pub connection_config: ConnectionConfig, // protocol-specific config
     pub adapter_id: Option<String>,  // adapter managing this device
     pub last_seen: i64,              // last active timestamp (0 = never connected)
+    // … remaining fields in source (crates/neomind-storage/src/device_registry.rs)
 }
 ```
 
@@ -46,6 +47,7 @@ pub struct ConnectionConfig {
     // Other protocol-specific params (flattened extension)
     #[serde(flatten)]
     pub extra: HashMap<String, serde_json::Value>,
+    // … remaining fields in source (Modbus host/port/slave_id/register_map, etc.)
 }
 ```
 
@@ -63,6 +65,8 @@ pub struct DeviceTypeTemplate {
     pub metrics: Vec<MetricDefinition>, // metrics provided
     pub uplink_samples: Vec<Value>,     // sample data for Simple mode
     pub commands: Vec<CommandDefinition>, // supported commands
+    pub default_offline_timeout_secs: Option<u64>, // suggested offline threshold (seconds); None = use global default
+    // … remaining fields in source (store_raw / builtin_version)
 }
 ```
 
@@ -76,6 +80,7 @@ pub struct MetricDefinition {
     pub unit: String,           // unit (e.g. "°C", "%", "hPa")
     pub min: Option<f64>,       // range (optional)
     pub max: Option<f64>,
+    // … remaining fields in source (required)
 }
 ```
 
@@ -229,7 +234,7 @@ neomind device types get <TYPE_ID>
 
 When a template references **`${request_id}`**, the platform **auto-injects a unique request ID** before sending (`req-<UUID>`; no need to declare it in `parameters`). The device only needs to echo the same value back in its response to correlate request-response, without maintaining its own sequence numbers.
 
-> For full field documentation, see the [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes). The repo currently maintains **128 device-type templates** (`types/` holds 129 files including `index.json`), of which **126 are Milesight LoRaWAN sensors**; the NE301/NE101 camera types are `mode: full` (NE301's commands carry a `payload_template`) and can be imported directly for reference.
+> For full field documentation, see the [NeoMind-DeviceTypes README](https://github.com/camthink-ai/NeoMind-DeviceTypes). The repo currently maintains **129 device-type templates** (`types/` holds 130 files including `index.json`), of which **126 are Milesight LoRaWAN sensors**; the NE301/NE101 camera types are `mode: full` (NE301's commands carry a `payload_template`) and can be imported directly for reference.
 
 ## REST API Quick Reference
 

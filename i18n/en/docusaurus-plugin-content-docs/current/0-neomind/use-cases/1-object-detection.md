@@ -122,7 +122,7 @@ The YOLO Inference extension uses ONNX models for local object detection inferen
 
 ![Extensions management page](https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/1-extensions-page.png)
 
-**Step 2**: Find the **YOLO Device Inference** extension and click Install
+**Step 2**: Find the **Yolo Device Inference** extension and click Install
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/extension-page-2.png" style={{width: '50%'}} />
@@ -135,7 +135,7 @@ The YOLO Inference extension uses ONNX models for local object detection inferen
 
 ### 4.2 Verify Inference Results
 
-Once the extension is enabled and bound to a device, it will automatically perform inference when the device captures an image. Add a YOLO Device Inference panel to the dashboard and bind the device to view inference history and captured images in the device details:
+Once the extension is enabled and bound to a device, it will automatically perform inference when the device captures an image. Add a Yolo Device Inference panel to the dashboard and bind the device to view inference history and captured images in the device details:
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/device-2.png" style={{width: '50%'}} />
@@ -232,7 +232,7 @@ Navigate to the **Dashboard** management page and click **Create Dashboard**:
 
 ### 6.2 Add YOLO Inference Panel
 
-In the dashboard, click **Add Panel**, select the **YOLO Device Inference** extension type, and bind the device:
+In the dashboard, click **Add Panel**, select the **Yolo Device Inference** extension type, and bind the device:
 
 <div style={{display: 'flex', gap: '8px'}}>
   <img src="https://resources.camthink.ai/wiki/img/ai-application/neomind/ai-agent-and-extension-solutions/dashboard-12.png" style={{width: '50%'}} />

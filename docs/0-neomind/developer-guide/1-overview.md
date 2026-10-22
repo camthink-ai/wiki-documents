@@ -65,7 +65,7 @@ NeoMind 的代码库为 AI 编程工具（如 **Claude Code**）做了专门优�
 - 桌面：Tauri 2.x
 - 协议：REST + WebSocket + SSE + MQTT 3.1.1
 
-**扩展**：Rust，依赖 `neomind-extension-sdk` crate（0.6.x），通过 FFI 宏 `neomind_export!` 导出，运行在 `neomind-extension-runner` 提供的隔离进程中。
+**扩展**：Rust，依赖 `neomind-extension-sdk` crate（0.8.x），通过 FFI 宏 `neomind_export!` 导出，运行在 `neomind-extension-runner` 提供的隔离进程中。
 
 **设备类型**：声明式 JSON，无运行时代码——只描述有哪些指标（metric）、指令（command）、默认配置。NeoMind 加载后即生效。
 

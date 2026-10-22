@@ -243,7 +243,7 @@ curl -fsSL https://raw.githubusercontent.com/camthink-ai/NeoMind/main/scripts/in
 2. 注册管理员账号(邮箱 + 密码,务必记牢——平台数据加密密钥与此绑定)
 3. 左侧导航确认"扩展"页面可正常打开
 
-平台安装细节(手动部署 / HTTPS 反代 / 数据卷备份)见 [安装与升级](/docs/neomind/user-guide/install-setup)。
+平台安装细节(手动部署 / HTTPS 反代 / 数据卷备份)见 [安装与升级](../../neomind/user-guide/install-setup)。
 
 ### 4.3 安装健身房扩展并绑定相机
 
@@ -303,7 +303,7 @@ device:
 
 - **会员库 / 区域配置 / 训练记录**:存于 NeoMind 主机数据卷,每日自动备份;相机侧无持久业务数据,换相机重跑安装脚本即可
 - **视频**:看板实时画面走相机 720p 子码流,平台不落盘原始视频。Chrome / Edge / Safari 16.4+ 通过 WebCodecs 硬解 H.264,30fps 原始流;无 WebCodecs 的旧内核浏览器自动回退为相机端彩色 JPEG 预览(约 12fps)——画面帧率差异通常来自浏览器而非系统
-- **仪表板**:建议三块——在场人数与占用总览、器械区域利用率热力、会员训练报告入口;搭建见 [使用仪表板](/docs/neomind/user-guide/use-dashboard)
+- **仪表板**:建议三块——在场人数与占用总览、器械区域利用率热力、会员训练报告入口;搭建见 [使用仪表板](../../neomind/user-guide/use-dashboard)
 
 ![健身房看板:实时监控与器械占用](/img/solutions/smart-gym/dashboard-top.webp)
 
@@ -322,7 +322,7 @@ device:
 | **Data Push** | 指定数据(到店事件、训练汇总)实时推送到业务 HTTP 端点,含重试 | 实时大屏、开门联动 |
 | **OpenAPI 拉取** | 业务系统按周期调用 REST API 拉取数据 | 日报 / 周报系统 |
 
-- 配置见 [数据转发](/docs/neomind/user-guide/7c-data-push) / [平台 API](/docs/neomind/developer-guide/rest-api)
+- 配置见 [数据转发](../../neomind/user-guide/7c-data-push) / [平台 API](../../neomind/developer-guide/rest-api)
 - **字段映射示例**:会员 ↔ 成员 ID + 姓名;到离场 ↔ 进出场事件时间戳;训练明细 ↔ 动作 × 组次;器械占用 ↔ 区域名 + 时长
 
 ## 5. 业务使用(扩展卡片详解)
@@ -493,7 +493,7 @@ gym-tracker 扩展在 NeoMind 仪表板上以一组"卡片"呈现,每张卡片�
 
 ## 了解更多
 
-- [方案说明](/docs/edge-ai-solutions/smart-gym/solution-description)
-- [NeoEyes NE503 概述](/docs/neoeyes-ne503-series/overview)
-- [NeoMind 平台文档](/docs/neomind/product-overview/what-is-neomind)
+- [方案说明](solution-description)
+- [NeoEyes NE503 概述](../../neoeyes-ne503-series/overview)
+- [NeoMind 平台文档](../../neomind/product-overview/what-is-neomind)
 - gym-tracker 扩展开源仓库:[github.com/camthink-ai/NeoMind-Extensions](https://github.com/camthink-ai/NeoMind-Extensions)

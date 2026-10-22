@@ -30,7 +30,7 @@ sidebar_position: 7.5
 
 在自动化页面切换到 **Transforms** 页签：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/automation-transforms.png" alt="数据转换页面 — 转换列表、作用域、代码摘要、启用状态" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 页面以表格形式展示所有转换，每行包含：
 
@@ -51,13 +51,13 @@ sidebar_position: 7.5
 
 在 Transforms 页签点击 **Create** 按钮，打开全屏构建器：
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/transform-builder.png" alt="转换构建器 — 左侧配置栏（名称、作用域、输出前缀），右侧代码编辑器" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 构建器采用**左右分栏**布局：
 
 | 区域 | 说明 |
 |------|------|
-| **左侧 · 配置栏** | 名称、描述、作用域、输出前缀、复杂度 |
+| **左侧 · 配置栏** | 名称、描述、作用域、输出前缀 |
 | **右侧 · 代码工作区** | JavaScript 代码编辑器 + 变量面板 + 测试栏 |
 
 ### 步骤 2：填写基本信息
@@ -67,7 +67,10 @@ sidebar_position: 7.5
 | **Name（名称）** | 转换的显示名称 |
 | **Description（描述）** | 可选，说明转换用途 |
 | **Output Prefix（输出前缀）** | 派生指标的命名前缀。如设为 `converted`，输出的指标名为 `converted.temp_f` |
-| **Complexity（复杂度）** | 1–5 的数字，用于执行顺序排序（低复杂度先执行） |
+
+:::note 复杂度无需手填
+Complexity（复杂度，1–5，用于执行顺序排序）不再作为表单字段——保存时按代码行数自动推导：超过 10 行记 3，否则记 2，低复杂度先执行。
+:::
 
 ### 步骤 3：选择作用域
 
@@ -81,7 +84,7 @@ sidebar_position: 7.5
 
 ### 步骤 4：编写转换代码
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/transform-builder-code.png" alt="转换构建器 — JavaScript 代码编辑器与变量面板" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 代码编辑器中使用 JavaScript 编写转换函数。**`input` 变量代表输入值**——单键指标对象（如 `{"temperature": 25}`）会自动解包为标量，可直接参与运算；完整输入对象用 `input_raw` 访问。`return` 一个对象作为输出：
 
@@ -112,7 +115,7 @@ return {
 同一段 `input * 9/5 + 32`，在 `{"temperature": 25}`（单键，自动解包）下正常，在 `{"temperature": 25, "humidity": 60}`（多键）下会得到 `NaN`。如果转换要跨设备类型复用、输入形态不确定，防御性写法是：`return { temp_f: (input_raw.temperature ?? input) * 9/5 + 32 }`。写完务必用[测试栏](#步骤-5测试转换)分别验证两种输入。
 :::
 
-**变量面板**：左侧的变量面板可插入设备指标和扩展数据源。选择设备类型后，该类型的所有指标会列出，点击即可插入代码。也可从扩展面板选择扩展命令生成调用代码。
+**变量面板**：编辑器右侧的变量面板可插入设备指标和扩展数据源。选择设备类型后，该类型的所有指标会列出，点击即可插入代码。也可从扩展面板选择扩展命令生成调用代码。
 
 ### 步骤 5：测试转换
 
@@ -354,6 +357,10 @@ curl -X PUT http://localhost:9375/api/automations/<id> \
   -d '{"name": "Updated Name", "definition": {"scope": "global", "js_code": "...", "output_prefix": "converted", "complexity": 2}}'
 ```
 
+:::note
+`definition.complexity` 可省略，服务端缺省记 2；「>10 行 → 3」的推导仅 Web 构建器保存时执行，纯 API 创建时不会自动推导。显式传入的值兼容保留。
+:::
+
 ## 导入 / 导出
 
 Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也可以在单个转换的操作菜单中选择 **Export** 导出单个转换。
@@ -374,13 +381,13 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 
 - **善用 Output Prefix**：为不同转换设置不同前缀（如 `converted`、`status`、`aggregated`），避免指标名冲突
 - **先测试再保存**：构建器的 Test 功能可快速验证代码逻辑，无需等真实数据
-- **Complexity 排序**：依赖其他转换输出的转换设更高复杂度，确保执行顺序正确
+- **执行顺序**：复杂度按代码行数自动推导（>10 行 → 3，否则 2）——依赖其他转换输出的转换通常代码更长、天然靠后执行；若依赖顺序关键，保持上游转换简短即可
 - **作用域最小化**：能用 Device Type 就不用 Global，减少不必要的转换开销
 - **代码简洁**：转换对每条数据执行，保持代码轻量（避免复杂循环/递归）
 
 ## 移动端
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/automation-transforms-mobile.png" alt="数据转换移动端 — 单列表格自适应" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 移动端自动切换为单列布局，支持查看列表、切换状态。编辑转换请在桌面端操作（代码编辑器需要大屏空间）。
 
@@ -392,4 +399,4 @@ Transforms 页签右上角的 **Import / Export** 按钮支持批量管理。也
 
 ---
 
-*最后更新: 2026-09-09*
+*最后更新: 2026-10-21*

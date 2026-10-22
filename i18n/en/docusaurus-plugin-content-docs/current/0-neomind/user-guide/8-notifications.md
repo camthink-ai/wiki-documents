@@ -10,7 +10,7 @@ sidebar_position: 8
 
 NeoMind's **message system** routes device alerts, rule triggers, AI Agent analysis results, and system events to the channels you configure. Every message lands in the **in-app notification center** first, then fans out to your enabled external channels. It supports **7 external message channels** (Webhook, Email, Telegram, WeCom, DingTalk, Slack, Feishu) with simultaneous multi-channel fan-out and per-channel message filtering.
 
-> The message system lives under **Messages** (bell icon) in the left nav. Two tabs: **Messages** (notification center, browse alert history) and **Channels** (channel configuration).
+> The message system lives under **Messages** (bell icon) in the left nav. Three tabs: **Messages** (notification center, browse alert history), **Channels** (channel configuration), and **IM Sessions** (IM bridge sessions, see [AI Chat — IM Bridging](./5-ai-chat.md#chat-from-telegram--feishu-im-bridges)).
 
 ## Supported Channels
 
@@ -34,7 +34,7 @@ NeoMind **does not support SMS**. For SMS alerts, use a Webhook channel to bridg
 
 Open the **Messages** page — the default view is the notification center:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-list.png" alt="Messages list — severity, status, category, source, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Each message contains:
 
@@ -45,7 +45,7 @@ Each message contains:
 | **Body** | Message content (click row to expand full content) |
 | **Category** | `alert` / `system` / `business` / `notification` + backend-extensible arbitrary categories |
 | **Source** | Triggering source: `device` / `rule` / `telemetry` / `schedule` / `llm` / `system` |
-| **Status** | `active` / `acknowledged` / `resolved` / `archived` |
+| **Status** | `active` / `acknowledged` / `resolved` / `archived` / `false_positive` (marked as false positive) |
 | **Time** | Created and last-updated timestamps |
 | **Actions** | Acknowledge / Resolve / Archive / Delete |
 
@@ -55,7 +55,7 @@ Each message contains:
 
 Switch to the **Channels** tab to see all channels:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channels.png" alt="Channels list — name, type, status, stats, actions" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The top shows summary cards (Total channels / Enabled / Channel type count). Below is the channel list. Each channel card shows:
 
@@ -68,7 +68,7 @@ The top shows summary cards (Total channels / Enabled / Channel type count). Bel
 
 Click **Create** to open the full-screen channel editor:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create.png" alt="Channel editor — left sidebar type picker, right config form (Webhook selected by default)" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The editor uses a **split-pane** layout:
 - **Left sidebar**: Lists the 7 channel types; click to switch
@@ -89,7 +89,7 @@ All external channels need:
 
 The most flexible channel — bridges to any HTTP endpoint.
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-create-webhook.png" alt="Webhook channel config — URL, method, auth type, timeout" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-webhook.png" alt="Webhook channel config — URL, method, auth type, timeout" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | Example |
 |------|-------------|---------|
@@ -110,7 +110,7 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 ### Email Channel
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-email.png" alt="Email channel config — SMTP server, port, from address, auth" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | Example |
 |------|-------------|---------|
@@ -122,11 +122,13 @@ The most flexible channel — bridges to any HTTP endpoint.
 
 :::tip Recipients are managed separately
 After saving the Email channel, use **Manage Recipients** in the channel action menu to add/remove recipient addresses — no need to reopen the channel editor.
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-recipients.png" alt="Manage Recipients dialog — add recipient emails and manage the list" style={{width: '70%', display: 'block', margin: '0 auto', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 :::
 
 ### Telegram Channel
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-create-telegram.png" alt="Telegram channel config — Bot Token, Chat ID" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 | Field | Description | How to Get |
 |------|-------------|------------|
@@ -186,7 +188,7 @@ Always **Test before enabling** in production to avoid silent alert failures.
 
 Each channel can have its own **message filter** deciding which messages get forwarded. Click **Configure Filter** in the channel action menu to open the filter dialog:
 
-<img src="https://resources.camthink.ai/NeoMind/messages-channel-filter.png" alt="Channel filter config — source types, categories, minimum severity" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/messages-channel-filter.png" alt="Channel filter config — source types, categories, minimum severity" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 Filters have three groups:
 
@@ -270,7 +272,7 @@ Some system events (device offline, extension crash-loop stop, low storage) auto
 
 ## Message Lifecycle
 
-Messages have 4 statuses forming a complete handling workflow:
+Messages have 5 statuses; 4 of them form a complete handling workflow:
 
 ```
 active → acknowledged → resolved → archived
@@ -282,6 +284,7 @@ active → acknowledged → resolved → archived
 | **Acknowledged** | Ops staff have seen it and are working on it | Click **Acknowledge** |
 | **Resolved** | Issue fixed | Click **Resolve** |
 | **Archived** | Archived, no longer active | Click **Archive** |
+| **False Positive** | A verdict on alert quality (false alarm), **not** part of the active → archived workflow | Click **Mark as false positive** (or `POST /api/messages/{id}/false-positive`) |
 
 **Actions**:
 - Single message: click the corresponding button on the message row
@@ -428,8 +431,8 @@ curl -X DELETE http://localhost:9375/api/messages/channels/ops-webhook \
 
 Once created, a message is permanently stored in the notification center; it is then sent **once to each enabled channel** (after passing that channel's filter):
 
-- **No automatic retry**: A channel send failure (timeout, auth failure, target error) is only logged and **not retried automatically**. Use **Test** on the channel to verify connectivity. For data forwarding with retry semantics, use [Data Push](./7c-data-push.md) (exponential-backoff retries and delivery history).
-- **Dedup window**: Messages with the same (title, source, severity) are sent to channels at most once per **60-second** window, preventing notification storms from high-frequency rule triggers; the message itself still appears in the notification center.
+- **Bounded retry only**: A channel send failure (timeout, auth failure, target error) is retried automatically — up to **3 attempts** with short second-level backoff (1s / 2s) — but there is no delivery history to inspect. Use **Test** on the channel to verify connectivity. For data forwarding with full retry semantics (exponential backoff + delivery history), use [Data Push](./7c-data-push.md).
+- **Dedup window**: Messages with the same (title, source, severity) are sent to channels at most once per **60-second** window, preventing notification storms from high-frequency rule triggers; the message itself still appears in the notification center. Rule-triggered messages dedupe on "rule identity + severity" (so different rules never swallow each other); (title, source, severity) is only the fallback key when no rule identity is present.
 - **Semantic error detection**: Channel tests inspect the response body (e.g. Feishu/DingTalk `code != 0`, Telegram `ok: false`) — HTTP 200 with a semantic failure counts as a failure.
 
 ## Typical Scenarios
@@ -479,4 +482,4 @@ When a critical alert fires, all three channels receive it — no missed alerts 
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

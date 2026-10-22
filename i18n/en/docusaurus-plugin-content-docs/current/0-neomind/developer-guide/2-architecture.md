@@ -104,7 +104,7 @@ Spawned and supervised by `neomind-extension-runner`:
 
 ## Event Bus
 
-`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly. The `NeoMindEvent` enum (`crates/neomind-core/src/event.rs`) has **45 variants**, grouped by domain:
+`neomind-core::event_bus` is the nervous system that decouples components. All cross-module communication flows through events — modules never import each other directly. The `NeoMindEvent` enum (`crates/neomind-core/src/event.rs`) has **42 variants**, grouped by domain:
 
 | Domain | Events (`NeoMindEvent` variants) | Typical subscribers |
 |----|------|--------|
@@ -127,7 +127,7 @@ Spawned and supervised by `neomind-extension-runner`:
 
 ```rust
 // crates/neomind-core/src/event.rs
-pub enum NeoMindEvent { /* 45 variants, serialized by variant name */ }
+pub enum NeoMindEvent { /* 42 variants, serialized by variant name */ }
 ```
 
 The variant names are authoritative: update this table when adding events.

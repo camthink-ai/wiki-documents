@@ -80,10 +80,10 @@ npm run test           # Vitest 单元测试
 | `feat` | 新功能 | `feat(web): redesign About page with hero card` |
 | `fix` | Bug 修复 | `fix(devices): 4-state connection model with per-device offline timeout` |
 | `ci` | CI/CD 变更 | `ci: auto-cleanup old releases after publish` |
-| `chore` | 杂项（依赖升级、重构） | `chore: bump neomind-extension-sdk to 0.6.6` |
+| `chore` | 杂项（依赖升级、重构） | `chore: bump neomind-extension-sdk to 0.8.1` |
 | `docs` | 文档 | `docs: enrich extension management user guide` |
 | `refactor` | 重构（不改行为） | `refactor(web): unify data source config factories` |
-| `release` | 发布 | `release: bump version to 0.9.23` |
+| `chore(release)` | 发布 | `chore(release): v1.2.2` |
 
 常用 scope：`web`（前端）、`devices`、`agent`、`extension`、`rules`、`api`、`cli`、`messages`、`storage`。
 
@@ -123,6 +123,7 @@ cd web && npm run lint && npm run build:check
 | **Skill parser tests** | 技能解析器测试 |
 | **Rust lint** | `cargo fmt --check` + `cargo clippy --workspace --all-targets -- -D warnings` |
 | **Rust tests** | `cargo test --workspace --locked`（全量测试） |
+| **Desktop checks** | `web/src-tauri` 编译检查（Tauri 桌面壳可编译） |
 | **cargo audit** | 依赖安全公告扫描 |
 
 **2. Build（`.github/workflows/build.yml`）**——发布流水线，由 **tag push 或手动触发**：

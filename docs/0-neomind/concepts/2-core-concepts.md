@@ -42,7 +42,7 @@ flowchart TB
     end
 
     DEV["IoT 设备<br/>传感器 · 摄像头 · 控制器"]:::device
-    LLM["LLM 后端<br/>Ollama · OpenAI · GLM"]:::external
+    LLM["LLM 后端<br/>内置模型 · Ollama · 云端"]:::external
     EXT["扩展进程（隔离）<br/>YOLO · OCR · 设备桥接"]:::extension
     TARGET["通知目标<br/>邮件 · 飞书 · 钉钉 · Slack · TG"]:::external
 
@@ -76,7 +76,7 @@ flowchart TB
 | **扩展系统 (Extension)** | — | 进程隔离 + FFI | 视觉 AI (YOLO/OCR)、设备桥接 (Modbus/OPC-UA)，独立进程不影响主服务 |
 
 :::info 为什么不用外部依赖？
-所有核心组件共享同一个 redb 存储文件，数据写入一次，多路消费——不需要 PostgreSQL、Mosquitto 或 Redis。唯一可选的外部依赖是 LLM（Ollama 本地或云端 API）。扩展系统以独立进程运行，通过 FFI 与主服务通信。
+所有核心组件共享同一个 redb 存储文件，数据写入一次，多路消费——不需要 PostgreSQL、Mosquitto 或 Redis。唯一可选的外部依赖是 LLM——内置模型本地一键下载（完全离线），也可接 Ollama 或云端 API。扩展系统以独立进程运行，通过 FFI 与主服务通信。
 :::
 
 ---
@@ -117,7 +117,7 @@ flowchart LR
 发现 topic：{discovery_prefix}/announce
 ```
 
-设备发布到上行 topic 的 JSON 会被自动解析为遥测数据写入存储（手动添加设备时按此约定；已识别类型或走自动发现的设备也可以向任意 topic 发布，数据会先进入**待审批列表**，确认后完成注册）。支持 [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) 协议——设备发一条 announce 消息即可自动注册。
+设备发布到上行 topic 的 JSON 会被自动解析为遥测数据写入存储（手动添加设备时按此约定上报）。**未注册**的设备无论从哪个 topic 发布，数据都会先进入**待审批列表**，审批后才正式完成注册。支持 [MQTT Auto-Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) 协议——设备发一条 announce 消息即可自动注册。
 
 **Webhook（无状态）** — 适合一次性推送或不方便跑 MQTT 客户端的场景：
 
@@ -127,7 +127,7 @@ curl -X POST http://localhost:9375/api/devices/<DEVICE_ID>/webhook \
   -d '{"temperature": 25.6, "humidity": 60}'
 ```
 
-首次 webhook 推送会自动创建设备（如果设备不存在）。
+未知设备的首次 webhook 上报**不会直接创建设备**——数据照常入库，同时该设备会进入 **Pending Devices（待注册）列表**，审批后才正式创建。
 
 ### 数据结构
 
@@ -168,9 +168,9 @@ curl "http://localhost:9375/api/telemetry?source=device:demo-sensor&metric=tempe
 
 ### 数据保留与清理
 
-Telemetry 默认**永久保留**，但可配置自动清理策略（Settings → System → Retention）：
+Telemetry **默认开启自动清理**：指标保留 30 天、图像类数据 3 天、会话永久保留，可在设置 → Preferences → 数据管理中调整或设为永久：
 
-- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）；普通指标与图像类数据可分别设置保留期，清理周期亦可配置
+- **按时长**：超过 N 天的数据自动删除（例如保留 90 天）；普通指标、图像类数据与会话可分别设置保留期，清理周期亦可配置
 
 策略由后台任务定期执行，不影响实时写入性能。
 
@@ -318,7 +318,7 @@ NeoMind 的 AI 共用同一个 Think-Act-Observe 循环，但有两种触发方�
 | **AI Chat**（对话） | 用户输入消息 | 对话历史 + MemorySnapshot | 实时流式输出 | "查一下传感器状态"、"把这张图里的物体识别出来" |
 | **AI Agent**（自主） | 定时器 / 事件 | Journal + Knowledge Files | 后台静默执行 | "每 5 分钟巡检设备"、"温度异常时立即分析" |
 
-**AI Chat** 偏向交互——用户提问，AI 实时调用工具并流式回复，支持上传图片做多模态分析；**AI Agent** 偏向自主——按计划或事件触发，后台独立完成任务并在 Journal 记录经验。两者共享同一套工具（neomind CLI + 扩展 commands）。
+**AI Chat** 偏向交互——用户提问，AI 实时调用工具并流式回复，支持上传图片做多模态分析；**AI Agent** 偏向自主——按计划或事件触发，后台独立完成任务并在 Journal 记录经验。两者共享同一套工具（neomind CLI + 扩展 commands）。此外 Agent 还有第三种执行形态——**结构化模式**：按 Schema 约束输出字段，结果自动落地为 `ai:{agent_id}:{字段}` 虚拟指标，供仪表板与规则消费（详见 [AI Agent — 结构化模式](../user-guide/6-ai-agent.md#结构化模式l0-算子)）。
 
 ### 调度方式（仅 AI Agent）
 
@@ -349,7 +349,7 @@ Agent 通过 `neomind` CLI 命令操作一切——管理设备、创建规则�
 
 | 模式 | 记忆结构 | 作用 |
 |------|---------|------|
-| **AI Chat** | 对话历史 + MemorySnapshot（`user.md` + `knowledge.md`） | 跨会话记住用户偏好与关键事实 |
+| **AI Chat** | 对话历史 + MemorySnapshot（`user.md` / `knowledge.md` / `procedures.md`） | 跨会话记住用户偏好、关键事实与操作手册 |
 | **AI Agent** | Journal（redb）+ Knowledge Files（Markdown） | 跨执行积累经验：成功/失败、学到的规律、设备身份、任务使命、巡检模式 |
 
 <details>
@@ -443,7 +443,7 @@ NeoMind 使用嵌入式 redb 数据库，数据目录默认在 `data/`：
 | `extensions/` | 扩展二进制与配置 |
 | `logs/` | 运行日志 |
 
-数据保留时间可配置（默认永久保留），老数据按策略自动清理。
+数据保留时间可配置（默认开启自动清理：指标 30 天、图像 3 天、会话永久），老数据按策略自动清理。
 
 > 详见 [系统要求 — 数据存储](../product-overview/4-system-requirements.md#数据存储)。
 
@@ -480,4 +480,4 @@ NeoMind 也支持云端 LLM（OpenAI / Anthropic / GLM / DeepSeek 等）。核�
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*

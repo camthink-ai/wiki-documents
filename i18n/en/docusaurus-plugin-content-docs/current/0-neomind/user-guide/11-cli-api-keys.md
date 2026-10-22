@@ -19,7 +19,7 @@ cd /path/to/neomind    # cd to project root
 neomind device list     # just works
 ```
 
-> Auto-auth resolves the data directory in this order: the `NEOMIND_DATA_DIR` env var → the platform user data dir (when it contains `api_keys.redb`) → the relative `data/` path (project-root fallback). A credential saved by `neomind login` takes top priority and works from any directory.
+> Auto-auth resolves the data directory in this order: the `NEOMIND_DATA_DIR` env var → the platform user data dir (when it contains `api_keys.redb` or `users.redb`) → server deployment dirs (the one-click install's systemd unit WorkingDirectory, `/var/lib/neomind`, `/opt`, and similar defaults) → the relative `data/` path (project-root fallback). A credential saved by `neomind login` takes top priority and works from any directory.
 :::
 
 ## When You Need a Manual Key
@@ -35,7 +35,7 @@ neomind device list     # just works
 ## Getting Your Real API Key
 
 :::warning Documentation Keys Are Placeholders
-All `nmk_xxx` values in this documentation are **placeholders** — they will not work. Your real key is printed to **stdout** (terminal output) at server startup and is **not written to log files**. `neomind api-key list` only shows masked values (`nmk_****`) and cannot recover the full key.
+All `nmk_xxx` values in this documentation are **placeholders** — they will not work. Your real key is printed to **stdout** (terminal output) at server startup and is **not written to log files**. `neomind api-key list` never echoes any key value (only ID / name / active status / creation time) and cannot recover the full key.
 :::
 
 The server prints a banner with the key at startup:
@@ -90,8 +90,29 @@ neomind device list
 neomind dashboard list
 ```
 
+## Remote Server: Point the CLI at It
+
+For remote use you need the key **and** the server URL. Two ways:
+
+**Option 1: `neomind login` (recommended, persisted)**
+
+```bash
+neomind login http://<server-IP>:9375
+# enter the API key (or username/password) when prompted; credentials are saved for use in any directory
+```
+
+**Option 2: environment variables (temporary)**
+
+```bash
+export NEOMIND_API_BASE=http://<server-IP>:9375/api
+export NEOMIND_API_KEY=nmk_your-real-key
+neomind device list
+```
+
+> When both are set, `neomind login` credentials win. A correct key with the wrong URL still fails with 401/connection errors — verify `curl http://<server-IP>:9375/api/health` first.
+
 If you get 401, see [Troubleshooting → CLI 401](./10-troubleshooting.md#cli-commands-return-401-unauthorized).
 
 ---
 
-*Last updated: 2026-09-08*
+*Last updated: 2026-10-21*

@@ -15,7 +15,7 @@ NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API �
 |----|----|
 | Base URL | `http://<SERVER_IP>:9375/api` |
 | 交互式 API 控制台 | `http://<SERVER_IP>:9375/api/docs`（Scalar，可浏览可调试） |
-| OpenAPI 3 规范 | `GET /api/docs/openapi.json`（354 个操作、278 个路径、136 个 schema） |
+| OpenAPI 3 规范 | `GET /api/docs/openapi.json`（截至 1.2.2：360 个操作、284 个路径、142 个 schema） |
 | 路由清单（机器可读，含鉴权类） | `GET /api/docs/routes.json` |
 | 端点定义（源码） | `crates/neomind-api/src/server/router.rs` |
 | 默认端口 | 9375（可用 `--port` 或 `NEOMIND_PORT` 环境变量改） |
@@ -24,7 +24,7 @@ NeoMind 后端用 Axum 提供 REST API。本文给出**面向集成商的 API �
 
 ## OpenAPI 规范与工具链
 
-自 **0.9.24** 起，OpenAPI 3.0 规范覆盖**全部** REST 操作——334/338 个 handler 带完整注解（其余 4 个是通配路由，见下文"诚实边界"），136 个 schema 全部注册、135 个 `$ref` 全部可解析。这意味着你可以直接把规范导入任何标准工具，或生成强类型客户端。
+自 **0.9.24** 起（0.9.x 为旧平台版本线，现版本为 1.2.x，下同），OpenAPI 3.0 规范覆盖**全部** REST 操作——所有非通配操作带完整注解（其余 4 个是通配路由，见下文"诚实边界"），全部 schema 注册、`$ref` 全部可解析（截至 1.2.2：360 个操作、142 个 schema）。这意味着你可以直接把规范导入任何标准工具，或生成强类型客户端。
 
 ### 下载规范文件
 
@@ -38,7 +38,7 @@ curl -o neomind-openapi.json http://<SERVER_IP>:9375/api/docs/openapi.json
 
 浏览器打开 `/api/docs` 即用，无需安装任何东西：
 
-1. 左侧按业务域 tag 分组（devices、rules、agents、dashboards……共 37 组），点开展开每个端点的参数、请求体 schema 与响应码说明；
+1. 左侧按业务域 tag 分组（devices、rules、agents、dashboards……共 39 组），点开展开每个端点的参数、请求体 schema 与响应码说明；
 2. 点击任一端点 → **Try it out** → 填参数/请求体 → **Execute**，右侧直接看到真实响应（含响应头与耗时）；
 3. **鉴权**：规范本身不内嵌 security 定义（鉴权类见下表，端点粒度的权威来源是 `routes.json`），调试受保护端点时需手动加请求头——在控制台的请求参数区给该请求添加 Header `X-API-Key: <你的key>`（或 `Authorization: Bearer <JWT>`）；
 4. 控制台右上角可导出规范文件（OpenAPI JSON）。
@@ -264,7 +264,23 @@ HTTP 状态码遵循惯例：4xx 客户端错误、5xx 服务端错误。从 `er
 | POST | `/agents/:id/status` | 控制运行（body `{"status": "active"}` / `"paused"`） |
 | GET | `/agents/:id/executions` | 执行历史 |
 
-> **创建 Agent 必填字段**：`user_prompt`（必填）、`schedule: {"schedule_type": "..."}`（必填）。无资源绑定时需 `execution_mode: "free"`。
+> **创建 Agent 必填字段**：`user_prompt`（必填）、`schedule: {"schedule_type": "..."}`（必填）。无资源绑定时需 `execution_mode: "free"`。支持**结构化输出**：创建时传 `output_schema`（JSON Schema，Agent 执行结果按 schema 约束返回）；`operator_config` 可为操作员型 Agent 配置执行策略。
+
+### Builtin LLM（内置 LLM）
+
+平台内置 LLM 运行时（本地模型）的管理端点，全部在 `/builtin-llm` 前缀下（共 9 个，截至 1.2.2）：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/builtin-llm/status` | 内置 LLM 运行状态 |
+| GET | `/builtin-llm/models` | 列出可用的内置模型 |
+| DELETE | `/builtin-llm/model` | 删除当前模型 |
+| POST | `/builtin-llm/download` | 下载模型（**长任务**，见"诚实边界"） |
+| POST | `/builtin-llm/download/cancel` | 取消进行中的下载 |
+| POST | `/builtin-llm/import-local` | 导入本地模型文件（**长任务**） |
+| POST | `/builtin-llm/upload-model` | 上传模型文件（**长任务**） |
+| POST | `/builtin-llm/activate` | 激活指定模型 |
+| POST | `/builtin-llm/restart` | 重启内置 LLM 运行时 |
 
 ### LLM Backends（LLM 后端）
 

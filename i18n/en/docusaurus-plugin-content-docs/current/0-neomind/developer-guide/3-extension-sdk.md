@@ -6,7 +6,7 @@ tags: [NeoMind, Developer Guide]
 
 # Extension SDK
 
-The `neomind-extension-sdk` crate (latest v0.6.6) is the core library for writing NeoMind extensions. It defines the `Extension` trait, metadata / metric / command types, and the `neomind_export!` macro that turns your impl into an FFI entry point the main process's `neomind-extension-runner` can load.
+The `neomind-extension-sdk` crate (latest v0.8.1) is the core library for writing NeoMind extensions. It defines the `Extension` trait, metadata / metric / command types, and the `neomind_export!` macro that turns your impl into an FFI entry point the main process's `neomind-extension-runner` can load.
 
 > This page covers the SDK itself. For the end-to-end build flow, see [Extension Development](./7-extension-development.md).
 
@@ -42,7 +42,7 @@ name = "neomind_extension_my_extension"   # prefix MUST be neomind_extension_
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-neomind-extension-sdk = "0.6.6"   # or path = "../NeoMind/crates/neomind-extension-sdk"
+neomind-extension-sdk = "0.8.1"   # or path = "../NeoMind/crates/neomind-extension-sdk"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 async-trait = "0.1"
@@ -84,7 +84,7 @@ pub trait Extension: Send + Sync {
     fn status(&self) -> String { /* ... */ }
     fn descriptor(&self) -> Option<ExtensionDescriptor> { None }
     fn metrics(&self) -> Vec<MetricDescriptor> { vec![] }
-    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // CommandDescriptor is aliased as ExtensionCommand
+    fn commands(&self) -> Vec<CommandDescriptor> { vec![] }   // ExtensionCommand is an alias of CommandDescriptor (pub type ExtensionCommand = CommandDescriptor)
     fn produce_metrics(&self) -> Result<Vec<ExtensionMetricValue>> { Ok(vec![]) }
     fn get_stats(&self) -> ExtensionStats { ExtensionStats::default() }
     async fn health_check(&self) -> Result<bool> { Ok(true) }
@@ -139,7 +139,7 @@ pub extern "C" fn neomind_extension_abi_version() -> u32 { 3 }
 | `set_output_sender()` | push mode starts | save the output channel for later push |
 | `start_push()` / `stop_push()` | push starts/stops | start/stop the background push task |
 
-> **Push frame format (0.9.23+)**: Push extension output reaches the frontend via the `/api/extensions/:id/stream` WS endpoint. Once the client passes `{"binary": true}` in the `init` config and the server confirms it via `session_created.binary`, binary payloads from `send_push_output` (JPEG/PCM etc.) travel directly as WS Binary frames (`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`) without base64; when not negotiated it automatically falls back to the legacy Text + base64 — extension code needs no changes at all, as negotiation is handled entirely by the host and the frontend.
+> **Push frame format (0.9.23+; the 0.9.x line is the legacy platform version line — the current line is 1.2.x, where this feature remains available)**: Push extension output reaches the frontend via the `/api/extensions/:id/stream` WS endpoint. Once the client passes `{"binary": true}` in the `init` config and the server confirms it via `session_created.binary`, binary payloads from `send_push_output` (JPEG/PCM etc.) travel directly as WS Binary frames (`[kind u8][version u8][sequence u64][meta_len u32][meta JSON][payload]`) without base64; when not negotiated it automatically falls back to the legacy Text + base64 — extension code needs no changes at all, as negotiation is handled entirely by the host and the frontend.
 
 ## Metadata / Metric / Command
 
@@ -251,7 +251,7 @@ Extensions call platform capabilities via `CapabilityContext`. Below is the comp
 ### Invoking Capabilities
 
 ```rust
-use neomind_extension_sdk::capability::CapabilityContext;
+use neomind_extension_sdk::capabilities::CapabilityContext;
 
 async fn execute_command(&self, cmd: &str, args: &Value) -> Result<Value> {
     let ctx = CapabilityContext::default();
@@ -317,11 +317,13 @@ Extensions must support every NeoMind target platform — one binary per platfor
 # 1. Build locally
 cargo build --release
 
-# 2. Copy the artifact into NeoMind's extension dir
-cp target/release/libneomind_extension_my_extension.* ~/.neomind/extensions/my-extension/
+# 2. Copy the artifact into NeoMind's extension scan dir (data/extensions/,
+#    i.e. the extensions/ folder under the data dir; override with $NEOMIND_DATA_DIR.
+#    Note: ~/.neomind/ is NOT a scan location)
+cp target/release/libneomind_extension_my_extension.* data/extensions/my-extension/
 
-# 3. Trigger discovery
-curl -X POST http://localhost:9375/api/extensions/discover
+# 3. Trigger a scan (sync-scans and installs packages in the extension dir)
+curl -X POST http://localhost:9375/api/extensions/sync
 
 # 4. Check whether the runner loaded it
 # Web UI: Extensions page (Loaded / Crashed / Disabled)

@@ -105,7 +105,7 @@ NeoMind 运行时由**两类进程**组成：
 
 ## 事件总线
 
-`neomind-core::event_bus` 是组件解耦的神经系统。所有跨模块通信走事件，不直接 import 对方。事件枚举 `NeoMindEvent`（`crates/neomind-core/src/event.rs`）共 **45 个变体**，按域分组：
+`neomind-core::event_bus` 是组件解耦的神经系统。所有跨模块通信走事件，不直接 import 对方。事件枚举 `NeoMindEvent`（`crates/neomind-core/src/event.rs`）共 **42 个变体**，按域分组：
 
 | 域 | 事件（`NeoMindEvent` 变体） | 典型订阅者 |
 |----|------|--------|
@@ -128,7 +128,7 @@ NeoMind 运行时由**两类进程**组成：
 
 ```rust
 // crates/neomind-core/src/event.rs
-pub enum NeoMindEvent { /* 45 个变体，见上表；serde 按变体名序列化 */ }
+pub enum NeoMindEvent { /* 42 个变体，见上表；serde 按变体名序列化 */ }
 ```
 
 以变体名为准：新增事件时同步更新本表。

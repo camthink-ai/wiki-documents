@@ -18,15 +18,15 @@ AI Agent is NeoMind's **autonomous execution mode** — you set goals and trigge
 
 Click **Agents** (bot icon) in the left nav to open the Agent management page:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agents-list.png" alt="AI Agent list — card grid showing all agents with status, schedule type, last execution time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agents-list.png" alt="AI Agent list — card grid showing all agents with status, schedule type, last execution time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The page displays all agents in a **card grid**, each card showing:
 
 | Info | Description |
 |------|-------------|
 | **Agent Name** | The name you set (e.g. "Temperature Patrol", "Energy Report") |
-| **Status Badge** | Active / Paused / Executing / Error |
-| **Schedule** | Cron expression / Interval / Event |
+| **Status Badge** | Active / Paused / Executing / Error / Completed (manual task ready) |
+| **Schedule** | Timer / Data-driven / On Demand |
 | **Last Run** | Time and result of the most recent execution |
 
 The page has four tabs at the top: **Agents** (agent list), **Memory** (system memory), **Skills** (skill management), and **Tools** (tool management).
@@ -37,68 +37,106 @@ Knowledge files that provide Agents with scenario-specific operational guidance 
 
 ## Creating an Agent
 
-When creating, start from a **template** — 11 presets cover the common shapes (image understanding, data monitoring, smart task, scheduled report, event judgement, root cause, weekly report, shift check, plus the 1.1.1 additions **scheduled patrol** — rounds on a clock that also remediates what it can — and **data Q&A** — answers only from the bound sources, on demand). A template is a starting point, not a lock: every field it fills stays visible and editable, and it never binds resources for you.
-
+1.2.x organizes the editor around "describe the task first, then configure execution" in three sections: **What should the AI do**, **What it records**, and **When it runs**. You can start from a template at the top — a template is a starting point, not a lock: every field it fills stays visible and editable, and it never binds resources for you.
 
 Click the **Create AI Agent** button in the top right to open the full-screen editor:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor.png" alt="AI Agent editor — left side has basic info and prompt, right side has execution mode and schedule config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-editor.png" alt="AI Agent editor — left side has basic info and prompt, right side has execution mode and schedule config" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-The editor is split into left and right columns. Here's what each field means:
+### Template Gallery
 
-### 1. Name & Prompt (Left)
+The editor ships with 11 presets covering the most common task shapes:
+
+| Template | Best for |
+|------|---------|
+| **Image Understanding** | Look at a camera frame, describe the key points, judge status (normal / abnormal) |
+| **Data Monitoring** | Scheduled multi-source readings recorded as data: overall status + abnormal item count |
+| **Smart Task** | Analysis plus action: investigate the cause, then command bound devices directly when needed |
+| **Scheduled Report** | Summarize the past 24 hours into a brief on a schedule |
+| **Event Judgement** | One verdict per data arrival — normal / worth watching / something is wrong |
+| **Root Cause Analysis** | Multi-source investigation with most likely cause, confidence, and next step |
+| **Weekly Report / Shift Check** | Whole-week summary and comparison / a quick glance every half hour, reporting only changes |
+| **Scheduled Patrol** | Rounds on a clock; remediates what it can (restart a device, resend a command) and verifies the fix |
+| **Data Q&A** | Ask anytime; answers strictly from bound data, with timestamp and source for every number |
+| **Advanced Task** | No template — write your own (state goal, inputs, criteria, and actions) |
+
+### What should the AI do
 
 - **Name**: 1–100 characters, easy to identify (e.g. "Energy Patrol", "Device Health Monitor")
-- **Description**: Optional, brief summary of the agent's purpose
-- **User Prompt**: Tell the Agent what to do. 1–10000 characters.
+- **Requirement**: Tell the Agent what to do (the `user_prompt` in the API). 1–10000 characters
+- **Description**: Optional, ≤500 characters
+- **LLM backend (optional)**: see [LLM Backend](#llm-backend) below
+- **Data & commands**: click **Add Resources** to bind device metrics / extension metrics / devices / commands / extension tools. How much to bind depends on the work style below: in Focused mode this is the AI's entire input, collected automatically at run time; in Free mode it's optional preloaded data — unbound, the AI finds things itself with tools
+- **How it works**: choose the AI's boundary of action — the execution mode
 
-Example prompt:
+| Option | Mode | Behavior | Best for |
+|------|---------|------|---------|
+| **Bound data only** | Focused | Answers strictly from bound devices and data sources — no extra lookups; single-pass, token-efficient | Monitoring, alerts, data analysis |
+| **Explore and act** | Free | May run tools over multiple rounds before answering | Complex automation, device control, exploratory tasks |
 
-> Check the latest readings from all temperature and humidity sensors. If any sensor reports temperature above 35C, notify the ops team via Slack and log an alert on the dashboard. If all devices are normal, give a brief summary.
-
-### 2. Execution Mode (Right)
-
-| Mode | Description | Best For |
-|------|-------------|----------|
-| **Focused** | Binds specific resources; Agent works within defined scope, single-pass analysis, token-efficient | Monitoring, alerts, data analysis |
-| **Free** | No resource binding; LLM freely explores with all tools, multi-round reasoning | Complex automation, device control, exploratory tasks |
-
-**Focused mode** requires bound resources (device metrics / extension metrics / devices / extension tools). The Agent only collects and analyzes data within the bound scope. Scope validation rejects commands outside bound resources.
-
-**Free mode** needs no resource binding. The LLM has access to all tools (device / rule / message / extension / shell, etc.) and can do multi-round tool calls (default max 30 rounds, 5-minute timeout).
+**Focused mode** allows zero bindings — it is then the plainest agent: no commands, no output contract. With resources bound, it only collects and analyzes data within the bound scope; scope validation rejects instructions outside it. **Free mode** can run multi-round tool calls (default max 30 rounds, 5-minute timeout); available tools include shell / skill / vision / web_fetch / extension tools — platform domains such as devices, rules, and messages are reached via `neomind` CLI commands through `shell`.
 
 #### Tool gating (Focused / Free only)
 
-For these two modes the editor can **narrow the tool surface** (structured tasks do not show this setting — their contract is a single constrained inference with no tool loop at all):
+For these two modes the editor can **narrow the tool surface** (structured mode does not show this setting — its contract is a single constrained inference with no tool loop):
 
 - **Allow tool use**: off = a text-only agent (analyzes, never executes a tool) — for tasks where you explicitly do not want it to act
 - **Restrict tools**: pick a whitelist from the tool catalog; the agent may call only the checked tools
 
 A narrower surface is more than a safety fence — **small models choose better among few**. A query-only agent restricted to `device` + `vision` mis-picks tools far less often. If "explore and act" is on while tools are off, the editor warns: the agent degenerates to a single text reply, and the multi-round promise cannot be kept.
 
-### 3. Schedule Type (Right)
+### What it records
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-editor-schedule.png" alt="Agent editor — schedule configuration area with cron, interval, event options" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+This section defines the Agent's **structured output contract** (structured mode / L0 operator): without output fields the conclusion is prose; with fields, it produces schema-validated data. See [Structured Mode (L0 Operator)](#structured-mode-l0-operator). Structured mode requires **at least one bound input source** and **at least one output field**, and hides tool gating.
 
-Agents trigger automatically based on their schedule:
+### What it remembers
 
-| Schedule | Description | Config |
-|----------|-------------|--------|
-| **Cron** | Triggers on cron expression | `schedule_type: "cron"`, `cron_expression: "0 0 * * * *"` |
-| **Interval** | Executes every N seconds | `schedule_type: "interval"`, `interval_seconds: 300` |
-| **Event** | Triggers on device data change / alert | `schedule_type: "event"` |
+Controls how much history the Agent carries across executions (the `memory_mode` API field):
+
+| Option | Behavior |
+|------|------|
+| **Derived from the mode (default)** | Structured → judged fresh each time (Tool); Focused / Free → remembers past results (Assistant) |
+| **Judged fresh each time (Tool)** | Stateless: sees only this run's data — cheaper, faster, repeatable. The journal is still recorded (for humans), and your standards and corrections always apply |
+| **Remembers past results (Assistant)** | Each run carries the narrative of recent results — it can say "worse than last time" |
+
+### Notify
+
+Pick the channels to deliver to (multi-select, from the Messages module) and **when to notify** (`notify.on`):
+
+| When | Behavior |
+|------|------|
+| **On failure (default)** | Notify only when a run fails — silence is health |
+| **Every run** | Notify after every run, success or failure |
+| **Let the task decide** | No routed notification is built, and the old keyword sniffing is not used as a fallback — when the agent finds something worth saying, it says it with its own tools (`neomind message send`) |
+
+With no external channels configured, alerts still land in Messages — nothing is lost.
+
+### When it runs
+
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-editor-schedule.png" alt="Agent editor — schedule configuration area with cron, interval, event options" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+| Strategy | Description | API field |
+|------|------|---------|
+| **Timer** | Interval / daily / weekly presets; the editor generates the cron or interval config | `schedule_type: "cron"` / `"interval"` |
+| **Data-driven** | Pick trigger sources (devices / extensions / AI metrics / transforms / system — five groups): fire when any source gets new data, or require all selected sources to appear within a time window | `schedule_type: "event"` |
+| **On Demand** | Never auto-runs; only invoked explicitly (Execute Now / Invoke API / rule engine) | `schedule_type: "manual"` |
 
 :::note
-Agent Cron expressions use the **6-field format** (with seconds): `sec min hour day month weekday` — the same syntax as the triggers in [Automation Rules](./7-automation-rules.md).
+At the API level, Agent cron uses the **6-field format** (`sec min hour day month weekday`); a 5-field expression (`min hour day month weekday`) is also accepted — the system prepends `0` to the seconds field, so `0 9 * * *` means daily 09:00. **Data-driven triggers** have a default 60-second dedup window (configurable per agent) to prevent event storms.
 :::
 
-**Event trigger**: Executes automatically when devices push new data or the system generates alerts. Ideal for real-time response scenarios (e.g. immediate analysis after anomaly detection). Event triggers have a 60-second dedup window to prevent event storms.
-
-### 4. LLM Backend
+### LLM Backend
 
 Each Agent can bind an independent LLM backend. Decoupled from the Chat model — switching Chat models doesn't affect Agent configuration. Recommendations:
 - **Simple monitoring**: Local small model (`qwen3.5:4b`), lower latency and cost
 - **Complex analysis**: Large model (`qwen3.5:32b` / cloud model), better reasoning quality
+
+### Advanced
+
+- **Agent Priority**: 0–255, default 128; higher runs first (applies when queuing under concurrency)
+- **Conversation context**: how many recent conversation turns to load as execution context
+- **Custom system prompt**: ≤4000 characters, overrides the default identity
+- **Allow tool use / Restrict tools**: see tool gating above
 
 Click **Save** at the bottom to save the Agent.
 
@@ -110,13 +148,13 @@ Let's tie the fields together with a concrete goal: "check all temperature senso
 |-------|-------|-------|
 | **Name** | `Temperature Patrol` | 1–100 characters, required |
 | **Description** | `Hourly temperature patrol with automatic over-temperature alerts` | Optional, ≤500 characters |
-| **User Prompt** | See below | 1–10000 characters, required |
-| **Execution Mode** | `Focused` | Works only within the bound sensors — saves tokens and can't touch other devices |
-| **Resources** | Bind the `temperature` metric of 2 temperature sensors | Focused mode requires at least one bound resource, otherwise saving is rejected |
-| **Schedule** | `Cron`, expression `0 0 * * * *` | 6-field format (with seconds) — every hour on the hour |
+| **Requirement** | See below | 1–10000 characters, required |
+| **How it works** | `Bound data only` (Focused) | Works only within the bound sensors — saves tokens and can't touch other devices |
+| **Data & commands (Resources)** | Bind the `temperature` metric of 2 temperature sensors | Focused allows zero bindings; bound data is collected automatically at run time |
+| **When it runs** | `Timer` → hourly (API cron `0 0 * * * *`) | 6-field format (with seconds) — every hour on the hour |
 | **LLM Backend** | `qwen3.5:4b` (or a stronger model) | A local small model is fine for simple patrols |
 
-User Prompt example (copy and adapt):
+Requirement example (copy and adapt):
 
 ```text
 You are a temperature patrol officer. Read the latest values of all bound temperature sensors:
@@ -167,11 +205,54 @@ Key request body constraints (identical to the Web UI validation):
 | `name` | Required, 1–100 characters |
 | `user_prompt` | Required, 1–10000 characters |
 | `description` | Optional, ≤500 characters |
-| `system_prompt` | Optional, ≤4000 characters, overrides the default identity |
-| `execution_mode` | `focused` / `free`; `focused` requires at least one `resources` entry |
-| `schedule.schedule_type` | `interval` / `cron` / `event`; `interval` needs `interval_seconds` ≥ 10 (`0` = fully manual); `cron` needs a valid 6-field `cron_expression` |
+| `system_prompt` | Optional, 1–4000 characters, overrides the default identity |
+| `execution_mode` | `focused` (default) / `free` / `structured`; `structured` requires at least one bound input source (`resources`) and at least one output field (`output_schema`) |
+| `schedule.schedule_type` | `interval` / `cron` / `event` / `manual`; `interval` needs `interval_seconds` ≥ 10 (`0` = fully manual); `cron` accepts a 6-field `cron_expression` (5-field is auto-prefixed with `0` seconds) |
 | `resources[].resource_type` | `device` / `metric` / `command` / `extension_metric` / `extension_tool` / `data_stream` |
-| `max_chain_depth` | 1–30, default 3 (tool-call round cap for Focused+ mode) |
+| `max_chain_depth` | 1–30, default 10 (tool-call round cap for Focused+ mode; Free mode ignores this field and uses the platform default 30-round cap) |
+| `priority` | 0–255, default 128; higher runs first |
+| `context_window_size` | 1–100, default 10 (recent conversation turns loaded as context) |
+| `memory_mode` | Optional, `tool` (stateless) / `assistant` (carries history narrative); defaults derived from the execution mode (structured → tool, others → assistant) |
+| `notify` | Optional explicit notification routing: `{ "channels": ["IM"], "on": "failure" }`; `on` is `failure` / `always` / `judgment` |
+| `output_schema` | `structured` only: output field array, see [Structured Mode (L0 Operator)](#structured-mode-l0-operator) |
+| `operator_config` | `structured` only: guardrail tuning (debounce / daily cap / timeout / breaker), see below |
+
+## Structured Mode (L0 Operator)
+
+Structured mode is an execution mode of **single constrained inference**: no intent-analysis preamble, no tool loop — bound data sources in, schema-validated fields out. It fits "scheduled or event-driven readings → recorded as data" scenarios (data monitoring, status judgement, abnormal item counting).
+
+### Output field schema (output_schema)
+
+Define output fields in the editor's "What it records" section. Each field has:
+
+| Attribute | Description |
+|------|------|
+| **Field name (name)** | Becomes the metric name, e.g. `missing_count` |
+| **Type (field_type)** | `Number` / `Text` / `Boolean` / `Enum` — `Enum` restricts the model to the listed values (e.g. `normal, to-check, stopped`) |
+| **Unit (unit)** | Optional, shown by dashboards (e.g. `℃`, `pcs`) |
+| **Meaning (description)** | Optional, injected into the prompt so the model knows what to emit |
+
+Each output field is schema-validated and published as a platform **virtual metric** identified as `ai:{agent_id}:{field}` (e.g. `ai:8f3a…:status`) — dashboards, rule conditions, and data push can reference it directly, using the same mechanism as [Data Transforms](./7b-data-transforms.md) derived metrics.
+
+### Guardrails (operator_config)
+
+| Guardrail | Default | Description |
+|------|------|------|
+| **Debounce (debounce_secs)** | 30 s | Inputs are merged; at most one inference per 30 seconds |
+| **Daily cap (max_calls_per_day)** | Unlimited | Exceeded, the agent pauses until the next day (unset it for local models) |
+| **Per-inference timeout (timeout_secs)** | 60 s | L0 is a single call, not the 300-second agent loop |
+| **Circuit breaker (consecutive_failure_threshold)** | 3 | After this many consecutive failures the breaker opens: the agent degrades to keeping last values, marked stale |
+| **Event cooldown (event_cooldown_secs)** | 60 s | Minimum interval between two event-triggered runs; `0` = fire whenever idle |
+
+### Dry run
+
+Before saving, click **Dry run**: it really collects the input sources and runs one inference, with the result explicitly marked "nothing saved" — use it to verify that your field definitions produce the expected conclusions.
+
+### Constraints and memory
+
+- At least one input source and at least one output field are mandatory, or the save is rejected
+- Memory is fixed to Tool (stateless): each run sees only the current input, no history narrative
+- Notifications default to On failure; converting a regular agent to structured: a multi-round conclusion is prose, so turning it into fields costs one extra model call at the end of every run (the editor calls this out)
 
 ## Running It Once and Reading the Results
 
@@ -221,12 +302,11 @@ The detail is organized in two blocks: `decision_process` (`situation_analysis` 
 
 ```json
 {
-  "timestamp": 1788930400,
+  "timestamp": "2026-10-21T04:04:23+00:00",
   "execution_id": "exec-9c1f…",
   "outcome": "Patrol OK: 2 sensors at 26.4°C / 27.1°C, below the 35°C threshold, no alert needed",
   "action_taken": "Read latest temperature of sensor-01; Read latest temperature of sensor-02; Report patrol result",
-  "success": true,
-  "stop_reason": "completed"
+  "success": true
 }
 ```
 
@@ -238,7 +318,7 @@ The detail is organized in two blocks: `decision_process` (`situation_analysis` 
 
 Click any Agent card to open the detail panel:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agent-detail.png" alt="Agent detail panel — overview, execution history, memory system, user messages" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agent-detail.png" alt="Agent detail panel — overview, execution history, memory system, user messages" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The detail panel contains multiple sections:
 
@@ -295,9 +375,11 @@ Cron: 0 0 * * * *
 ## Memory Commands
 - Read this file: `memory(action='read', target='custom:task-understanding')`
 - Update this file: `memory(action='add', target='custom:task-understanding', ...)`
+- Create new knowledge file: `memory(action='create', target='custom:{name}', content='...')`
 
 ## Notes
 This file was auto-created when the agent was created.
+The AI should update it as it learns more about the environment and discovers patterns.
 ```
 
 The four core sections map one-to-one onto the creation form: **Identity & Role** (identity, from the System Prompt; a default template is used when unset), **Mission** (from the User Prompt), **Bound Resources** (the bound resources), **Schedule** (the execution plan). You can manually edit the file to fine-tune Agent behavior (Agent detail → Memory panel); the Agent also **appends** discovered thresholds, device quirks, and patterns as it runs — for example, after a few rounds you may find it added "sensor-02 consistently reads ~2°C higher than sensor-01 on summer afternoons". The content is injected into the prompt of every execution, bounded by the context length of the Agent's bound LLM.
@@ -334,6 +416,7 @@ The status badge on each Agent card reflects the current state in real time:
 | **Active** | Agent is active, auto-executes on schedule | Green |
 | **Executing** | Agent is currently running (real-time WebSocket push) | Blue / animated |
 | **Paused** | Agent is paused, won't auto-trigger (can be run manually) | Gray |
+| **Stopped** | Agent is stopped, not scheduled | Gray |
 | **Error** | Last execution failed, check logs to troubleshoot | Red |
 | **Completed** | Ready state after a manual task finishes; can be run again | Green |
 
@@ -360,7 +443,7 @@ Don't want to wait for the schedule? Click **Execute Now** on the Agent card or 
 
 - **Mode**: Free
 - **Resources**: None (free exploration)
-- **Schedule**: Event (device data change)
+- **Schedule**: Data-driven (device data change)
 - **Prompt**: Analyze whether the incoming data is anomalous. If abnormal, query related device history, determine if alerting or auto-remediation is needed. May use shell tool to check system status.
 
 ### Scenario 3: Daily Energy Report (Focused + Cron)
@@ -407,21 +490,21 @@ If concurrency is full, the scheduler skips the current execution (retries on ne
 
 | Module | Integration |
 |--------|-------------|
-| [Automation Rules](./7-automation-rules.md) | Rule's `TRIGGER_AGENT` action can trigger Agents |
+| [Automation Rules](./7-automation-rules.md) | The rule `trigger_agent` action triggers Agents; `run_operator` runs a structured operator |
 | [Notifications](./8-notifications.md) | Agent decides whether to send notifications after analysis |
 | [Devices](./3-onboard-device.md) | Focused mode binds device metrics |
 | [AI Chat](./5-ai-chat.md) | Two AI operation modes, complementary |
 
 ## Mobile
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/agents-mobile.png" alt="Agent management on mobile — card list adapts to single column" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/agents-mobile.png" alt="Agent management on mobile — card list adapts to single column" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a single-column card list, supporting status viewing, manual execution, and pause/activate toggling.
 
 ## Common Pitfalls
 
-- **Focused save rejected**: `Focused` mode requires at least one bound resource (device / metric / extension tool); creating with no resources returns `Focused mode requires at least one resource binding`. Use `Free` if you just want free exploration.
-- **Cron expression not firing**: Agent cron uses the **6-field** format (`sec min hour day month weekday`). Pasting a familiar 5-field expression like `0 9 * * *` shifts every field (e.g. "every minute on Mondays") — add the seconds field: `0 0 9 * * *`.
+- **Structured save rejected**: `Structured` mode requires at least one bound input source and at least one output field — both are mandatory. Use `Free` for free exploration, keep `Focused` for prose conclusions — both allow zero bindings.
+- **Cron field count**: At the API level, Agent cron uses the **6-field** format (`sec min hour day month weekday`). Pasting a 5-field expression (`0 9 * * *`) does not error — the system prepends `0` to the seconds field and reads it as `min hour day month weekday` (daily 09:00). Write all 6 fields when you need second-level precision.
 - **Interval too small gets rejected**: `interval_seconds` must be at least 10; setting `0` means "fully manual" (on-demand) — it never auto-schedules and only runs via Execute Now.
 - **Changed the User Prompt but behavior didn't change**: check task-understanding.md — it solidified the task description at creation time, and the Agent keeps appending experience to it. Behavior is driven by that file together with the User Prompt; edit the file in the Memory panel when needed.
 - **"Why did it forget last week?"**: the journal is a FIFO ring that keeps only the most recent N entries. Rules the Agent must remember long-term belong in the User Prompt, task-understanding.md, or User Messages — not the journal.
@@ -435,4 +518,4 @@ On mobile, the interface switches to a single-column card list, supporting statu
 
 ---
 
-*Last updated: 2026-09-09*
+*Last updated: 2026-10-21*

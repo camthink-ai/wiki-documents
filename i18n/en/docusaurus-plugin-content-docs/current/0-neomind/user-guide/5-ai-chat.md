@@ -20,7 +20,7 @@ The problem it solves: **you don't need to memorize any CLI commands, API paths,
 
 Click **AI Chat** (chat icon) in the left nav to open the conversation view:
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-empty.png" alt="AI Chat main interface — session list, welcome page, suggested questions, input box" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-empty.png" alt="AI Chat main interface — session list, welcome page, suggested questions, input box" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 The interface has three areas:
 
@@ -36,7 +36,7 @@ A new session initially shows **suggested questions** (e.g. "Check current onlin
 
 When you send a message, the AI doesn't answer directly — it **understands intent → selects tools → executes → synthesizes results**. The whole process is visible in the conversation:
 
-<img src="https://resources.camthink.ai/NeoMind/ai-chat-conversation.png" alt="AI Chat conversation — tool call process visible" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-conversation.png" alt="AI Chat conversation — tool call process visible" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 In the screenshot above, the user asked "How many devices are online right now?" and the AI's process was:
 
@@ -45,7 +45,7 @@ In the screenshot above, the user asked "How many devices are online right now?"
 3. **Synthesize answer**: Generate a natural language reply based on the data returned by the tool
 
 :::note Thinking process display
-Above the AI's reply, a "Thinking process" summary appears (rounds, character count) so you can see how many steps the AI reasoned through. Complex requests may chain multiple tool call rounds (NeoMind caps at 30 rounds per turn with a 5-minute timeout).
+Above the AI's reply, a "Thinking process" summary appears (rounds, character count) so you can see how many steps the AI reasoned through. Complex requests may chain multiple tool call rounds (NeoMind caps at 30 rounds per turn; each turn times out after 30 minutes by default, adjustable in Settings → Preferences).
 :::
 
 ## Worked Example: One Tool Call End to End
@@ -118,7 +118,7 @@ Domain tools (`device` / `rule` / `agent` / …) are not separate implementation
 
 - **Query-only, no action**: small models are sometimes overly cautious — you ask it to create a rule and it only lists existing ones. Just follow up with "please create it" (see [Tips](#tips)).
 - **Automatic action inference**: when calling `device` without `action`, NeoMind infers it from the arguments (`command` present → control; `device_id` present → latest value; neither → list). If the inference isn't what you want, say explicitly whether you want to "query" or "control".
-- **30-round cap**: a single request allows at most 30 tool call rounds within 5 minutes. Past the cap the AI answers from what it already has, which can look "unfinished" — split the task across two messages.
+- **30-round cap**: a single request allows at most 30 tool call rounds; each turn times out after 30 minutes by default (adjustable in Settings → Preferences). Past the cap the AI answers from what it already has, which can look "unfinished" — split the task across two messages.
 - **Duplicate device names**: the LLM fuzzy-matches by name and can pick the wrong device; use the device ID in that case.
 
 ## What You Can Ask
@@ -166,9 +166,9 @@ Different backends have different capabilities (reasoning quality, speed, multim
 
 ## Multimodal (Images)
 
-If your LLM backend supports vision (see [Configure an LLM Backend — Multimodal](./2-configure-llm.md#multimodal-vision-capability)), you can **upload images** in Chat:
+If your LLM backend supports vision (see [Configure an LLM Backend — Vision](./2-configure-llm.md#vision-vlm)), you can **upload images** in Chat:
 
-Click the **image upload** button on the right side of the input box. PNG / JPG / JPEG / WebP supported.
+Click the **image upload** button on the **left side** of the composer's bottom toolbar (left side: image upload, model selector, and context usage ring; right side: send button). PNG / JPG / JPEG / WebP supported (the backend also accepts GIF / BMP / TIFF).
 
 Typical use cases:
 
@@ -179,7 +179,7 @@ Typical use cases:
 | Surveillance frame | "Identify the faces in this frame" | Face recognition extension |
 
 :::warning Ollama users need a vision model
-You must pull a vision model (e.g. `qwen3.5:4b-vl` / `llava`) first — otherwise uploaded images are silently dropped. NeoMind auto-detects backend capability. Text-only models (e.g. `qwen3.5:4b`, DeepSeek-V3) cannot process images.
+You must pull a vision model (e.g. `llava` / `llava`) first — otherwise the upload button is disabled with a notice that the model doesn't support vision. NeoMind auto-detects backend capability. Text-only models (e.g. `qwen3.5:4b`, DeepSeek-V3) cannot process images.
 :::
 
 ## Chat vs Agent: Two Modes
@@ -205,6 +205,7 @@ For detailed agent configuration, see [AI Agent](./6-ai-agent.md). For automatio
 - **Cross-session memory**: after each substantive exchange (short pleasantries don't count), NeoMind runs a background LLM pass that extracts **up to 3** durable, reusable facts and writes them to disk so they survive restarts:
   - `[user]` facts (preferences, habits, identity) → `data/memory/USER.md` (2000-char limit by default)
   - `[knowledge]` facts (device aliases, locations, naming conventions) → `data/memory/KNOWLEDGE.md` (3000-char limit by default)
+  - `[procedures]` facts (SOPs, playbooks, how-to know-how) → `data/memory/PROCEDURES.md` (3000-char limit by default)
 
   For example, once you mention "machine #3 is the air compressor on the east side of the shop floor", the AI will remember that alias in every future session. The memory files can also be inspected and cleaned up in system settings.
 - **IM bridges (0.9.14+)**: Beyond the web UI, you can chat with the same agents directly in **Telegram / Feishu** (once an IM Bridge is configured in the system); this is a separate feature from the Telegram/Feishu [notification channels](./8-notifications.md) — notifications are one-way alert pushes, while IM bridges are two-way conversation.
@@ -228,7 +229,7 @@ The backend auto-compacts when context usage crosses 60% (your most recent messa
 
 ## Mobile
 
-<img src="https://resources.camthink.ai/NeoMind/v0923/ai-chat-mobile.png" alt="AI Chat on mobile — full-screen conversation" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/v1021b/ai-chat-mobile.png" alt="AI Chat on mobile — full-screen conversation" style={{width: '50%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 On mobile, the interface switches to a full-screen conversation mode. The session list is accessed via the menu in the top-left corner.
 

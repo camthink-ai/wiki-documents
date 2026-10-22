@@ -1,6 +1,6 @@
 ---
-description: NeoMind 桌面端与服务端部署的硬件、操作系统、网络端口与运行时依赖要求，含本地 LLM（Ollama）推荐配置。
-keywords: [NeoMind, 系统要求, 部署, 硬件需求, Ollama]
+description: NeoMind 桌面端与服务端部署的硬件、操作系统、网络端口与运行时依赖要求，含内置模型与 Ollama 等本地 LLM 的推荐配置。
+keywords: [NeoMind, 系统要求, 部署, 硬件需求, 内置模型, Ollama]
 tags: [NeoMind, 产品介绍]
 sidebar_label: "System Requirements"
 ---
@@ -16,9 +16,9 @@ NeoMind 可在桌面（macOS / Windows / Linux）或服务器上运行。以下�
 | 产物 | 大小 | 说明 |
 |------|------|------|
 | **服务器二进制** (tar.gz) | ~27–30 MB | `neomind` + `neomind-extension-runner` 打包；按平台分发 |
-| **Web 前端** (tar.gz) | ~5.3 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
-| **macOS 桌面** (.dmg) | ~45 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
-| **Windows 桌面** (.msi) | ~44 MB | |
+| **Web 前端** (tar.gz) | ~4.4 MB | 静态资源（HTML/JS/CSS），由后端直接服务 |
+| **macOS 桌面** (.dmg) | ~41 MB | Tauri 应用 — 内含后端 + 前端 + 系统 WebView |
+| **Windows 桌面** (.msi) | ~42 MB | |
 | **Linux 桌面** (.deb) | ~48 MB | |
 | **Linux AppImage** | ~117 MB | 完全自包含 — 包含所有系统库 |
 
@@ -35,7 +35,7 @@ NeoMind 可在桌面（macOS / Windows / Linux）或服务器上运行。以下�
 | **遥测存储** | 随数据量增长 | redb 文件位于 `data/telemetry.redb`。每个数据点 ~1 KB。保留时间可配置。 |
 
 :::tip 无外部依赖
-NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务。唯一可选的外部依赖是 LLM——可以是本地运行的 [Ollama](https://ollama.ai)，也可以是云端 API Key。
+NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务。唯一可选的外部依赖是 LLM——内置模型本地一键下载（完全离线），也可接 [Ollama](https://ollama.ai) 或云端 API Key。
 :::
 
 ## 桌面应用（推荐入门）
@@ -46,7 +46,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 |----------|------|-----------|
 | macOS | Apple Silicon（arm64） | `.dmg` |
 | Windows | x86_64 | `.msi` / `.exe` |
-| Linux | x86_64 / arm64 | `.AppImage` / `.deb` |
+| Linux | x86_64 / arm64 | `.AppImage` / `.deb` / `.rpm` |
 
 > 官方仅提供上述架构的预编译包。如需其他平台（如 macOS Intel / Windows ARM），可[从源码构建](../user-guide/1-install-setup.md#从源码构建开发)。
 
@@ -70,10 +70,10 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 场景 | CPU | 内存 | 磁盘 | 说明 |
 |------|-----|------|------|------|
 | 轻量（仅规则 / 云端 LLM） | 2 核 | 2 GB | 10 GB | 不跑本地模型 |
-| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 Qwen3.5-4B 等 4B 模型；**3 GB 起即可跑首选的 MiniCPM5-2B（1.5GB）** |
+| **推荐（本地 LLM）** | 4 核 | **8 GB** | 20 GB+ SSD | 跑 Qwen3.5-4B 等 4B 模型；**3 GB 起即可跑文档推荐的 MiniCPM5-2B（1.5GB，Apache-2.0 开放许可）**；亦可选择 LFM2.5-2.6B（平台默认下载，注意其为 LFM 自定义许可，商用需评估条款） |
 | 多设备 / 视觉管线 | 8 核 | 16 GB | 50 GB+ SSD | 多路视频流 + YOLO/OCR 扩展 |
 
-> **GPU**：非必需。本地 LLM 与视觉推理通过 Ollama（CPU 模式）即可运行；有 GPU 时 Ollama 会自动加速。
+> **GPU**：非必需。本地 LLM 与视觉推理主推**内置模型（llama.cpp 运行时）**——纯 CPU 即可运行，有 GPU（CUDA / Metal / Vulkan）时自动加速；可选的 Ollama 路线行为相同（CPU 可跑、GPU 自动加速）。详细模型与内存要求见[本地 LLM 与视觉推理要求](#本地-llm-与视觉推理要求)。
 
 ### 网络端口
 
@@ -81,6 +81,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 |------|------|------|--------|
 | **9375** | HTTP | 后端 API + Web UI（开发模式 `neomind-cli serve` 默认端口） | `--port` / `PORT` 环境变量 |
 | **1883** | MQTT | 内置 MQTT Broker（设备接入） | 配置文件 |
+| 29375 | HTTP | 内置模型推理服务（llama-server，仅本机回环 127.0.0.1） | 配置文件 |
 | 80 / 443 | HTTP(S) | 反向代理（可选，nginx） | nginx 配置 |
 
 > 生产部署建议用 nginx 反向代理，对外只暴露 80/443，将 9375 / 1883 限制在内网。
@@ -89,7 +90,7 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 
 服务器部署**无需手动安装额外依赖**——安装脚本会下载静态编译的二进制。可选组件：
 
-- **Docker 镜像内置（默认）**：官方镜像 `camthink/neomind` 已内置 llama.cpp 运行时与官方精选模型，向导内一键下载即可获得本地 LLM，无需额外安装
+- **Docker 镜像内置（默认）**：官方镜像 `camthink/neomind` 已内置 llama.cpp 运行时与默认模型 LFM2.5-2.6B（volume 首次运行自动就位，无需下载），详见下方 Docker 部署要求
 - **Ollama**（可选）：已有 Ollama 环境时用于本地 LLM 推理。安装见 [ollama.com](https://ollama.com)。首次配置 LLM 后端时需拉取模型，例如 `ollama pull qwen3.5:4b`
 - **Docker**（可选）：`docker compose up -d` 一键部署
 - **nginx**（可选）：生产环境反向代理 + 静态前端托管
@@ -101,15 +102,40 @@ NeoMind **不需要** PostgreSQL、Mosquitto、Redis 或任何其他外部服务
 | 镜像 | `camthink/neomind:latest`（多架构 amd64 + arm64，随发版构建） |
 | 端口 | `9375`（HTTP API + Web UI）、`1883`（MQTT） |
 | 数据持久化 | volume `neomind-data`（挂载至容器 `/app/data`） |
-| 本地 LLM | 镜像内置 llama.cpp 运行时与默认精选模型（LFM2.5-2.6B，构建参数可换/跳过）；模型目录首推 **MiniCPM5-2B**，向导内一键下载（预留 4-8GB 磁盘 + 内存） |
+| 本地 LLM | 镜像构建时已下载并内置 llama.cpp 运行时与默认精选模型 **LFM2.5-2.6B**（来自官方 HuggingFace 仓库，SHA-256 校验；构建参数可换为 Qwen3.5-4B / Gemma4-E2B 或 `none` 跳过）；目录默认下载亦为 LFM2.5-2.6B（LFM 自定义许可，商用需评估条款），**文档推荐 MiniCPM5-2B（Apache-2.0 开放许可）**，向导内切换一键完成（预留 4-8GB 磁盘 + 内存）。注意：volume 首次运行从镜像内容初始化，若用 bind-mount 挂载 `/app/data` 则跳过预置模型，改走下载 API |
 
 详见 [安装与配置 — Docker 部署](../user-guide/1-install-setup.md#docker-部署)。
 
 ### 边缘设备说明
 
+- **NG4500 AI Box**：官方推荐的边缘主机，开箱即可部署 NeoMind 与本地模型，见 [NG4500 系列文档](../../neoedge-ng4500-series/overview)
 - **NVIDIA Jetson**（Orin 系列）：CUDA 运行时自动引导安装，视觉管线（YOLO / DeepStream）建议 8GB+ 显存预算
-- **RK3576 等 aarch64 SBC**：服务端与扩展均有 arm64 构建；纯 CPU 推理建议选 small 档模型
+- **RK3576 / 树莓派 5 等 aarch64 SBC**：服务端与扩展均有 arm64 构建（Ubuntu / Debian 系，glibc ≥ 2.35）。**主要门槛是内存**：3GB 起可跑 MiniCPM5-2B / LFM2.5-2.6B（纯 CPU），8GB 机型可上 Qwen3.5-4B；视觉推理建议选 small 档模型
 - 内存紧张的设备建议：本地 LLM 用 2-3B 档模型，视觉推理与 LLM 分机部署
+
+## 本地 LLM 与视觉推理要求
+
+NeoMind 的本地推理由**内置模型**承担:平台自带 llama.cpp 运行时,模型从目录按需下载,推理服务自动拉起——**CPU 即可运行,有 GPU(CUDA / Metal / Vulkan)时自动加速**。
+
+**LLM(文本推理)**
+
+| 模型 | 体积 | 最低内存 | 上下文 | 说明 |
+|---|---|---|---|---|
+| **MiniCPM5-2B**(文档推荐) | 1.6GB | 3GB | 128K | Apache-2.0 开放许可,商用友好 |
+| LFM2.5-2.6B(平台默认下载) | 1.5GB | 3GB | 128K | LFM 自定义许可,商用需评估条款 |
+| Qwen3.5-4B | 2.7GB | 4.8GB | 128K | 4GB+ 内存时 agent 能力最强 |
+| 其余 3 款 | — | — | 128K | Gemma4-E2B / Nanbeige4.2-3B / Ling-3.0-tiny,见后端卡片目录 |
+
+- 磁盘预留 4-8GB(模型 + KV 缓存);上下文默认 128K,按可用内存自动封顶,长会话建议保持 ≥32K
+- 模型可在 LLM 后端卡片随时切换,也支持导入自己的 GGUF(上下文上限 128K)
+
+**视觉推理(VLM,独立模型)**
+
+- **MiniCPM-V-4.7-1B**:0.7GB,最低 2.4GB 内存,上下文 32K——与文本模型**相互独立、单独下载**,首次使用视觉功能(AI Chat 上传图片 / Agent 分析相机画面)时自动拉取
+- 下载正文之外还会附带 mmproj 投影文件,并拉起一个独立的视觉 companion 实例;不使用视觉功能时不占任何资源
+- 与文本模型可并存:文本走 MiniCPM5-2B / LFM2.5-2.6B,视觉走 MiniCPM-V
+
+> 可选的 Ollama 路线行为相同:CPU 可跑、GPU 自动加速;模型生态更广,但需自行管理安装与许可。
 
 ## 数据存储
 
@@ -136,7 +162,7 @@ NeoMind 使用嵌入式存储，**无需外部数据库**。数据目录默认�
 |------|------|------|
 | **Rust** | 1.85+（工具链锁定 1.92.0） | 后端编译 |
 | **Node.js** | 20+ | 前端构建 |
-| **Ollama** | 任意 | 本地 LLM（或接入云端模型） |
+| **Ollama**（可选） | 任意 | 本地 LLM（也可用内置模型或接入云端模型） |
 
 ```bash
 # 后端
@@ -150,13 +176,15 @@ cd web && npm install && npm run tauri:dev
 
 ## LLM 后端要求
 
-NeoMind 支持多种 LLM 后端，按部署形态分两类：
+NeoMind 支持四类 LLM 后端，按部署形态选择：
 
-- **本地**：Ollama（推荐，`qwen3.5:4b` 模型）。需要宿主机有足够内存加载模型。
+- **内置模型（推荐）**：无需安装 Ollama 或 Docker,向导内一键下载即可。模型选型、内存与磁盘要求见[本地 LLM 与视觉推理要求](#本地-llm-与视觉推理要求)。
+- **Ollama**（可选）：已有 Ollama 环境时使用（默认模型 `qwen3.5:4b`）。需要宿主机有足够内存加载模型。
+- **llama.cpp**（可选）：自带 llama.cpp server 或直接使用内置运行时，适合自带 GGUF 模型的场景。
 - **云端**：OpenAI / Anthropic / Google / xAI / Qwen / DeepSeek / GLM / MiniMax 等 OpenAI 兼容端点。仅需 API Key 与出站网络。
 
 配置方法见 [配置 LLM 后端](../user-guide/2-configure-llm.md)。
 
 ---
 
-*最后更新: 2026-09-08*
+*最后更新: 2026-10-21*
