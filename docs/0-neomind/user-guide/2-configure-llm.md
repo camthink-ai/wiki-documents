@@ -68,7 +68,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 ### 视觉理解（VLM）
 
-目录中的 **MiniCPM-V-4.7-1B** 是视觉模型：选择它时平台会额外下载 mmproj 投影文件并拉起一个 vision companion 实例——此后 [AI Chat](./5-ai-chat.md) 可直接上传图片提问，AI Agent 也能分析相机画面。0.7GB 的体积让它成为边缘设备上成本最低的视觉方案。
+目录中的 **MiniCPM-V-4.7-1B** 是视觉模型：选择它时平台会额外下载 mmproj 投影文件并拉起一个 vision companion 实例——此后 [AI Chat](./5-ai-chat.md) 可直接上传图片提问，AI Agent 也能分析相机画面（参见 [视觉大模型场景理解方案](../../edge-ai-solutions/vision-scene-understanding/solution-description)）。0.7GB 的体积让它成为边缘设备上成本最低的视觉方案。
 
 ## 方式一：Web UI 配置（推荐）
 

@@ -651,6 +651,9 @@
   "footer.item.smartGym": {
     "message": "Smart Gym"
   },
+  "footer.item.visionScene": {
+    "message": "Vision LLM Scene Understanding"
+  },
   "footer.item.website": {
     "message": "Website"
   },
@@ -666,6 +669,9 @@
   },
   "footer.item.neomind": {
     "message": "NeoMind Platform"
+  },
+  "latest.vision.title": {
+    "message": "Vision LLM Scene Understanding"
   },
   "latest.gym.title": {
     "message": "Smart Gym Solution"

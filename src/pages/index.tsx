@@ -56,6 +56,11 @@ const USE_CASES = [
 const LATEST_DOCS = [
     {
         badge: 'NEW',
+        title: <Translate id="latest.vision.title">视觉大模型场景理解方案</Translate>,
+        url: LINKS.latest.visionSolution,
+    },
+    {
+        badge: 'NEW',
         title: <Translate id="latest.gym.title">智慧健身房方案</Translate>,
         url: LINKS.latest.gymSolution,
     },

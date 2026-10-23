@@ -73,11 +73,13 @@ module.exports = {
   solutionCases: [
     { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition/solution-description' },
     { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym/solution-description' },
+    { id: 'visionScene', path: '/docs/edge-ai-solutions/vision-scene-understanding/solution-description' },
   ],
 
   /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */
   latest: {
     gymSolution: '/docs/edge-ai-solutions/smart-gym/solution-description',
+    visionSolution: '/docs/edge-ai-solutions/vision-scene-understanding/solution-description',
     waterSolution: '/docs/edge-ai-solutions/water-meter-recognition/solution-description',
     aitoolstack: '/docs/software/ai-tool-stack/overview',
     ne503Faq: '/docs/neoeyes-ne503-series/troubleshooting',

@@ -66,6 +66,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NE503 passive recognition + local analytics: equipment occupancy and training reports, data stays on-premises.</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="solution-card">
+      <img className="no-zoom" src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo-v7.gif" alt="Vision LLM Scene Understanding" loading="lazy" />
+      <div className="sol-body">
+        <div className="sol-title">Vision LLM Scene Understanding <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NeoEyes cameras + a vision LLM + NeoMind Agents: define tasks by prompt, turn footage into structured metrics — data stays on-prem.</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}
@@ -266,6 +273,11 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Latest Updates ================= */}
   <h2 className="docs-section-title">Latest Docs</h2>
   <div className="latest-docs-grid">
+    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="update-card">
+      <span className="update-badge">NEW</span>
+      <div className="update-title">Vision LLM Scene Understanding</div>
+      <div className="update-meta"><span>Solution</span></div>
+    </Link>
     <Link to="/docs/edge-ai-solutions/water-meter-recognition/solution-description" className="update-card">
       <span className="update-badge">NEW</span>
       <div className="update-title">Water Meter Reading Solution</div>
