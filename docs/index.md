@@ -273,6 +273,11 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Latest Updates ================= */}
   <h2 className="docs-section-title">最新文档</h2>
   <div className="latest-docs-grid">
+    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="update-card">
+      <span className="update-badge">NEW</span>
+      <div className="update-title">视觉大模型场景理解方案</div>
+      <div className="update-meta"><span>解决方案</span></div>
+    </Link>
     <Link to="/docs/edge-ai-solutions/water-meter-recognition/solution-description" className="update-card">
       <span className="update-badge">NEW</span>
       <div className="update-title">水表自动抄读方案</div>
