@@ -18,7 +18,9 @@ Cloud vision APIs solve the "understanding" problem, but images leave the intran
 
 The idea behind this solution: **define the vision task in a prompt, and let a multimodal large model on-premises "read" the scene into structured data.**
 
-Deploy a CamThink **NeoEyes** camera at each point of interest — the low-power battery **NE101**, the modular edge-AI **NE301**, or the mini integration **NE302**. Cameras capture images on a schedule or by event and send them over Wi-Fi / Cat.1 / PoE to a local **NG4500 AI Box**. Inside the box, the **NeoMind platform** hands every incoming frame to an AI Agent, which calls a multimodal LLM (vision model) to interpret the image according to your prompt, and lands the result as **schema-validated structured JSON fields** — virtual metrics written into the time-series store and rendered live on dashboards.
+Deploy a CamThink **NeoEyes** camera at each point of interest — the low-power battery **NE101** (4×AA batteries, years of runtime), the modular edge-AI **NE301** (0.6 TOPS, runs on-device detection to filter before upload), or the mini integration **NE302** (magnetic mount). Cameras capture images on a schedule or by event and send them over Wi-Fi / Cat.1 / PoE to a local **NG4500 AI Box**. Inside the box, the **NeoMind platform** hands every incoming frame to an AI Agent, which calls a vision LLM (e.g. local Ollama MiniCPM-V, or a cloud vision API) to interpret the image according to your prompt, and lands the result as **schema-validated structured JSON fields** — people counts, violation types, fill levels, readings — virtual metrics written into the time-series store and rendered live on dashboards.
+
+The whole pipeline is a three-step loop: **camera captures → LLM interprets per prompt → structured fields land in the store and on dashboards.** All model interaction happens on the NG4500: with a local vision model, **images and results never leave the premises**. When stronger reasoning is needed, an Agent can bind a cloud vision backend individually — a hybrid deployment on demand.
 
 ```mermaid
 flowchart LR
@@ -37,11 +39,19 @@ flowchart LR
   F --> H[Data Push / OpenAPI / alerting]
 ```
 
-All model interaction happens on the NG4500: with a local Ollama vision model, **images and results never leave the premises**. When stronger reasoning is needed, an Agent can bind a cloud vision backend individually — a hybrid deployment on demand.
-
 The prompt is the task: hard-hat inspection, shelf compliance checks, bin overflow monitoring, meter reading verification, workstation presence detection… One platform, one pipeline — **change a prompt and a few output fields, and you have a new vision application**, with no model retraining involved.
 
-For hardware selection, BOM and deployment, see the [Engineering Guide](./engineering-guide).
+## Solution Composition (BOM)
+
+| # | Component | Model / Spec | Qty | Role |
+|---|---|---|---|---|
+| 1 | Edge AI camera | NeoEyes **NE101** (battery, long runtime) / **NE301** (edge AI, modular) / **NE302** (mini integration) | 1 per point | Scheduled or event-triggered capture, images uplinked over MQTT |
+| 2 | Edge compute host | **NG4500 AI Box** | 1 per site | Runs the NeoMind platform: device ingestion, image storage, Agent orchestration, time-series store, dashboards |
+| 3 | Vision LLM | Local Ollama (**MiniCPM-V** etc.) or cloud VLM API (GPT-4o / Qwen-VL / GLM-4V) | 1 set | Interprets images per prompt; local keeps data on-prem, cloud is stronger — mix per Agent |
+| 4 | NeoMind platform | Bundled in NG4500 | — | Device onboarding, AI Agents, virtual metrics, automation rules, Data Push / OpenAPI |
+| 5 | Power & network accessories | Batteries / mounts / PoE switch / SIM cards | as needed | Camera deployment kit |
+
+Starter configuration: **3–5 cameras + 1 NG4500 + one local vision model** runs the full pipeline; adding points only means adding cameras. Full selection comparison, network topology and deployment steps in the [Engineering Guide](./engineering-guide).
 
 ## How It Works
 
