@@ -206,7 +206,26 @@ Opening any run replays the full analysis: the input includes the captured frame
 
 <img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-execution-detail.png" alt="Run #5 detail: input frame, structured JSON output person_count=1 / violation=none, confidence 95%, 4 fields published as ai: virtual metrics" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-### 5.6 Data Storage & Display
+### 5.6 Build the Dashboard
+
+Ingestion is only half the story — operations and business teams watch the **dashboard**. Build an inspection board in four steps in the Visual Dashboard:
+
+1. **New Dashboard**: Visual Dashboard → New Dashboard, name it (e.g. Site Safety Patrol)
+2. **Enter edit mode**: click the gear icon in the toolbar to unlock drag & drop
+3. **Add components**: click **+** in the toolbar to open the component library and add four kinds of widgets —
+
+| Widget | Data source | Purpose |
+|---|---|---|
+| Value Card ×2 | `ai:{agent_id}:person_count`, `ai:{agent_id}:helmet_ok_count` | Latest people / compliance counts |
+| Line Chart | `ai:{agent_id}:person_count` | People trend |
+| Image Display + Image History | the camera's `image` metric | Latest frame + capture history |
+| Agent Monitor | bound to the Agent | Live execution status and per-run conclusions |
+
+4. **Arrange & save**: organize as three blocks — status cards, trend chart, image stream — then ✓ save; the board becomes visible to everyone
+
+The full widget catalog, data-source binding details, sharing and mobile notes: [Using Dashboards](../../neomind/user-guide/use-dashboard).
+
+### 5.7 Data Storage & Display
 
 Three destinations for analysis results, use as needed:
 
@@ -220,7 +239,7 @@ Three destinations for analysis results, use as needed:
 - **Suggested three-block dashboard**: latest-status card (latest conclusion + time), metric trend chart (violations / state distribution), image stream (camera component live view + capture history); see [Using Dashboards](../../neomind/user-guide/use-dashboard)
 - Structured JSON in execution records can be pulled via REST API and archived to business-side warehouses
 
-### 5.7 Data Forwarding (optional)
+### 5.8 Data Forwarding (optional)
 
 | Method | Description | Fit |
 |---|---|---|

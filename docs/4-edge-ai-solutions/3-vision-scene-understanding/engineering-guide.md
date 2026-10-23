@@ -206,7 +206,26 @@ Agent 详情页集中呈现结构化定义:User Prompt、Output fields(每个字
 
 <img src="https://resources.camthink.ai/NeoMind/llm-image-solution/agent-execution-detail.png" alt="执行 #5 详情:输入抓拍原图,输出 person_count=1 / violation=none 的结构化 JSON,Confidence 95%,4 个字段发布为 ai: 虚拟指标" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-### 5.6 数据存储与展示
+### 5.6 搭建仪表板
+
+分析入库只是开始,运维和业务看的是**仪表板**。在 Visual Dashboard 中四步搭出一个巡检看板:
+
+1. **新建仪表板**:Visual Dashboard → New Dashboard,命名(如 Site Safety Patrol)
+2. **进入编辑模式**:点击工具栏的齿轮图标,网格解锁拖拽
+3. **添加组件**:点击工具栏 **+** 打开组件库,为本方案添加四类组件——
+
+| 组件 | 数据源 | 用途 |
+|---|---|---|
+| Value Card ×2 | `ai:{agent_id}:person_count`、`ai:{agent_id}:helmet_ok_count` | 最新人数 / 合规数 |
+| Line Chart | `ai:{agent_id}:person_count` | 人数趋势曲线 |
+| Image Display + Image History | 相机设备的 `image` 指标 | 最新画面 + 抓拍历史回看 |
+| Agent Monitor | 绑定该 Agent | 实时执行状态与逐次结论 |
+
+4. **拖拽布局并保存**:建议按"状态卡片 → 趋势曲线 → 图像流"三块组织,✓ 保存后即对所有人可见
+
+组件的完整类型清单、数据源绑定细节与分享/移动端说明见 [使用仪表板](../../neomind/user-guide/use-dashboard)。
+
+### 5.7 数据存储与展示
 
 分析结果的三个落点,按需取用:
 
@@ -217,10 +236,10 @@ Agent 详情页集中呈现结构化定义:User Prompt、Output fields(每个字
 | **Agent 记忆** | journal 摘要与知识文件 | 跨次执行的上下文积累(现场基线、历史事件) |
 
 - **抓拍原图**:存储于 NG4500,保留周期在数据保留设置中控制,到期自动清理
-- **仪表板建议三块**:最新状态卡片(最新结论 + 时间)、指标趋势曲线(违规次数 / 状态分布)、图像流(相机组件实时画面 + 抓拍历史);搭建见 [使用仪表板](../../neomind/user-guide/use-dashboard)
+- **仪表板布局**:按 5.6 的三块结构组织(状态卡片 + 趋势曲线 + 图像流),组件配置细节见 [使用仪表板](../../neomind/user-guide/use-dashboard)
 - 执行记录中的结构化 JSON 可经 REST API 拉取,归档到业务侧数据仓库
 
-### 5.7 数据转发(可选)
+### 5.8 数据转发(可选)
 
 | 方式 | 说明 | 适用 |
 |---|---|---|
