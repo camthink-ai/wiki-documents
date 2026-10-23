@@ -5,7 +5,7 @@ sidebar_position: 1
 description: "基于 NeoEyes 相机与 NeoMind AI Agent 的视觉大模型场景理解方案:用提示词定义视觉任务,多模态大模型把现场画面变成结构化 JSON 指标,本地组网数据不出场,仪表板实时可视。"
 ---
 
-<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo-v2.gif" alt="实时演示:相机抓拍到达后,Site Safety Patrol Agent 自动调用视觉大模型分析,人数卡片、趋势曲线、抓拍画面流与执行记录实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo-v3.gif" alt="实时演示:相机抓拍到达后,Site Safety Patrol Agent 自动调用视觉大模型分析,人数卡片、趋势曲线、抓拍画面流与执行记录实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 *实时演示:相机抓拍到达 → Agent 自动调用视觉大模型分析 → 人数卡片、趋势曲线、图像流与执行记录实时刷新(录屏 3 倍速)*
 
