@@ -5,7 +5,7 @@ sidebar_position: 1
 description: "Vision LLM scene understanding built on NeoEyes cameras and the NeoMind AI Agent: define vision tasks with prompts, let a multimodal model turn site imagery into structured JSON metrics — fully local networking, live dashboards."
 ---
 
-<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo.gif" alt="Live demo: a capture arrives, the Site Safety Patrol Agent runs the vision LLM automatically, and people-count cards, the trend chart, the image stream and execution records refresh in real time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo-v2.gif" alt="Live demo: a capture arrives, the Site Safety Patrol Agent runs the vision LLM automatically, and people-count cards, the trend chart, the image stream and execution records refresh in real time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 *Live demo: a capture arrives → the Agent runs the vision LLM automatically → people-count cards, trend chart, image stream and execution records refresh in real time (3× speed).*
 
