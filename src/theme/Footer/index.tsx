@@ -35,6 +35,7 @@ const ITEM_LABELS: Record<string, React.ReactNode> = {
   neomind: <Translate id="footer.item.neomind">NeoMind 平台</Translate>,
   waterMeter: <Translate id="footer.item.waterMeter">水表识别方案</Translate>,
   smartGym: <Translate id="footer.item.smartGym">智慧健身房方案</Translate>,
+  visionScene: <Translate id="footer.item.visionScene">视觉大模型场景理解方案</Translate>,
 };
 
 const COLUMNS: FooterColumn[] = [

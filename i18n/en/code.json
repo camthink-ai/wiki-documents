@@ -651,6 +651,9 @@
   "footer.item.smartGym": {
     "message": "Smart Gym"
   },
+  "footer.item.visionScene": {
+    "message": "Vision LLM Scene Understanding"
+  },
   "footer.item.website": {
     "message": "Website"
   },
