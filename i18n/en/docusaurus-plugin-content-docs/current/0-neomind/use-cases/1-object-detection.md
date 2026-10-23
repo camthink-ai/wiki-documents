@@ -288,7 +288,7 @@ To receive notifications via email:
 
 | Dimension | Approach A: YOLO Inference Extension | Approach B: AI Agent |
 |------|---------------------------|------------------|
-| **Detection Accuracy** | High (specialized detection model) | Medium (depends on LLM image understanding) |
+| **Detection Accuracy** | High (specialized detection model) | Medium (depends on vision LLM scene understanding) |
 | **Response Speed** | Millisecond-level | Second-level |
 | **Deployment Difficulty** | Low (one-click extension install) | Medium (requires LLM backend configuration) |
 | **Hardware Requirements** | Low | Higher (GPU or large memory for LLM) |

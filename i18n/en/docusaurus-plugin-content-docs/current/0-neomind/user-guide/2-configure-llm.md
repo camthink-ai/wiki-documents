@@ -68,7 +68,7 @@ The built-in model registers as a LlamaCpp backend and participates in default s
 
 ### Vision (VLM)
 
-**MiniCPM-V-4.7-1B** in the catalog is a vision model: selecting it additionally downloads the mmproj projection file and spawns a vision companion instance — [AI Chat](./5-ai-chat.md) can then take uploaded images, and AI Agents can analyze camera footage (see the [LLM Image Understanding solution](../../edge-ai-solutions/llm-image-understanding/solution-description)). At 0.7GB it is the cheapest vision option for edge devices.
+**MiniCPM-V-4.7-1B** in the catalog is a vision model: selecting it additionally downloads the mmproj projection file and spawns a vision companion instance — [AI Chat](./5-ai-chat.md) can then take uploaded images, and AI Agents can analyze camera footage (see the [Vision LLM Scene Understanding solution](../../edge-ai-solutions/vision-scene-understanding/solution-description)). At 0.7GB it is the cheapest vision option for edge devices.
 
 ## Option 1: Web UI Setup (Recommended)
 

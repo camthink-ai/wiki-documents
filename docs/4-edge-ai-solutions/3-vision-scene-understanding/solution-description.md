@@ -2,7 +2,7 @@
 title: 方案说明
 sidebar_label: "Solution Description"
 sidebar_position: 1
-description: "基于 NeoEyes 相机与 NeoMind AI Agent 的 LLM 图像理解方案:用提示词定义视觉任务,多模态大模型把现场画面变成结构化 JSON 指标,本地组网数据不出场,仪表板实时可视。"
+description: "基于 NeoEyes 相机与 NeoMind AI Agent 的视觉大模型场景理解方案:用提示词定义视觉任务,多模态大模型把现场画面变成结构化 JSON 指标,本地组网数据不出场,仪表板实时可视。"
 ---
 
 ## 方案背景

@@ -2,12 +2,12 @@
 title: Engineering Guide
 sidebar_label: "Engineering Guide"
 sidebar_position: 2
-description: "LLM image understanding engineering guide: scenarios and fit assessment, camera selection, BOM, network topology, NeoMind setup, vision model configuration, Agent creation, integration testing and data integration."
+description: "Vision LLM scene understanding engineering guide: scenarios and fit assessment, camera selection, BOM, network topology, NeoMind setup, vision model configuration, Agent creation, integration testing and data integration."
 ---
 
 # Engineering Guide
 
-This page is for implementation and integration engineers, covering the complete engineering process of the LLM image understanding solution from selection and deployment to integration testing and business integration.
+This page is for implementation and integration engineers, covering the complete engineering process of the Vision LLM scene understanding solution from selection and deployment to integration testing and business integration.
 
 ## 1. Solution Scenarios
 
@@ -17,7 +17,7 @@ This solution targets vision scenarios where **recognition targets vary, questio
 
 Vision LLMs do not replace OCR / YOLO — they cover what those cannot. Triage your requirements first:
 
-| Trait | Fixed models (OCR / YOLO extensions) | This solution (LLM image understanding) |
+| Trait | Fixed models (OCR / YOLO extensions) | This solution (Vision LLM scene understanding) |
 |---|---|---|
 | Recognition target | Fixed (meter dials, 80 object classes) | Varying, long-tail, descriptive (states, compliance, anomalies) |
 | Output | Classes, boxes, exact text | Descriptions, judgments, conclusions, recommendations |

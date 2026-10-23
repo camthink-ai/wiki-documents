@@ -2,7 +2,7 @@
 title: Solution Description
 sidebar_label: "Solution Description"
 sidebar_position: 1
-description: "LLM image understanding built on NeoEyes cameras and the NeoMind AI Agent: define vision tasks with prompts, let a multimodal model turn site imagery into structured JSON metrics — fully local networking, live dashboards."
+description: "Vision LLM scene understanding built on NeoEyes cameras and the NeoMind AI Agent: define vision tasks with prompts, let a multimodal model turn site imagery into structured JSON metrics — fully local networking, live dashboards."
 ---
 
 ## Background
