@@ -5,6 +5,10 @@ sidebar_position: 1
 description: "Vision LLM scene understanding built on NeoEyes cameras and the NeoMind AI Agent: define vision tasks with prompts, let a multimodal model turn site imagery into structured JSON metrics — fully local networking, live dashboards."
 ---
 
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo.gif" alt="Live demo: a capture arrives, the Site Safety Patrol Agent runs the vision LLM automatically, and people-count cards, the trend chart, the image stream and execution records refresh in real time" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+*Live demo: a capture arrives → the Agent runs the vision LLM automatically → people-count cards, trend chart, image stream and execution records refresh in real time (3× speed).*
+
 ## Background
 
 The most common way to deploy vision AI on site is to pair each recognition target with a **fixed model**: OCR for meter dials, YOLO for hard hats, face recognition for staff. These models deliver high accuracy and low latency, but they carry two inherent limitations:
@@ -47,7 +51,7 @@ The prompt is the task: hard-hat inspection, shelf compliance checks, bin overfl
 |---|---|---|---|---|
 | 1 | Edge AI camera | NeoEyes **NE101** (battery, long runtime) / **NE301** (edge AI, modular) / **NE302** (mini integration) | 1 per point | Scheduled or event-triggered capture, images uplinked over MQTT |
 | 2 | Edge compute host | **NG4500 AI Box** | 1 per site | Runs the NeoMind platform: device ingestion, image storage, Agent orchestration, time-series store, dashboards |
-| 3 | Vision LLM | Local Ollama (**MiniCPM-V** etc.) or cloud VLM API (GPT-4o / Qwen-VL / GLM-4V) | 1 set | Interprets images per prompt; local keeps data on-prem, cloud is stronger — mix per Agent |
+| 3 | Vision LLM | Local Ollama (**MiniCPM-V** etc.) or cloud VLM API (GPT-5 / Claude / Gemini / Qwen3-VL) | 1 set | Interprets images per prompt; local keeps data on-prem, cloud is stronger — mix per Agent |
 | 4 | NeoMind platform | Bundled in NG4500 | — | Device onboarding, AI Agents, virtual metrics, automation rules, Data Push / OpenAPI |
 | 5 | Power & network accessories | Batteries / mounts / PoE switch / SIM cards | as needed | Camera deployment kit |
 

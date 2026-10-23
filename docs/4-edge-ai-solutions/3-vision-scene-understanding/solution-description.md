@@ -5,6 +5,10 @@ sidebar_position: 1
 description: "基于 NeoEyes 相机与 NeoMind AI Agent 的视觉大模型场景理解方案:用提示词定义视觉任务,多模态大模型把现场画面变成结构化 JSON 指标,本地组网数据不出场,仪表板实时可视。"
 ---
 
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo.gif" alt="实时演示:相机抓拍到达后,Site Safety Patrol Agent 自动调用视觉大模型分析,人数卡片、趋势曲线、抓拍画面流与执行记录实时刷新" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+
+*实时演示:相机抓拍到达 → Agent 自动调用视觉大模型分析 → 人数卡片、趋势曲线、图像流与执行记录实时刷新(录屏 3 倍速)*
+
 ## 方案背景
 
 视觉 AI 落地现场时,最常见的做法是为每个识别目标训练或选配一个**固定模型**:OCR 认表盘、YOLO 认安全帽、人脸模型认员工。这类方案精度高、延迟低,但有两个天然短板:
@@ -47,7 +51,7 @@ flowchart LR
 |---|---|---|---|---|
 | 1 | 边缘 AI 相机 | NeoEyes **NE101**(电池长续航)/ **NE301**(边缘 AI + 模块化)/ **NE302**(迷你集成) | 每点位 1 台 | 定时或事件触发抓拍,图像经 MQTT 回传 |
 | 2 | 边缘计算主机 | **NG4500 AI Box** | 每站点 1 台 | 运行 NeoMind 平台:设备接入、图像落盘、Agent 编排、时序存储、仪表板 |
-| 3 | 视觉大模型 | 本地 Ollama(**MiniCPM-V** 等)或云端 VLM API(GPT-4o / Qwen-VL / GLM-4V) | 1 套 | 按提示词完成图像理解;本地数据不出场,云端推理更强,可按 Agent 混搭 |
+| 3 | 视觉大模型 | 本地 Ollama(**MiniCPM-V** 等)或云端 VLM API(GPT-5 / Claude / Gemini / Qwen3-VL 等) | 1 套 | 按提示词完成图像理解;本地数据不出场,云端推理更强,可按 Agent 混搭 |
 | 4 | NeoMind 平台 | NG4500 内置 | — | 设备接入、AI Agent、虚拟指标、自动化规则、Data Push / OpenAPI |
 | 5 | 供电与网络附件 | 电池 / 支架 / PoE 交换机 / SIM 卡 | 按需 | 相机部署配套 |
 

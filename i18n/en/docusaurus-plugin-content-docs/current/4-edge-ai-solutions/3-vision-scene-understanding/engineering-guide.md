@@ -121,7 +121,7 @@ ollama pull minicpm-v   # or llava, etc.
 
 **Option 2: cloud VLM (stronger reasoning; requires internet)**
 
-- Add an OpenAI / Anthropic / Qwen / GLM backend and pick a vision model such as `gpt-4o` / `claude-sonnet-4-5` / `qwen-vl` / `glm-4v`, with your API key
+- Add an OpenAI / Anthropic / Qwen / GLM backend and pick a vision model such as `gpt-5` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen3-vl` / `glm-4.5v`, with your API key
 
 > Each Agent binds its own LLM backend (decoupled from Chat) — a common mix: inspection Agents on a local small vision model for cost, anomaly-review Agents on a cloud large model for quality.
 

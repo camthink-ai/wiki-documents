@@ -121,7 +121,7 @@ ollama pull minicpm-v   # 或 llava 等
 
 **方式二:云端 VLM(推理更强,需外网)**
 
-- 添加 OpenAI / Anthropic / Qwen / GLM 等后端,选择 `gpt-4o` / `claude-sonnet-4-5` / `qwen-vl` / `glm-4v` 等视觉模型,填入 API Key
+- 添加 OpenAI / Anthropic / Qwen / GLM 等后端,选择 `gpt-5` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen3-vl` / `glm-4.5v` 等视觉模型,填入 API Key
 
 > 每个 Agent 可独立绑定 LLM 后端(与 Chat 模型解耦)——常见组合:巡检类 Agent 用本地小视觉模型控成本,异常复核 Agent 用云端大模型保质量。
 
