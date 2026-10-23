@@ -66,6 +66,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NE503 无感识别 + 本地分析：器械占用、训练报告，数据不出场馆。</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="solution-card">
+      <img className="no-zoom" src="https://resources.camthink.ai/NeoMind/llm-image-solution/site-demo-v7.gif" alt="视觉大模型场景理解方案" loading="lazy" />
+      <div className="sol-body">
+        <div className="sol-title">视觉大模型场景理解 <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NeoEyes 相机 + 视觉大模型 + NeoMind Agent：提示词定义任务，画面变结构化指标，数据不出场。</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}
