@@ -69,13 +69,13 @@ flowchart LR
 
 以下是本方案在 NeoMind 演示环境中的真实运行效果(工地安全巡检场景):结构化 Agent 对每帧抓拍输出人数、合规数与违规类型,字段直接成为时序指标,与抓拍画面同屏呈现。
 
-<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-site-v2.png" alt="Site Safety Patrol 仪表板:人数/合规状态卡片、人员趋势曲线、Agent 实时执行监控与抓拍历史画面流" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-site-v3.png" alt="Site Safety Patrol 仪表板:人数/合规状态卡片、人员趋势曲线、Agent 实时执行监控与抓拍历史画面流" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 同一套流程换个提示词与输出字段,即得到门店货架核查与垃圾桶满溢监控两个仪表板:
 
-<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-shelf-v2.png" alt="Shelf Audit 仪表板:空位/排面卡片、缺货趋势曲线、Agent 实时执行监控与货架抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-shelf-v3.png" alt="Shelf Audit 仪表板:空位/排面卡片、缺货趋势曲线、Agent 实时执行监控与货架抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
-<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-bin-v2.png" alt="Bin Fill Check 仪表板:满溢评分卡片、满溢趋势曲线、Agent 实时执行监控与垃圾桶抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
+<img src="https://resources.camthink.ai/NeoMind/llm-image-solution/dash-bin-v3.png" alt="Bin Fill Check 仪表板:满溢评分卡片、满溢趋势曲线、Agent 实时执行监控与垃圾桶抓拍画面" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
 ## 了解更多
 
