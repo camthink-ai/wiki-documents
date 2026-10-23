@@ -107,7 +107,15 @@ The recommended host is the **NG4500 AI Box**; any Linux machine or personal com
 
 Vision capability comes from the LLM backend — **local or cloud, either or both**. See [Configure LLM Backends](../../neomind/user-guide/configure-llm).
 
-**Option 1: local Ollama (recommended to start; data stays local)**
+**Option 1: built-in model vision component (recommended to start; data stays local)**
+
+**MiniCPM-V-4.7-1B** in the built-in model catalog is a dedicated vision model (0.7 GB, official Q4_K_M quant + F16 projector, resident alongside the main model):
+
+1. NeoMind Web → LLM Backends → pick MiniCPM-V-4.7-1B on the **Built-in Model** card for a one-click download (also selectable in the onboarding wizard)
+2. Once downloaded, the platform automatically spawns a llama.cpp vision instance (main model + mmproj projector) with **Multimodal enabled** — zero configuration
+3. [AI Chat](../../neomind/user-guide/5-ai-chat) can then take uploaded images, and vision Agents can bind it to analyze camera footage; `llm test` verifies connectivity
+
+**Option 2: local Ollama (when Ollama is already deployed)**
 
 1. Install Ollama on the NG4500 and pull a vision model:
 
@@ -119,13 +127,13 @@ ollama pull minicpm-v   # or llava, etc.
 3. NeoMind auto-detects multimodal capability; if detection is wrong, flip the **Multimodal** switch on the backend detail page manually
 4. Run `llm test` to verify connectivity, then set the small vision model as default — bind a stronger cloud backend for complex-analysis Agents
 
-**Option 2: cloud VLM (stronger reasoning; requires internet)**
+**Option 3: cloud VLM (stronger reasoning; requires internet)**
 
 - Add an OpenAI / Anthropic / Qwen / GLM backend and pick a vision model such as `gpt-5` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen3-vl` / `glm-4.5v`, with your API key
 
 > Each Agent binds its own LLM backend (decoupled from Chat) — a common mix: inspection Agents on a local small vision model for cost, anomaly-review Agents on a cloud large model for quality.
 
-The demo environment in action: an Ollama backend running local `minicpm-v`, with multimodal capability auto-detected by NeoMind (the "eye" badge on the card) — no API key, data never leaves the box.
+Option 2 in action: an Ollama backend running local `minicpm-v`, with multimodal capability auto-detected by NeoMind (the "eye" badge on the card) — no API key, data never leaves the box.
 
 <img src="https://resources.camthink.ai/NeoMind/llm-image-solution/llm-backend-ollama.png" alt="LLM Backends page: Local MiniCPM-V (Ollama) instance with multimodal auto-detected, endpoint pointing at local Ollama" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 

@@ -107,7 +107,15 @@ flowchart LR
 
 视觉能力由 LLM 后端提供,**本地与云端二选一或并存**,见 [配置 LLM 后端](../../neomind/user-guide/configure-llm)。
 
-**方式一:本地 Ollama(推荐起步,数据不出场)**
+**方式一:内置模型视觉组件(推荐起步,数据不出场)**
+
+NeoMind 内置模型目录中的 **MiniCPM-V-4.7-1B** 是专门的视觉模型(0.7GB,官方 Q4_K_M 量化 + F16 投影文件,与主模型并存驻留):
+
+1. NeoMind Web → LLM 后端 → **Built-in Model** 卡片选择 MiniCPM-V-4.7-1B 一键下载(入门向导中也可直接勾选)
+2. 下载完成后平台自动拉起 llama.cpp 视觉实例(主模型 + mmproj 投影文件协同),**Multimodal 自动开启**,无需任何配置
+3. 此后 [AI Chat](../../neomind/user-guide/5-ai-chat) 可直接上传图片提问,图像理解类 Agent 也可绑定它分析相机画面;`llm test` 验证连通即可
+
+**方式二:本地 Ollama(已有 Ollama 部署时)**
 
 1. 在 NG4500 上安装 Ollama 并拉取视觉模型:
 
@@ -119,13 +127,13 @@ ollama pull minicpm-v   # 或 llava 等
 3. NeoMind 自动探测多模态能力;若探测不准,在后端详情页手动打开 **Multimodal** 开关
 4. `llm test` 测试连通后,可将小视觉模型设为默认,复杂分析场景再绑定更强的云端后端
 
-**方式二:云端 VLM(推理更强,需外网)**
+**方式三:云端 VLM(推理更强,需外网)**
 
 - 添加 OpenAI / Anthropic / Qwen / GLM 等后端,选择 `gpt-5` / `claude-sonnet-4-5` / `gemini-2.5-flash` / `qwen3-vl` / `glm-4.5v` 等视觉模型,填入 API Key
 
 > 每个 Agent 可独立绑定 LLM 后端(与 Chat 模型解耦)——常见组合:巡检类 Agent 用本地小视觉模型控成本,异常复核 Agent 用云端大模型保质量。
 
-下图为演示环境的实际配置:Ollama 后端接入本地 `minicpm-v`,NeoMind 自动探测到多模态能力(卡片上的"眼睛"标识),无需 API Key、数据不出场。
+下图为方式二的实际效果:Ollama 后端接入本地 `minicpm-v`,NeoMind 自动探测到多模态能力(卡片上的"眼睛"标识),无需 API Key、数据不出场。
 
 <img src="https://resources.camthink.ai/NeoMind/llm-image-solution/llm-backend-ollama.png" alt="LLM 后端页:Local MiniCPM-V (Ollama) 实例,自动探测多模态,Endpoint 指向本地 Ollama" style={{width: '100%', borderRadius: '8px', border: '1px solid var(--ifm-color-emphasis-200)'}} />
 
