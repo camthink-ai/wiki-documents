@@ -667,6 +667,9 @@
   "footer.item.neomind": {
     "message": "NeoMind Platform"
   },
+  "latest.vision.title": {
+    "message": "Vision LLM Scene Understanding"
+  },
   "latest.gym.title": {
     "message": "Smart Gym Solution"
   },
