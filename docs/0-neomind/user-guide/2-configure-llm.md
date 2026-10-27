@@ -16,7 +16,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 | 类别 | 后端 | 默认模型 | 备注 |
 |------|------|---------|------|
-| **本地（零配置）** | 内置模型（Built-in Model） | 平台精选目录（LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B 等 7 款） | 无需 API Key、完全离线，卡片内一键下载，见[下节](#内置模型built-in-model零配置) |
+| **本地（零配置）** | 内置模型（Built-in Model） | 平台精选目录（LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B 等 8 款） | 无需 API Key、完全离线，卡片内一键下载，见[下节](#内置模型built-in-model零配置) |
 | **本地** | Ollama | `qwen3.5:4b` | 完全离线 |
 | 本地 | llama.cpp（自托管） | 启动时加载 | 自行运行 llama-server |
 | **云端** | OpenAI | `gpt-4.1-mini` | 需 API Key |
@@ -50,6 +50,7 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 | Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT 量化 |
 | Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
 | Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | 过 8K 上下文质量陡降，建议短会话 |
+| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | XHToken 出品（Apache-2.0，zh+en），原生 1M 上下文（按内存封顶），三档可控思考 |
 | **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **视觉模型**——附带 mmproj 投影文件，支持图像理解 |
 
 所有模型默认 128K 窗口并按可用内存自动封顶（MiniCPM-V 为 32K）；长会话建议保持 ≥32K。

@@ -211,7 +211,7 @@ The large language model instance NeoMind connects to. Multiple backends are sup
 
 ### Built-in Model
 
-The platform's built-in local LLM: a llama.cpp runtime ships with NeoMind, and a curated catalog of **7 models** downloads with one click (including the 0.7GB vision variant MiniCPM-V) — no API key, no Ollama, fully offline. The inference server spawns automatically on demand, and vision models additionally get a dedicated vision companion instance.
+The platform's built-in local LLM: a llama.cpp runtime ships with NeoMind, and a curated catalog of **8 models** downloads with one click (including the 0.7GB vision variant MiniCPM-V) — no API key, no Ollama, fully offline. The inference server spawns automatically on demand, and vision models additionally get a dedicated vision companion instance.
 
 | Representative model | Size | Min RAM | License |
 |---------------------|------|---------|---------|

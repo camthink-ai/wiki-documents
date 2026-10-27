@@ -123,7 +123,7 @@ Local inference in NeoMind runs on the **built-in model**: the platform ships a 
 | **MiniCPM5-2B** (doc-recommended) | 1.6GB | 3GB | 128K | Apache-2.0 open license, commercial-friendly |
 | LFM2.5-2.6B (platform default download) | 1.5GB | 3GB | 128K | Custom LFM license — review terms for commercial use |
 | Qwen3.5-4B | 2.7GB | 4.8GB | 128K | Strongest agent capabilities with 4GB+ RAM |
-| 3 more | — | — | 128K | Gemma4-E2B / Nanbeige4.2-3B / Ling-3.0-tiny — see the backend card catalog |
+| 4 more | — | — | 128K | Gemma4-E2B / Nanbeige4.2-3B / Ling-3.0-tiny / Spark-X2.6-4B — see the backend card catalog |
 
 - Reserve 4-8 GB of disk (model + KV cache); context defaults to 128K, auto-capped to available RAM — keep ≥32K for long sessions
 - Switch models anytime on the LLM backend card, or import your own GGUF (context capped at 128K)

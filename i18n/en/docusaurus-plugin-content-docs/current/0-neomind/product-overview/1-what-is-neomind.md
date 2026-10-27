@@ -111,7 +111,7 @@ flowchart TB
 ## Core Capabilities
 
 ### AI Intelligence
-- **Built-in local AI, zero setup** — one-click catalog model download on the backend card (LFM2.5 / MiniCPM5 / Qwen3.5, 7 models incl. the 0.7GB vision variant MiniCPM-V), no API key, no Ollama; GGUF import supported
+- **Built-in local AI, zero setup** — one-click catalog model download on the backend card (LFM2.5 / MiniCPM5 / Qwen3.5, 8 models incl. the 0.7GB vision variant MiniCPM-V), no API key, no Ollama; GGUF import supported
 - **Natural Language Chat** — Conversational interface to query and control all connected devices
 - **Autonomous Agents** — Three execution shapes (scheduled / event / structured): the first two monitor, analyze, and act on device data independently; the structured shape schema-validates its output into `ai:{agent_id}:{field}` virtual metrics
 - **10+ LLM Backends** — Built-in model (local, one-click download), Ollama, OpenAI, Anthropic, Google, xAI, Qwen, DeepSeek, GLM, MiniMax, and any OpenAI-compatible endpoint

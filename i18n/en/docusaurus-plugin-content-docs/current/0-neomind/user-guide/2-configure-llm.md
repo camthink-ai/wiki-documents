@@ -16,7 +16,7 @@ NeoMind supports 10+ LLM backends in two deployment modes:
 
 | Category | Backend | Default Model | Notes |
 |----------|---------|---------------|-------|
-| **Local (zero config)** | Built-in Model | Curated platform catalog (LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B, 7 models) | No API key, fully offline — one-click download on the card, see [section below](#built-in-model-zero-config) |
+| **Local (zero config)** | Built-in Model | Curated platform catalog (LFM2.5-2.6B / MiniCPM5-2B / Qwen3.5-4B, 8 models) | No API key, fully offline — one-click download on the card, see [section below](#built-in-model-zero-config) |
 | **Local** | Ollama | `qwen3.5:4b` | Fully offline |
 | Local | llama.cpp (self-hosted) | Loaded at startup | Run llama-server yourself |
 | **Cloud** | OpenAI | `gpt-4.1-mini` | API Key required |
@@ -50,6 +50,7 @@ The catalog comes from a remote manifest (`models/catalog.json` in [camthink-ai/
 | Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT quantization |
 | Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
 | Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | Quality cliffs past 8K context; keep sessions short |
+| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | By XHToken (Apache-2.0, zh+en); native 1M context (RAM-capped), three-level controllable thinking |
 | **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **Vision model** — ships with an mmproj projection file for image understanding |
 
 All models default to a 128K window auto-capped to available RAM (MiniCPM-V: 32K); keep ≥32K for long sessions.

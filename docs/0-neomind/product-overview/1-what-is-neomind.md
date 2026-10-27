@@ -112,7 +112,7 @@ flowchart TB
 ## 核心能力
 
 ### AI 智能化
-- **内置本地 AI，开箱即用** — 后端卡片一键下载目录模型（LFM2.5 / MiniCPM5 / Qwen3.5 等 7 款，含 0.7GB 视觉款 MiniCPM-V），无需 API Key、无需装 Ollama，也支持导入自己的 GGUF
+- **内置本地 AI，开箱即用** — 后端卡片一键下载目录模型（LFM2.5 / MiniCPM5 / Qwen3.5 等 8 款，含 0.7GB 视觉款 MiniCPM-V），无需 API Key、无需装 Ollama，也支持导入自己的 GGUF
 - **自然语言对话** — 会话式接口，查询并控制所有已连接设备
 - **自主智能体** — 三种执行形态（定时 / 事件 / 结构化）：前两者独立监控、分析并执行设备数据；结构化形态把输出经 Schema 校验后落地为 `ai:{agent_id}:{字段}` 虚拟指标
 - **10+ LLM 后端** — 内置模型（本地一键下载）、Ollama、OpenAI、Anthropic、Google、xAI、Qwen、DeepSeek、GLM、MiniMax，以及任何 OpenAI 兼容端点
