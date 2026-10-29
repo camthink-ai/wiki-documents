@@ -291,4 +291,36 @@ neomind llm activate local
 
 ---
 
+
+## 运行时升级与管理（llama.cpp Runtime）
+
+内置模型的推理引擎是 llama.cpp。它现在可以**独立于平台版本升级**：内置卡片引擎列表下方有一行 **llama.cpp 运行时**，显示当前变体（CPU / CUDA / Jetson / Vulkan）与版本号，有可用更新时出现「可更新」徽章。
+
+### 升级与回退
+
+1. 点击「可更新」徽章或行尾的设置图标，打开运行时对话框（需管理员）
+2. 对话框显示 `当前版本 → 推荐版本`；点击 **升级到 xxx** 即下载安装（进度实时显示），完成后自动重启内置 LLM 服务
+3. **回退**：删除最近一次升级的运行时，回落到上一版或随平台安装的捆绑版本
+4. **变体覆盖**：自动（按硬件检测：Jetson / 合格 NVIDIA GPU → CUDA，其余 CPU）/ CPU / CUDA / Vulkan / Jetson，排障时使用，下次引擎重启生效
+
+推荐版本来自我们的更新通道（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `runtimes.json`）——我们在验证过 Ubuntu 22.04 / glibc 2.35 兼容地板后才会推荐新版本；自托管的 Jetson / T4(CUDA) 构建带 SHA-256 校验。通道不可达时显示「无法检查更新」，现有功能不受影响。
+
+升级只写入数据目录的版本化缓存（`data/llama-server/<版本>/`），不需要 root、不改安装目录，systemd / Docker / 裸 `neomind serve` / 桌面版行为一致。平台会自动选择**最新有效**的运行时（平台升级带来更新的捆绑版本时则用捆绑版本）；损坏的缓存会在启动时被自动剔除并回退。
+
+## 受限网络（镜像与离线安装）
+
+部分网络环境无法直连 huggingface.co / github.com。三个下载源都支持镜像覆盖（**设置 → LLM 后端 → 内置卡片 → 运行时 → 下载源**，或环境变量）：
+
+| 源 | 设置键 | 环境变量 | 镜像示例 |
+|----|--------|----------|----------|
+| 模型下载（HuggingFace） | `llm_hf_base_url` | `NEOMIND_HF_BASE_URL` | `https://hf-mirror.com` |
+| 模型目录 | `llm_catalog_url` | `NEOMIND_CATALOG_URL` | 任意可达的 catalog.json 副本 |
+| 运行时更新通道 | `llm_runtime_channel_url` | `NEOMIND_RUNTIME_CHANNEL_URL` | 任意可达的 runtimes.json 副本 |
+
+优先级：设置 > 环境变量 > 默认；留空恢复默认。模型下载仍会做 SHA-256 校验，镜像不会削弱完整性。目录不可达时模型列表显示「内置目录」徽章（回退到编译期列表）。
+
+**完全离线**时，模型向导提供两条离线安装路径：**导入服务器上的模型文件**（填 GGUF 绝对路径）或**上传模型文件**（流式上传，上限 12GB）——平台解析 GGUF 头、校验并在失败时自动回滚，导入的模型与目录模型同等参与切换。`HTTP(S)_PROXY` 环境变量亦被下载链路支持。
+
+---
+
 *最后更新: 2026-10-21*

@@ -287,3 +287,33 @@ neomind llm activate local
 ---
 
 *Last updated: 2026-10-21*
+
+## Runtime Upgrade & Management (llama.cpp)
+
+The builtin model's inference engine is llama.cpp, and it can now be upgraded **independently of platform releases**: below the engines list on the builtin card sits a **llama.cpp runtime** row showing the variant (CPU / CUDA / Jetson / Vulkan) and version, with an "Update" badge when a newer runtime is recommended.
+
+### Upgrade & revert
+
+1. Click the badge (or the row's gear icon) to open the runtime dialog (admin required)
+2. The dialog shows `current → recommended`; **Upgrade to …** downloads and installs with live progress, then restarts the builtin LLM service automatically
+3. **Revert** drops the most recent upgrade, falling back to the previous version or the bundled binary
+4. **Variant override**: auto (hardware-detected: Jetson / qualifying NVIDIA GPU → CUDA, else CPU) / CPU / CUDA / Vulkan / Jetson — for troubleshooting; applies on the next engine restart
+
+Recommendations come from our update channel (`runtimes.json` in [camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes)) — we only recommend versions verified against the Ubuntu 22.04 / glibc 2.35 floor; the self-hosted Jetson / T4 (CUDA) builds are SHA-256 pinned. When the channel is unreachable the card shows "can't check" and everything else keeps working.
+
+Upgrades only write a versioned cache under the data directory (`data/llama-server/<tag>/`) — no root, no install-dir writes, identical under systemd / Docker / bare `neomind serve` / desktop. The platform always resolves the **newest valid** runtime (a platform upgrade shipping a newer bundled binary wins instead); broken caches are ejected automatically at startup with fallback.
+
+## Restricted Networks (Mirrors & Offline Install)
+
+Some networks cannot reach huggingface.co / github.com directly. All three download sources support mirror overrides (**Settings → LLM Backends → builtin card → runtime → Download sources**, or env vars):
+
+| Source | Setting key | Env var | Mirror example |
+|--------|-------------|---------|----------------|
+| Model downloads (HuggingFace) | `llm_hf_base_url` | `NEOMIND_HF_BASE_URL` | `https://hf-mirror.com` |
+| Model catalog | `llm_catalog_url` | `NEOMIND_CATALOG_URL` | any reachable catalog.json copy |
+| Runtime update channel | `llm_runtime_channel_url` | `NEOMIND_RUNTIME_CHANNEL_URL` | any reachable runtimes.json copy |
+
+Priority: setting > env > default; empty resets. Model downloads still SHA-256 verify, so a mirror does not weaken integrity. When the catalog is unreachable the model list shows a "built-in catalog" badge (compiled-in fallback).
+
+**Fully offline**, the model wizard offers two offline install paths: **import a model file on the server** (absolute GGUF path) or **upload a model file** (streamed, up to 12 GB) — the platform parses the GGUF header, validates, and rolls back on failure; imported models switch like catalog models. `HTTP(S)_PROXY` is honored by all download paths too.
+
