@@ -45,13 +45,16 @@ The catalog comes from a remote manifest (`models/catalog.json` in [camthink-ai/
 | Model | Quant | Size | Min RAM | Context | Notes |
 |-------|-------|------|---------|---------|-------|
 | **MiniCPM5-2B** | q4_k_m | 1.6GB | 3GB | 128K | **Recommended in docs** — Apache-2.0 open license, commercial-friendly; 81% tool accuracy on the corrected eval, same tier as cloud deepseek-v4-flash |
-| **LFM2.5-2.6B** | qad_q4_0 | 1.5GB | 3GB | 128K | Platform-default download (custom LFM license — review terms for commercial use) |
+| LFM2.5-2.6B | qad_q4_0 | 1.5GB | 3GB | 128K | Long-standing default · thinking always on · native 128K (custom LFM license — review terms for commercial use) |
 | Qwen3.5-4B | q4_k_m | 2.7GB | 4.8GB | 128K | Strongest agent capabilities with 4GB+ RAM |
 | Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT quantization |
 | Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
 | Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | Quality cliffs past 8K context; keep sessions short |
-| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | By XHToken (Apache-2.0, zh+en); native 1M context (RAM-capped), three-level controllable thinking |
+| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | Apache-2.0 zh+en · hybrid attention, native 1M context (RAM-capped) · controllable thinking |
+| **Spark-X2.6-1.7B** | q4_k_m | 1.8GB | 4GB | 128K | **Default recommendation** — Apache-2.0 zh+en · light 1.7B · 1M context · controllable thinking |
+| LFM3-1.7B | q4_k_m | 1.1GB | 3GB | 128K | LiquidAI next-gen · reasoning-first + tool calls · **requires runtime ≥ b11960** |
 | **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **Vision model** — ships with an mmproj projection file for image understanding |
+| LFM3-VL-2B | q4_k_m | 1.1GB | 3GB | 32K | **Vision model** — reasoning-first · requires runtime ≥ b11960 |
 
 All models default to a 128K window auto-capped to available RAM (MiniCPM-V: 32K); keep ≥32K for long sessions.
 

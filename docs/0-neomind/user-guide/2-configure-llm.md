@@ -40,18 +40,21 @@ NeoMind 支持 10+ 种 LLM 后端，按部署形态分两类：
 
 ### 模型目录
 
-目录来自远程模型清单（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台；离线时自动回退内置列表，可用 `NEOMIND_CATALOG_URL` 覆盖）。当前目录（2026-10）：
+目录来自远程模型清单（[camthink-ai/NeoMind-Runtimes](https://github.com/camthink-ai/NeoMind-Runtimes) 的 `models/catalog.json`，可持续上新、无需升级平台；离线时自动回退内置列表，可用 `NEOMIND_CATALOG_URL` 覆盖）。当前目录（2026-10，catalog v14）：
 
 | 模型 | 量化 | 体积 | 最低内存 | 上下文 | 说明 |
 |------|------|------|---------|--------|------|
 | **MiniCPM5-2B** | q4_k_m | 1.6GB | 3GB | 128K | **文档推荐**——Apache-2.0 开放许可，商用友好；评测工具命中率 81%，与云端 deepseek-v4-flash 同档 |
-| **LFM2.5-2.6B** | qad_q4_0 | 1.5GB | 3GB | 128K | 平台默认下载（LFM 自定义许可，商用需评估条款） |
+| LFM2.5-2.6B | qad_q4_0 | 1.5GB | 3GB | 128K | 长期默认模型 · 思考常开 · 原生 128K（LFM 自定义许可，商用需评估条款） |
 | Qwen3.5-4B | q4_k_m | 2.7GB | 4.8GB | 128K | 内存充裕（4GB+）时 agent 能力最强 |
 | Gemma4-E2B | qat_q4_0 | 3.1GB | 5.6GB | 128K | Google QAT 量化 |
 | Nanbeige4.2-3B | q4_k_m | 2.6GB | 4GB | 128K | — |
 | Ling-3.0-tiny | q4_k_m | 4.8GB | 6GB | 128K | 过 8K 上下文质量陡降，建议短会话 |
-| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | XHToken 出品（Apache-2.0，zh+en），原生 1M 上下文（按内存封顶），三档可控思考 |
+| Spark-X2.6-4B | q4_k_m | 3.5GB | 6GB | 128K | Apache-2.0 中英 · 混合注意力原生 1M 上下文（按内存封顶）· 思考预算可控 |
+| **Spark-X2.6-1.7B** | q4_k_m | 1.8GB | 4GB | 128K | **默认推荐**——Apache-2.0 中英 · 1.7B 轻量 · 1M 上下文 · 思考预算可控 |
+| LFM3-1.7B | q4_k_m | 1.1GB | 3GB | 128K | LiquidAI 新一代 · 思考优先 + 工具调用 · **需先升级运行时至 b11960** |
 | **MiniCPM-V-4.7-1B** | q4_k_m | 0.7GB | 2.4GB | 32K | **视觉模型**——附带 mmproj 投影文件，支持图像理解 |
+| LFM3-VL-2B | q4_k_m | 1.1GB | 3GB | 32K | **视觉模型**——思考优先 · 需运行时 ≥ b11960 |
 
 所有模型默认 128K 窗口并按可用内存自动封顶（MiniCPM-V 为 32K）；长会话建议保持 ≥32K。
 
