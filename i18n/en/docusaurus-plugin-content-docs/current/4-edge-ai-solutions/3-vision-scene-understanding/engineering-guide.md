@@ -113,7 +113,7 @@ Vision capability comes from the LLM backend — **local or cloud, either or bot
 
 1. NeoMind Web → LLM Backends → pick MiniCPM-V-4.7-1B on the **Built-in Model** card for a one-click download (also selectable in the onboarding wizard)
 2. Once downloaded, the platform automatically spawns a llama.cpp vision instance (main model + mmproj projector) with **Multimodal enabled** — zero configuration
-3. [AI Chat](../../neomind/user-guide/5-ai-chat) can then take uploaded images, and vision Agents can bind it to analyze camera footage; `llm test` verifies connectivity
+3. [AI Chat](../../neomind/user-guide/ai-chat) can then take uploaded images, and vision Agents can bind it to analyze camera footage; `llm test` verifies connectivity
 
 **Option 2: local Ollama (when Ollama is already deployed)**
 
