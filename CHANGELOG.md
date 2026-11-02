@@ -6,6 +6,11 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-11-02]
+
+### Added
+- **People Counting solution (line-crossing statistics)**: New solution group under Edge AI Solution Cases with a Solution Description (flexible deployment, custom on-device models, low cost) and an Engineering Guide (scenarios, BOM, topology, app installation via ne30x-app Releases, line drawing, tracking parameters, model replacement and target class switching, MQTT/Webhook data integration with the v4.2.8 line_counting window report field table and JSON example, commissioning, operations). Verified on an NE301 running app v4.2.8 with the app-host firmware; five real-device screenshots/animations on the CDN (full bilingual support).
+
 ## [2026-09-30]
 
 ### Changed

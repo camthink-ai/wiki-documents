@@ -113,7 +113,7 @@ NeoMind 内置模型目录中的 **MiniCPM-V-4.7-1B** 是专门的视觉模型(0
 
 1. NeoMind Web → LLM 后端 → **Built-in Model** 卡片选择 MiniCPM-V-4.7-1B 一键下载(入门向导中也可直接勾选)
 2. 下载完成后平台自动拉起 llama.cpp 视觉实例(主模型 + mmproj 投影文件协同),**Multimodal 自动开启**,无需任何配置
-3. 此后 [AI Chat](../../neomind/user-guide/5-ai-chat) 可直接上传图片提问,图像理解类 Agent 也可绑定它分析相机画面;`llm test` 验证连通即可
+3. 此后 [AI Chat](../../neomind/user-guide/ai-chat) 可直接上传图片提问,图像理解类 Agent 也可绑定它分析相机画面;`llm test` 验证连通即可
 
 **方式二:本地 Ollama(已有 Ollama 部署时)**
 

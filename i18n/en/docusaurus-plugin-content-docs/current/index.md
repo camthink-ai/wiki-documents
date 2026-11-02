@@ -273,28 +273,22 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Latest Updates ================= */}
   <h2 className="docs-section-title">Latest Docs</h2>
   <div className="latest-docs-grid">
-    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="update-card">
+    <Link to="/docs/edge-ai-solutions/people-counting/solution-description" className="update-card">
       <span className="update-badge">NEW</span>
+      <div className="update-title">People Counting Solution</div>
+      <div className="update-meta"><span>Solution</span></div>
+    </Link>
+    <Link to="/docs/edge-ai-solutions/vision-scene-understanding/solution-description" className="update-card">
       <div className="update-title">Vision LLM Scene Understanding</div>
       <div className="update-meta"><span>Solution</span></div>
     </Link>
     <Link to="/docs/edge-ai-solutions/water-meter-recognition/solution-description" className="update-card">
-      <span className="update-badge">NEW</span>
       <div className="update-title">Water Meter Reading Solution</div>
       <div className="update-meta"><span>Solution</span></div>
     </Link>
     <Link to="/docs/software/ai-tool-stack/overview" className="update-card">
       <div className="update-title">AI Tool Stack</div>
       <div className="update-meta"><span>Software Platform</span></div>
-    </Link>
-    <Link to="/docs/neoeyes-ne503-series/troubleshooting" className="update-card">
-      <span className="update-badge">NEW</span>
-      <div className="update-title">NE503 Troubleshooting FAQ</div>
-      <div className="update-meta"><span>New docs</span></div>
-    </Link>
-    <Link to="/docs/neomind/product-overview/release-notes" className="update-card">
-      <div className="update-title">NeoMind Release Notes</div>
-      <div className="update-meta"><span>Continuously updated</span></div>
     </Link>
   </div>
 
