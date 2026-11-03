@@ -13,19 +13,19 @@ import SupportGrid from '@site/src/components/SupportGrid';
 ## Overview
 
 <div align="center">
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/301.png" alt="NeoEyes NE301 camera" width="70%" />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/301-rain-cover.png" alt="NeoEyes NE301 (rain cover standard; shown with optional Wi-Fi HaLow antenna)" width="20%" />
 </div>
 
-NeoEyes NE301 is a low-power edge AI camera built on the STM32N6 MCU with 0.6 TOPS of on-device compute. Its modular hardware architecture allows camera, communication, and power components to be swapped on demand, while rich IO expansion and a fully open-source ecosystem help developers move swiftly from prototype to commercial deployment.
+NeoEyes NE301 is a low-power edge AI camera built on the STM32N6 MCU with 0.6 TOPS of on-device compute. Its modular hardware architecture allows camera, communication, and power components to be swapped on demand, while rich IO expansion and a fully open-source ecosystem help developers move swiftly from prototype to commercial deployment. The **rain cover** comes standard for outdoor weather protection, and **Wi-Fi HaLow** (802.11ah) is available for long-range, low-power wireless connectivity.
 
 ### Key Capabilities
 
 - **Edge AI inference**: 0.6 TOPS compute with Web UI zero-code model deployment and real-time inference preview; supports YOLOv8 and other models with hot-swap.
 - **Ultra-low power**: 6.1 μA deep-sleep current; up to years of battery life on 4× AA batteries with PIR / radar smart wake-up.
-- **Modular hardware**: Swappable camera modules (CPI / USB, 3 FOV options), communication modules (Wi‑Fi / Cat‑1 / PoE), and power solutions (battery / Type‑C / solar / PoE).
+- **Modular hardware**: Swappable camera modules (CPI / USB, 3 FOV options), communication modules (Wi‑Fi / Cat‑1 / PoE / Wi-Fi HaLow), and power solutions (battery / Type‑C / solar / PoE).
 - **End-to-end AI toolchain**: Open-source AI Tool Stack platform and NeoMind cloud platform — from data collection, annotation, and training to quantization and deployment in ~2 hours.
 - **Sensor expansion ecosystem**: Sensor expansion board supports 9 sensors (PIR, radar, temperature/humidity, ToF, thermal imaging, etc.), OLED / TFT displays, and microphones — plug-and-play.
-- **Multiple connectivity & triggers**: Wi‑Fi 6 / Cat‑1 / PoE with MQTT / RTMP data upload and video streaming; PIR / radar / acoustic / IO / scheduled / MQTT remote / AI detection trigger modes.
+- **Multiple connectivity & triggers**: Wi‑Fi 6 / Cat‑1 / PoE / Wi-Fi HaLow with MQTT / RTMP data upload and video streaming; PIR / radar / acoustic / IO / scheduled / MQTT remote / AI detection trigger modes.
 - **Fully open source**: Firmware, sensor drivers, and software platforms are all open-source on GitHub — ready for customization and secondary development.
 - **Web UI device management**: Browser-based configuration, real-time video preview, inference parameter tuning, and config import/export — no SDK integration required.
 
@@ -194,7 +194,7 @@ NeoEyes NE301 consists of an outer shell, camera modules, main board, communicat
 NE301 uses a front / middle / rear layered layout where each functional module can be replaced independently:
 
 - **Camera modules**: CPI and USB sensors with 51° / 88° / 137° FOV options. See [“Interchangeable Camera Modules”](#interchangeable-camera-modules) for details.
-- **Communication modules**: Wi‑Fi, Cat‑1, or PoE Ethernet — hot-swappable. See [“Communication”](#communication) for details.
+- **Communication modules**: Wi‑Fi, Cat‑1, PoE, or Wi-Fi HaLow — hot-swappable. See [“Communication”](#communication) for details.
 - **Power options**: 4× AA batteries (included), USB Type‑C, solar panels, or PoE.
 - **Mounting**: The enclosure reserves abundant mounting holes. See CamThink [“Product Accessories”](#product-accessories) for available brackets. Contact us for mechanical design files (3D-printable).
 - **Open-source firmware**: Fully open-source with out-of-the-box support for low-power modes, wake-up control, MQTT, fill light, scheduled capture, and more. See the “Developer Guide” for build and flashing instructions.
@@ -256,6 +256,7 @@ The main board provides a rich set of interfaces for external expansion and debu
 - **Interface & compatibility**: Standard pin headers located on the front of the main board, recognized without additional drivers.
 - **PoE module**: Delivers Ethernet wired connectivity and PoE power in one module, suitable for deployments requiring both network stability and simplified cabling.
 - **Cat‑1 specifications**: Quectel EG912U‑GL (global, excluding North America) and EG915Q‑NA (North America) with LTE FDD/TDD and GSM support, 60 mm × 60 mm footprint.
+- **Wi-Fi HaLow module**: A sub-GHz communication module based on Wi-Fi HaLow (802.11ah, 868 MHz / 915 MHz bands, Morse Micro solution). Paired with a HaLow gateway it delivers long-range, low-power wireless backhaul for outdoor deployments with distance or obstacles. The firmware provides country-code (us / eu / jp / kr / cn) and radio-parameter configuration, with external antenna support. Note: HaLow is hardware-mutually-exclusive with PoE / 4G — the device automatically disables the conflicting link when switching.
 
 ### Sensor Expansion Board
 
@@ -282,6 +283,8 @@ Connect the Sensor expansion board via the main board expansion header to interf
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/sensor1.png" alt="SC200AI USB camera module" width="180" /> | SC200AI USB camera module | 1 | 51° / 88° / 137° FOV options (4 m / 3 m / 2 m focus) |
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/cat1PCBA.jpg" alt="Cat.1 module" width="180" /> | Cat.1 module | 1 | Plug-in Cat‑1 module for global or North America variants |
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/poe.png" alt="PoE module" width="180" /> | PoE module | 1 | Optional plug-in PoE module |
+| <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/halow-module.png" alt="Wi-Fi HaLow module" width="180" /> | Wi-Fi HaLow module | 1 | 802.11ah sub-GHz communication module (868 MHz / 915 MHz); plugs into the board header and pairs with a HaLow gateway for long-range, low-power backhaul |
+| <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/sensor-extension-board.png" alt="Sensor expansion board" width="180" /> | Sensor expansion board | 1 | Supports 9 sensors, OLED / TFT displays and microphones — see the Sensor Expansion Board section |
 
 ### Deployment
 

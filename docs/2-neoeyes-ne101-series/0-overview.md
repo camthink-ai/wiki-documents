@@ -13,7 +13,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ## 产品信息
 
 ## 产品介绍
-![NE101](https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/NE101.png)
+<div align="center">
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/NE101.png" alt="NE101" width="20%" />
+</div>
 
 CamThink Event Camera NeoEyes NE101 是一款基于事件触发抓拍的低功耗智能相机，采用模块化设计理念，具有**超低功耗**的特点。相机支持开发者扩展多种触发拍照方式（PIR/雷达/声音等），可搭配不同传感器模块实现**事件监测图像抓取**根据触发条件自主唤醒并进行图像采集，极大节省功耗。其**开放式硬件架构**允许开发者根据实际需求灵活扩展功能模块，快速完成从原型到商业产品的落地。
 

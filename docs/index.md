@@ -73,6 +73,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NeoEyes 相机 + 视觉大模型 + NeoMind Agent：提示词定义任务，画面变结构化指标，数据不出场。</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/people-counting/solution-description" className="solution-card">
+      <img className="no-zoom" src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/people-counting/index/people-counting-card.png" alt="人数统计方案" />
+      <div className="sol-body">
+        <div className="sol-title">人数统计 <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NE301 过线统计：画线即计数、双向进出流量，检测模型可定制，数据经 MQTT/Webhook 直推业务系统。</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}
