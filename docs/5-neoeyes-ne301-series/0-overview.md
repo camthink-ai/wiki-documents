@@ -13,19 +13,19 @@ import SupportGrid from '@site/src/components/SupportGrid';
 ## 基本介绍
 
 <div align="center">
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/301.png" alt="image" width="70%" />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/301-rain-cover.png" alt="NE301 整机（标配雨罩，图为选配 Wi-Fi HaLow 天线形态）" width="20%" />
 </div>
 
-NeoEyes NE301 是一款基于 STM32N6 MCU 的低功耗边缘 AI 智能相机，集成 0.6 TOPS 算力，采用模块化硬件架构，支持相机、通讯、供电等组件按需更换，具备丰富的接口扩展与完全开源的软硬件生态，助力开发者快速完成从原型到商业产品的落地。
+NeoEyes NE301 是一款基于 STM32N6 MCU 的低功耗边缘 AI 智能相机，集成 0.6 TOPS 算力，采用模块化硬件架构，支持相机、通讯、供电等组件按需更换，具备丰富的接口扩展与完全开源的软硬件生态，助力开发者快速完成从原型到商业产品的落地。整机标配**雨罩**提升户外防雨防护，并可选配 **Wi-Fi HaLow**（802.11ah）远距离低功耗无线通讯。
 
 ### 核心能力
 
 - **边缘 AI 推理**：0.6 TOPS 算力，Web UI 零代码模型部署与实时推理预览，支持 YOLOv8 等模型热替换。
 - **超低功耗**：深度休眠仅 6.1 μA，4 节 AA 电池续航可达数年，支持 PIR / 雷达智能唤醒。
-- **模块化硬件**：相机模组（CPI / USB，3 种视角）、通讯模组（WiFi / Cat-1 / PoE）、供电方案（电池 / Type-C / 太阳能 / PoE）均可按需更换。
+- **模块化硬件**：相机模组（CPI / USB，3 种视角）、通讯模组（WiFi / Cat-1 / PoE / Wi-Fi HaLow）、供电方案（电池 / Type-C / 太阳能 / PoE）均可按需更换。
 - **端到端 AI 工具链**：开源 AI Tool Stack 平台与 NeoMind 云平台，从数据采集、标注、训练到量化部署全流程约 2 小时完成。
 - **传感器扩展生态**：Sensor 扩展板支持 9 种传感器（PIR、雷达、温湿度、ToF、热成像等）、OLED / TFT 显示屏、麦克风，即插即用。
-- **多通讯与多触发**：WiFi 6 / Cat-1 / PoE 多方案通讯，支持 MQTT / RTMP 数据上报与视频推流；PIR / 雷达 / 声音 / IO / 定时 / MQTT 远程 / AI 检测等多触发抓拍。
+- **多通讯与多触发**：WiFi 6 / Cat-1 / PoE / Wi-Fi HaLow 多方案通讯，支持 MQTT / RTMP 数据上报与视频推流；PIR / 雷达 / 声音 / IO / 定时 / MQTT 远程 / AI 检测等多触发抓拍。
 - **完整开源**：固件、传感器驱动及软件平台全部开源（GitHub），开发者可自由定制与二次开发。
 - **Web UI 设备管理**：浏览器端完成设备配置、实时视频预览、推理参数调节、配置导入导出，无需 SDK 集成。
 
@@ -194,7 +194,7 @@ NeoEyes NE301 由前盖、镜头模组、主板、通讯模块、电池模块等
 NE301 采用前/中/后分离的模块化布局，各功能模块均可独立更换：
 
 - **相机模组**：支持 CPI、USB 相机，提供 51°/88°/137° 三种视角可选，详见[「可换相机模组」](#可换相机模组)。
-- **通讯模组**：支持 WiFi、Cat-1、PoE 以太网切换，详见[「通讯方案」](#通讯方案)。
+- **通讯模组**：支持 WiFi、Cat-1、PoE、Wi-Fi HaLow 切换，详见[「通讯方案」](#通讯方案)。
 - **供电方案**：4 节 AA 电池（标配）、USB Type-C 有线供电、太阳能、PoE 供电。
 - **安装扩展**：结构主体预留丰富安装孔位，配合 CamThink [「产品配件」](#产品配件)可灵活部署。如需结构设计文件（可 3D 打印），请联系我们获取。
 - **开源固件**：完整开源，开箱即用低功耗模式、设备唤醒、MQTT 传输、补光控制、定时拍摄等功能。开发和烧录请参见「开发指南」。
@@ -256,6 +256,7 @@ NE301 采用前/中/后分离的模块化布局，各功能模块均可独立更
 - **接口与兼容性**：标准PIN座连接，位于主板正面，支持免驱动识别。
 - **POE模块**：通过POE扩展模块实现以太网有线连接与POE供电一体化，适用于对网络稳定性和供电便捷性要求较高的部署场景。
 - **Cat-1模块规格**：移远EG912U-GL（全球非北美地区）和移远EG915Q-NA（北美地区），支持LTE FDD/TDD和GSM等，尺寸60mm x 60mm。
+- **Wi-Fi HaLow模块**：基于 Wi-Fi HaLow（802.11ah）的 sub-GHz 通讯模组（支持 868MHz / 915MHz 频段，Morse Micro 方案），配合 HaLow 网关实现远距离、低功耗的无线回传，适用于长距离、多障碍物的户外部署；固件提供国家码（us / eu / jp / kr / cn）与射频参数配置，支持外置天线。注意：HaLow 与 PoE / 4G 存在硬件互斥，切换时设备会自动停用冲突链路。
 
 ### Sensor 扩展板
 
@@ -282,6 +283,8 @@ NE301 采用前/中/后分离的模块化布局，各功能模块均可独立更
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/sensor1.png" alt="SC200AI USB摄像头模组" width="180" /> | SC200AI USB摄像头模组 | 1    | 支持3种规格：``51° FOV, 4m focus``、``88° FOV , 3m focus``、``137° FOV, 2m focus`` |
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/cat1PCBA.jpg" alt="Cat.1通讯模块" width="180" />        | Cat.1通讯模块         | 1    | 可自行通过主板插槽装配，支持全球版本或北美版本可选                                                              |
 | <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/poe.png" alt="image" width="180" />                                            | POE通讯模块           | 1    | 可自行通过主板插槽装配                                                                                          |
+| <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/halow-module.png" alt="Wi-Fi HaLow通讯模块" width="180" />                 | Wi-Fi HaLow通讯模块   | 1    | 802.11ah sub-GHz 通讯模组（868MHz / 915MHz），通过主板插槽装配，配合 HaLow 网关实现远距离低功耗回传               |
+| <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/overview/sensor-extension-board.png" alt="Sensor扩展板" width="180" />                 | Sensor 扩展板         | 1    | 支持 9 种传感器、OLED / TFT 显示屏与麦克风接入，详见「Sensor 扩展板」章节                                         |
 
 ### 部署与安装
 

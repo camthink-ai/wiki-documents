@@ -14,7 +14,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Product Introduction
 
-![NE101](https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/NE101.png)
+<div align="center">
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne101-series/overview/NE101.png" alt="NE101" width="20%" />
+</div>
 
 CamThink Event-triggered Camera NeoEyes NE101 is a low-power consumption camera based on event-triggered mechanisms. It adopts a modular design concept and features **ultra-low power consumption**. The camera supports developers to expand multiple photography trigger methods (PIR/radar/sound, etc.), and can be equipped with different sensor modules to achieve **event monitoring image capture**and autonomously wake up and collect images based on trigger conditions, greatly extending the battery life. Its **open-architecture hardware** allows developers to flexibly expand functional modules according to actual needs and quickly complete the implementation from prototype to commercial product.
 

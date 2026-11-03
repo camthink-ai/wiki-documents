@@ -1,5 +1,5 @@
 ---
-description: 本教程详细介绍 NeoEyes NE301 的完整上手流程，涵盖设备组装、Web UI 连接登录，以及功能调试、模型验证、应用管理、硬件管理、系统设置、存储管理、设备信息七大模块的配置与使用，帮助开发者快速完成边缘 AI 应用的部署与调试。
+description: 本教程详细介绍 NeoEyes NE301 的完整上手流程，涵盖设备组装、Web UI 连接登录，以及功能调试、模型验证、应用管理、硬件管理、抓拍设置、系统设置、存储管理、设备信息八大模块的配置与使用，帮助开发者快速完成边缘 AI 应用的部署与调试。
 keywords: [NE301快速开始, NeoEyes教程, AI相机配置, Web UI调试, 模型部署, MQTT配置, Webhook推送, 边缘AI入门, 固件升级, 实时推理]
 tags: [快速入门, NE301, 使用教程, AI调试, 配置指南]
 ---
@@ -8,19 +8,16 @@ tags: [快速入门, NE301, 使用教程, AI调试, 配置指南]
 
 ## 概述
 
-本教程将详细说明 NeoEyes NE301 如何从 0 开始上手使用，涵盖内容有：设备安装、基本使用、Web UI 七大功能模块的配置与调试、模型部署与数据上报等。
+本教程将详细说明 NeoEyes NE301 如何从 0 开始上手使用，涵盖内容有：设备安装、基本使用、Web UI 八大功能模块的配置与调试、模型部署与数据上报等。
 
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center', alignItems: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/ne301-2.png" alt="ne301" style={{ flex: '0 0 auto', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/ne301-1.png" alt="ne301" style={{ flex: '0 0 auto', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-</div>
+> 本文内容对应固件 **v4.3.1**（Web 前端 1.5.0.8）；旧版本固件的界面与功能可能存在差异，变更明细以 [Release Notes](https://github.com/camthink-ai/ne301/releases) 为准。
 
 ## 产品准备
 
 - NE301 主机一套（含主板、电池仓、外壳）
 - AA 电池 4 节，或直流 / 太阳能等替代供电方案
 - 十字螺丝刀、安装支架及固定件
-- 可选扩展：Cat-1 模块、不同规格的镜头模组
+- 可选扩展：Cat-1 模块、Wi-Fi HaLow 模组（需配合 HaLow 网关使用）、不同规格的镜头模组
 - 可连接 WiFi 的电脑或手机，用于访问设备 Web 页面
 
 > 提示：整机版本已预装核心固件与出厂模型，仅需装入电池即可进入调试。若使用开发板版本，请确认各扩展板连接牢固，再完成装配。
@@ -31,9 +28,9 @@ tags: [快速入门, NE301, 使用教程, AI调试, 配置指南]
 
 使用螺丝刀拆卸 NE301 后盖，按照电池仓分布安装电池，等待相机前部的蓝色灯光亮起后，表示相机系统已经成功启动。确定开机顺利后即可将后盖重新安装回设备，到这里你便完成了设备的基本启动，接下来可对设备进行配置。
 
-<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', margin: '8px 0 16px' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup1.jpg" alt="开机示例" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup2.jpg" alt="电池安装" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+<div style={{ display: 'flex', gap: '16px', justifyContent: 'center', alignItems: 'center', margin: '8px 0 16px' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup1.jpg" style={{ maxWidth: '48%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wakeup2.jpg" style={{ maxWidth: '48%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
 ### 设备连接与登录
@@ -55,16 +52,17 @@ NE301 内置 WiFi AP，提供 Web UI 交互方式，供用户对设备的模型�
 
 ## 功能概览
 
-登录后进入 Web 主界面，顶部导航栏提供 7 个功能模块，覆盖设备调试、应用对接与系统管理的全部能力：
+登录后进入 Web 主界面，顶部导航栏提供 8 个功能模块，覆盖设备调试、应用对接与系统管理的全部能力：
 
 | 模块 | 路径 | 作用 |
 |:---|:---|:---|
 | **功能调试** Feature Debugging | `/device-tool` | 实时预览、模型管理、推理参数、电源模式、媒体流推送、唤醒源配置 |
 | **模型验证** Model Validation | `/model-verification` | 上传本地图片用当前模型离线推理，输出 JSON 结果 |
 | **应用管理** Application Management | `/application-management` | 数据上报通道配置：MQTT/MQTTS 与 Webhook |
-| **硬件管理** Hardware Management | `/hardware-management` | 图像参数（翻转、ISP、抓拍）与补光灯策略 |
+| **硬件管理** Hardware Management | `/hardware-management` | 图像参数（翻转、ISP、灰阶）与补光灯策略 |
+| **抓拍设置** Capture Settings | `/capture-settings` | 抓拍上传管道：上传模式、存储位置与记录管理 |
 | **系统设置** System Settings | `/system-settings` | 通信方式、设备密码、固件升级 |
-| **存储管理** Storage Management | `/storage-management` | SD 卡状态、容量与存储策略 |
+| **存储管理** Storage Management | `/storage-management` | SD 卡状态、容量、文件管理与存储策略 |
 | **设备信息** Device Information | `/device-information` | 设备名称、MAC、SN、软硬件版本、供电与通信方式 |
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
@@ -102,6 +100,8 @@ NE301 内置 WiFi AP，提供 Web UI 交互方式，供用户对设备的模型�
 
 如果你希望训练适合自身场景的专用模型，可参考 [在 STM32N6 上训练与部署 YOLOv8](./3-application-guide/0-model-training-and-deployment/0-model-training-and-deployment.md)。
 
+> 模型包需与固件大版本对齐：v4.3.1 对应 **4.x** 前缀的模型包，上传不匹配版本会触发校验提示；AI 分区升级为 8MB A/B 双槽，支持更大模型与双槽切换。
+
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/change-model.gif" alt="模型替换" style={{ maxWidth: '480px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
@@ -129,11 +129,12 @@ NE301 内置 WiFi AP，提供 Web UI 交互方式，供用户对设备的模型�
 
 **Stream Settings** 支持将设备画面以 RTMP 或 RTSP 协议推送到外部服务器，集成在功能调试页内，无需额外命令行操作。
 
+- **Enable RTMP Service**（启用推流服务）：推流总开关，默认关闭。开启后设备**上电自动启动推流**（长按进入配置模式时同样自启；PIR / 定时等抓拍唤醒不会自启）；运行中关闭开关即停止推流。开关关闭时 URL / Secret Key 与 `connect` 均不可用。
 - **Stream Type**：下拉选择 `RTMP` 或 `RTSP`。
 - **URL**：流服务器地址（最大 256 字符）。
 - **Secret Key**（密钥）：推流密钥（最大 128 字符，支持显示 / 隐藏切换）。
 - **Status / Connection Duration**：实时显示连接状态（disconnected / connected）与持续时长。
-- 点击 `connect` 即可开始推流，状态变为 connected 表示推流成功。
+- 开关开启后，点击 `connect` 可立即开始推流，状态变为 connected 表示推流成功；不开开关则等待下次上电自动启动。
 
 > 高级调试仍可使用 CLI 指令 `rtmp_url <url> [stream_key]`。更详细的直播方案请参考 [RTMP 视频推流](./3-application-guide/8-rtmp-video-streaming.md)。
 
@@ -269,10 +270,8 @@ NE301 内置 WiFi AP，提供 Web UI 交互方式，供用户对设备的模型�
   - **Flip Horizontal**：水平翻转画面，适用于安装后成像需要水平翻转的场景。
   - **Flip Vertical**：垂直翻转画面。
   - **ISP mode**（图像信号处理模式）：根据环境光照优化成像质量，默认 `Outdoor / bright light`（户外 / 强光），可按实际安装环境切换。
-- **Capture configuration**（抓拍配置）
-  - **Skip frames**：跳帧数，默认 30，用于抓拍前跳过若干帧以获得稳定画面。
-  - **Resolution**：抓拍分辨率，支持 `1280x720` / `1920x1080` / `2688x1520` 三档。
-  - **JPEG quality**：JPEG 图像质量，默认 80。质量越高图像越大，超过 1 MB 时将自动分块上传，上传时间相应延长。
+  - **Grayscale mode**（灰阶模式）：黑白成像模式，低光或纹理敏感的识别场景可开启，切换即时生效。
+- **Capture configuration**（抓拍参数）已迁移至「抓拍设置」（见第 5 节），含跳帧数 / 分辨率 / JPEG 质量与上传参数。
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/image-management.png" alt="图像管理" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
@@ -286,19 +285,44 @@ NE301 内置 WiFi AP，提供 Web UI 交互方式，供用户对设备的模型�
 - **Custom**：自定义时间段开启（如 20:00–06:00），时间范围内常开。
 - **Always Off**：补光灯常关。
 
+- **Use as fill light while working**（工作期补光）：开启后设备运行期间补光灯按上方配置常亮，运行期抓拍不再触发闪光；休眠唤醒抓拍仍按闪光逻辑。默认关闭。
+
 > 提示：补光灯效果仅在近距离场景较明显；对功耗敏感的场景建议选择 Always Off。
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/lighting-management.png" alt="灯光管理" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## 5. 系统设置（System Settings）
+## 5. 抓拍设置（Capture Settings）
+
+抓拍设置管理「抓拍 → 存储 → 上报」的完整链路，包含**配置**（Capture Config）与**记录**（Records）两个标签页。
+
+**Capture Config（配置）**
+
+- **抓拍模式**（Capture Mode）：`Snap & Upload`（抓拍即传）/ `Batch Upload`(批量上传）/ `Scheduled Upload`（定时上传）/ `Store Only`（仅本地存储）四种。
+- **存储位置**（Storage Location）：`Auto` 优先 SD 卡并支持热插拔自动切换；无 SD 卡时写入内部 Flash，记录总数上限 16–256（默认 32），超限自动删除最旧记录。
+- **Storage Policy**（存储策略）：循环覆盖（Wrap）或到量停止（Stop）。
+- **Upload Protocol / Upload Network**（上传协议 / 上传网络）：选择经 MQTT 或 Webhook 投递；上传网络默认跟随当前通信方式，仅对低功耗唤醒抓拍生效，上报配置需先在「应用管理」中完成。
+- **Retry**（重试）：失败自动重试，最大次数可调（0 = 不限次）。
+- **Keep Uploaded Files**（保留时长）：默认 72000 小时（≈ 永久保留，仅在满盘或达到上限时清理）；设为 0 表示上传成功即删。
+
+**Records（记录）**
+
+按日期管理抓拍记录：支持时间范围筛选、批量删除与重试、图片下载（原图 / 推理图）。抓拍目录在「存储管理 → File Manager」中为只读，记录请在本页管理。
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/capture-settings.png" alt="抓拍设置" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+> 以上为模块速览；各字段取值范围与组合策略以页面内提示为准。
+
+## 6. 系统设置（System Settings）
 
 系统设置包含**通信管理**、**设备密码**、**固件升级**三个子模块。
 
-### 5.1 通信管理（Communications）
+### 6.1 通信管理（Communications）
 
-NE301 支持 WiFi、Cat-1、POE 三种通信方案。页面通过 **Change Communication Method**（切换通信方式）在不同方案间切换；选择 WiFi 方案时，页面会自动扫描并列出当前环境可用的 WiFi 热点。
+NE301 支持 WiFi、Cat-1、POE 与 Wi-Fi HaLow 通信方案（按机型硬件而定）。页面通过 **Change Communication Method**（切换通信方式）在不同方案间切换；选择 WiFi 方案时，页面会自动扫描并列出当前环境可用的 WiFi 热点。
 
 **WiFi 连接流程**：在扫描列表中找到目标热点，点击右侧 `connect`，在弹出的「Enter Wi-Fi Password」对话框中输入密码并点击 `confirm` 即可连接。设备会保存最近一次连接的 SSID 与密码，重复设置时始终覆盖为最近一次。
 
@@ -307,84 +331,61 @@ NE301 支持 WiFi、Cat-1、POE 三种通信方案。页面通过 **Change Commu
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/wifi-connect-password.png" alt="WiFi 密码输入" style={{ flex: '1 1 280px', maxWidth: '360px', width: '100%', height: 'auto', borderRadius: '6px', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-- **WiFi 方案**：标准版本自带。在配置界面选择目标 WiFi，输入密码后连接；重复设置时设备始终保存最近一次的 SSID 与密码。
-- **Cat-1 方案**：需在设备前盖 SIM 卡槽插入 SIM 卡（当前支持除北美以外的大部分地区），插入后页面自动读取 **IMEI**。在 Cellular 配置中按运营商信息填写 **APN**、**Cellular Username**、**Cellular Password**、**PIN Code**，选择 **Authentication**（认证类型）、**Operator**（运营商，默认 Auto）、**Roaming**（漫游开关）；可在下方 **AT Commands** 区域输入 AT 指令点击 `Send` 测试 modem 响应。填写完成后点击 `save` 保存，再点 `connect` 拨号，可通过 `details` 查看网络注册详情。
-
+- **WiFi 方案**：标准版本自带。在配置界面选择目标 WiFi，输入密码后连接；重复设置时设备始终保存最近一次的 SSID 与密码。连接外部网络后，可在已连网络详情中查看链路与 IP 信息（SSID / 信号强度 / 信道 / IP 配置）；页面提供 **Region**（国家码）设置（us / eu / jp / kr / cn），按所在地区选择。
+- **Cat-1 方案**：需在设备前盖 SIM 卡槽插入 SIM 卡（当前支持除北美以外的大部分地区），插入后页面自动读取 **IMEI**。在 Cellular 配置中按运营商信息填写 **APN**、**Cellular Username**、**Cellular Password**、**PIN Code**，选择 **Authentication**（认证类型）、**Operator**（运营商，默认 Auto，支持手动指定 PLMN）、**Roaming**（漫游开关）；可在下方 **AT Commands** 区域输入 AT 指令点击 `Send` 测试 modem 响应。填写完成后点击 `save` 保存，再点 `connect` 拨号，可通过 `details` 查看网络注册详情。
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/communications-cellular.png" alt="Cat-1 蜂窝网络配置" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+</div>
+
+- **Wi-Fi HaLow 方案**（802.11ah，选配 HaLow 模组机型）：通信方式切换为 `Wi-Fi HaLow` 后，页面提供 Region 国家码、HaLow 网络扫描接入与 IP 配置，以及射频参数（**Radio Settings**：发射功率、扫描驻留时间、MCS、带宽、保护间隔）与省电模式开关（默认关闭）。HaLow 网络需配合 HaLow 网关使用；HaLow 与 PoE / 4G 存在硬件互斥，切换时设备会自动停用冲突链路。
+
+<div style={{ textAlign: 'center', margin: '12px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/communications-halow.png" alt="Wi-Fi HaLow 网络扫描" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
 - **POE 方案**（以太网供电）：插入网线后页面自动显示「网线已连接」及供电状态（如 `POE_ONLINE`）。IP 获取支持 DHCP（默认，自动获取）与 Static（静态 IP，需手动填写 IP / 掩码 / 网关 / DNS）。遇到网络问题时会显示具体错误码（如 `POE_STATUS_DHCP_FAILED`、`POE_STATUS_IP_CONFLICT`）。
 
 > 注意：切换通信方式或连接到外部 WiFi 时，设备可能会关闭本地 WiFi AP，导致当前配置页面断开。请在确认设备已成功加入目标网络后，通过新网络访问设备。
 
-### 5.2 设备密码（Device Password）
+### 6.2 设备密码（Device Password）
 
 #### 本机 WiFi 设置（Local WiFi Settings）
 
 - **WiFi Name**：设备热点名称，命名规则为 `NE301{Mac 后六位}`，MAC 信息见设备外壳标签。
-- **WiFi Password**：默认**无密码**（开放热点，连接无需输入密码）；可在此设置一个 WiFi 密码，修改后 WiFi AP 将重启，可能需要重新连接。网页登录密码（默认 `hicamthink`）见下方「登录密码」。
-- **Sleep Time**：WiFi AP 开启后的自动关闭时间，默认 30 分钟，期间的 Web 操作会重置计时。为减少电池功耗，不建议长时间开启。
+- **热点不设密码**：v4.3.1 起热点固定为开放网络，不再支持设置密码（WiFi 芯片限制：设置密码会导致 STA 模式无法联网）；旧固件保存过的热点密码升级后自动失效。
+- **Sleep Time**：热点空闲自动关闭时间，固定档可选 永不 / 10 / 20 / 30 分钟（默认永不）；网页登录密码（默认 `hicamthink`）见下方「登录密码」。
 
 #### 登录密码（Login Password）
 
 - **Username**：系统内置，固定不可修改。
-- **Password**：输入当前密码与新密码后保存生效。规则建议 8–20 位，包含字母、数字与符号，避免使用与设备信息相关的弱口令。
+- **Password**：输入当前密码与新密码后保存生效。规则为 8–32 位，建议包含字母、数字与符号，避免使用与设备信息相关的弱口令。
 - 支持显示 / 隐藏密码切换。若遗忘密码，可通过「设备重置」恢复出厂设置，密码恢复为 `hicamthink`（重置会清除所有自定义配置，请提前导出备份）。
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/device-pwd.png" alt="设备密码" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-### 5.3 固件升级（Firmware Upgrade）
+### 6.3 固件升级（Firmware Upgrade）
 
-用于查看固件版本、执行本地升级，以及模型与配置的导入导出。页面顶部显示当前固件版本信息，下方提供导入（Import）与导出（Export）操作。
+页面顶部 **Firmware Information** 逐项显示六个组件版本（App / Web / AI 模型 / FSBL / WakeCore / WiFi 固件，4.x 与固件大版本对齐）。App / Web 为日常升级对象；WiFi 固件不匹配时 Web 自动引导升级（推送到芯片约 1–3 分钟，期间勿断电）。
 
-**固件版本信息（Firmware Information）**
-
-NE301 的固件由以下几部分组成，页面逐项显示版本号。按是否需要日常升级标注如下：
-
-- **App Version**：主应用固件——设备核心逻辑。**【日常升级】**常规升级的主要对象。
-- **Web Version**：Web 前端——本配置界面本身。**【日常升级】**随 App 一并升级。
-- **FSBL Version**：第一阶段引导加载器。**【特殊升级】**仅引导相关更新时才需要，日常无需升级。
-- **AI Model Version**：当前模型包版本。**【按需】**模型导入 / 替换时变化（见下文）。
-- **WakeCore Version**：唤醒核固件——负责低功耗唤醒。**【一般无需升级】**日常不动。
-
-**导入（Import）**
-
-按导入内容分三类，入口与方式各不相同：
-
-1. **固件升级（APP / Web / FSBL）**：日常升级覆盖 APP 与 Web；FSBL 仅特殊情况升级。三者均通过 Web 页面上传 `_pkg.bin` 包刷入（**网页升级只认 `_pkg.bin` 后缀，纯 `.bin` 文件无法网页升级**）。
-   - **APP / Web**：在本页点击 **Import Firmware**，选择对应 `pkg.bin` 文件上传。
-   - **FSBL**：专用路径——登录配置页面后，在浏览器地址栏访问 `http://192.168.10.10/import-fsbl`，上传 `ne301_FSBL_signed_*_pkg.bin`。
-   - **升级顺序**：建议 **FSBL → APP → Web**，每完成一项等待设备自动重启并重新连接 AP 后，再进行下一项。
-   - **固件示例**（可从 GitHub Releases 下载）：
-     - APP：[ne301_App_signed_v2.0.1.30_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_App_signed_v2.0.1.30_pkg.bin)
-     - Web：[ne301_Web_v1.3.4.4_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_Web_v1.3.4.4_pkg.bin)
-     - FSBL：[ne301_FSBL_signed_v1.0.0.2_pkg.bin](https://github.com/camthink-ai/ne301/releases/download/v20260213_main/ne301_FSBL_signed_v1.0.0.2_pkg.bin)
-2. **模型导入（按需）**：在「功能调试 → Current Model」上传模型包（模型文件 + 参数），部署后在功能调试页验证推理效果（详见 1.3 模型管理）。
-3. **配置导入（按需）**：将此前导出的 `.json` 配置文件重新导入设备，用于批量下发或异常恢复。跨固件版本导入可能存在不兼容项，若导入失败请参考版本发布说明或先升级到兼容版本。
-
-点击 **Import Firmware** 弹出如下对话框，按类别上传对应的 `_pkg.bin` 包后点击 **Confirm Burn** 开始刷入：
+**升级方式**：点击 **Import Firmware** 上传对应 `_pkg.bin`（App / Web / AI 模型 / 配置文件）；FSBL / WiFi / 整合包入口在 **Advanced Options** 中。整机升级推荐**整合包一键升级**——上传 `*_bundle.bin` 一次完成，支持分区表迁移，同版本条目可跳过。固件按版本从 [GitHub Releases](https://github.com/camthink-ai/ne301/releases) 下载。配置导入为合并语义（缺失项保留设备当前值），导出一键备份当前配置；模型导入见 [1.3 模型管理](#_3-模型管理)。
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
-  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/firmware-import.png" alt="导入固件对话框" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/firmware-import-advanced.png" alt="导入固件对话框与高级选项" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-**导出（Export）**
-
-- **Export Firmware**：一键导出当前设备配置（`.json`），用于备份与跨设备批量下发。建议在升级或重置前先导出。
-
-> 升级与导入过程请保持供电稳定，操作完成前不要断电或刷新页面；升级失败会保留旧版本，设备不会变砖。
+> **从 v2.1.0 升级**：分区表已重新设计，必须按官方指引顺序升级，跳步或乱序将导致 Web 无法访问；**MQTTS 证书 / 私钥会丢失**，请提前备份。详见 [OTA 升级指南](https://github.com/camthink-ai/ne301/blob/main/Docs/NE301_v4.3.1_OTA_Update_Guide.md)。升级过程保持供电稳定，失败会保留旧版本，不会变砖。
 
 <div style={{ textAlign: 'center', margin: '12px 0' }}>
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/firmware-upgrade.png" alt="固件升级" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## 6. 存储管理（Storage Management）
+## 7. 存储管理（Storage Management）
 
-存储管理用于管理设备的 SD 卡存储，支持将抓拍图像与推理结果落盘到本地 SD 卡，便于断网时本地留存。
+存储管理用于管理设备的存储介质，支持将抓拍图像与推理结果落盘到本地 SD 卡，便于断网时本地留存。
 
+- **Internal Flash**（内部 Flash）：显示内部 Flash 的容量与使用情况，并提供 **File Manager** 入口——可在浏览器中管理内部 Flash 与 SD 卡文件（浏览 / 上传 / 删除 / 格式化）；`captures` 抓拍目录为只读，记录请到「抓拍设置 → Records」管理。
 - **SD Card Status**（SD 卡状态）：显示 SD 卡是否被检测到（如 Not Detected 表示未插入或未识别）。
 - **Capacity**（容量）：显示已用 / 总容量（如 Used 0 GB / 0.00 GB）。
 - **Storage Policy**（存储策略）：当前支持 `Loop Coverage`（循环覆盖），即 SD 卡写满后自动覆盖最旧的数据，保证持续录制不中断。
@@ -393,7 +394,7 @@ NE301 的固件由以下几部分组成，页面逐项显示版本号。按是�
   <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne301-series/quick-start/storage-management.png" alt="存储管理" style={{ maxWidth: '560px', width: '100%', height: 'auto', borderRadius: '6px', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }} />
 </div>
 
-## 7. 设备信息（Device Information）
+## 8. 设备信息（Device Information）
 
 展示设备的核心属性，字段说明如下：
 

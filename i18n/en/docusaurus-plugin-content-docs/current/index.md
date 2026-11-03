@@ -73,6 +73,13 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         <div className="sol-desc">NeoEyes cameras + a vision LLM + NeoMind Agents: define tasks by prompt, turn footage into structured metrics — data stays on-prem.</div>
       </div>
     </Link>
+    <Link to="/docs/edge-ai-solutions/people-counting/solution-description" className="solution-card">
+      <img className="no-zoom" src="https://resources.camthink.ai/wiki/img/edge-ai-solutions/people-counting/index/people-counting-card.png" alt="People Counting solution" />
+      <div className="sol-body">
+        <div className="sol-title">People Counting <span className="update-badge">NEW</span></div>
+        <div className="sol-desc">NE301 line-crossing counting: draw a line to count bidirectional traffic, customizable detection models, results pushed straight to your business system via MQTT/Webhook.</div>
+      </div>
+    </Link>
   </div>
 
   {/* ================= Products ================= */}
