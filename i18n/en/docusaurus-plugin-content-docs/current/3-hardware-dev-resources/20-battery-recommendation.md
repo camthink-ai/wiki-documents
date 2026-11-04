@@ -144,9 +144,9 @@ WiFi is the most power-efficient communication method, suitable for locations wi
 - The device's internal power management IC can handle short voltage fluctuations, but **poor quality batteries with excessively high internal resistance may cause Cat-1 module network registration failure or data upload interruption**
 - **Using high-quality batteries is recommended** to ensure stable operation in Cat-1 mode
 
-### 3.3 WiFi HaLow Mode Capture (NE101 Only)
+### 3.3 WiFi HaLow Mode Capture
 
-WiFi HaLow (IEEE 802.11ah) is a low-power, long-range communication protocol designed for IoT, supported only by NE101. The power consumption data below are estimates based on protocol characteristics; actual values should be verified through testing.
+WiFi HaLow (IEEE 802.11ah) is a low-power, long-range communication protocol designed for IoT. NE101, NE301, and NE302 all offer Wi-Fi HaLow as an option with different hardware forms: NE101 has a built-in HaLow module, NE301 uses an optional HaLow module (since firmware v4.3.1), and NE302 uses an interface board with an integrated HaLow module. The power consumption data below are estimates based on protocol characteristics; actual values should be verified through testing.
 
 | Parameter | Description |
 |:---|:---|
