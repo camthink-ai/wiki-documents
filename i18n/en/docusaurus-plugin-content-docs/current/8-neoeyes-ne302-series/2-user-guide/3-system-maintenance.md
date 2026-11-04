@@ -2,16 +2,32 @@
 id: ne302-system-maintenance
 title: System Maintenance
 sidebar_position: 3
-description: Change the NE302 login password, upgrade firmware and manage device storage from the Web console.
+description: Configure the NE302 network (Wi-Fi / Wi-Fi HaLow), change the login password, upgrade firmware and manage device storage from the Web console.
 keywords: [NE302, System Settings, Storage Management, firmware, password]
 tags: [NE302, user-guide, maintenance, firmware]
 ---
 
 # System Maintenance
 
-Use this page to change the login password, upgrade firmware and manage device storage. Network connection and result delivery are covered in [Data Transmission](./1-data-transmission.md); capture storage policy and Records are covered in [Capture and Storage](./0-capture-storage.md).
+Use this page to configure the network, change the login password, upgrade firmware and manage device storage. Result delivery is covered in [Data Transmission](./1-data-transmission.md); capture storage policy and Records are covered in [Capture and Storage](./0-capture-storage.md).
 
-## 1. Change login password
+## 1. Network Connection
+
+Open **System Settings → Communications** and select the communication method to connect the device.
+
+Choose **Wi-Fi** or **Wi-Fi HaLow** under **Change Communication Method**. Wi-Fi HaLow is available only on units with the HaLow interface board; see [Components Overview](../3-hardware-guide/0-components-overview.md) for hardware identification.
+
+1. Select the regulatory region under **Region**.
+2. Click the refresh icon to scan; pick the target network from the list and enter the password for secured networks.
+3. Confirm **IP Mode** under **Network Settings** (DHCP by default) or configure a static address per the site plan.
+
+![NE302 Wi-Fi HaLow network scan](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-communications-halow.png)
+
+Keep **Radio Settings** (TX Power, Scan Dwell, Fixed MCS, TX Bandwidth, Guard Interval) at their defaults unless required (Auto; TX Power 0 means regulatory maximum); **Power Save** is off by default. Click **save** in the section after changes.
+
+![NE302 Wi-Fi HaLow radio settings](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-halow-radio.png)
+
+## 2. Change login password
 
 Open **System Settings → Device Password**:
 
@@ -23,7 +39,7 @@ Open **System Settings → Device Password**:
 
 ![NE302 Device Password settings](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-device-password.png)
 
-## 2. Firmware Upgrade
+## 3. Firmware Upgrade
 
 Open **System Settings → Firmware Upgrade**. Check the installed versions under **Firmware Information**, then download firmware from [NE302 GitHub Releases](https://github.com/camthink-ai/ne302/releases). The table lists `v4.3.0` files verified as reachable on 2026-08-17; for another version, use only the matching files from its Release.
 
@@ -47,7 +63,7 @@ Use **Export Firmware** first if the current configuration must be retained. Its
 
 Upgrade FSBL only when a Release or engineer explicitly requires it. Do not mix packages from different Releases or upload `.json`, `.hex` or unpackaged images to an OTA entry.
 
-## 3. Storage Management
+## 4. Storage Management
 
 Open **Storage Management** and check **SD Card Status** and available **Internal Flash** space.
 

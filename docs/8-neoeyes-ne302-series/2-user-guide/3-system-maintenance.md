@@ -2,16 +2,32 @@
 id: ne302-system-maintenance
 title: System Maintenance
 sidebar_position: 3
-description: 说明如何在 Web 控制台中修改 NE302 登录密码、选择匹配的固件包升级，并安全管理设备存储。
+description: 说明如何在 Web 控制台中配置 NE302 网络连接（Wi-Fi / Wi-Fi HaLow）、修改登录密码、选择匹配的固件包升级，并安全管理设备存储。
 keywords: [NE302, System Settings, Storage Management, 固件, 密码]
 tags: [NE302, 用户指南, 系统维护, 固件升级]
 ---
 
 # System Maintenance
 
-本页说明如何修改登录密码、升级固件和管理设备存储。网络连接与结果发送见[数据传输](./1-data-transmission.md)；抓拍保存策略和记录见[抓拍与存储](./0-capture-storage.md)。
+本页说明如何配置网络、修改登录密码、升级固件和管理设备存储。结果发送见[数据传输](./1-data-transmission.md)；抓拍保存策略和记录见[抓拍与存储](./0-capture-storage.md)。
 
-## 1. 修改登录密码
+## 1. 网络连接
+
+打开**系统设置 → Communications**，选择通信方式并完成联网。
+
+在 **Change Communication Method** 中选择 **Wi-Fi** 或 **Wi-Fi HaLow**；Wi-Fi HaLow 仅在搭载 HaLow 接口板的整机上提供，硬件识别见[硬件组成](../3-hardware-guide/0-components-overview.md)。
+
+1. **Region** 选择部署地对应的法规区域；
+2. 点击刷新图标扫描网络，在列表中选择目标网络；加密网络输入密码后连接；
+3. 在 **Network Settings** 确认 IP Mode（默认 DHCP），或按现场规划配置静态地址。
+
+![NE302 Wi-Fi HaLow 网络扫描](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-communications-halow.png)
+
+**Radio Settings** 中的 TX Power、Scan Dwell、Fixed MCS、TX Bandwidth、Guard Interval 无特殊需求保持默认（Auto，TX Power 为 0 表示法规上限）；**Power Save** 默认关闭。修改后点击该区域 **保存**。
+
+![NE302 Wi-Fi HaLow 射频参数](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-halow-radio.png)
+
+## 2. 修改登录密码
 
 打开**系统设置 → 设备密码**：
 
@@ -23,7 +39,7 @@ tags: [NE302, 用户指南, 系统维护, 固件升级]
 
 ![NE302 设备密码设置页面](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/user-guide/system-maintenance/ne302-system-settings-device-password.png)
 
-## 2. 固件升级
+## 3. 固件升级
 
 打开**系统设置 → 固件升级**，先在**固件信息**中查看当前版本。固件从 [NE302 GitHub Releases](https://github.com/camthink-ai/ne302/releases) 下载。下表列出截至 2026-08-17 已核验可访问的 `v4.3.0` 文件；使用其他版本时，只能使用同一发布版本中的配套文件。
 
@@ -47,7 +63,7 @@ tags: [NE302, 用户指南, 系统维护, 固件升级]
 
 FSBL 仅在 Release 或工程师明确要求时升级。不要混用不同 Release 的包，也不要将 `.json`、`.hex` 或未打包映像上传到 OTA 框。
 
-## 3. 存储管理
+## 4. 存储管理
 
 打开**存储管理**，先确认**SD 卡状态**和**内部 Flash**的可用空间。
 

@@ -16,14 +16,16 @@ import SupportGrid from '@site/src/components/SupportGrid';
 
 NeoEyes NE302 是一款面向设备集成的迷你 AI 视觉相机。它把 4 MP 图像采集、STM32N6 边缘 AI、无线连接和本地存储集成在 38 × 38 mm 主板中。NE302 整机交付包含主板和接口板：双板整机可通过 USB Type-C 持续供电或 USB Type-C 外部电池组供电；主板也可用于定制集成，并通过 DC 供电。
 
-![NE302 白色外壳和外置天线](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-white-external-render-large-transparent.png)
+<div align="center">
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-halow-external-render.png" alt="NeoEyes NE302" width="70%" />
+</div>
 
 ### 核心能力
 
 - **边缘 AI 推理**：基于 STM32N6 Cortex-M55 和 Neural-ART 加速器，在设备侧执行 INT8 神经网络推理，减少对云端推理的依赖。
 - **图像采集与编码**：支持 4 MP 图像采集；H.264 视频编码最高为 1920 × 1080、30 fps，并提供 JPEG 硬件编码。
 - **双板扩展与定制集成**：接口板为整机提供 USB Type-C 供电、MicroSD、控制和开发连接，便于安装、维护和二次开发；主板也可用于通过 DC 供电的定制集成。
-- **无线连接**：支持 2.4 GHz Wi-Fi 6 和 BLE；无线配置、天线形态和可用区域以交付版本为准。
+- **无线连接**：支持 2.4 GHz Wi-Fi 6 和 BLE；可选配 Wi-Fi HaLow（802.11ah，868/915 MHz Sub-GHz）接口板，用于远距离、低功耗的组网回传。无线配置、天线形态和可用区域以交付版本为准。
 - **本地存储与数据流**：支持 MicroSD 本地存储，结合 Web 控制台完成预览、抓拍、推理验证和设备管理。
 - **补光与扩展**：部分硬件版本可能提供补光或扩展模块；是否可用以交付 SKU 和当前固件为准。
 - **开发资源**：开源工程包含 FSBL、主应用、Web、模型和 WakeCore 等组件，可用于构建、打包、烧录和 OTA 开发。
@@ -57,6 +59,7 @@ NeoEyes NE302 是一款面向设备集成的迷你 AI 视觉相机。它把 4 MP
 | 项目 | 规格 |
 | :--- | :--- |
 | 无线 | Wi-Fi 6，802.11ax 2.4 GHz；BLE 5.3 |
+| 无线（选配） | Wi-Fi HaLow（802.11ah，868/915 MHz Sub-GHz，外置专用天线） |
 | 天线 | 标准外置 SMA，3–4 dBi |
 | 存储与控制 | MicroSD 卡槽；Trigger 和 Reset 按键；双色指示灯 |
 
@@ -78,7 +81,7 @@ NE302 由以下主要部件组成：
 | 部件 | 作用 | 备注 |
 | :--- | --- | --- |
 | 主板 | 承载 STM32N6、STM32U0、图像和无线相关电路 | 38 × 38 mm 主板基线 |
-| 接口板 | 提供供电、存储、控制和开发连接 | 接口数量与布局按硬件版本确认 |
+| 接口板 | 提供供电、存储、控制和开发连接 | 分标准接口板和 Wi-Fi HaLow 接口板（集成 HaLow 模块）两种硬件版本 |
 | 相机组件 | 提供图像输入 | 适用镜头型号和焦距按 SKU 确认 |
 | 天线 | 提供无线连接 | 公共 datasheet 基线为外置 SMA |
 | 外壳 | 提供结构保护和安装 | 公共 datasheet 基线为 42 × 42 × 20 mm |
@@ -131,7 +134,7 @@ flowchart LR
 
 不同交付版本可能在无线版本、镜头、天线、调试接口和供电输入上有所不同。不要根据产品渲染图或通用标注图推断具体 SKU；安装、烧录和模型部署前先核对交付版本资料。
 
-当前公开无线基线为 Wi-Fi 6 和 BLE。后续将兼容 Wi-Fi HaLow 版本，但该版本需要对应的无线硬件，不属于当前交付基线；需要 Wi-Fi HaLow 时，请先确认交付版本和硬件配置。
+当前无线基线为 Wi-Fi 6 和 BLE。Wi-Fi HaLow 由集成 HaLow 模块的 Wi-Fi HaLow 接口板整机变体提供，需对应的无线硬件和 HaLow 专用天线；下单和使用前请确认交付版本和硬件配置。
 
 ## 产品应用
 

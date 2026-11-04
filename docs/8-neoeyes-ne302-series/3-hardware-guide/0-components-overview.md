@@ -67,6 +67,23 @@ STM32N6 和 STM32U0 是独立 MCU。烧录前按接口板丝印确认目标；�
 | N6_UART | STM32N6 串口控制台接口 | 仅使用匹配的转接器和串口流程；源码 README 标注为 921600 波特率 |
 | N6-BOOT / U0-BOOT | 烧录模式控制 | 仅在设备断电时切换对应开关 |
 
+## Wi-Fi HaLow 接口板
+
+Wi-Fi HaLow 版整机使用集成 HaLow 模块的接口板（PCB 丝印 ACF13-02）。正面的供电、存储和板间连接与标准接口板一致；背面为 HaLow 模块、天线座和烧录控制。
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', margin: '20px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-halow-interface-board-front-map.png" alt="NE302 Wi-Fi HaLow 接口板正面" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-halow-interface-board-rear-map.png" alt="NE302 Wi-Fi HaLow 接口板背面" style={{ width: '100%', borderRadius: '8px' }} />
+</div>
+
+| 组件或区域 | 功能 | 使用边界 |
+| :--- | :--- | :--- |
+| HaLow 模块 | 802.11ah Sub-GHz 无线（868/915 MHz） | 法规区域通过系统 **Region** 设置选择，见[系统维护](../2-user-guide/3-system-maintenance.md) |
+| HaLow_Wifi-ANT | HaLow 外置天线座 | 使用交付的 HaLow 专用天线，避免与其他频段天线混用 |
+| Main Board Connector（J3/J4） | 与主板的板间连接 | 与标准接口板一致，按防呆方向安装 |
+| TYPE-C / TF-CARD / IR-CUT | 供电、存储与 IR-CUT 连接 | 与标准接口板一致 |
+| U0_STLINK / SW1 | U0 烧录接口与 N6/U0 BOOT 拨码 | 与标准接口板一致，见[硬件连接](./1-hardware-connection.md) |
+
 ## 相关资料
 
 - 两板装配、USB-C、MicroSD、N6_UART 和 ST-LINK：[硬件连接](./1-hardware-connection.md)
