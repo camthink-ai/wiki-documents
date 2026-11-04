@@ -85,3 +85,7 @@ rtsp://<设备IP>:8554/main
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-time-settings.png" />
 
 设备维护见[设备维护](./2-user-guide/5-device-maintenance.md)。
+
+---
+
+> 本文档对应 NeoRuntime v1.2.0（OS 1.13.0）。固件包 `neoruntime-hailo15-<版本>.tar.gz` 从 [Releases](https://github.com/camthink-ai/neoruntime/releases) 下载。

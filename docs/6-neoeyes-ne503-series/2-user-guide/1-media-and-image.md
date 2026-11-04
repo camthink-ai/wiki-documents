@@ -20,7 +20,11 @@ tags: [用户指南, NE503, 视频, 图像, RTSP]
 
 ### 码流设置
 
-切换 **Main / Sub / Third** 后按需调整编码格式、分辨率、帧率、码率和 I 帧间隔。带宽不足时降低分辨率或码率；不用的码流关闭。
+切换 **Main / Sub / Third** 后按需调整编码格式（H.264 / H.265）、分辨率、帧率、码率和 I 帧间隔（GOP）。带宽不足时降低分辨率或码率；不用的码流关闭。
+
+![码流设置：H.265 与 GOP](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/media-h265-codec.png)
+
+> 浏览器不支持 H.265 解码时，实时画面无法预览并给出提示，但编码配置仍可保存，RTSP 拉流不受影响。
 
 ### RTSP 推流
 
@@ -117,7 +121,9 @@ Image 标签顶部的 Day / Night Mode 决定昼夜切换方式：
 
 **ISP 设置**
 
-Manual Mode 用于固定曝光、增益和白平衡；Powerline Frequency 选择现场 50Hz/60Hz；White Balance 在偏色时调整。
+Manual Mode 用于固定曝光、增益和白平衡；Powerline Frequency 选择现场 50Hz/60Hz；White Balance 在偏色时调整；Noise Reduction 调节降噪强度（0–100），设置持久化保存。
+
+![ISP 降噪设置](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/image-noise-reduction.png)
 
 **画面变换（Transform）**
 

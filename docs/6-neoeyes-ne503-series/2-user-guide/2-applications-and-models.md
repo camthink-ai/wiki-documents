@@ -26,6 +26,8 @@ NE503 通过 **Applications** 管理应用，通过 **Models** 管理模型。AI
 
 可用状态筛选 **All / Installed / Running / Stopped / Failed** 定位应用。
 
+> 设备 OS 升级后，应用声明的 OS 版本范围与设备不匹配时，平台会停用该应用的业务功能并显示兼容性提示页，列出应用版本、支持的 OS 范围和设备当前 OS。按提示完成应用或固件升级后自动恢复。
+
 ### 安装新应用
 
 点击 **Import** 卡片打开安装向导 **Application Setup Wizard**。向导按配置区组织，左侧在 **Registry Image / Basic Info / Resources / Models / Permissions / Advanced** 之间切换，右上角可在 **Form** 表单和 **YAML** 视图间切换。
@@ -53,7 +55,7 @@ NE503 通过 **Applications** 管理应用，通过 **Models** 管理模型。AI
 
 ## 模型管理
 
-进入 **Models** 页面管理推理模型。顶部提供按 Model ID 搜索、状态筛选、加载顺序排序和模型类型筛选（检测、分类、OCR 等）；模型列表以设备实际显示为准。
+进入 **Models** 页面管理推理模型。顶部提供按 Model ID 搜索、状态筛选、加载顺序排序和模型类型筛选（检测、分类、分割、OCR 等）；模型列表以设备实际显示为准。
 
 ![模型列表](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/applications-and-models/models-list.png)
 
@@ -62,13 +64,24 @@ NE503 通过 **Applications** 管理应用，通过 **Models** 管理模型。AI
 点击 **Import** 打开导入向导，按 **Upload → Parse → Configure**（上传、解析、配置）三步完成：
 
 1. **上传**：上传裸 `.hef` 文件（后续手动配置），或 `.bin` 格式的 AMPK 模型包（解析结果自动预填表单）。
-2. **解析**：平台在服务端解析模型文件，给出输入与后处理建议。
-3. **配置**：核对模型 ID、输入/输出与后处理配置（含 threshold、NMS 等参数），确认后提交注册。
-
-> v1.1.0 起后处理配置错误在注册阶段显式报错，不再被静默忽略；模型注册失败会自动回滚。使用自定义后处理或 vendor 插件的模型，升级前先核对插件路径、后处理名称和参数配置。
+2. **解析**：平台在服务端解析模型文件，给出输入与后处理建议，并估算算力占用（TOPS）和内存占用。
+3. **配置**：核对模型 ID、类型、输入/输出与后处理配置（含 threshold、NMS 等参数），确认后提交注册。表单项附悬停提示；解析结果会自动匹配解码变体，无特殊需求不改动高级配置。
 
 ![模型导入向导](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/applications-and-models/model-import-wizard.png)
+
+后处理配置错误在注册阶段显式报错，不会被静默忽略；注册失败自动回滚。使用自定义后处理或 vendor 插件的模型，升级前先核对插件路径、后处理名称和参数配置。
 
 ### 模型操作
 
 模型卡支持 **Scan Models**（扫描 `/data/aipc/models/`）以及 **Load / Unload / Detail / Delete**。推理前确认模型为 **Loaded**；应用在向导 Models 区声明模型依赖后，启动时会自动加载。确认模型输入与实际码流配置匹配，最后确认应用为 **Running** 并产生预期结果。
+
+## 事件中心
+
+**Events** 页面用于调试应用的事件通信，左侧为主题列表、订阅管理和事件发布，右侧为实时事件流。
+
+- **主题列表（Topics）**：显示当前活跃的事件主题及订阅者数量。
+- **订阅（Subscribe）**：添加订阅主题，支持通配符（如 `app/*`）；未添加订阅时接收全部事件。
+- **发布事件（Publish Event）**：指定主题并填写 JSON 载荷，向系统注入测试事件。
+- **实时事件流（Live Event Stream）**：连接后按时间顺序展示事件的时间、主题和载荷，可断开或清空。
+
+事件主题和载荷格式由应用定义，见对应应用的文档。
