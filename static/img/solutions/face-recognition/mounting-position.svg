@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563EB"/>
+    </marker>
+    <marker id="dimo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#F24A00"/>
+    </marker>
+  </defs>
+
+  <!-- floor line -->
+  <line x1="60" y1="370" x2="840" y2="370" stroke="#9CA3AF" stroke-width="3"/>
+  <text x="840" y="392" text-anchor="end" font-size="11" fill="#6B7280">地面</text>
+
+  <!-- wall hatch -->
+  <rect x="80" y="60" width="10" height="310" fill="#E5E7EB"/>
+  <text x="85" y="48" text-anchor="middle" font-size="11" fill="#6B7280">墙面</text>
+
+  <!-- person -->
+  <circle cx="560" cy="200" r="26" fill="#D1D5DB"/>
+  <rect x="538" y="234" width="44" height="88" rx="14" fill="#D1D5DB"/>
+  <text x="560" y="352" text-anchor="middle" font-size="11" fill="#374151">通行人员</text>
+
+  <!-- face highlight on person -->
+  <circle cx="560" cy="200" r="16" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="4 3"/>
+  <text x="560" y="164" text-anchor="middle" font-size="11" fill="#047857">正脸最佳</text>
+
+  <!-- camera on wall -->
+  <rect x="100" y="120" width="46" height="30" rx="6" fill="#1C1E21"/>
+  <circle cx="140" cy="135" r="6" fill="#FDBA74"/>
+  <text x="123" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1C1E21">NE302</text>
+  <text x="123" y="170" text-anchor="middle" font-size="10" fill="#6B7280">壁装支架</text>
+
+  <!-- FOV cone -->
+  <path d="M146 128 L470 78 L470 300 L146 142 Z" fill="#F24A00" opacity="0.10"/>
+  <line x1="150" y1="128" x2="470" y2="86" stroke="#FDBA74" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <line x1="150" y1="142" x2="470" y2="296" stroke="#FDBA74" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="310" y="70" text-anchor="middle" font-size="11" fill="#C2410C">视场角 HFOV 88°(覆盖 2~4m)</text>
+
+  <!-- recognition distance arrows -->
+  <line x1="160" y1="404" x2="552" y2="404" stroke="#F24A00" stroke-width="2" marker-start="url(#dimo)" marker-end="url(#dimo)"/>
+  <text x="356" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">识别距离 0.5 ~ 3 m(1m 内最佳)</text>
+
+  <!-- height dimension -->
+  <line x1="46" y1="135" x2="46" y2="370" stroke="#2563EB" stroke-width="2" marker-start="url(#dim)" marker-end="url(#dim)"/>
+  <text x="38" y="258" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8" transform="rotate(-90 38 258)">镜头距地 1.4 ~ 1.6 m</text>
+
+  <!-- tilt note -->
+  <path d="M150 135 L200 128" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#dimo)"/>
+  <text x="222" y="126" font-size="11" fill="#047857">俯仰角 &lt; 15°(近水平正对)</text>
+
+  <!-- face size note -->
+  <rect x="620" y="90" width="240" height="150" rx="10" fill="#F0FDF4" stroke="#86EFAC"/>
+  <text x="740" y="118" text-anchor="middle" font-size="12.5" font-weight="700" fill="#166534">安装验证清单</text>
+  <text x="638" y="143" font-size="11" fill="#166534">· 人脸高 ≥ 画面 1/10(否则被过滤)</text>
+  <text x="638" y="164" font-size="11" fill="#166534">· 无逆光(窗/灯勿直射镜头)</text>
+  <text x="638" y="185" font-size="11" fill="#166534">· 无侧光半脸阴影</text>
+  <text x="638" y="206" font-size="11" fill="#166534">· 画面内同时 ≤ 8 人</text>
+  <text x="638" y="227" font-size="11" fill="#166534">· 固定支架前用 Web 预览确认</text>
+</svg>

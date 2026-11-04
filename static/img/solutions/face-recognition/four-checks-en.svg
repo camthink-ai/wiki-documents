@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" font-family="-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="chk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <text x="450" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="#1C1E21">Acceptance: four-stage validation (fix a stage before moving on)</text>
+
+  <!-- stage boxes -->
+  <g>
+    <rect x="40" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="130" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">1 Detect / track</text>
+    <text x="130" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">Enable, watch the view</text>
+    <text x="130" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">stable box, no ID jumps</text>
+    <text x="130" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(device-only, passes without backend)</text>
+  </g>
+
+  <line x1="224" y1="140" x2="256" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="260" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="350" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">2 Report</text>
+    <text x="350" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">Press "Report now"</text>
+    <text x="350" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">backend logs &amp; saves image</text>
+    <text x="350" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(fail? check URL / broker)</text>
+  </g>
+
+  <line x1="444" y1="140" x2="476" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="480" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="570" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">3 Recognize</text>
+    <text x="570" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">enrolled face on camera</text>
+    <text x="570" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">green box + name in 1 s</text>
+    <text x="570" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(fail? check gallery / threshold)</text>
+  </g>
+
+  <line x1="664" y1="140" x2="696" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="700" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="790" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">4 Boundaries</text>
+    <text x="790" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">stop backend, trigger again</text>
+    <text x="790" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">red timeout in ~5 s</text>
+    <text x="790" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(recovers when backend returns)</text>
+  </g>
+
+  <!-- helper -->
+  <rect x="40" y="228" width="840" height="52" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="450" y="250" text-anchor="middle" font-size="12" fill="#1E40AF"><tspan font-weight="700">Helper</tspan>  the "Recognition check" card: upload a face photo, get the verdict in seconds — validates stages 2–3 off camera</text>
+  <text x="450" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">All four stages pass = acceptance complete</text>
+</svg>

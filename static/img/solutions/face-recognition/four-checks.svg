@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <marker id="chk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <text x="450" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="#1C1E21">联调验收:四环验证(任一环不通先排查该环)</text>
+
+  <!-- stage boxes -->
+  <g>
+    <rect x="40" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="130" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">① 检测 / 跟踪</text>
+    <text x="130" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">开启功能看画面</text>
+    <text x="130" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">框稳定 + ID 不跳变</text>
+    <text x="130" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(纯设备端,无后端也通过)</text>
+  </g>
+
+  <line x1="224" y1="140" x2="256" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="260" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="350" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">② 上报</text>
+    <text x="350" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">点"手动上报"</text>
+    <text x="350" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">后端收到图并落盘</text>
+    <text x="350" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(不通查通道:URL/Broker)</text>
+  </g>
+
+  <line x1="444" y1="140" x2="476" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="480" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="570" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">③ 识别</text>
+    <text x="570" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">已注册者对镜头</text>
+    <text x="570" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">1 秒内框绿 + 姓名</text>
+    <text x="570" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(不通查 gallery/阈值)</text>
+  </g>
+
+  <line x1="664" y1="140" x2="696" y2="140" stroke="#059669" stroke-width="2.5" marker-end="url(#chk)"/>
+
+  <g>
+    <rect x="700" y="80" width="180" height="120" rx="10" fill="#1C1E21"/>
+    <text x="790" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">④ 边界</text>
+    <text x="790" y="133" text-anchor="middle" font-size="10.5" fill="#9CA3AF">关掉后端再触发</text>
+    <text x="790" y="153" text-anchor="middle" font-size="10.5" fill="#FDBA74">~5s 红框 timeout</text>
+    <text x="790" y="173" text-anchor="middle" font-size="10.5" fill="#6B7280">(恢复后自动回绿)</text>
+  </g>
+
+  <!-- helper -->
+  <rect x="40" y="228" width="840" height="52" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="450" y="250" text-anchor="middle" font-size="12" fill="#1E40AF"><tspan font-weight="700">辅助环</tspan>  人脸页"识别验证"卡片:上传一张人脸照片,数秒返回识别结果 —— 不站镜头前即可验证 ②③ 环</text>
+  <text x="450" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">四环全过 = 系统交付验收通过</text>
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" font-family="-apple-system,'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+    <text x="450" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="#1C1E21">识别状态四态(人脸框颜色 = 识别状态,标签单行显示)</text>
+    <rect x="40" y="60" width="400" height="180" rx="10" fill="#111318"/>
+    <circle cx="240" cy="150" r="34" fill="#3F4550"/>
+    <path d="M180 240 C180 214 300 214 300 240 Z" fill="#3F4550"/>
+    <rect x="188" y="96" width="104" height="116" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+    <rect x="186" y="68" width="82.7" height="22" rx="3" fill="#000000" opacity="0.7"/>
+    <text x="194" y="83" text-anchor="start" font-size="11.5" fill="#FFFFFF">#5 92% ...</text>
+    <rect x="52" y="72" width="100" height="24" rx="12" fill="#FFFFFF"/>
+    <text x="102" y="88" text-anchor="middle" font-size="12" fill="#1C1E21" font-weight="700">识别中</text>
+    <text x="52" y="178" text-anchor="start" font-size="10.5" fill="#9CA3AF">白色框 · 尚无识别结果</text>
+    <text x="52" y="196" text-anchor="start" font-size="10.5" fill="#9CA3AF">(结果过期后回到此态)</text>
+    <text x="240" y="232" text-anchor="middle" font-size="12" fill="#9CA3AF">未上报 / 等待上报</text>
+    <rect x="460" y="60" width="400" height="180" rx="10" fill="#111318"/>
+    <circle cx="660" cy="150" r="34" fill="#3F4550"/>
+    <path d="M600 240 C600 190 720 190 720 240 Z" fill="#3F4550"/>
+    <rect x="608" y="96" width="104" height="116" fill="none" stroke="#22D3EE" stroke-width="2.5"/>
+    <rect x="606" y="68" width="82.7" height="22" rx="3" fill="#000000" opacity="0.7"/>
+    <text x="614" y="83" text-anchor="start" font-size="11.5" fill="#FFFFFF">#5 92% ...</text>
+    <rect x="472" y="72" width="130" height="24" rx="12" fill="#22D3EE"/>
+    <text x="537" y="88" text-anchor="middle" font-size="12" fill="#083344" font-weight="700">已上报等待</text>
+    <text x="472" y="178" text-anchor="start" font-size="10.5" fill="#9CA3AF">青色框 · 已发给后端</text>
+    <text x="472" y="196" text-anchor="start" font-size="10.5" fill="#9CA3AF">(通常持续 &lt; 1 秒)</text>
+    <text x="660" y="232" text-anchor="middle" font-size="12" fill="#9CA3AF">已上报,等待后端返回</text>
+    <rect x="40" y="260" width="400" height="180" rx="10" fill="#111318"/>
+    <circle cx="240" cy="350" r="34" fill="#3F4550"/>
+    <path d="M180 440 C180 414 300 414 300 440 Z" fill="#3F4550"/>
+    <rect x="188" y="296" width="104" height="116" fill="none" stroke="#22C55E" stroke-width="2.5"/>
+    <rect x="186" y="268" width="142.73" height="22" rx="3" fill="#000000" opacity="0.7"/>
+    <text x="194" y="283" text-anchor="start" font-size="11.5" fill="#FFFFFF">#5 92% zhangsan 93%</text>
+    <rect x="52" y="272" width="110" height="24" rx="12" fill="#22C55E"/>
+    <text x="107" y="288" text-anchor="middle" font-size="12" fill="#1C1E21" font-weight="700">识别成功</text>
+    <text x="52" y="378" text-anchor="start" font-size="10.5" fill="#9CA3AF">绿色框 · 匹配到注册人脸</text>
+    <text x="52" y="396" text-anchor="start" font-size="10.5" fill="#9CA3AF">中文姓名显示为 OK</text>
+    <text x="240" y="432" text-anchor="middle" font-size="12" fill="#9CA3AF">姓名与置信度上屏</text>
+    <rect x="460" y="260" width="400" height="180" rx="10" fill="#111318"/>
+    <circle cx="660" cy="350" r="34" fill="#3F4550"/>
+    <path d="M600 440 C600 390 720 390 720 440 Z" fill="#3F4550"/>
+    <rect x="608" y="296" width="104" height="116" fill="none" stroke="#EF4444" stroke-width="2.5"/>
+    <rect x="606" y="268" width="109.38" height="22" rx="3" fill="#000000" opacity="0.7"/>
+    <text x="614" y="283" text-anchor="start" font-size="11.5" fill="#FFFFFF">#5 92% timeout</text>
+    <rect x="472" y="272" width="130" height="24" rx="12" fill="#EF4444"/>
+    <text x="537" y="288" text-anchor="middle" font-size="12" fill="#450A0A" font-weight="700">超时/错误</text>
+    <text x="472" y="378" text-anchor="start" font-size="10.5" fill="#9CA3AF">红色框 · 超时或后端错误</text>
+    <text x="472" y="396" text-anchor="start" font-size="10.5" fill="#9CA3AF">黄色 = unknown(未注册)</text>
+    <text x="660" y="432" text-anchor="middle" font-size="12" fill="#9CA3AF">后端超时(默认5秒)/错误</text>
+</svg>

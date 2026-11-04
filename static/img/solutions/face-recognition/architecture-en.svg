@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360" font-family="-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#F24A00"/>
+    </marker>
+    <marker id="flowb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563EB"/>
+    </marker>
+  </defs>
+
+  <!-- camera -->
+  <rect x="40" y="60" width="180" height="150" rx="10" fill="#1C1E21"/>
+  <text x="130" y="88" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">NE302 AI camera</text>
+  <text x="130" y="110" text-anchor="middle" font-size="10.5" fill="#9CA3AF">STM32N6 · Neural-ART NPU</text>
+  <line x1="58" y1="122" x2="202" y2="122" stroke="#374151" stroke-width="1"/>
+  <text x="130" y="141" text-anchor="middle" font-size="11" fill="#FDBA74">YuNet detection ~7ms</text>
+  <text x="130" y="159" text-anchor="middle" font-size="11" fill="#FDBA74">IoU tracking · stable IDs</text>
+  <text x="130" y="177" text-anchor="middle" font-size="11" fill="#FDBA74">Mosaic (video only)</text>
+  <text x="130" y="195" text-anchor="middle" font-size="11" fill="#FDBA74">Crop report (unblurred)</text>
+
+  <!-- uplink arrows -->
+  <line x1="224" y1="105" x2="356" y2="105" stroke="#F24A00" stroke-width="2" marker-end="url(#flow)"/>
+  <text x="290" y="93" text-anchor="middle" font-size="11" fill="#C2410C">face crop</text>
+
+  <line x1="224" y1="165" x2="356" y2="165" stroke="#2563EB" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#flowb)"/>
+  <text x="290" y="153" text-anchor="middle" font-size="11" fill="#1D4ED8">result</text>
+
+  <!-- backend -->
+  <rect x="360" y="60" width="200" height="150" rx="10" fill="#FFFFFF" stroke="#F24A00" stroke-width="1.5"/>
+  <text x="460" y="90" text-anchor="middle" font-size="14" font-weight="700" fill="#1C1E21">Recognition backend</text>
+  <text x="460" y="112" text-anchor="middle" font-size="10.5" fill="#6B7280">Your own recognition service</text>
+  <text x="460" y="130" text-anchor="middle" font-size="10.5" fill="#6B7280">or mock backend (ArcFace)</text>
+  <line x1="378" y1="142" x2="542" y2="142" stroke="#E5E7EB" stroke-width="1"/>
+  <text x="460" y="161" text-anchor="middle" font-size="11" fill="#F24A00">feature matching</text>
+  <text x="460" y="179" text-anchor="middle" font-size="11" fill="#F24A00">face gallery</text>
+  <text x="460" y="197" text-anchor="middle" font-size="11" fill="#F24A00">reply with request_id</text>
+
+  <!-- overlay result back to stream -->
+  <path d="M460 216 L460 262 L130 262 L130 218" fill="none" stroke="#2563EB" stroke-width="2" marker-end="url(#flowb)"/>
+  <text x="295" y="252" text-anchor="middle" font-size="11" fill="#1D4ED8">Result matched by track ID → name overlaid</text>
+
+  <!-- viewers -->
+  <rect x="40" y="286" width="270" height="56" rx="10" fill="#1C1E21"/>
+  <text x="175" y="309" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFFFFF">Browser · camera web preview</text>
+  <text x="175" y="328" text-anchor="middle" font-size="10.5" fill="#9CA3AF">Box + ID + name burned into the stream</text>
+
+  <rect x="340" y="286" width="220" height="56" rx="10" fill="#1C1E21"/>
+  <text x="450" y="309" text-anchor="middle" font-size="12.5" font-weight="700" fill="#FFFFFF">RTSP / RTMP viewers</text>
+  <text x="450" y="328" text-anchor="middle" font-size="10.5" fill="#9CA3AF">Same overlay as the preview</text>
+
+  <!-- channel labels -->
+  <rect x="620" y="66" width="250" height="66" rx="10" fill="#FFF7ED" stroke="#FDBA74"/>
+  <text x="745" y="92" text-anchor="middle" font-size="12.5" font-weight="700" fill="#9A3412">Channel A: Webhook (sync)</text>
+  <text x="745" y="113" text-anchor="middle" font-size="10.5" fill="#9A3412">POST face image → response is the result</text>
+
+  <rect x="620" y="146" width="250" height="66" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="745" y="172" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1E40AF">Channel B: MQTT (async)</text>
+  <text x="745" y="193" text-anchor="middle" font-size="10.5" fill="#1E40AF">uplink topic out · downlink topic back</text>
+
+  <!-- privacy note -->
+  <rect x="620" y="226" width="250" height="116" rx="10" fill="#F0FDF4" stroke="#86EFAC"/>
+  <text x="638" y="252" font-size="12" font-weight="700" fill="#166534">Privacy boundaries</text>
+  <text x="638" y="273" font-size="10.5" fill="#166534">· Mosaic affects video only</text>
+  <text x="638" y="292" font-size="10.5" fill="#166534">· Raw images only to your backend</text>
+  <text x="638" y="311" font-size="10.5" fill="#166534">· Records archived locally</text>
+  <text x="638" y="330" font-size="10.5" fill="#166534">· Public brokers need TLS + auth</text>
+</svg>
