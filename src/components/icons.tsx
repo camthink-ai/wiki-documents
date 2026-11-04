@@ -143,6 +143,45 @@ export const Icon = {
         </svg>
     ),
 
+    // ─── Search & files ───
+    Search: ({ size = 20, className }: IconProps) => (
+        <svg {...base(size, className)} strokeWidth={1.7}>
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="m16 16 5 5" />
+        </svg>
+    ),
+    FileText: ({ size = 24, className }: IconProps) => (
+        <svg {...base(size, className)}>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+            <path d="M16 13H8M16 17H8M10 9H8" />
+        </svg>
+    ),
+    Eye: ({ size = 24, className }: IconProps) => (
+        <svg {...base(size, className)}>
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    ),
+    Users: ({ size = 24, className }: IconProps) => (
+        <svg {...base(size, className)}>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+    ),
+    Droplets: ({ size = 24, className }: IconProps) => (
+        <svg {...base(size, className)}>
+            <path d="M12 2.7s6.5 7.3 6.5 11.8a6.5 6.5 0 0 1-13 0C5.5 10 12 2.7 12 2.7z" />
+        </svg>
+    ),
+    Activity: ({ size = 24, className }: IconProps) => (
+        <svg {...base(size, className)}>
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
+    ),
+
     // ─── Arrows & chevrons ───
     ArrowRight: ({ size = 18, className }: IconProps) => (
         <svg {...base(size, className)}>

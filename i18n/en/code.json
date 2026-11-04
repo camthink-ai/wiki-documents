@@ -326,309 +326,6 @@
     "message": "Submit issues to report problems\nView source code and contribute",
     "description": "Support card description for github"
   },
-  "homepage.hero.desc.p1": {
-    "message": "CamThink is an Edge AI platform for the real world,"
-  },
-  "homepage.hero.desc.p2": {
-    "message": "offering a complete solution from"
-  },
-  "homepage.hero.desc.bold1": {
-    "message": "Open Hardware Design"
-  },
-  "homepage.hero.desc.bold2": {
-    "message": "System Software"
-  },
-  "homepage.hero.desc.to": {
-    "message": "to"
-  },
-  "homepage.hero.desc.bold3": {
-    "message": "AI Model Deployment"
-  },
-  "homepage.hero.desc.p3": {
-    "message": "."
-  },
-  "homepage.hero.start": {
-    "message": "Start"
-  },
-  "homepage.hero.pill": {
-    "message": "Open Source · Edge AI Ecosystem"
-  },
-  "homepage.hero.title.l1": {
-    "message": "The Open Source"
-  },
-  "homepage.hero.title.l2": {
-    "message": "Edge AI Ecosystem"
-  },
-  "homepage.hero.subtitle": {
-    "message": "Open hardware × open software — from AI cameras and edge gateways to NeoMind. One-stop build for IoT + AI apps"
-  },
-  "homepage.hero.cta.start": {
-    "message": "Browse Docs"
-  },
-  "homepage.hero.cta.github": {
-    "message": "Star on GitHub"
-  },
-  "homepage.hero.hw.title": {
-    "message": "Edge hardware that pairs with the software platform"
-  },
-  "homepage.hero.hw.ne101": {
-    "message": "ESP32-S3 low-power camera"
-  },
-  "homepage.hero.hw.ne301": {
-    "message": "STM32N6 on-device AI camera"
-  },
-  "homepage.hero.hw.ne503": {
-    "message": "20 TOPS containerized IPC"
-  },
-  "homepage.hero.hw.ng4500": {
-    "message": "Jetson edge AI gateway"
-  },
-  "homepage.platform.title": {
-    "message": "Platform & Tools"
-  },
-  "homepage.platform.desc": {
-    "message": "Software platform and model toolchain, covering the full path from devices to applications"
-  },
-  "homepage.platform.card.hardware": {
-    "message": "Open schematics, PCB, modular design, supporting rapid customization, mass production, and batch deployment."
-  },
-  "homepage.platform.card.os": {
-    "message": "RTOS / Linux support, complete drivers and Board Support Package."
-  },
-  "homepage.platform.card.tools": {
-    "message": "Model management, invocation, training, quantization, conversion, and deployment full-process cloud platform support."
-  },
-  "homepage.platform.card.runtime": {
-    "message": "Local inference, low latency response, stable operation."
-  },
-  "homepage.platform.card.connect": {
-    "message": "Multi-protocol support like MQTT / HTTP, open platform, supporting local and private cloud deployment."
-  },
-  "homepage.products.title": {
-    "message": "Quick Access"
-  },
-  "homepage.products.desc": {
-    "message": "To help you get started quickly with CamThink products, here are some important resource links"
-  },
-  "homepage.stack.title": {
-    "message": "Platform Technology Stack Panorama"
-  },
-  "homepage.stack.subtitle": {
-    "message": "Covering your development needs from underlying computing power to upper-layer applications"
-  },
-  "homepage.stack.layer.app": {
-    "message": "Application Layer"
-  },
-  "homepage.stack.app.building": {
-    "message": "Smart Building"
-  },
-  "homepage.stack.app.agriculture": {
-    "message": "Smart Agriculture"
-  },
-  "homepage.stack.app.vision": {
-    "message": "Vision Analysis"
-  },
-  "homepage.stack.app.other": {
-    "message": "Other Fields"
-  },
-  "homepage.stack.layer.software": {
-    "message": "Software Ecosystem"
-  },
-  "homepage.stack.layer.neomind": {
-    "message": "Application Suite"
-  },
-  "homepage.stack.mw.neomind": {
-    "message": "NeoMind"
-  },
-  "homepage.stack.mw.toolstack": {
-    "message": "AI ToolStack"
-  },
-  "homepage.stack.neomind.platformsub": {
-    "message": "Edge AI platform · device management & application runtime"
-  },
-  "homepage.stack.neomind.toolsub": {
-    "message": "Full model lifecycle · training / quantization / conversion / deployment"
-  },
-  "homepage.stack.mw.ai": {
-    "message": "AI Inference & Frameworks"
-  },
-  "homepage.stack.mw.os": {
-    "message": "OS & Core Components"
-  },
-  "homepage.stack.mw.conn": {
-    "message": "Connectivity & Protocols"
-  },
-  "homepage.stack.mw.tools": {
-    "message": "Tools & Extensions"
-  },
-  "homepage.stack.layer.hardware": {
-    "message": "Hardware Ecosystem"
-  },
-  "homepage.cta.title": {
-    "message": "How to Use This Wiki"
-  },
-  "homepage.cta.step1": {
-    "message": "Clarify Application Requirements"
-  },
-  "homepage.cta.step2": {
-    "message": "Select Product Series"
-  },
-  "homepage.cta.step3": {
-    "message": "Complete Quick Start"
-  },
-  "homepage.cta.step4": {
-    "message": "Device Debugging & Deployment"
-  },
-  "homepage.cta.step5": {
-    "message": "Secondary Development or Customization"
-  },
-  "homepage.community.title": {
-    "message": "Join Developer Community"
-  },
-  "homepage.community.desc": {
-    "message": "Explore, create, and share with developers worldwide"
-  },
-  "homepage.community.discord": {
-    "message": "Chat with developers and get technical support"
-  },
-  "homepage.community.github": {
-    "message": "Open-source firmware, sample code and issue tracking"
-  },
-  "homepage.community.contact": {
-    "message": "Product consultation and business cooperation"
-  },
-  "carousel.ne302.title": {
-    "message": "NeoEyes NE302 (Mini AI Vision Camera)"
-  },
-  "carousel.ne302.tagline": {
-    "message": "STM32N6-based mini AI vision camera with 4 MP image capture"
-  },
-  "carousel.ne302.desc": {
-    "message": "4 MP imaging plus STM32N6 edge AI on a 38 × 38 mm board, with wireless connectivity and local storage. Powered over USB Type-C or DC — built for device integration and edge AI development."
-  },
-  "carousel.ne301.title": {
-    "message": "NeoEyes NE301 (AI Camera)"
-  },
-  "carousel.ne301.tagline": {
-    "message": "New low-power Edge AI camera based on STM32N6"
-  },
-  "carousel.ne301.desc": {
-    "message": "High-performance Cortex-M55 + NPU architecture, supporting local real-time inference. Modular design adaptable to various lenses and sensors, ideal for computer vision and AIoT nodes."
-  },
-  "carousel.link.overview": {
-    "message": "Overview"
-  },
-  "carousel.link.quickstart": {
-    "message": "Quick Start"
-  },
-  "carousel.link.devguide": {
-    "message": "Developer Guide"
-  },
-  "carousel.link.appguide": {
-    "message": "App Guide"
-  },
-  "carousel.ne101.title": {
-    "message": "NeoEyes NE101 (IoT Node)"
-  },
-  "carousel.ne101.tagline": {
-    "message": "Ultra-low power visual sensor node based on ESP32-S3"
-  },
-  "carousel.ne101.desc": {
-    "message": "Designed for battery-powered scenarios, supporting Wi-Fi/Cat.1/Wi-Fi HaLow connectivity. Minimalist architecture, millisecond wake-up capture from deep sleep, suitable for outdoor monitoring and meter reading."
-  },
-  "carousel.ng4500.title": {
-    "message": "NeoEdge NG4500 (AI Box)"
-  },
-  "carousel.ng4500.tagline": {
-    "message": "High-performance edge computing gateway based on NVIDIA Jetson"
-  },
-  "carousel.ng4500.desc": {
-    "message": "Delivers 21~100+ TOPS computing power, supporting multi-channel video analysis and LLM edge deployment. Rich interfaces (CAN/232/485) empowering complex industrial and automotive AI applications."
-  },
-  "carousel.link.hwguide": {
-    "message": "Hardware Guide"
-  },
-  "carousel.link.usecases": {
-    "message": "Use Cases"
-  },
-  "carousel.neomind.title": {
-    "message": "NeoMind (Edge AI Platform)"
-  },
-  "carousel.neomind.tagline": {
-    "message": "Rust + React edge AI platform · Out-of-the-box IoT + AI integration"
-  },
-  "carousel.neomind.desc": {
-    "message": "Device management, real-time dashboards, rule engine, AI Agent, extension ecosystem, and message notifications — all built in. Supports MQTT/Webhook/BLE protocols. Can be deployed standalone or as the companion software for CamThink hardware."
-  },
-  "carousel.link.userguide": {
-    "message": "User Guide"
-  },
-  "carousel.ne503.title": {
-    "message": "NeoEyes NE503 (AI Camera Pro)"
-  },
-  "carousel.ne503.tagline": {
-    "message": "Hailo-15H based 20 TOPS 4K edge AI smart camera"
-  },
-  "carousel.ne503.desc": {
-    "message": "Hailo-15H SoC + 20 TOPS NPU + Sony IMX678 4K imaging. Containerized app deployment, multi-model concurrent inference, RTSP/Event output. IP67 + PoE integrated delivery for vision applications and edge AI development."
-  },
-  "carousel.link.swguide": {
-    "message": "Software Guide"
-  },
-  "homepage.hero.cta.products": {
-    "message": "Browse Hardware"
-  },
-  "homepage.matrix.title": {
-    "message": "Products & Platform"
-  },
-  "homepage.matrix.desc": {
-    "message": "Five hardware lines and the NeoMind platform — every docs entry on one screen"
-  },
-  "matrix.badge.platform": {
-    "message": "Platform"
-  },
-  "homepage.matrix.neomind.desc": {
-    "message": "Device management, real-time dashboards, rule engine, AI Agent, extension ecosystem and notifications — with MQTT/Webhook/BLE connectivity."
-  },
-  "homepage.usecase.title": {
-    "message": "Start by Use Case"
-  },
-  "homepage.usecase.desc": {
-    "message": "Have a task in mind? Jump straight into the guide"
-  },
-  "homepage.usecase.detection.title": {
-    "message": "Object Detection"
-  },
-  "homepage.usecase.detection.desc": {
-    "message": "YOLO model training and on-camera deployment"
-  },
-  "homepage.usecase.ocr.title": {
-    "message": "OCR Text Extraction"
-  },
-  "homepage.usecase.ocr.desc": {
-    "message": "Extract and structure text from camera snapshots"
-  },
-  "homepage.usecase.voice.title": {
-    "message": "Voice Interaction"
-  },
-  "homepage.usecase.voice.desc": {
-    "message": "Full ASR → LLM → TTS voice pipeline"
-  },
-  "homepage.usecase.onboard.title": {
-    "message": "Device Onboarding"
-  },
-  "homepage.usecase.onboard.desc": {
-    "message": "Connect devices to NeoMind via MQTT/BLE/Webhook"
-  },
-  "homepage.latest.title": {
-    "message": "What's New"
-  },
-  "homepage.hero.cta.docs": {
-    "message": "Documentation Hub"
-  },
-  "latest.faq.title": {
-    "message": "NE503 Troubleshooting FAQ"
-  },
   "footer.tagline": {
     "message": "Open hardware × open software — build your edge AI applications in one place.",
     "description": "Footer brand tagline"
@@ -670,19 +367,136 @@
   "footer.item.neomind": {
     "message": "NeoMind Platform"
   },
-  "latest.vision.title": {
-    "message": "Vision LLM Scene Understanding"
+  "home.meta.description": {
+    "message": "From device setup to model deployment, find everything you need to build with CamThink."
   },
-  "latest.gym.title": {
-    "message": "Smart Gym Solution"
+  "home.hero.title": {
+    "message": "Your Edge AI journey starts here."
   },
-  "latest.water.title": {
-    "message": "Water Meter Reading Solution"
+  "home.hero.intro": {
+    "message": "From device setup to model deployment, find everything you need to build with CamThink."
   },
-  "latest.aitoolstack.title": {
-    "message": "AI Tool Stack"
+  "home.hero.searchPlaceholder": {
+    "message": "Search products, guides, and troubleshooting…"
   },
-  "latest.releasenotes.title": {
-    "message": "NeoMind Release Notes"
+  "home.hero.cta.start": {
+    "message": "Get started"
+  },
+  "home.hero.cta.docs": {
+    "message": "Explore docs"
+  },
+  "home.hero.popular": {
+    "message": "Popular links:"
+  },
+  "home.hero.popular.ne302": {
+    "message": "NE302 Quick start"
+  },
+  "home.hero.popular.neomind": {
+    "message": "NeoMind Setup"
+  },
+  "home.hero.popular.model": {
+    "message": "Model Deployment"
+  },
+  "home.products.title": {
+    "message": "Find your product"
+  },
+  "home.products.allDocs": {
+    "message": "All documentation"
+  },
+  "home.products.quickStart": {
+    "message": "Quick start"
+  },
+  "home.products.docs": {
+    "message": "Docs"
+  },
+  "home.software.ariaLabel": {
+    "message": "Software"
+  },
+  "home.software.neomind.desc": {
+    "message": "Connect devices, manage data, and build intelligent applications."
+  },
+  "home.software.viewDocs": {
+    "message": "View docs"
+  },
+  "home.software.toolstack.desc": {
+    "message": "Train, optimize, and deploy models to your edge devices."
+  },
+  "home.tasks.title": {
+    "message": "What do you want to build?"
+  },
+  "home.latest.title": {
+    "message": "Latest documentation"
+  },
+  "home.latest.badge.guide": {
+    "message": "Guide"
+  },
+  "home.latest.badge.platform": {
+    "message": "Platform"
+  },
+  "home.latest.badge.models": {
+    "message": "Models"
+  },
+  "home.latest.ne302": {
+    "message": "NE302: Setup and first connection"
+  },
+  "home.latest.neomind": {
+    "message": "NeoMind: Installation guide"
+  },
+  "home.latest.toolstack": {
+    "message": "AI ToolStack: Model deployment"
+  },
+  "home.help.title": {
+    "message": "Need a hand?"
+  },
+  "home.help.troubleshooting.title": {
+    "message": "Troubleshooting"
+  },
+  "home.help.troubleshooting.desc": {
+    "message": "Diagnose and fix common NeoMind issues."
+  },
+  "home.help.contact.title": {
+    "message": "Contact support"
+  },
+  "home.help.contact.desc": {
+    "message": "Get technical support for our products and documentation."
+  },
+  "home.tasks.water.title": {
+    "message": "Water Meter Reading"
+  },
+  "home.tasks.water.desc": {
+    "message": "Local OCR keeps existing meters; readings auto-ingest with a full audit trail."
+  },
+  "home.tasks.gym.title": {
+    "message": "Smart Gym"
+  },
+  "home.tasks.gym.desc": {
+    "message": "Passive recognition + local analytics: equipment occupancy and training reports, data stays on-premises."
+  },
+  "home.tasks.scene.title": {
+    "message": "Scene Understanding"
+  },
+  "home.tasks.scene.desc": {
+    "message": "Define tasks by prompt and turn camera footage into structured metrics — data stays on-prem."
+  },
+  "home.tasks.people.title": {
+    "message": "People Counting"
+  },
+  "home.tasks.people.desc": {
+    "message": "Draw a line to count passing traffic; results push to your system via MQTT/Webhook."
+  },
+  "footer.item.peopleCounting": {
+    "message": "People Counting"
+  },
+  "home.help.github.desc": {
+    "message": "Open-source repos, sample code, and issue tracking."
+  },
+  "home.zoo.desc": {
+    "message": "Official pre-trained model library: 128+ scenario-tuned vision models (YOLOv8 / YOLO11) — PT / ONNX / TFLite, ready to deploy."
+  },
+  "home.zoo.cta": {
+    "message": "Browse models"
+  },
+  "home.products.buy": {
+    "message": "Buy"
   }
 }
