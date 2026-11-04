@@ -19,27 +19,27 @@ module.exports = {
     ng4500: {
       overview: '/docs/neoedge-ng4500-series/overview',
       quickStart: '/docs/neoedge-ng4500-series/quick-start',
-      store: 'https://www.camthink.ai/product/neoedge-ai-box-ng4500/',
+      store: 'https://www.camthink.ai/store/neoedge-ng4500/',
     },
     ne503: {
       overview: '/docs/neoeyes-ne503-series/overview',
       quickStart: '/docs/neoeyes-ne503-series/quick-start',
-      store: 'https://www.camthink.ai/product/neoeyes-503/',
+      store: 'https://www.camthink.ai/store/neoeyes-503/',
     },
     ne301: {
       overview: '/docs/neoeyes-ne301-series/overview',
       quickStart: '/docs/neoeyes-ne301-series/quick-start',
-      store: 'https://www.camthink.ai/product/ne301/',
+      store: 'https://www.camthink.ai/store/ne301/',
     },
     ne302: {
       overview: '/docs/neoeyes-ne302-series/ne302-overview',
       quickStart: '/docs/neoeyes-ne302-series/ne302-quick-start',
-      store: 'https://www.camthink.ai/product/neoeyes-302/',
+      store: 'https://www.camthink.ai/store/neoeyes-302/',
     },
     ne101: {
       overview: '/docs/neoeyes-ne101-series/overview',
       quickStart: '/docs/neoeyes-ne101-series/quick-start',
-      store: 'https://www.camthink.ai/product/neoeyes-ai-camera-ne101/',
+      store: 'https://www.camthink.ai/store/neoeyes-ne101/',
     },
   },
 
