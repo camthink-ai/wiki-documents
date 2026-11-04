@@ -19,22 +19,27 @@ module.exports = {
     ng4500: {
       overview: '/docs/neoedge-ng4500-series/overview',
       quickStart: '/docs/neoedge-ng4500-series/quick-start',
+      store: 'https://www.camthink.ai/store/neoedge-ng4500/',
     },
     ne503: {
       overview: '/docs/neoeyes-ne503-series/overview',
       quickStart: '/docs/neoeyes-ne503-series/quick-start',
+      store: 'https://www.camthink.ai/store/neoeyes-503/',
     },
     ne301: {
       overview: '/docs/neoeyes-ne301-series/overview',
       quickStart: '/docs/neoeyes-ne301-series/quick-start',
+      store: 'https://www.camthink.ai/store/ne301/',
     },
     ne302: {
       overview: '/docs/neoeyes-ne302-series/ne302-overview',
       quickStart: '/docs/neoeyes-ne302-series/ne302-quick-start',
+      store: 'https://www.camthink.ai/store/neoeyes-302/',
     },
     ne101: {
       overview: '/docs/neoeyes-ne101-series/overview',
       quickStart: '/docs/neoeyes-ne101-series/quick-start',
+      store: 'https://www.camthink.ai/store/neoeyes-ne101/',
     },
   },
 
@@ -44,6 +49,7 @@ module.exports = {
     userGuide: '/docs/neomind/user-guide/install-setup',
     devGuide: '/docs/neomind/developer-guide/overview',
     onboardDevice: '/docs/neomind/user-guide/onboard-device',
+    troubleshooting: '/docs/neomind/user-guide/troubleshooting',
   },
 
   software: {
@@ -74,6 +80,7 @@ module.exports = {
     { id: 'waterMeter', path: '/docs/edge-ai-solutions/water-meter-recognition/solution-description' },
     { id: 'smartGym', path: '/docs/edge-ai-solutions/smart-gym/solution-description' },
     { id: 'visionScene', path: '/docs/edge-ai-solutions/vision-scene-understanding/solution-description' },
+    { id: 'peopleCounting', path: '/docs/edge-ai-solutions/people-counting/solution-description' },
   ],
 
   /** 「最新文档」栏目条目 —— 两处（首页/文档中心）共用，更新时同步日期 */
@@ -91,7 +98,6 @@ module.exports = {
     store: 'https://www.camthink.ai/store/',
     contact: 'https://www.camthink.ai/company/contact-us/',
     github: 'https://github.com/camthink-ai',
-    discussions: 'https://github.com/camthink-ai/community/discussions',
     discord: 'https://discord.gg/a8NbPGAJw9',
     x: 'https://x.com/CamThinkAI',
     youtube: 'https://www.youtube.com/@CamThink',
