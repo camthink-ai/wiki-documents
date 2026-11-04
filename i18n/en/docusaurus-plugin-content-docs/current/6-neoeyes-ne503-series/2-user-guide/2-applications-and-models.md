@@ -26,6 +26,8 @@ Open the **Applications** page. Click **Import** to install an app.
 
 Use **All / Installed / Running / Stopped / Failed** to filter the list.
 
+> After a device OS upgrade, if the OS version range declared by an app does not match the device OS, the platform suspends the app's business functions and shows a compatibility page listing the app version, the supported OS range, and the current device OS. Access is restored automatically once the app or firmware is upgraded as instructed.
+
 ### Install a New App (Application Setup Wizard)
 
 Click the **Import** card to open the **Application Setup Wizard**. The wizard is organized into sections; switch between **Registry Image / Basic Info / Resources / Models / Permissions / Advanced** on the left, and toggle between the **Form** view and the **YAML** view at the top.
@@ -53,7 +55,7 @@ Click **Install** when the configuration is complete. After installation, the ap
 
 ## Models
 
-Open the **Models** page to manage inference models. The top bar provides search by Model ID, status filtering, load-order sorting, and model-type filters (detection, classification, OCR, etc.); the list depends on the device.
+Open the **Models** page to manage inference models. The top bar provides search by Model ID, status filtering, load-order sorting, and model-type filters (detection, classification, segmentation, OCR, etc.); the list depends on the device.
 
 ![Model list](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/applications-and-models/models-list.png)
 
@@ -62,13 +64,24 @@ Open the **Models** page to manage inference models. The top bar provides search
 Click **Import** to open the import wizard and complete **Upload → Parse → Configure**:
 
 1. **Upload**: upload a bare `.hef` file (configure manually afterwards) or an AMPK `.bin` package whose parse result pre-fills the form.
-2. **Parse**: the platform parses the model file server-side and suggests input and postprocess settings.
-3. **Configure**: review the model ID, input/output and postprocess configuration (including threshold, NMS, and related parameters), then submit for registration.
-
-> Since v1.1.0, postprocess configuration errors are reported explicitly at registration instead of being silently ignored; failed model registrations roll back automatically. For models with custom postprocess or vendor plugins, verify the plugin path, postprocess name, and parameter configuration before upgrading.
+2. **Parse**: the platform parses the model file server-side, suggests input and postprocess settings, and estimates compute (TOPS) and memory usage.
+3. **Configure**: review the model ID, type, input/output and postprocess configuration (including threshold, NMS, and related parameters), then submit for registration. Form fields carry hover hints; the parse result automatically matches the decoder variant, and the advanced settings rarely need changes.
 
 ![Model import wizard](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/applications-and-models/model-import-wizard.png)
+
+Postprocess configuration errors are reported explicitly at registration instead of being silently ignored; failed registrations roll back automatically. For models with custom postprocess or vendor plugins, verify the plugin path, postprocess name, and parameter configuration before upgrading.
 
 ### Model Actions
 
 Each model card supports **Scan Models** (scan `/data/aipc/models/`) and **Load / Unload / Detail / Delete**. Confirm that the model is **Loaded** before inference; models declared in the wizard's Models section load automatically at app startup. Confirm that the model input matches the active stream configuration, and verify that the app is **Running** and produces the expected result.
+
+## Event Center
+
+The **Events** page is used to debug app event communication. The left pane hosts the topic list, subscription management, and event publishing; the right pane shows the live event stream.
+
+- **Topics**: shows the active event topics and their subscriber counts.
+- **Subscribe**: add subscription topics with wildcard support (e.g. `app/*`); with no subscription, all events are received.
+- **Publish Event**: specify a topic with a JSON payload to inject a test event into the system.
+- **Live Event Stream**: after connecting, displays each event's time, topic, and payload in order; the stream can be disconnected or cleared.
+
+Event topics and payload formats are defined by the apps; refer to the corresponding app documentation.

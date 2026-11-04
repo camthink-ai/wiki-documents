@@ -85,3 +85,7 @@ Open **Settings → Time Settings**, select the time zone, configure NTP, and cl
 <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/quick-start/qs-settings-time-settings.png" />
 
 For device maintenance, see [Device Maintenance](./2-user-guide/5-device-maintenance.md).
+
+---
+
+> This document applies to NeoRuntime v1.2.0 (OS 1.13.0). Download the firmware package `neoruntime-hailo15-<version>.tar.gz` from [Releases](https://github.com/camthink-ai/neoruntime/releases).

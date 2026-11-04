@@ -26,6 +26,12 @@ tags: [用户指南, NE503, 设备维护, 运维]
 
 DHCP 环境下，可在路由器按 MAC 地址绑定 IP。
 
+### 1.3 蜂窝网络（选配）
+
+设备搭载 4G 模块时，**Settings → Network** 显示 **Cellular** 面板；未检测到模块时该面板隐藏。
+
+面板显示模块与 SIM 状态、运营商、信号、网络接口和 IP 地址，以及 ICCID / IMEI 等卡片信息。开启 **Enable** 后设备自动完成模块上电与拨号；拨号区的 USB 网络模式（QMI / MBIM / ECM）无特殊需求保持默认。
+
 ### 1.2 时区与 NTP 配置
 
 进入 **Settings → Time** 界面：
@@ -103,6 +109,7 @@ aipc-cli app list
 aipc-cli app logs <id> -f
 aipc-cli stream list
 aipc-cli model list
+aipc-cli device rtc
 ~~~
 
-使用 `aipc-cli --help` 查看完整命令。
+使用 `aipc-cli --help` 查看完整命令。`device rtc` 读取 MCU 实时时钟并显示与系统时间的偏差，用于排查时间同步问题。

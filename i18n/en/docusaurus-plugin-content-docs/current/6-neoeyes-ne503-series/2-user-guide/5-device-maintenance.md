@@ -26,6 +26,12 @@ Go to **Settings → Network**, **IPv4 Settings** (interface eth0):
 
 In a DHCP environment, bind the device MAC address to an IP in the router.
 
+### 1.3 Cellular (Optional)
+
+When the device is equipped with a 4G module, a **Cellular** panel appears in **Settings → Network**; it is hidden when no module is detected.
+
+The panel shows module and SIM status, operator, signal, network interface and IP address, plus card details such as ICCID / IMEI. Turning on **Enable** powers the module and dials automatically; keep the USB network mode (QMI / MBIM / ECM) in the dial section at its default unless required.
+
 ### 1.2 Timezone and NTP Configuration
 
 Go to **Settings → Time**:
@@ -103,6 +109,7 @@ aipc-cli app list
 aipc-cli app logs <id> -f
 aipc-cli stream list
 aipc-cli model list
+aipc-cli device rtc
 ~~~
 
-Run `aipc-cli --help` for the complete command tree.
+Run `aipc-cli --help` for the complete command tree. `device rtc` reads the MCU real-time clock and reports its drift from system time, useful for diagnosing time synchronization issues.

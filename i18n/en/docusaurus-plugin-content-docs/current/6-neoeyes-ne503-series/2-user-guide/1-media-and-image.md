@@ -20,7 +20,11 @@ The toolbar provides volume, talk, snapshot, and full-screen controls. Talk requ
 
 ### Stream Settings
 
-Switch between **Main / Sub / Third** and adjust codec, resolution, frame rate, bitrate, and I-frame interval as needed. Lower resolution or bitrate when bandwidth is limited; disable unused streams.
+Switch between **Main / Sub / Third** and adjust codec (H.264 / H.265), resolution, frame rate, bitrate, and I-frame interval (GOP) as needed. Lower resolution or bitrate when bandwidth is limited; disable unused streams.
+
+![Stream settings: H.265 and GOP](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/media-h265-codec.png)
+
+> When the browser does not support H.265 decoding, the live view cannot be rendered and a notice is shown; the codec configuration can still be saved and RTSP pulling is unaffected.
 
 ### RTSP Streaming
 
@@ -117,7 +121,9 @@ Enable **Enable AI ISP** to enhance low-light and high-dynamic-range scenes.
 
 **ISP Settings**
 
-Manual Mode fixes exposure, gain, and white balance. Set Powerline Frequency to the local 50Hz/60Hz; adjust White Balance when colors are incorrect.
+Manual Mode fixes exposure, gain, and white balance. Set Powerline Frequency to the local 50Hz/60Hz; adjust White Balance when colors are incorrect. Noise Reduction controls the denoising strength (0–100); the setting persists across reboots.
+
+![ISP noise reduction settings](https://resources.camthink.ai/wiki/img/neoeyes-ne503-series/user-guide/media-and-image/image-noise-reduction.png)
 
 **Transform**
 
