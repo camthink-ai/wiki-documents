@@ -16,14 +16,16 @@ import SupportGrid from '@site/src/components/SupportGrid';
 
 NeoEyes NE302 is a Mini AI Vision Camera for device integration. It combines 4 MP image capture, STM32N6 edge AI, wireless connectivity and local storage on a 38 × 38 mm Main Board. A complete NE302 shipment includes the Main Board and Interface Board: the two-board device supports continuous USB Type-C power or a USB Type-C external battery pack; the Main Board can also be used for custom integration with DC power.
 
-![NE302 white enclosure with external antenna](https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-white-external-render-large-transparent.png)
+<div align="center">
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/overview/ne302-halow-external-render.png" alt="NeoEyes NE302" width="70%" />
+</div>
 
 ### Core Capabilities
 
 - **Edge AI inference**: STM32N6 Cortex-M55 and Neural-ART perform INT8 inference on the device.
 - **Image capture and encoding**: The product supports 4 MP image capture; H.264 video encoding supports up to 1920 × 1080 at 30 fps, with hardware JPEG encoding.
 - **Two-board expansion and custom integration**: The Interface Board provides the complete device with USB Type-C power, MicroSD, control and development connections for installation, maintenance and further development; the Main Board can also be used for custom integration with DC power.
-- **Wireless connectivity**: 2.4 GHz Wi-Fi 6 and Bluetooth Low Energy are supported; radio revision, antenna and regional configuration follow the delivered SKU.
+- **Wireless connectivity**: 2.4 GHz Wi-Fi 6 and Bluetooth Low Energy are supported; an optional Wi-Fi HaLow (802.11ah, 868/915 MHz Sub-GHz) interface board provides long-range, low-power connectivity. Radio revision, antenna and regional configuration follow the delivered SKU.
 - **Local storage and data delivery**: MicroSD storage and the Web console support preview, capture, model validation and device management.
 - **Lighting and extensions**: Some hardware revisions may expose supplemental lighting or extension modules. Confirm availability against the delivered SKU and firmware.
 - **Development resources**: The open engineering project contains FSBL, application, Web, model and WakeCore components for build, packaging, flashing and OTA development.
@@ -57,6 +59,7 @@ The following specifications use the NE302 datasheet as their public baseline. F
 | Item | Specification |
 | :--- | :--- |
 | Wireless | Wi-Fi 6, 802.11ax 2.4 GHz; BLE 5.3 |
+| Wireless (optional) | Wi-Fi HaLow (802.11ah, 868/915 MHz Sub-GHz, dedicated external antenna) |
 | Antenna | Standard external SMA, 3–4 dBi |
 | Storage and controls | MicroSD slot; Trigger and Reset buttons; dual-color indicators |
 
@@ -78,7 +81,7 @@ NE302 is built from the following major parts:
 | Part | Role | Notes |
 | :--- | :--- | :--- |
 | Main Board | Carries the STM32N6, WakeCore, camera and wireless-related circuits | 38 × 38 mm board baseline |
-| Interface Board | Provides power, storage, control and development connections | Interface count and layout follow the hardware revision |
+| Interface Board | Provides power, storage, control and development connections | Two hardware revisions: standard interface board and Wi-Fi HaLow interface board (with onboard HaLow module) |
 | Camera assembly | Provides the image input | Lens model and focal length follow the SKU |
 | Antenna | Provides wireless connectivity | The antenna form and connector follow the SKU |
 | Enclosure | Provides mechanical protection and mounting | Product dimensions follow the delivered mechanical record |
@@ -131,7 +134,7 @@ The Interface Board exposes the connections needed for use and development, incl
 
 Delivered versions may differ in radio revision, lens, antenna, debug interfaces and power input. Do not infer a specific SKU from a product render or generic annotated board image. Check the delivered hardware record before installation, flashing or model deployment.
 
-The current public wireless baseline is Wi-Fi 6 and Bluetooth Low Energy. A Wi-Fi HaLow-compatible version is planned, but it requires the corresponding wireless hardware and is not part of the current delivery baseline. Confirm the delivered version and hardware configuration when Wi-Fi HaLow is required.
+The current wireless baseline is Wi-Fi 6 and Bluetooth Low Energy. Wi-Fi HaLow is provided by the Wi-Fi HaLow interface board variant with an onboard HaLow module; it requires the corresponding wireless hardware and the dedicated HaLow antenna. Confirm the delivered version and hardware configuration before ordering and deployment.
 
 ## Product Applications
 

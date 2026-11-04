@@ -6,6 +6,24 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-11-04]
+
+### Changed
+- **NeoEyes NE302 Wi-Fi HaLow support**: Documented the new Wi-Fi HaLow variant across four guides — Product Information (optional Wi-Fi HaLow 802.11ah 868/915 MHz Sub-GHz in capabilities and specs, Wi-Fi HaLow interface board in the deliverables table, version notes moved from "planned" to supported), Quick Guide (dedicated HaLow antenna in hardware prep), System Maintenance (new Network Connection section covering the Communications page: Wi-Fi / Wi-Fi HaLow method, regulatory region, network scan, IP settings, radio settings; remaining sections renumbered), and Components Overview (new Wi-Fi HaLow Interface Board section with annotated front/rear board images and a component table). Overview hero image replaced with the delivered product render; five screenshots/photos on the CDN (full bilingual support).
+- **NeoEyes NE503 docs synced with NeoRuntime v1.2.0 (OS 1.13.0)**: Quick Start gains an end-of-page version note with the `neoruntime-hailo15-<version>.tar.gz` firmware naming and Releases link. Video & Imaging: stream settings now document H.264/H.265 codec selection and I-Frame Interval (GOP), with a notice that H.265 preview requires browser support while configuration and RTSP pulling are unaffected; ISP Settings add Noise Reduction (0–100, persisted). Apps & Models: the import wizard documents parse-time TOPS/memory estimates, field hover hints and automatic decoder-variant matching, with the app/OS compatibility takeover page noted under app management and a new Event Center section (topics, wildcard subscriptions, JSON publishing, live stream). Device Maintenance: new Cellular section for the optional 4G module (capability-gated panel, text only) and `aipc-cli device rtc` for MCU clock drift diagnosis; three screenshots on the CDN including an overwritten import-wizard capture (full bilingual support).
+
+## [2026-11-03]
+
+### Changed
+- **NeoEyes NE301 docs updated for firmware v4.3.1**: Quick Start restructured around the 8-module v4.3.1 firmware — new Capture Settings module (upload modes, flash record limits), firmware upgrade center rewrite (six components with the Full Bundle one-click package under Advanced Options and merged-semantics config import, condensed to essentials), always-open hotspot, RTMP enable switch with boot-time streaming, and Wi-Fi HaLow configuration with real-scan screenshots. Product Overview adds Wi-Fi HaLow support, the rain cover as the default product form, and optional HaLow/sensor-expansion modules in the deliverables table (full bilingual support).
+- **Documentation Hub**: People Counting solution card added to the homepage solutions grid with a NEW badge (full bilingual support).
+- **NeoEyes NE101 overview image**: Hero image replaced with the delivered antenna + rain cover product shot (image-only change, full bilingual support).
+
+## [2026-10-29]
+
+### Changed
+- **NeoMind model table**: Added LFM3 and Spark-1.7B to the supported model table and marked the default recommendation (full bilingual support).
+
 ## [2026-11-02]
 
 ### Added

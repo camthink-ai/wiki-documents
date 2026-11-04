@@ -134,7 +134,7 @@ STM32U0 运行 WakeCore。它使用独立的 U0 接口和 Boot 开关，不能�
 
 ## 5. 更新包和 HEX 产物
 
-设备 Web 控制台的**固件升级**页面使用打包文件。文件与升级入口的对应关系见[系统维护](../2-user-guide/3-system-maintenance.md#2-固件升级)。只上传与组件和版本匹配的包；模型与应用程序还必须使用相同的 `STEDGEAI_VARIANT`。
+设备 Web 控制台的**固件升级**页面使用打包文件。文件与升级入口的对应关系见[系统维护](../2-user-guide/3-system-maintenance.md#3-固件升级)。只上传与组件和版本匹配的包；模型与应用程序还必须使用相同的 `STEDGEAI_VARIANT`。
 
 需要生成组合烧录文件时执行：
 

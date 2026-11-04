@@ -13,7 +13,7 @@ Complete this first-use path: assemble and power the device → sign in to the W
 
 ## 1. Prepare the hardware
 
-Prepare the NE302 Main Board, Interface Board, camera assembly, the antenna for the delivered SKU, and either a continuous USB Type-C (5 V) supply or a delivery-compatible external battery pack that powers the device through USB Type-C. Add a MicroSD card when capture records must be saved, and use a computer that can reach the device network.
+Prepare the NE302 Main Board, Interface Board, camera assembly, the antenna for the delivered SKU, and either a continuous USB Type-C (5 V) supply or a delivery-compatible external battery pack that powers the device through USB Type-C. Add a MicroSD card when capture records must be saved, and use a computer that can reach the device network. The Wi-Fi HaLow variant requires the dedicated HaLow antenna; network setup is covered in [System Maintenance](./2-user-guide/3-system-maintenance.md).
 
 This procedure applies to the complete NE302 device (Main Board + Interface Board). The Main Board can also be used for a custom Main-Board-only integration and uses DC power according to the delivery record; MicroSD steps for the Interface Board do not apply.
 

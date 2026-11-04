@@ -67,6 +67,23 @@ The Interface Board includes the USB-C and MicroSD connection circuits, programm
 | N6_UART | STM32N6 serial-console connector | Use only with the matching adapter and serial procedure; the source README lists 921600 baud |
 | N6-BOOT / U0-BOOT | Programming-mode controls | Change the matching switch only while the device is unpowered |
 
+## Wi-Fi HaLow Interface Board
+
+The Wi-Fi HaLow variant uses an interface board with an onboard HaLow module (PCB silkscreen ACF13-02). The front-side power, storage and board-to-board connections match the standard interface board; the back side carries the HaLow module, antenna connector and programming controls.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', margin: '20px 0' }}>
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-halow-interface-board-front-map.png" alt="NE302 Wi-Fi HaLow interface board, front" style={{ width: '100%', borderRadius: '8px' }} />
+  <img src="https://resources.camthink.ai/wiki/img/neoeyes-ne302-series/hardware-guide/components-overview/ne302-halow-interface-board-rear-map.png" alt="NE302 Wi-Fi HaLow interface board, rear" style={{ width: '100%', borderRadius: '8px' }} />
+</div>
+
+| Component or area | Function | Use boundary |
+| :--- | :--- | :--- |
+| HaLow module | 802.11ah Sub-GHz radio (868/915 MHz) | The regulatory region is selected with the system **Region** setting; see [System Maintenance](../2-user-guide/3-system-maintenance.md) |
+| HaLow_Wifi-ANT | HaLow external antenna connector | Use the dedicated HaLow antenna delivered with the unit; do not mix antennas from other bands |
+| Main Board Connector (J3/J4) | Board-to-board connection to the Main Board | Same as the standard interface board; connect in the keyed orientation |
+| TYPE-C / TF-CARD / IR-CUT | Power, storage and IR-cut connections | Same as the standard interface board |
+| U0_STLINK / SW1 | U0 programming connector and N6/U0 BOOT switches | Same as the standard interface board; see [Hardware Connection](./1-hardware-connection.md) |
+
 ## Related resources
 
 - Board assembly, USB-C, MicroSD, N6_UART, and ST-LINK: [Hardware Connection](./1-hardware-connection.md)

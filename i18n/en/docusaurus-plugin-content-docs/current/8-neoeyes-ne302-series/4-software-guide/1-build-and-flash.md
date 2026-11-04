@@ -134,7 +134,7 @@ STM32U0 runs WakeCore. It has a separate interface and Boot switch and must not 
 
 ## 5. Update packages and HEX outputs
 
-The device Web console **Firmware Upgrade** page uses packaged files. See [System Maintenance](../2-user-guide/3-system-maintenance.md#2-firmware-upgrade) for the mapping between files and update entries. Upload only a package matching the component and version. Model and App must also use the same `STEDGEAI_VARIANT`.
+The device Web console **Firmware Upgrade** page uses packaged files. See [System Maintenance](../2-user-guide/3-system-maintenance.md#3-firmware-upgrade) for the mapping between files and update entries. Upload only a package matching the component and version. Model and App must also use the same `STEDGEAI_VARIANT`.
 
 To generate combined flashing outputs:
 
