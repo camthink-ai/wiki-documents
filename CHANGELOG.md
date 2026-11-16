@@ -9,7 +9,7 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 ## [2026-11-16]
 
 ### Changed
-- **NeoEyes NE301 flashing docs: STM32CubeProgrammer version parity**: Added the missing English version warning in the system flashing guide ("Use STM32CubeProgrammer v2.19.0; the latest version may cause flashing failures", matching the Chinese page) and marked the tool requirement as `(v2.19.0)` in the Windows + WSL build-and-flash guide (zh/en) (full bilingual support).
+- **NE301/NE302 flashing docs: STM32CubeProgrammer pinned to v2.19.0**: Audited every flashing-related guide and made the version requirement explicit and consistent — exactly `2.19.0`; newer versions are incompatible and may cause flashing failures. Added the missing English version warning in the NE301 system flashing guide (matching the Chinese page), marked the tool as `(v2.19.0)` in the NE301 Windows + WSL guide (zh/en), and corrected the NE302 environment setup page from the wrong "2.19.0 or later" wording to the pinned version while adding the same explicit note to the NE302 build-and-flash page (zh/en) (full bilingual support).
 
 ## [2026-11-04]
 

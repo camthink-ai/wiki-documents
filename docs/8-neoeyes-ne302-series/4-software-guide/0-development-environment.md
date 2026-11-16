@@ -123,7 +123,7 @@ npm install -g pnpm
 ### SigningTool 和 STM32CubeProgrammer
 
 - 从 [STM32CubeCLT](https://www.st.com/stm32cubeclt) 获取 `STM32_SigningTool_CLI`；若 CubeProgrammer 中没有该工具，不要假设已安装。
-- 从 [STM32CubeProgrammer](https://www.st.com/stm32cubeprog) 获取 `STM32_Programmer_CLI`。NE302 的 SETUP.md 要求版本 `2.19.0` 或更高。
+- 从 [STM32CubeProgrammer](https://www.st.com/stm32cubeprog) 获取 `STM32_Programmer_CLI`。版本必须为 `2.19.0`，更高版本不兼容，可能导致烧录失败。
 - Windows 的 CubeProgrammer 默认 `bin` 目录为：
 
 ```text
