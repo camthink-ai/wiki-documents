@@ -69,6 +69,8 @@ The mainboard contains two MCUs： **stm32n6** and **stm32u0**
 - STM32CubeProgrammer
 ![GUI](https://www.st.com/content/ccc/fragment/product_related/rpn_information/product_circuit_diagram/group3/0c/26/bb/21/a5/eb/4a/c7/stm32cubeprog_image/files/stm32cubeprog_image.jpg/jcr:content/translations/en.stm32cubeprog_image.jpg)
 
+> **Note**: Use STM32CubeProgrammer v2.19.0; the latest version may cause flashing failures.
+
 or CLI
 ```bash
 export DKEL="<STM32CubeProgrammer_N6 Install Folder>/bin/ExternalLoader/MX66UW1G45G_STM32N6570-DK.stldr"

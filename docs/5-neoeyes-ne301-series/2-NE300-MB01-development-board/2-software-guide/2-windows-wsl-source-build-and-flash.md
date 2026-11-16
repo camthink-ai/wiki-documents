@@ -14,7 +14,7 @@ tags: [NE301, Windows, WSL, 烧录指南, 软件开发]
    - Windows 10/11 + WSL2（推荐 Ubuntu）。
    - Docker Desktop，并在 Settings → Resources → WSL Integration 中启用对应发行版。
    - STLink 驱动安装：https://www.st.com/en/development-tools/stsw-link009.html?utm_source=chatgpt.com#get-software
-   - STM32CubeProgrammer: https://www.st.com/en/development-tools/stm32cubeprog.html#get-software （可辅助验证调试器与连接线）
+   - STM32CubeProgrammer（v2.19.0）: https://www.st.com/en/development-tools/stm32cubeprog.html#get-software （可辅助验证调试器与连接线）
 2. **克隆仓库（WSL 中完成）**
    ```bash
    git clone https://github.com/camthink-ai/ne301.git

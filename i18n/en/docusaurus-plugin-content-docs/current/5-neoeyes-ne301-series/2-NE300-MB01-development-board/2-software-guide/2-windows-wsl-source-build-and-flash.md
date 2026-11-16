@@ -15,7 +15,7 @@ Key steps are shown below:
    - Windows 10/11 + WSL2 (Ubuntu recommended).
    - Docker Desktop, and in Settings → Resources → WSL Integration, enable your distro.
    - STLink driver: https://www.st.com/en/development-tools/stsw-link009.html?utm_source=chatgpt.com#get-software
-   - STM32CubeProgrammer: https://www.st.com/en/development-tools/stm32cubeprog.html#get-software (handy for verifying the debugger and cable)
+   - STM32CubeProgrammer (v2.19.0): https://www.st.com/en/development-tools/stm32cubeprog.html#get-software (handy for verifying the debugger and cable)
 2. **Clone the repo (inside WSL)**
    ```bash
    git clone https://github.com/camthink-ai/ne301.git
