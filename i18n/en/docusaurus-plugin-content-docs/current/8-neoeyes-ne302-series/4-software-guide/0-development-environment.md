@@ -123,7 +123,7 @@ npm install -g pnpm
 ### SigningTool and STM32CubeProgrammer
 
 - Install [STM32CubeCLT](https://www.st.com/stm32cubeclt) for `STM32_SigningTool_CLI`. Do not assume it is installed if CubeProgrammer cannot find it.
-- Install [STM32CubeProgrammer](https://www.st.com/stm32cubeprog) for `STM32_Programmer_CLI`. NE302 SETUP.md specifies version `2.19.0` or later.
+- Install [STM32CubeProgrammer](https://www.st.com/stm32cubeprog) for `STM32_Programmer_CLI`. The version must be `2.19.0`; newer versions are incompatible and may cause flashing failures.
 - The default CubeProgrammer `bin` directory on Windows is:
 
 ```text

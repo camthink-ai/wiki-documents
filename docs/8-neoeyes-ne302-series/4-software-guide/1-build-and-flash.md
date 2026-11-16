@@ -84,6 +84,8 @@ STM32N6 负责 FSBL、App、Web、Model 和 WiFi。烧录顺序固定为：**先
 
 ### 执行烧录
 
+烧录由 `STM32_Programmer_CLI` 执行，版本必须为 `2.19.0`；更高版本不兼容，可能导致烧录失败。安装与 PATH 配置见[环境配置](./0-development-environment.md)。
+
 在 PC 的源码目录执行对应命令：
 
 ```bash

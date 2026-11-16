@@ -84,6 +84,8 @@ The image below labels the programming and serial interfaces on the actual Inter
 
 ### Run the flashing command
 
+Flashing runs through `STM32_Programmer_CLI`, which must be version `2.19.0`; newer versions are incompatible and may cause flashing failures. See [Environment setup](./0-development-environment.md) for installation and PATH configuration.
+
 From the source directory on the PC, run the required command:
 
 ```bash

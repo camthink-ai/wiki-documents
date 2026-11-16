@@ -45,7 +45,7 @@ make                        # 构建所有
 - pnpm 9+
 - STM32CubeProgrammer(v2.19.0)
 - STM32_SigningTool_CLI(v2.19.0)
-- stedgeai(v2.2,stedgeai0202.stneuralart)
+- stedgeai（v2.2 / v3.0 / v4.0，须与 `STEDGEAI_VARIANT` 匹配）
 
 ```bash
 # 1. 检查环境
