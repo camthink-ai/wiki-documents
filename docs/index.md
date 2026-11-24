@@ -34,7 +34,7 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
     </a>
     <a href="#products" className="build-step">
       <h3>硬件</h3>
-      <p>五款 AI 相机与边缘计算主机的选型、规格与快速入门。</p>
+      <p>AI 相机、边缘计算主机与电子纸标牌的选型、规格与快速入门。</p>
       <span className="step-link">查看产品入口 →</span>
     </a>
     <a href="#oss" className="build-step">
@@ -197,6 +197,29 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
         </div>
       </div>
     </div>
+
+    {/* EK410 */}
+    <div className="category-card">
+      <Link to="/docs/epaper-ek410-series/ek410-overview" className="cat-header">
+        <img src="/img/home/hw/ek410.webp" style={{height: '80px', pointerEvents: 'none'}} alt="EK410" />
+      </Link>
+      <div className="cat-body">
+        <div className="cat-title">E-Paper EK410 <span className="update-badge">NEW</span></div>
+        <div className="cat-desc">7.09″ Spectra 6 六色电子纸标牌：SoftAP / BLE 配网，浏览器推屏，可接 NeoMind。</div>
+        <div className="chip-row">
+          <span className="chip">ESP32-C61</span>
+          <span className="chip">Spectra 6</span>
+          <span className="chip">Wi‑Fi / BLE</span>
+          <span className="chip">电池供电</span>
+        </div>
+        <div className="cat-links">
+          <Link to="/docs/epaper-ek410-series/ek410-overview" className="cat-link-item">产品概述</Link>
+          <Link to="/docs/epaper-ek410-series/ek410-quick-start" className="cat-link-item">快速入门</Link>
+          <Link to="/docs/epaper-ek410-series/user-guide/ek410-display-content" className="cat-link-item">内容显示</Link>
+          <Link to="/docs/epaper-ek410-series/hardware-guide/ek410-specifications" className="cat-link-item">硬件规格</Link>
+        </div>
+      </div>
+    </div>
   </div>
 
   {/* ================= Open-Source Resources ================= */}
@@ -218,6 +241,12 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
       <h3>NE302 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></h3>
       <div className="oss-links">
       <a href="https://github.com/camthink-ai/ne302" target="_blank" rel="noopener noreferrer" className="oss-link"><span className="repo">ne302</span><span className="repo-desc">嵌入式固件</span></a>
+      </div>
+    </div>
+    <div className="oss-card">
+      <h3>EK410 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></h3>
+      <div className="oss-links">
+      <a href="https://github.com/camthink-ai/EK410" target="_blank" rel="noopener noreferrer" className="oss-link"><span className="repo">EK410</span><span className="repo-desc">电子纸标牌固件</span></a>
       </div>
     </div>
     <div className="oss-card">
@@ -280,6 +309,11 @@ import VideoCarousel from '@site/src/components/VideoCarousel';
   {/* ================= Latest Updates ================= */}
   <h2 className="docs-section-title">最新文档</h2>
   <div className="latest-docs-grid">
+    <Link to="/docs/epaper-ek410-series/ek410-overview" className="update-card">
+      <span className="update-badge">NEW</span>
+      <div className="update-title">E-Paper EK410 系列文档</div>
+      <div className="update-meta"><span>硬件产品</span></div>
+    </Link>
     <Link to="/docs/edge-ai-solutions/people-counting/solution-description" className="update-card">
       <span className="update-badge">NEW</span>
       <div className="update-title">人数统计解决方案</div>

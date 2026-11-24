@@ -63,6 +63,10 @@
     "message": "NeoEyes NE302 Series",
     "description": "The label for category NeoEyes NE302 Series in sidebar tutorialSidebar"
   },
+  "sidebar.tutorialSidebar.category.E-Paper EK410 Series": {
+    "message": "E-Paper EK410 Series",
+    "description": "The label for category E-Paper EK410 Series in sidebar tutorialSidebar"
+  },
   "sidebar.tutorialSidebar.category.User Guide.link.generated-index.description": {
     "message": "Configure and operate the NE302 Web console.",
     "description": "The generated-index page description for category User Guide in sidebar tutorialSidebar"

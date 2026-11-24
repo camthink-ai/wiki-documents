@@ -41,6 +41,11 @@ module.exports = {
       quickStart: '/docs/neoeyes-ne101-series/quick-start',
       store: 'https://www.camthink.ai/store/neoeyes-ne101/',
     },
+    ek410: {
+      overview: '/docs/epaper-ek410-series/ek410-overview',
+      quickStart: '/docs/epaper-ek410-series/ek410-quick-start',
+      store: 'https://www.camthink.ai/store/',
+    },
   },
 
   neomind: {

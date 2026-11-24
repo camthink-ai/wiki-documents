@@ -6,7 +6,26 @@
 
 > 本更新日志自 **2025-12-23** 起开始记录，此前的历史变更未作追溯。
 
+## [2026-11-24]
+
+### 变更
+- **Wiki Hub 开源资源**：新增 [camthink-ai/EK410](https://github.com/camthink-ai/EK410)；产品信息 / 硬件规格 / 开发环境页补充固件仓库链接（中英文）。
+- **E-Paper EK410 文档对齐固件 1.3.10 审计**：SoftAP SSID = SoftAP MAC（区别于 STA `devMac`）；BLE 广播名 `EK410-XXXXXX`；`getDiag`；baseline JPEG / PSRAM `max block` / 5 次跳转；短按重布防在线窗；`evtlog` 分区；QA 工具（`run_host_tests` / `fix_verification` / `qa_gate`）（中英文）。
+- **E-Paper EK410 系列命名**：侧栏 / i18n 分类由 `E-ink EK410 Series` 更名为 `E-Paper EK410 Series`；文档目录与 URL 同步改为 `7-epaper-ek410-series` / `epaper-ek410-series`。
+- **E-Paper EK410 产品图**：产品信息页接入渲染图（正面 / 斜视 / 背面）与屏幕效果图（六色样张、场景示意），资源位于 `static/img/epaper-ek410-series/overview/`（中英文）。
+- **E-Paper EK410 Web 截图重拍**：操作截图改为桌面英文界面，预览区按 1600×1200（4:3）取景；站点默认语言顺序调整为 English 优先。
+- **首页 EK410 入口**：产品网格与 Footer 硬件列表新增 EK410；修复「找到你的产品」点击图片时 medium-zoom 与路由跳转冲突（跳转后图片卡住需刷新）——收窄 zoom 选择器并为首页图加 `no-zoom`。
+- **E-Paper EK410 对齐产品画册**：产品信息 / 硬件规格补齐标牌定位、有效区 108×144 mm、282 PPI、25–35 s 全刷、5000 mAh / 约 6 个月续航、外形 185×149×14 mm、包装清单与商用场景表述（中英文）。
+- **E-Paper EK410 系列对齐固件 v1.3.10**：热点 SSID 更正为 `EK410_<MAC6>`，空闲约 2 分钟 / 最长约 15 分钟；补充与 SoftAP 互斥的 BLE CT-Prov（NeoLinker）；电源模式写清可配置 `wakeSec`（默认 120）、MAIN/PAGE 唤醒与完整指示灯；出厂重置改为 MAIN+PAGE 持续 6 秒 / 开机 BOOT；OTA 轮询 `otaState`/`otaError`；HTTP/MQTT 对齐 `hasPassword`、`openBleProv`、`/ctprov`、事件日志与无鉴权说明（中英文完整支持）。
+- **E-Paper EK410 操作截图**：新增 Web 控制台截图（概览 / 网络 / 显示·图片·编辑器·Markdown / 系统）至 `static/img/epaper-ek410-series/`，并嵌入快速入门与用户指南（中英文）。来自局域网实机；SoftAP 下界面相同。
+- **E-Paper EK410 逐步操作文档**：快速入门与用户指南扩写为逐步点击说明（字段表、指示灯、Wi‑Fi 试连 / MQTT / 三种推屏 / 电源模式 / OTA 与出厂）（中英文完整支持）。
+- **E-Paper EK410 去掉文档导读**：系列页 `Documentation Guide` 与快速入门重叠，已删除（中英文）。
+- **首页产品网格**：六款硬件改为桌面 3×2（原一行六列过挤），产品图区略增高、操作链可换行。
+
 ## [2026-11-16]
+
+### 新增
+- **E-Paper EK410 系列（新产品）**：硬件产品分类新增 `E-Paper EK410 Series`（`docs/7-epaper-ek410-series/`），覆盖 CamThink 7.09″ 六色电子墨水屏（ESP32-C61，设备类型 `ek410_Eink`）的产品信息、快速入门、用户指南、硬件指南与软件指南；已写入侧栏（中英文完整支持）。后续已对齐固件 v1.3.10（见 2026-11-24）。
 
 ### 变更
 - **NE301/NE302 烧录文档 STM32CubeProgrammer 钉死 v2.19.0**:全面审计烧录相关文档,版本要求统一改为明确且一致——必须为 `2.19.0`,更高版本不兼容、可能导致烧录失败。补上 NE301 英文系统烧录指南缺失的版本警示(与中文页一致),NE301 Windows + WSL 指南工具条目标注 `(v2.19.0)`(中英),纠正 NE302 环境配置页错误的「2.19.0 或更高」表述为钉死版本,并在 NE302 构建烧录页加入同样的明确版本要求;另补全 NE301 开发环境 stedgeai 要求(v2.2 / v3.0 / v4.0,须与 `STEDGEAI_VARIANT` 匹配),与上游 README 对齐(中英文完整支持)。

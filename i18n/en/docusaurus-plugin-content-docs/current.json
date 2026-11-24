@@ -63,6 +63,10 @@
     "message": "NeoEyes NE101 Series",
     "description": "The label for category NeoEyes NE101 Series in sidebar tutorialSidebar"
   },
+  "sidebar.tutorialSidebar.category.E-Paper EK410 Series": {
+    "message": "E-Paper EK410 Series",
+    "description": "The label for category E-Paper EK410 Series in sidebar tutorialSidebar"
+  },
   "sidebar.tutorialSidebar.category.NE200": {
     "message": "NE200",
     "description": "The label for category NE200 in sidebar tutorialSidebar"

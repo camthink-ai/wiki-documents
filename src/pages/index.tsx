@@ -17,13 +17,14 @@ import '../css/welcome.css';
  * Navbar 与 Footer 沿用全站组件，本页不重复实现。
  */
 
-/** 产品网格 —— 顺序与参考稿一致；small = 方形小图，medium = 竖版长图略缩 */
+/** 产品网格；small = 方形小图，medium = 竖版长图略缩，wide = 横图略缩 */
 const PRODUCTS = [
     { id: 'ne302', name: 'NE302', image: '/img/home/hw/ne302.webp', medium: true },
     { id: 'ne301', name: 'NE301', image: '/img/home/hw/ne301.webp', small: true },
     { id: 'ne503', name: 'NE503', image: '/img/home/hw/ne503.webp' },
     { id: 'ne101', name: 'NE101', image: '/img/home/hw/ne101.webp', small: true },
-    { id: 'ng4500', name: 'NG4500', image: '/img/home/hw/ng4500.webp' },
+    { id: 'ng4500', name: 'NG4500', image: '/img/home/hw/ng4500.webp', wide: true },
+    { id: 'ek410', name: 'EK410', image: '/img/home/hw/ek410.webp' },
 ] as const;
 
 /** 「你想构建什么」—— 引用 Edge AI 解决方案，路径与 Footer 同源（siteLinks.solutionCases），缩略图取自各方案文档 */
@@ -182,7 +183,7 @@ export default function Home(): JSX.Element {
                                             src={p.image}
                                             alt={p.name}
                                             loading="lazy"
-                                            className={p.small ? 'img-small' : p.medium ? 'img-medium' : undefined}
+                                            className={`no-zoom${p.small ? ' img-small' : p.medium ? ' img-medium' : 'wide' in p && p.wide ? ' img-wide' : ''}`}
                                         />
                                     </Link>
                                     <h3>
@@ -216,7 +217,7 @@ export default function Home(): JSX.Element {
                     })}>
                         <article className="software-card">
                             <img
-                                className="dashboard-shot"
+                                className="dashboard-shot no-zoom"
                                 src="/img/home/neomind-dashboard.webp"
                                 alt="NeoMind platform dashboard"
                                 loading="lazy"
@@ -237,7 +238,7 @@ export default function Home(): JSX.Element {
 
                         <article className="software-card">
                             <img
-                                className="dashboard-shot"
+                                className="dashboard-shot no-zoom"
                                 src="/img/home/aitoolstack.webp"
                                 alt="AI ToolStack"
                                 loading="lazy"
@@ -285,7 +286,7 @@ export default function Home(): JSX.Element {
                             {SOLUTIONS.map((t) => (
                                 <Link key={t.id} className="task-card" to={SOLUTION_PATHS[t.id]}>
                                     <div className="task-thumb">
-                                        <img src={t.image} alt="" loading="lazy" />
+                                        <img src={t.image} alt="" loading="lazy" className="no-zoom" />
                                     </div>
                                     <div className="task-body">
                                         <h3>{t.title}</h3>

@@ -49,6 +49,7 @@ const COLUMNS: FooterColumn[] = [
       { key: 'ne301', label: 'NeoEyes NE301', to: LINKS.products.ne301.overview },
       { key: 'ne302', label: 'NeoEyes NE302', to: LINKS.products.ne302.overview },
       { key: 'ne101', label: 'NeoEyes NE101', to: LINKS.products.ne101.overview },
+      { key: 'ek410', label: 'E-Paper EK410', to: LINKS.products.ek410.overview },
     ],
   },
   {

@@ -225,10 +225,11 @@
 }
 
 /* ---------- 产品网格 ---------- */
+/* 6 款产品：桌面 3×2，避免一行六列把图和链接挤扁 */
 .product-grid {
     display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 28px 32px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .software-card,
@@ -244,9 +245,9 @@
 .product-image {
     align-items: center;
     display: flex;
-    height: 158px;
+    height: 168px;
     justify-content: center;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .product-image img {
@@ -269,35 +270,42 @@
 }
 
 .product-image img {
-    max-height: 148px;
-    max-width: 84%;
+    max-height: 156px;
+    max-width: 88%;
     object-fit: contain;
 }
 
 .product-image img.img-small {
-    max-height: 92px;
-    width: 92px;
+    max-height: 110px;
+    width: 110px;
 }
 
 /* NE302 竖版长图，略小于普通产品图 */
 .product-image img.img-medium {
-    max-height: 122px;
+    max-height: 138px;
+}
+
+/* NG4500 等横版机箱图：只压高度，不锁成方图 */
+.product-image img.img-wide {
+    max-height: 108px;
+    max-width: 78%;
 }
 
 .product-card h3 {
     font-size: 20px;
-    margin: 12px 0 18px;
+    margin: 10px 0 14px;
 }
 
 .product-actions {
     display: flex;
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
     justify-content: center;
 }
 
 .product-actions a {
     color: var(--ink);
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 500;
     padding: 2px;
     white-space: nowrap;
@@ -544,8 +552,8 @@
         gap: 24px;
     }
 
-    .product-actions {
-        flex-wrap: wrap;
+    .product-grid {
+        gap: 24px 20px;
     }
 
     .software-card {
@@ -587,23 +595,42 @@
 
     .product-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px 16px;
     }
 
     .product-image {
-        height: 136px;
+        height: 140px;
     }
 
     .product-image img {
-        max-height: 126px;
+        max-height: 128px;
     }
 
     .product-image img.img-small {
-        max-height: 84px;
-        width: 84px;
+        max-height: 96px;
+        width: 96px;
     }
 
     .product-image img.img-medium {
         max-height: 120px;
+    }
+
+    .product-image img.img-wide {
+        max-height: 92px;
+        max-width: 72%;
+    }
+
+    .product-card h3 {
+        font-size: 18px;
+        margin: 8px 0 12px;
+    }
+
+    .product-actions {
+        gap: 6px 12px;
+    }
+
+    .product-actions a {
+        font-size: 12.5px;
     }
 
     .bottom-grid,

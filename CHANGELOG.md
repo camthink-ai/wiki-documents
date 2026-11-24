@@ -6,7 +6,26 @@ All notable changes to the CamThink Wiki documentation will be documented in thi
 
 > This changelog reflects updates starting from **2025-12-23**. Major changes prior to this date are not recorded.
 
+## [2026-11-24]
+
+### Changed
+- **Wiki hub open-source list**: Added [camthink-ai/EK410](https://github.com/camthink-ai/EK410) under Open-Source Resources; Product Information / Hardware Specs / Development Environment now link the firmware repo (CN/EN).
+- **E-Paper EK410 docs aligned to firmware 1.3.10 audit**: SoftAP SSID = SoftAP MAC (vs STA `devMac`); BLE advertise `EK410-XXXXXX`; `getDiag`; baseline JPEG / PSRAM `max block` / 5 redirects; short-press re-arms online window; `evtlog` partition; QA tools (`run_host_tests` / `fix_verification` / `qa_gate`) (CN/EN).
+- **E-Paper EK410 Series naming**: Sidebar / i18n category label renamed from `E-ink EK410 Series` to `E-Paper EK410 Series`; doc folder and URL updated to `7-epaper-ek410-series` / `epaper-ek410-series`.
+- **E-Paper EK410 product imagery**: Product Information page now includes product renders (front / angles / rear) and display-effect shots (six-color samples, scenario mockups) under `static/img/epaper-ek410-series/overview/` (CN/EN).
+- **E-Paper EK410 Web screenshots retaken**: Operation screenshots now use the desktop English UI with the panel preview locked to 1600×1200 (4:3); site locale order prefers English first.
+- **Homepage EK410 entry**: Added EK410 to the product grid and Footer hardware list; fixed Find-your-product click where medium-zoom raced Link navigation (zoomed image stuck until refresh) by narrowing the zoom selector and marking homepage images `no-zoom`.
+- **E-Paper EK410 aligned to product brochure**: Product Information / hardware specs now include signage positioning, 108×144 mm active area, 282 PPI, 25–35 s refresh, 5000 mAh / ~6-month life, 185×149×14 mm mechanics, package list and commercial scenarios (CN/EN).
+- **E-Paper EK410 Series synced to firmware v1.3.10**: Corrected SoftAP SSID to `EK410_<MAC6>`, idle ~2 min / hard max ~15 min; documented BLE CT-Prov (NeoLinker) mutually exclusive with SoftAP; power modes now include configurable `wakeSec` (default 120), MAIN/PAGE wake paths and full LED colors; factory reset via MAIN+PAGE 6 s / boot BOOT; OTA polling `otaState`/`otaError`; HTTP/MQTT aligned with `hasPassword`, `openBleProv`, `/ctprov`, event log and unauthenticated API note. Full bilingual CN/EN.
+- **E-Paper EK410 operation screenshots**: Added Web console captures (Overview / Network / Display image·editor·Markdown / System) under `static/img/epaper-ek410-series/` and embedded them in Quick Guide + User Guide (CN/EN). Captured from a live unit on LAN; SoftAP UI is the same.
+- **E-Paper EK410 step-by-step user docs**: Expanded Quick Guide and User Guide into click-by-click procedures with field tables, LED meanings, Wi-Fi try-connect / MQTT / three display modes / power modes / OTA & factory reset. Full bilingual CN/EN.
+- **E-Paper EK410 Documentation Guide removed**: Redundant with Quick Guide; deleted CN/EN pages.
+- **Homepage product grid**: Six hardware cards use a desktop 3×2 layout (was one cramped row of six); taller image well and wrapping action links.
+
 ## [2026-11-16]
+
+### Added
+- **E-Paper EK410 Series (new product)**: New Hardware Products category `E-Paper EK410 Series` (`docs/7-epaper-ek410-series/`) for the CamThink 7.09″ six-color e-paper display (ESP32-C61, device type `ek410_Eink`): Product Information, Quick Guide, User Guide, Hardware Guide and Software Guide. Initially sourced from firmware docs; later synced to v1.3.10 (see 2026-11-24). Registered in the sidebar (full bilingual support).
 
 ### Changed
 - **NE301/NE302 flashing docs: STM32CubeProgrammer pinned to v2.19.0**: Audited every flashing-related guide and made the version requirement explicit and consistent — exactly `2.19.0`; newer versions are incompatible and may cause flashing failures. Added the missing English version warning in the NE301 system flashing guide (matching the Chinese page), marked the tool as `(v2.19.0)` in the NE301 Windows + WSL guide (zh/en), and corrected the NE302 environment setup page from the wrong "2.19.0 or later" wording to the pinned version while adding the same explicit note to the NE302 build-and-flash page (zh/en). Also completed the NE301 dev-environment stedgeai requirement (v2.2 / v3.0 / v4.0, must match `STEDGEAI_VARIANT`), aligning with the upstream README (full bilingual support).

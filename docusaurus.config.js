@@ -106,10 +106,10 @@ const config = {
   /* -------------------------------------------------- */
   i18n: {
     defaultLocale: 'en',
-    locales: ['zh-Hans', 'en'],
+    locales: ['en', 'zh-Hans'],
     localeConfigs: {
-      'zh-Hans': { htmlLang: 'zh-Hans', label: '中文' },
       en: { htmlLang: 'en-US', label: 'English' },
+      'zh-Hans': { htmlLang: 'zh-Hans', label: '中文' },
     },
   },
 
@@ -190,7 +190,10 @@ const config = {
         },
       },
       zoom: {
-        selector: '.markdown img:not(.no-zoom), article img:not(.no-zoom), .theme-doc-markdown img:not(.no-zoom)',
+        // Exclude homepage: product cards use <article>, so bare `article img` was
+        // triggering medium-zoom on click while Link also navigated — zoom stuck until refresh.
+        selector:
+          '.markdown img:not(.no-zoom), .theme-doc-markdown img:not(.no-zoom), article:not(.product-card):not(.software-card):not(.task-card) img:not(.no-zoom)',
         background: { light: 'rgba(255, 255, 255, 0.9)', dark: 'rgba(0, 0, 0, 0.8)' },
         config: { margin: 24, scrollOffset: 0 },
       },
